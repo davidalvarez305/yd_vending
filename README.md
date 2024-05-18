@@ -1,0 +1,1 @@
+Budgeting app for tracking expenses.
