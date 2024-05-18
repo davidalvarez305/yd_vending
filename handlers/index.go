@@ -2,12 +2,9 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/davidalvarez305/budgeting/constants"
 	"github.com/davidalvarez305/budgeting/helpers"
-	"github.com/davidalvarez305/budgeting/models"
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,41 +37,27 @@ func PostIndex(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Form cannot be parsed.", http.StatusBadRequest)
 		return
 	}
 
-	expense := models.Expense{
-		ExpenseAmount:   parseInt(r.Form.Get("expenseAmount")),
-		ExpenseCategory: parseInt(r.Form.Get("expenseCategory")),
-		ExpenseDate:     parseDateTime(r.Form.Get("expenseDate")),
-		ExpenseComments: r.Form.Get("expenseComments"),
+	transaction, err := helpers.ParseTransaction(r.Form)
+
+	if err != nil {
+		http.Error(w, "Error parsing transaction.", http.StatusInternalServerError)
+		return
 	}
 
 	fileName := "form.html"
 
-	err = helpers.BuildFile(fileName, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, expense)
+	err = helpers.BuildFile(fileName, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, transaction)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error building HTML file.", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	http.ServeFile(w, r, constants.PUBLIC_DIR+fileName)
-}
-
-func parseInt(s string) int {
-	i := 0
-	if s != "" {
-		i, _ = strconv.Atoi(s)
-	}
-	return i
-}
-
-func parseDateTime(s string) time.Time {
-	layout := "2006-01-02T15:04" // datetime-local input format
-	t, _ := time.Parse(layout, s)
-	return t
 }
