@@ -1,0 +1,102 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Contact Section: Simple Boxed -->
+<div class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
+    <div class="container mx-auto space-y-16 px-4 py-4 lg:px-8">
+        <!-- Heading -->
+        <div class="text-center">
+            <div class="mb-1 text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-primary">
+                Start here...
+            </div>
+            <h2 class="mb-4 text-4xl font-black text-black dark:text-white">
+                Get Your Quote
+            </h2>
+            <h3 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 dark:text-gray-300 lg:w-2/3">
+                Fill out some basic info and we'll be right with you.
+            </h3>
+        </div>
+        <!-- END Heading -->
+
+        <!-- Quote Form -->
+        <div class="mx-auto flex w-3/4 max-w-xl flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+            <form id="get-a-quote-form" class="space-y-6 p-5 md:p-10">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="space-y-1">
+                        <label for="first_name" class="font-medium">First Name</label>
+                        <input type="text" id="first_name" name="first_name" required
+                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                    </div>
+                    <div class="space-y-1">
+                        <label for="last_name" class="font-medium">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" required
+                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label for="phone_number" class="font-medium">Phone Number</label>
+                    <input type="tel" id="phone_number" name="phone_number" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                </div>
+                <div class="space-y-1">
+                    <label for="service" class="font-medium">Service</label>
+                    <select id="service" name="service" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                        {% for service in services %}
+                        <option value="{{ service.id }}">{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label for="location" class="font-medium">City</label>
+                    <select id="location" name="location" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                        {% for location in locations %}
+                        <option value="{{ location.id }}">{{ location.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label for="message" class="font-medium">Message</label>
+                    <textarea id="message" name="message" rows="6" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary"></textarea>
+                </div>
+                <div class="space-y-1">
+                    <label for="file_upload" class="font-medium">Upload File</label>
+                    <input type="file" id="file_upload" name="file_upload" accept=".jpg,.jpeg,.png,.webp"  multiple
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                </div>
+                <button type="submit"
+                    class="inline-flex w-full items-center justify-center space-x-2 rounded-lg border border-blue-700 bg-blue-700 px-8 py-4 font-semibold leading-6 text-white hover:border-blue-600 hover:bg-blue-600 hover:text-white focus:ring focus:ring-blue-400 focus:ring-opacity-50 active:border-blue-700 active:bg-blue-700 dark:focus:ring-blue-400 dark:focus:ring-opacity-90">
+                    <svg class="hi-mini hi-paper-airplane inline-block h-5 w-5 opacity-50"
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                            d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
+                    </svg>
+                    <span>Send Message</span>
+                </button>
+            </form>
+        </div>
+        <!-- END Quote Form -->
+    </div>
+</div>
+
+<div id="alertModal" style="display:none;"></div>
+
+<script type="module">
+    import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+    window.uuidv4 = uuidv4;
+</script>
+
+<script>
+    fetch('/quote', { ...params })
+    .then(resp => resp.text())
+    .then(data => {
+        const alertModal = document.getElementById('alertModal');
+        alertModal.style.display = "";
+        alertModal.outerHTML = data;
+    })
+</script>
+
+{% endblock %}

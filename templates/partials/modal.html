@@ -1,0 +1,39 @@
+<!-- Alert Modal -->
+<div id="alertModal" style="display:none;">
+    <div tabindex="-1" role="dialog"
+        class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-75 p-4 backdrop-blur-sm lg:p-8">
+        <div role="document"
+            class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+            <div
+                class="rounded bg-emerald-100 p-4 text-emerald-700 dark:bg-emerald-900 dark:bg-opacity-75 dark:text-emerald-100 md:p-5">
+                <div class="flex items-center justify-between">
+                    <div class="mb-2 flex items-center">
+                        <svg class="hi-solid hi-check-circle mr-3 inline-block h-5 w-5 flex-none text-emerald-500 dark:text-emerald-400"
+                            fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <h3 class="font-semibold">Quote request sent successfully!</h3>
+                    </div>
+                    <div class="-my-4">
+                        <button id="closeModal" type="button" class="inline-flex items-center justify-center space-x-2 rounded-lg border border-transparent px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300 focus:ring-opacity-25 active:border-gray-200 active:shadow-none dark:border-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600 dark:focus:ring-opacity-40 dark:active:border-gray-700">
+                            <svg class="hi-solid hi-x -mx-1 inline-block h-4 w-4" fill="currentColor"
+                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <p class="ml-8">
+                    In the mean time, you can learn more about us in the
+                    <a class="text-emerald-600 underline hover:text-emerald-400 dark:text-emerald-400 dark:hover:text-emerald-300"
+                        href="/">home page</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Alert Modal -->
