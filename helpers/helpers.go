@@ -1,14 +1,8 @@
 package helpers
 
 import (
-	"errors"
 	"html/template"
-	"net/url"
 	"os"
-	"strconv"
-	"time"
-
-	"github.com/davidalvarez305/budgeting/models"
 )
 
 func BuildFile(fileName, publicFilePath, templateFilePath string, data any) error {
@@ -40,7 +34,7 @@ func BuildFile(fileName, publicFilePath, templateFilePath string, data any) erro
 	return err
 }
 
-func parseInt(s string) (int, error) {
+/* func parseInt(s string) (int, error) {
 	i := 0
 	if s != "" {
 		return strconv.Atoi(s)
@@ -57,7 +51,7 @@ func parseBool(s string) (bool, error) {
 	return strconv.ParseBool(s)
 }
 
-func ParseTransaction(form url.Values) (models.Transaction, error) {
+func ParseTransaction(form url.Values) (models.Lead, error) {
 	var transaction models.Transaction
 
 	amount, err := parseInt(form.Get("amount"))
@@ -100,4 +94,4 @@ func ParseTransaction(form url.Values) (models.Transaction, error) {
 	}
 
 	return transaction, err
-}
+} */

@@ -42,9 +42,10 @@ func Connect() (*gorm.DB, error) {
 	}
 
 	db.AutoMigrate(
-		&models.User{},
-		&models.Transaction{},
-		&models.Category{},
+		&models.Lead{},
+		&models.LeadMarketing{},
+		&models.VendingType{},
+		&models.VendingLocation{},
 	)
 
 	DB = *db

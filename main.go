@@ -18,7 +18,7 @@ func main() {
 		log.Fatalf("ERROR LOADING ENV FILE: %+v\n", err)
 	}
 
-	db, err := database.Connect()
+	_, err = database.Connect()
 
 	if err != nil {
 		log.Fatalf("ERROR CONNECTING TO DB: %+v\n", err)

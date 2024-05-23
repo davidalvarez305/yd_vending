@@ -9,7 +9,7 @@ import (
 func Router() *http.ServeMux {
 	router := http.NewServeMux()
 
-	router.HandleFunc("/", handlers.IndexHandler)
+	router.HandleFunc("/", handlers.WebsiteHandler)
 
 	return router
 }

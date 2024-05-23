@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 // Vending machine, ice machine, coffee machine, snack machine, healthy snack machine, etc...
 type VendingType struct {
 	VendingTypeID int    `gorm:"primaryKey;column:vending_type_id" json:"vending_type_id"`
@@ -11,7 +9,7 @@ type VendingType struct {
 // Barbershop, office building, gym, etc...
 type VendingLocation struct {
 	VendingLocationID int    `gorm:"primaryKey;column:vending_location_id" json:"vending_location_id"`
-	LocationType      string `gorm:"unique;not null;column:"location_type" json:"location_type"`
+	LocationType      string `gorm:"unique;not null;column:location_type" json:"location_type"`
 }
 
 type Lead struct {
@@ -32,27 +30,27 @@ type Lead struct {
 }
 
 type LeadMarketing struct {
-	MarketingID   int    `gorm:"primaryKey;column:marketing_id" json:"marketing_id"`
-	LeadID        int    `gorm:"not null;column:lead_id;foreignKey:LeadID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE" json:"lead_id"`
-	Source        string `gorm:"column:source" json:"source"`
-	Medium        string `gorm:"column:medium" json:"medium"`
-	Channel       string `gorm:"column:channel" json:"channel"`
-	LandingPage   string `gorm:"column:landing_page" json:"landing_page"`
-	Keyword       string `gorm:"column:keyword" json:"keyword"`
-	Referrer      string `gorm:"column:referrer" json:"referrer"`
-	Gclid         string `gorm:"column:gclid" json:"gclid"`
-	CampaignID    string `gorm:"column:campaign_id" json:"campaign_id"`
-	AdCampaign    string `gorm:"column:ad_campaign" json:"ad_campaign"`
-	AdGroupID     string `gorm:"column:ad_group_id" json:"ad_group_id"`
-	AdGroupName   string `gorm:"column:ad_group_name" json:"ad_group_name"`
-	AdSetID       string `gorm:"column:ad_set_id" json:"ad_set_id"`
-	AdSetName     string `gorm:"column:ad_set_name" json:"ad_set_name"`
-	AdID          string `gorm:"column:ad_id" json:"ad_id"`
-	AdHeadline    string `gorm:"column:ad_headline" json:"ad_headline"`
-	Language      string `gorm:"column:language" json:"language"`
-	OS            string `gorm:"column:os" json:"os"`
-	UserAgent     string `gorm:"column:user_agent" json:"user_agent"`
-	ButtonClicked string `gorm:"column:button_clicked" json:"button_clicked"`
-	DeviceType    string `gorm:"column:device_type" json:"device_type"`
-	IP            string `gorm:"column:ip" json:"ip"`
+	LeadMarketingID int    `gorm:"primaryKey;column:lead_marketing_id" json:"lead_marketing_id"`
+	LeadID          int    `gorm:"not null;column:lead_id;foreignKey:LeadID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE" json:"lead_id"`
+	Source          string `gorm:"column:source" json:"source"`
+	Medium          string `gorm:"column:medium" json:"medium"`
+	Channel         string `gorm:"column:channel" json:"channel"`
+	LandingPage     string `gorm:"column:landing_page" json:"landing_page"`
+	Keyword         string `gorm:"column:keyword" json:"keyword"`
+	Referrer        string `gorm:"column:referrer" json:"referrer"`
+	Gclid           string `gorm:"column:gclid" json:"gclid"`
+	CampaignID      string `gorm:"column:campaign_id" json:"campaign_id"`
+	AdCampaign      string `gorm:"column:ad_campaign" json:"ad_campaign"`
+	AdGroupID       string `gorm:"column:ad_group_id" json:"ad_group_id"`
+	AdGroupName     string `gorm:"column:ad_group_name" json:"ad_group_name"`
+	AdSetID         string `gorm:"column:ad_set_id" json:"ad_set_id"`
+	AdSetName       string `gorm:"column:ad_set_name" json:"ad_set_name"`
+	AdID            string `gorm:"column:ad_id" json:"ad_id"`
+	AdHeadline      string `gorm:"column:ad_headline" json:"ad_headline"`
+	Language        string `gorm:"column:language" json:"language"`
+	OS              string `gorm:"column:os" json:"os"`
+	UserAgent       string `gorm:"column:user_agent" json:"user_agent"`
+	ButtonClicked   string `gorm:"column:button_clicked" json:"button_clicked"`
+	DeviceType      string `gorm:"column:device_type" json:"device_type"`
+	IP              string `gorm:"column:ip" json:"ip"`
 }

@@ -1,6 +1,4 @@
-{% extends "blog/base.html" %}
-{% load static %}
-{% block content %}
+{{ define "content" }}
 <!-- Contact Section: Simple Boxed -->
 <div class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
     <div class="container mx-auto space-y-16 px-4 py-4 lg:px-8">
@@ -21,7 +19,6 @@
         <!-- Quote Form -->
         <div class="mx-auto flex w-3/4 max-w-xl flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <form id="get-a-quote-form" class="space-y-6 p-5 md:p-10">
-                {% csrf_token %}
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="space-y-1">
                         <label for="first_name" class="font-medium">First Name</label>
@@ -43,29 +40,26 @@
                     <label for="service" class="font-medium">Service</label>
                     <select id="service" name="service" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
-                        {% for service in services %}
-                        <option value="{{ service.id }}">{{ service.name }}</option>
-                        {% endfor %}
+                        <option value="vending_machine">Vending Machine</option>
+                        <option value="ice_machine">Ice Machine</option>
+                        <option value="coffee_machine">Coffee Machine</option>
+                        <option value="atm">ATM</option>
                     </select>
                 </div>
                 <div class="space-y-1">
                     <label for="location" class="font-medium">City</label>
                     <select id="location" name="location" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
-                        {% for location in locations %}
-                        <option value="{{ location.id }}">{{ location.name }}</option>
-                        {% endfor %}
+                        <option value="miami">Miami</option>
+                        <option value="hialeah">Hialeah</option>
+                        <option value="miami_lakes">Miami Lakes</option>
+                        <option value="doral">Doral</option>
                     </select>
                 </div>
                 <div class="space-y-1">
                     <label for="message" class="font-medium">Message</label>
                     <textarea id="message" name="message" rows="6" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary"></textarea>
-                </div>
-                <div class="space-y-1">
-                    <label for="file_upload" class="font-medium">Upload File</label>
-                    <input type="file" id="file_upload" name="file_upload" accept=".jpg,.jpeg,.png,.webp"  multiple
-                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <button type="submit"
                     class="inline-flex w-full items-center justify-center space-x-2 rounded-lg border border-blue-700 bg-blue-700 px-8 py-4 font-semibold leading-6 text-white hover:border-blue-600 hover:bg-blue-600 hover:text-white focus:ring focus:ring-blue-400 focus:ring-opacity-50 active:border-blue-700 active:bg-blue-700 dark:focus:ring-blue-400 dark:focus:ring-opacity-90">
@@ -99,4 +93,4 @@
     })
 </script>
 
-{% endblock %}
+{{ end }}
