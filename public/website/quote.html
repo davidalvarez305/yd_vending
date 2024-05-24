@@ -166,17 +166,117 @@
 
 <script type="module">
     import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
-    window.uuidv4 = uuidv4;
-</script>
+	const form = document.getElementById("get-a-quote-form");
+	const alertModal = document.getElementById("alertModal");
+	
+	form.addEventListener("submit", e => {
+	  e.preventDefault();
+	  const isValid = validateForm();
+	
+	  if (!isValid) return;
+	
+	  
+	  const marketing = Object.fromEntries(new URLSearchParams(window.location.search));
+	  const body = Object.fromEntries(new FormData(e.target).entries());
 
-<script>
-    fetch('/quote', { ...params })
-        .then(resp => resp.text())
-        .then(data => {
-            const alertModal = document.getElementById('alertModal');
-            alertModal.style.display = "";
-            alertModal.outerHTML = data;
-        })
+      console.log('marketing: ', marketing);
+      console.log('body: ', body);
+	  
+	  fetch("/quote", {
+	    method: "POST",
+	    credentials: "include",
+	    headers: {
+	        "Content-Type": "application/json",
+	    },
+	    body: JSON.stringify({ ...marketing, ...body }),
+		})
+	    .then((response) => {
+	      if (response.ok) {
+	        return response.text();
+	      } else {
+	        throw new Error("Error: " + response.statusText);
+	      }
+	    })
+	    .then(html => {
+		    const clientId = uuidv4();
+
+	      
+	      window.gtag("event", "quote", {
+	        event_id: clientId 
+	      });
+	      
+	      
+	      fbq('track', 'quote', {
+            event_id: clientId 
+            });
+	
+	      alertModal.outerHTML = html;
+
+          const closeModalButton = document.getElementById("closeModal").addEventListener("click", () => (alertModal.style.display = "none"));
+
+	      form.reset();
+	    })
+	    .catch(console.error);
+	});
+	
+	function validatePhoneNumber(phoneNumberInput) {
+	  let isValid = true;
+	  const phoneNumber = phoneNumberInput.value.trim();
+	
+	  const phonePattern = /^[0-9]{10}$/;
+	
+	  if (!phonePattern.test(phoneNumber)) {
+	    isValid = false;
+	  }
+	
+	  return isValid;
+	}
+	
+	function validateForm() {
+	  let isValid = true;
+	
+	  
+	  const firstNameInput = document.getElementById("first_name");
+	  if (!firstNameInput.value.trim()) {
+	    isValid = false;
+	  }
+	
+	  
+	  const lastNameInput = document.getElementById("last_name");
+	  if (!lastNameInput.value.trim()) {
+	    isValid = false;
+	  }
+	
+	  
+	  const phoneNumberInput = document.getElementById("phone_number");
+	  if (!validatePhoneNumber(phoneNumberInput)) {
+	    isValid = false;
+	  }
+	
+	  
+	  const serviceSelect = document.getElementById("service");
+	  if (serviceSelect.value === "") {
+	    isValid = false;
+	  }
+	
+	  
+	  const locationSelect = document.getElementById("location");
+	  if (locationSelect.value === "") {
+	    isValid = false;
+	  }
+	
+	  
+	  const messageInput = document.getElementById("message");
+	  if (!messageInput.value.trim()) {
+	    isValid = false;
+	  }
+	
+	  if (!isValid) {
+	    alert("Missing fields on form.");
+	  }
+	
+	  return isValid;
+	}
 </script>
 
 
