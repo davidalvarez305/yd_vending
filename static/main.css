@@ -831,6 +831,11 @@ select{
   display: none;
 }
 
+.size-5{
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .h-10{
   height: 2.5rem;
 }
@@ -917,6 +922,10 @@ select{
 
 .gap-6{
   gap: 1.5rem;
+}
+
+.gap-2{
+  gap: 0.5rem;
 }
 
 .space-x-2 > :not([hidden]) ~ :not([hidden]){
@@ -1229,6 +1238,11 @@ select{
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+.text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(154 33 103 / var(--tw-text-opacity));
+}
+
 .underline{
   text-decoration-line: underline;
 }
@@ -1311,9 +1325,19 @@ select{
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
+.hover\:border-primary:hover{
+  --tw-border-opacity: 1;
+  border-color: rgb(154 33 103 / var(--tw-border-opacity));
+}
+
 .hover\:bg-blue-600:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-primary:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(154 33 103 / var(--tw-bg-opacity));
 }
 
 .hover\:text-blue-400:hover{

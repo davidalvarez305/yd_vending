@@ -68,7 +68,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		MetaDescription:   "Get a quote for vending machine services.",
 		SiteName:          "YD Vending",
 		PagePath:          "http://localhost" + r.URL.Path,
-		StaticPath:        "../static",
+		StaticPath:        "/static",
 		PhoneNumber:       "(123) - 456 7890",
 		CurrentYear:       time.Now().Year(),
 		GoogleAnalyticsID: "G-1231412312",
