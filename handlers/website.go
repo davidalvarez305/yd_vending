@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/davidalvarez305/budgeting/constants"
 	"github.com/davidalvarez305/budgeting/helpers"
-	"github.com/davidalvarez305/budgeting/models"
+	"github.com/davidalvarez305/budgeting/types"
 )
 
 var baseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
@@ -87,32 +88,16 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostQuote(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	var quote types.QuoteForm
+
+	err := json.NewDecoder(r.Body).Decode(&quote)
 
 	if err != nil {
-		http.Error(w, "Form cannot be parsed.", http.StatusBadRequest)
-		return
-	}
-
-	/* transaction, err := helpers.ParseTransaction(r.Form)
-
-	if err != nil {
-		http.Error(w, "Error parsing transaction.", http.StatusInternalServerError)
-		return
-	} */
-
-	var lead models.Lead
-
-	fileName := "form.html"
-
-	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, lead)
-
-	if err != nil {
-		http.Error(w, "Error building HTML file.", http.StatusInternalServerError)
+		http.Error(w, "Error decoding JSON.", http.StatusBadRequest)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	http.ServeFile(w, r, constants.PUBLIC_DIR+fileName)
+	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
 }

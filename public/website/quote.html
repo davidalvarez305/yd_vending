@@ -123,6 +123,11 @@
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
+                    <label for="rent" class="font-medium">Rent details (e.g. 30% of profits, no rent, etc...)</label>
+                    <input type="tel" id="rent" name="rent" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                </div>
+                <div class="space-y-1">
                     <label for="service" class="font-medium">Service</label>
                     <select id="service" name="service" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
@@ -179,9 +184,7 @@
 	  const marketing = Object.fromEntries(new URLSearchParams(window.location.search));
 	  const body = Object.fromEntries(new FormData(e.target).entries());
 
-      console.log('marketing: ', marketing);
-      console.log('body: ', body);
-	  
+      console.log({ ...marketing, ...body });
 	  fetch("/quote", {
 	    method: "POST",
 	    credentials: "include",
@@ -199,20 +202,16 @@
 	    })
 	    .then(html => {
 		    const clientId = uuidv4();
-
-	      
-	      window.gtag("event", "quote", {
-	        event_id: clientId 
-	      });
-	      
-	      
-	      fbq('track', 'quote', {
-            event_id: clientId 
-            });
 	
-	      alertModal.outerHTML = html;
+            alertModal.outerHTML = html;
 
-          const closeModalButton = document.getElementById("closeModal").addEventListener("click", () => (alertModal.style.display = "none"));
+            const closeModalButton = document.getElementById("closeModal").addEventListener("click", () => alertModal.style.display = "none");
+
+	      
+	      if (window.gtag) gtag("event", "quote", { event_id: clientId });
+
+	      
+	      if (window.fbq) fbq('track', 'quote', { event_id: clientId });
 
 	      form.reset();
 	    })

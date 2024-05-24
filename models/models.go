@@ -12,20 +12,26 @@ type VendingLocation struct {
 	LocationType      string `gorm:"unique;not null;column:location_type" json:"location_type"`
 }
 
+type City struct {
+	CityID int    `gorm:"primaryKey;column:city_id" json:"city_id"`
+	Name   string `gorm:"unique;not null;column:name" json:"name"`
+}
+
 type Lead struct {
 	LeadID            int              `gorm:"primaryKey;column:lead_id" json:"lead_id"`
-	Email             string           `gorm:"unique;not null" json:"email"`
 	FirstName         string           `gorm:"not null;column:first_name" json:"first_name"`
 	LastName          string           `gorm:"not null;column:last_name" json:"last_name"`
 	PhoneNumber       string           `gorm:"not null;column:phone_number" json:"phone_number"`
 	CreatedAt         int64            `gorm:"not null;column:created_at" json:"created_at"`
-	Budget            int              `gorm:"column:budget" json:"budget"`
+	Rent              string           `gorm:"column:rent" json:"rent"`
 	FootTraffic       int              `gorm:"column:foot_traffic" json:"foot_traffic"`
 	FootTrafficType   string           `gorm:"column:foot_traffic_type" json:"foot_traffic_type"`
 	VendingTypeID     int              `gorm:"column:vending_type_id" json:"vending_type_id"`
 	VendingType       *VendingType     `gorm:"not null;column:vending_type_id;foreignKey:VendingTypeID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE" json:"vending_type"`
 	VendingLocationID int              `gorm:"column:vending_location_id" json:"vending_location_id"`
-	VendingLocation   *VendingLocation `gorm:"not null;column:vending_location_id;foreignKey:VendingLocationID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE" json:"vending_Location"`
+	VendingLocation   *VendingLocation `gorm:"not null;column:vending_location_id;foreignKey:VendingLocationID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE" json:"vending_location"`
+	CityID            int              `gorm:"column:city_id" json:"city_id"`
+	City              *City            `gorm:"not null;column:city_id;foreignKey:CityID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE" json:"city"`
 	LeadMarketing     *LeadMarketing   `json:"lead_marketing"`
 }
 
