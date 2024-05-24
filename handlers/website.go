@@ -9,6 +9,9 @@ import (
 	"github.com/davidalvarez305/budgeting/models"
 )
 
+var baseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
+var footerFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
+
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -35,7 +38,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 func GetHome(w http.ResponseWriter, r *http.Request) {
 	fileName := "home.html"
 
-	err := helpers.BuildFile(fileName, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, nil)
+	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, nil)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -71,7 +74,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		GoogleAnalyticsID: "G-1231412312",
 	}
 
-	err := helpers.BuildFile(fileName, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -102,7 +105,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 
 	fileName := "form.html"
 
-	err = helpers.BuildFile(fileName, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, lead)
+	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, lead)
 
 	if err != nil {
 		http.Error(w, "Error building HTML file.", http.StatusInternalServerError)

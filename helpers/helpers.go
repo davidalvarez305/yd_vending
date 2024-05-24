@@ -5,8 +5,8 @@ import (
 	"os"
 )
 
-func BuildFile(fileName, publicFilePath, templateFilePath string, data any) error {
-	tmpl, err := template.New(fileName).ParseFiles(templateFilePath)
+func BuildFile(fileName, baseFilePath, footerFilePath, publicFilePath, templateFilePath string, data any) error {
+	tmpl, err := template.ParseFiles(baseFilePath, footerFilePath, templateFilePath)
 
 	if err != nil {
 		return err

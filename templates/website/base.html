@@ -1,10 +1,9 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html class="dark" xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
-{{ .GoogleAnalyticsID }}
 
 <head>
   <!-- Google tag (gtag.js) -->
-  <!-- <script async src="{{ google_analytics_src }}"></script>
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id={{ .GoogleAnalyticsID }}"></script>
   <script>
     var googleAnalyticsId = JSON.parse(document.getElementById('google-analytics-id').textContent);
     window.dataLayer = window.dataLayer || [];
@@ -85,7 +84,7 @@
     <!-- Page Content -->
     <main id="page-content" class="flex flex-auto flex-col max-w-full">
       <div class="container xl:max-w-7xl mx-auto p-4 lg:p-8">
-        {{ block "content" . }}{{ end }}
+        {{ template "form.html" . }}
       </div>
 
       <script src="{{ .StaticPath }}/main.js"></script>
@@ -93,7 +92,7 @@
     <!-- Page Content -->
 
     <!-- Page Footer -->
-    {{ block "footer" . }}{{ end }}
+    {{ template "footer.html" . }}
     <!-- END Page Footer -->
   </div>
   <!-- END Page Container -->
