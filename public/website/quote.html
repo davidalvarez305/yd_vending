@@ -124,17 +124,26 @@
                 </div>
                 <div class="space-y-1">
                     <label for="rent" class="font-medium">Rent details (e.g. 30% of profits, no rent, etc...)</label>
-                    <input type="tel" id="rent" name="rent" required
+                    <input type="tel" id="rent" name="rent"
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
-                    <label for="service" class="font-medium">Service</label>
-                    <select id="service" name="service" required
+                    <label for="machine_type" class="font-medium">Machine Type</label>
+                    <select id="machine_type" name="machine_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                         <option value="vending_machine">Vending Machine</option>
                         <option value="ice_machine">Ice Machine</option>
                         <option value="coffee_machine">Coffee Machine</option>
                         <option value="atm">ATM</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label for="machine_type" class="font-medium">Machine Type</label>
+                    <select id="machine_type" name="machine_type" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                        <option value="office">Office</option>
+                        <option value="warehouse">Warehouse</option>
+                        <option value="barbershop">Barbershop</option>
                     </select>
                 </div>
                 <div class="space-y-1">
@@ -149,17 +158,17 @@
                 </div>
                 <div class="space-y-1">
                     <label for="foot_traffic" class="font-medium">Monthly Foot Traffic (e.g. 5,000 people)</label>
-                    <input type="text" id="foot_traffic" name="foot_traffic" required
+                    <input type="text" id="foot_traffic" name="foot_traffic"
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
                     <label for="foot_traffic_type" class="font-medium">Foot Traffic Type (shopping plaza, busy street, etc...)</label>
-                    <input type="text" id="foot_traffic_type" name="foot_traffic_type" required
+                    <input type="text" id="foot_traffic_type" name="foot_traffic_type"
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
                     <label for="message" class="font-medium">Message</label>
-                    <textarea id="message" name="message" rows="6" required
+                    <textarea id="message" name="message" rows="6"
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary"></textarea>
                 </div>
                 <button type="submit"

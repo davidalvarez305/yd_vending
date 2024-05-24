@@ -45,14 +45,14 @@ type LeadMarketing struct {
 	Keyword         string `gorm:"column:keyword" json:"keyword"`
 	Referrer        string `gorm:"column:referrer" json:"referrer"`
 	Gclid           string `gorm:"column:gclid" json:"gclid"`
-	CampaignID      string `gorm:"column:campaign_id" json:"campaign_id"`
+	CampaignID      int    `gorm:"column:campaign_id" json:"campaign_id"`
 	AdCampaign      string `gorm:"column:ad_campaign" json:"ad_campaign"`
-	AdGroupID       string `gorm:"column:ad_group_id" json:"ad_group_id"`
+	AdGroupID       int    `gorm:"column:ad_group_id" json:"ad_group_id"`
 	AdGroupName     string `gorm:"column:ad_group_name" json:"ad_group_name"`
-	AdSetID         string `gorm:"column:ad_set_id" json:"ad_set_id"`
+	AdSetID         int    `gorm:"column:ad_set_id" json:"ad_set_id"`
 	AdSetName       string `gorm:"column:ad_set_name" json:"ad_set_name"`
-	AdID            string `gorm:"column:ad_id" json:"ad_id"`
-	AdHeadline      string `gorm:"column:ad_headline" json:"ad_headline"`
+	AdID            int    `gorm:"column:ad_id" json:"ad_id"`
+	AdHeadline      int    `gorm:"column:ad_headline" json:"ad_headline"`
 	Language        string `gorm:"column:language" json:"language"`
 	OS              string `gorm:"column:os" json:"os"`
 	UserAgent       string `gorm:"column:user_agent" json:"user_agent"`

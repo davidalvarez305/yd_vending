@@ -43,23 +43,32 @@
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
-                    <label for="service" class="font-medium">Service</label>
-                    <select id="service" name="service" required
+                    <label for="machine_type" class="font-medium">Machine Type</label>
+                    <select id="machine_type" name="machine_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
-                        <option value="vending_machine">Vending Machine</option>
-                        <option value="ice_machine">Ice Machine</option>
-                        <option value="coffee_machine">Coffee Machine</option>
-                        <option value="atm">ATM</option>
+                        <option value="1">Vending Machine</option>
+                        <option value="2">Ice Machine</option>
+                        <option value="3">Coffee Machine</option>
+                        <option value="4">ATM</option>
                     </select>
                 </div>
                 <div class="space-y-1">
-                    <label for="location" class="font-medium">City</label>
-                    <select id="location" name="location" required
+                    <label for="location_type" class="font-medium">Location Type*</label>
+                    <select id="location_type" name="location_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
-                        <option value="miami">Miami</option>
-                        <option value="hialeah">Hialeah</option>
-                        <option value="miami_lakes">Miami Lakes</option>
-                        <option value="doral">Doral</option>
+                        <option value="1">Office</option>
+                        <option value="2">Warehouse</option>
+                        <option value="3">Barbershop</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label for="city" class="font-medium">City</label>
+                    <select id="city" name="city" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                        <option value="1">Miami</option>
+                        <option value="2">Hialeah</option>
+                        <option value="3">Miami Lakes</option>
+                        <option value="4">Doral</option>
                     </select>
                 </div>
                 <div class="space-y-1">
