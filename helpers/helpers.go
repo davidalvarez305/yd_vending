@@ -6,6 +6,12 @@ import (
 )
 
 func BuildFile(fileName, baseFilePath, footerFilePath, publicFilePath, templateFilePath string, data any) error {
+	if data == nil {
+		if _, err := os.Stat(publicFilePath); err == nil {
+			return nil
+		}
+	}
+
 	tmpl, err := template.ParseFiles(baseFilePath, footerFilePath, templateFilePath)
 
 	if err != nil {
