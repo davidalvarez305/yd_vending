@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 
@@ -25,5 +27,13 @@ func main() {
 	}
 
 	fmt.Println("Server is listening on port 8000...")
-	http.ListenAndServe(":8000", router.Router())
+	s := &http.Server{
+		Addr:           os.Getenv("SERVER_PORT"),
+		Handler:        CustomCorsHandler(SecureHandler(router.Router())),
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	s.ListenAndServe()
 }
