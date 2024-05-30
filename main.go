@@ -29,12 +29,12 @@ func main() {
 
 	fmt.Println("Server is listening on port 8000...")
 	s := &http.Server{
-		Addr:           os.Getenv("SERVER_PORT"),
+		Addr:           ":" + os.Getenv("SERVER_PORT"),
 		Handler:        middleware.SecurityMiddleware(router.Router()),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	s.ListenAndServe()
+	log.Fatal(s.ListenAndServe())
 }
