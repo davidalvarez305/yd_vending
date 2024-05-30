@@ -16,6 +16,18 @@ import (
 var baseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
 var footerFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
 
+var websiteContext = map[string]any{
+	"PageTitle":         "Request Quote",
+	"MetaDescription":   "Get a quote for vending machine services.",
+	"SiteName":          "YD Vending",
+	"PagePath":          "http://localhost/quote",
+	"StaticPath":        "/static",
+	"PhoneNumber":       "(123) - 456 7890",
+	"CurrentYear":       time.Now().Year(),
+	"GoogleAnalyticsID": "G-1231412312",
+	"CSRFToken":         middleware.GenerateCSRFToken(),
+}
+
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -45,7 +57,7 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, nil)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error building home page.", http.StatusInternalServerError)
 		return
 	}
 
@@ -57,33 +69,13 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
 
-	// @TODO: Build core data that will be in all "website handler" pages.
-	data := struct {
-		PageTitle         string
-		MetaDescription   string
-		SiteName          string
-		PagePath          string
-		StaticPath        string
-		PhoneNumber       string
-		CurrentYear       int
-		GoogleAnalyticsID string
-		CSRFToken         string
-	}{
-		PageTitle:         "Request Quote",
-		MetaDescription:   "Get a quote for vending machine services.",
-		SiteName:          "YD Vending",
-		PagePath:          "http://localhost" + r.URL.Path,
-		StaticPath:        "/static",
-		PhoneNumber:       "(123) - 456 7890",
-		CurrentYear:       time.Now().Year(),
-		GoogleAnalyticsID: "G-1231412312",
-		CSRFToken:         middleware.GenerateCSRFToken(),
-	}
+	data := websiteContext
+	data["PagePath"] = "http://localhost" + r.URL.Path
 
 	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error building quote form.", http.StatusInternalServerError)
 		return
 	}
 
