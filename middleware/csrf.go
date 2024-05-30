@@ -25,8 +25,9 @@ func generateCSRFSecret() string {
 	return encodedSecret
 }
 
-func GenerateCSRFToken(secret string) string {
+func GenerateCSRFToken() string {
 	token := make([]byte, CSRF_TOKEN_LENGTH)
+	secret := generateCSRFSecret()
 
 	secretBytes := []byte(secret)
 

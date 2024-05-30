@@ -8,6 +8,7 @@ import (
 	"github.com/davidalvarez305/budgeting/constants"
 	"github.com/davidalvarez305/budgeting/database"
 	"github.com/davidalvarez305/budgeting/helpers"
+	"github.com/davidalvarez305/budgeting/middleware"
 	"github.com/davidalvarez305/budgeting/models"
 	"github.com/davidalvarez305/budgeting/types"
 )
@@ -66,6 +67,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		PhoneNumber       string
 		CurrentYear       int
 		GoogleAnalyticsID string
+		CSRFToken         string
 	}{
 		PageTitle:         "Request Quote",
 		MetaDescription:   "Get a quote for vending machine services.",
@@ -75,6 +77,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		PhoneNumber:       "(123) - 456 7890",
 		CurrentYear:       time.Now().Year(),
 		GoogleAnalyticsID: "G-1231412312",
+		CSRFToken:         middleware.GenerateCSRFToken(),
 	}
 
 	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)

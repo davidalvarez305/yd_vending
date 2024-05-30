@@ -25,7 +25,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
 
-			csrfToken := r.Header.Get("X-CSRF-Token")
+			csrfToken := r.FormValue("csrf_token")
 			if csrfToken == "" {
 				http.Error(w, "CSRF token is missing", http.StatusForbidden)
 				return
