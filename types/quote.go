@@ -32,4 +32,5 @@ type QuoteForm struct {
 	ButtonClicked   string `json:"button_clicked"`
 	DeviceType      string `json:"device_type"`
 	IP              string `json:"ip"`
+	CSRFToken       string `json"csrf_token"`
 }

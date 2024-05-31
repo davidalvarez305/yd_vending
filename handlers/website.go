@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/davidalvarez305/budgeting/constants"
@@ -25,7 +27,6 @@ var websiteContext = map[string]any{
 	"PhoneNumber":       "(123) - 456 7890",
 	"CurrentYear":       time.Now().Year(),
 	"GoogleAnalyticsID": "G-1231412312",
-	"CSRFToken":         middleware.GenerateCSRFToken(),
 }
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,11 +70,19 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
 
+	// Only do this on first user session
+	csrfToken, err := middleware.Encrypt(time.Now().Unix(), []byte(os.Getenv("SECRET_AES_KEY")))
+	if err != nil {
+		http.Error(w, "Error generating CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = r.Context().Value("nonce").(string)
+	data["CSRFToken"] = csrfToken
 
-	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
 
 	if err != nil {
 		http.Error(w, "Error building quote form.", http.StatusInternalServerError)
@@ -94,6 +103,18 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error decoding JSON.", http.StatusBadRequest)
 		return
 	}
+
+	decryptedUUID, decryptedUnixTime, err := middleware.Decrypt(form.CSRFToken, []byte(os.Getenv("SECRET_AES_KEY")))
+	if err != nil {
+		http.Error(w, "Decryption error.", http.StatusInternalServerError)
+		return
+	}
+
+	if decryptedUnixTime > time.Now().Unix() {
+		http.Error(w, "Token expired.", http.StatusBadRequest)
+		return
+	}
+	fmt.Printf("DECRYPTED: %s", decryptedUUID)
 
 	lead := &models.Lead{
 		FirstName:         form.FirstName,

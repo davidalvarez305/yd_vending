@@ -60,3 +60,9 @@ type LeadMarketing struct {
 	DeviceType      string `gorm:"column:device_type" json:"device_type"`
 	IP              string `gorm:"column:ip" json:"ip"`
 }
+
+type CSRFToken struct {
+	CSRFTokenID int    `json:"csrf_token_id"`
+	ExpiryTime  int64  `json:"expiry_time"`
+	UUID        string `json:"uuid"`
+}
