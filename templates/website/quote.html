@@ -104,7 +104,7 @@
 
 <div id="alertModal" style="display:none;"></div>
 
-<script type="module">
+<script type="module" nonce="{{.Nonce}}">
     import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 	const form = document.getElementById("get-a-quote-form");
 	const alertModal = document.getElementById("alertModal");

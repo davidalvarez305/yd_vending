@@ -71,6 +71,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
+	data["Nonce"] = r.Context().Value("nonce").(string)
 
 	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
 

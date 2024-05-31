@@ -1,6 +1,9 @@
 package middleware
 
 import (
+	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
@@ -40,6 +43,17 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		`, os.Getenv("AWS_STORAGE_BUCKET"))
 
 		w.Header().Set("Content-Security-Policy", cspDirective)
+
+		// Generate a random nonce
+		nonce := make([]byte, 16)
+		if _, err := rand.Read(nonce); err != nil {
+			http.Error(w, "Error creating nonce.", http.StatusInternalServerError)
+			return
+		}
+		nonceBase64 := base64.StdEncoding.EncodeToString(nonce)
+
+		// Pass the nonce to the next handler
+		r = r.WithContext(context.WithValue(r.Context(), "nonce", nonceBase64))
 
 		next.ServeHTTP(w, r)
 	})
