@@ -104,17 +104,11 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	decryptedUUID, decryptedUnixTime, err := middleware.Decrypt(form.CSRFToken, []byte(os.Getenv("SECRET_AES_KEY")))
+	err = middleware.ValidateCSRFToken(form.CSRFToken)
 	if err != nil {
-		http.Error(w, "Decryption error.", http.StatusInternalServerError)
+		http.Error(w, "Error validating token.", http.StatusBadRequest)
 		return
 	}
-
-	if decryptedUnixTime > time.Now().Unix() {
-		http.Error(w, "Token expired.", http.StatusBadRequest)
-		return
-	}
-	fmt.Printf("DECRYPTED: %s", decryptedUUID)
 
 	lead := &models.Lead{
 		FirstName:         form.FirstName,

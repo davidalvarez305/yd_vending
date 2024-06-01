@@ -1,14 +1,10 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"os"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
-
-	"github.com/davidalvarez305/budgeting/models"
 )
 
 type connection struct {
@@ -19,9 +15,9 @@ type connection struct {
 	dbName   string
 }
 
-var DB gorm.DB
+var DB *sql.DB
 
-func Connect() (*gorm.DB, error) {
+func Connect() (*sql.DB, error) {
 	conn := connection{
 		host:     os.Getenv("POSTGRES_HOST"),
 		port:     os.Getenv("POSTGRES_PORT"),
@@ -30,30 +26,22 @@ func Connect() (*gorm.DB, error) {
 		dbName:   os.Getenv("POSTGRES_DB"),
 	}
 
-	db, err := gorm.Open(postgres.Open(connToString(conn)), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true,
-		},
-		FullSaveAssociations: true,
-	})
-
+	connectionString := connToString(conn)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
-		return db, err
+		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	db.AutoMigrate(
-		&models.Lead{},
-		&models.LeadMarketing{},
-		&models.VendingType{},
-		&models.VendingLocation{},
-	)
+	// Verify the connection
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to verify connection: %v", err)
+	}
 
-	DB = *db
-
+	DB = db
 	return db, nil
 }
 
 func connToString(info connection) string {
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		info.host, info.port, info.user, info.password, info.dbName)
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		info.user, info.password, info.host, info.port, info.dbName)
 }

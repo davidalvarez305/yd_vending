@@ -64,5 +64,6 @@ type LeadMarketing struct {
 type CSRFToken struct {
 	CSRFTokenID int    `json:"csrf_token_id"`
 	ExpiryTime  int64  `json:"expiry_time"`
-	UUID        string `json:"uuid"`
+	Token       string `json:"token"`
+	IsUsed      bool   `json:"is_used"`
 }
