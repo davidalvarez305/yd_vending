@@ -60,6 +60,7 @@ func Encrypt(unixTime int64, key []byte, db *sql.DB) (string, error) {
 	csrfToken := models.CSRFToken{
 		ExpiryTime: unixTime,
 		Token:      token,
+		IsUsed:     false,
 	}
 
 	err := database.InsertCSRFToken(csrfToken)
