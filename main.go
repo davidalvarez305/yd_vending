@@ -12,6 +12,7 @@ import (
 	"github.com/davidalvarez305/budgeting/database"
 	"github.com/davidalvarez305/budgeting/middleware"
 	"github.com/davidalvarez305/budgeting/router"
+	"github.com/davidalvarez305/budgeting/sessions"
 )
 
 func main() {
@@ -28,6 +29,9 @@ func main() {
 	}
 
 	fmt.Println("Server is listening on port 8000...")
+
+	err = sessions.InitializeSessions()
+
 	s := &http.Server{
 		Addr:           ":" + os.Getenv("SERVER_PORT"),
 		Handler:        middleware.SecurityMiddleware(router.Router()),
