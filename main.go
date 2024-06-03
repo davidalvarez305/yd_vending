@@ -21,16 +21,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("ERROR LOADING ENV FILE: %+v\n", err)
 	}
+	fmt.Println("Environment loaded.")
 
 	_, err = database.Connect()
 
 	if err != nil {
 		log.Fatalf("ERROR CONNECTING TO DB: %+v\n", err)
 	}
+	fmt.Println("Database connected.")
 
-	fmt.Println("Server is listening on port 8000...")
-
-	err = sessions.InitializeSessions()
+	sessions.InitializeSessions()
+	fmt.Println("Sessions initialized.")
 
 	s := &http.Server{
 		Addr:           ":" + os.Getenv("SERVER_PORT"),
@@ -40,5 +41,6 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
+	fmt.Println("Server is listening on port 8000...")
 	log.Fatal(s.ListenAndServe())
 }

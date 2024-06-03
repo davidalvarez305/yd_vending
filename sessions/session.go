@@ -8,10 +8,11 @@ import (
 
 var Store *sessions.CookieStore
 
-func InitializeSessions() *sessions.CookieStore {
-	var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET_KEY")))
+func InitializeSessions() {
+	authKey := []byte(os.Getenv("AUTH_SECRET_KEY"))
+	encKey := []byte(os.Getenv("ENC_SECRET_KEY"))
+
+	var store = sessions.NewCookieStore(authKey, encKey)
 
 	Store = store
-
-	return store
 }
