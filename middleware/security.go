@@ -7,23 +7,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 )
 
 func SecurityMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		// Cookie Settings
-		http.SetCookie(w, &http.Cookie{
-			Name:     os.Getenv("COOKIE_NAME"),
-			Value:    "cookie_value",
-			Path:     "/",
-			Domain:   os.Getenv("ROOT_DOMAIN"),
-			Expires:  time.Now().Add(24 * time.Hour), // Expires in 24 hours
-			HttpOnly: false,
-			SameSite: http.SameSiteStrictMode,
-			Secure:   true,
-		})
 
 		// CORS Settings
 		w.Header().Set("Access-Control-Allow-Origin", os.Getenv("ROOT_DOMAIN"))
@@ -33,10 +20,10 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		// CSP Settings
 		cspDirective := fmt.Sprintf(`
 		default-src 'self';
-		script-src 'self' 'unsafe-inline' https://www.googletagmanager.com %s;
-		font-src 'self' 'unsafe-inline' https://fonts.bunny.net;
-		script-src-elem 'self' 'unsafe-inline' https://jspm.dev https://www.googletagmanager.com;
-		style-src-attr 'self' 'unsafe-inline';
+		script-src 'self' https://www.googletagmanager.com %s;
+		font-src 'self' https://fonts.bunny.net;
+		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com;
+		style-src-attr 'self';
 		img-src 'self' https://www.google-analytics.com data:;
 		connect-src 'self' https://www.google-analytics.com;
 		style-src-elem 'self' https://fonts.bunny.net;

@@ -30,12 +30,16 @@ func main() {
 	}
 	fmt.Println("Database connected.")
 
-	sessions.InitializeSessions()
+	err = sessions.InitializeSessions()
+
+	if err != nil {
+		log.Fatalf("ERROR INITIALIZING SESSIONS: %+v\n", err)
+	}
 	fmt.Println("Sessions initialized.")
 
 	s := &http.Server{
 		Addr:           ":" + os.Getenv("SERVER_PORT"),
-		Handler:        middleware.SecurityMiddleware(router.Router()),
+		Handler:        middleware.UserTracking(middleware.SecurityMiddleware(router.Router())),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
