@@ -1,7 +1,13 @@
 package database
 
-func InsertCSRFToken(token CSRFToken) error {
-	stmt, err := db.Prepare("INSERT INTO csrf_token(expiry_time, token) VALUES(?, ?)")
+import (
+	"fmt"
+
+	"github.com/davidalvarez305/budgeting/models"
+)
+
+func InsertCSRFToken(token models.CSRFToken) error {
+	stmt, err := DB.Prepare("INSERT INTO csrf_token(expiry_time, token) VALUES(?, ?)")
 	if err != nil {
 		return err
 	}
@@ -16,19 +22,20 @@ func InsertCSRFToken(token CSRFToken) error {
 	return nil
 }
 
-func GetCSRFToken(decryptedToken string) (CSRFToken, error) {
-	stmt, err := db.Prepare("SELECT * FROM csrf_token WHERE token = ?")
+func GetCSRFToken(decryptedToken string) (models.CSRFToken, error) {
+	var token models.CSRFToken
+
+	stmt, err := DB.Prepare("SELECT * FROM csrf_token WHERE token = ?")
 	if err != nil {
-		return nil, err
+		return token, err
 	}
 	defer stmt.Close()
 
 	row := stmt.QueryRow(decryptedToken)
 
-	var token CSRFToken
 	err = row.Scan(&token.CSRFTokenID, &token.ExpiryTime, &token.Token, &token.IsUsed)
 	if err != nil {
-		return nil, err
+		return token, err
 	}
 
 	return token, nil

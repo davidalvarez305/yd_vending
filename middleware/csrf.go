@@ -5,13 +5,14 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"database/sql"
 	"encoding/base64"
 	"errors"
 	"io"
 	"math/big"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/davidalvarez305/budgeting/database"
 	"github.com/davidalvarez305/budgeting/models"
@@ -53,7 +54,7 @@ func generateCSRFToken() string {
 	return string(token)
 }
 
-func Encrypt(unixTime int64, key []byte, db *sql.DB) (string, error) {
+func Encrypt(unixTime int64, key []byte) (string, error) {
 	var encryptedString string
 	var token = generateCSRFToken()
 
@@ -161,19 +162,19 @@ func ValidateCSRFToken(token string) error {
 	}
 
 	// Check if string exists in DB
-	csrfToken, err := database.DB.GetCSRFToken(decryptedStr)
+	csrfToken, err := database.GetCSRFToken(decryptedStr)
 	if err != nil {
 		return err
 	}
 
 	// Unix time validation
-	if decryptedUnixTime > time.Now().Unix() || csrfToken.UnixTime != decryptedUnixTime {
-		return errors.New("invalid token UNIX time.")
+	if decryptedUnixTime > time.Now().Unix() || csrfToken.ExpiryTime != decryptedUnixTime {
+		return errors.New("invalid token UNIX time")
 	}
 
 	// Check if used
-	if csrfToken.IsUsed == false {
-		return errors.New("token already used.")
+	if !csrfToken.IsUsed {
+		return errors.New("token already used")
 	}
 
 	return nil

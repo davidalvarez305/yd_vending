@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/davidalvarez305/budgeting/constants"
-	"github.com/davidalvarez305/budgeting/database"
 	"github.com/davidalvarez305/budgeting/helpers"
 	"github.com/davidalvarez305/budgeting/middleware"
 	"github.com/davidalvarez305/budgeting/models"
@@ -144,7 +143,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	database.DB.Create(&lead)
+	fmt.Printf("%+v\n", lead)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

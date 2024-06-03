@@ -1,13 +1,14 @@
 package sessions
 
 import (
-	"github.com/gorilla/sessions"
 	"os"
+
+	"github.com/gorilla/sessions"
 )
 
-var Store *Session
+var Store *sessions.CookieStore
 
-func InitializeSessions() *Session {
+func InitializeSessions() *sessions.CookieStore {
 	var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET_KEY")))
 
 	Store = store
