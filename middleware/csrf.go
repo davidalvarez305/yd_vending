@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"io"
-	"math/big"
 	"strconv"
 	"strings"
 	"time"
@@ -19,43 +18,27 @@ import (
 
 const (
 	CSRF_SECRET_LENGTH = 32
-	CSRF_TOKEN_LENGTH  = 2 * CSRF_SECRET_LENGTH
-	CSRF_ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
-func generateCSRFSecret() string {
+func generateCSRFSecret() (string, error) {
 	secret := make([]byte, CSRF_SECRET_LENGTH)
 
 	_, err := rand.Read(secret)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	encodedSecret := base64.URLEncoding.EncodeToString(secret)
 
-	return encodedSecret
-}
-
-func generateCSRFToken() string {
-	token := make([]byte, CSRF_TOKEN_LENGTH)
-	secret := generateCSRFSecret()
-
-	secretBytes := []byte(secret)
-
-	for i := 0; i < CSRF_TOKEN_LENGTH; i++ {
-		randomIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(secretBytes))))
-		if err != nil {
-			panic(err)
-		}
-		token[i] = secretBytes[randomIndex.Int64()]
-	}
-
-	return string(token)
+	return encodedSecret, nil
 }
 
 func Encrypt(unixTime int64, key []byte) (string, error) {
 	var encryptedString string
-	var token = generateCSRFToken()
+	var token, err = generateCSRFSecret()
+	if err != nil {
+		return encryptedString, err
+	}
 
 	csrfToken := models.CSRFToken{
 		ExpiryTime: unixTime,
@@ -63,7 +46,7 @@ func Encrypt(unixTime int64, key []byte) (string, error) {
 		IsUsed:     false,
 	}
 
-	err := database.InsertCSRFToken(csrfToken)
+	err = database.InsertCSRFToken(csrfToken)
 	if err != nil {
 		return encryptedString, err
 	}

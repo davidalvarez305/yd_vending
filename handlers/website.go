@@ -71,6 +71,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	token, err := middleware.GetTokenFromSession(r)
 
 	if err != nil {
+		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
 		return
 	}
@@ -78,6 +79,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	// Only do this on first user session
 	csrfToken, err := middleware.Encrypt(time.Now().Unix(), token)
 	if err != nil {
+		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error generating CSRF token.", http.StatusInternalServerError)
 		return
 	}
@@ -90,6 +92,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
 
 	if err != nil {
+		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error building quote form.", http.StatusInternalServerError)
 		return
 	}
@@ -105,6 +108,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&form)
 
 	if err != nil {
+		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error decoding JSON.", http.StatusBadRequest)
 		return
 	}
@@ -112,12 +116,14 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	token, err := middleware.GetTokenFromSession(r)
 
 	if err != nil {
+		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
 		return
 	}
 
 	err = middleware.ValidateCSRFToken(form.CSRFToken, token)
 	if err != nil {
+		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error validating token.", http.StatusBadRequest)
 		return
 	}

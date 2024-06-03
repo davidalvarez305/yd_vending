@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -30,7 +31,15 @@ func UserTracking(next http.Handler) http.Handler {
 				Secure:   true,
 			}) */
 
-			session.Values["csrfToken"] = generateCSRFToken()
+			secret, err := generateCSRFSecret()
+
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error generating secret.", http.StatusForbidden)
+				return
+			}
+
+			session.Values["csrf_secret"] = secret
 
 			err = session.Save(r, w)
 
@@ -52,5 +61,9 @@ func GetTokenFromSession(r *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	return hex.DecodeString(session.Values["csrfToken"].(string))
+	if csrfSecret, ok := session.Values["csrf_secret"]; ok {
+		return hex.DecodeString(csrfSecret.(string))
+	}
+
+	return nil, errors.New("no secret in session")
 }
