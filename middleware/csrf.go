@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"io"
 	"strconv"
@@ -28,7 +29,7 @@ func generateCSRFSecret() (string, error) {
 		return "", err
 	}
 
-	encodedSecret := base64.URLEncoding.EncodeToString(secret)
+	encodedSecret := hex.EncodeToString(secret)
 
 	return encodedSecret, nil
 }
