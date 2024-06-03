@@ -9,7 +9,6 @@ import (
 	"errors"
 	"io"
 	"math/big"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -95,15 +94,13 @@ func Encrypt(unixTime int64, key []byte) (string, error) {
 	return encryptedString, nil
 }
 
-func Decrypt(encryptedStr string) (string, int64, error) {
-	key := []byte(os.Getenv("SECRET_AES_KEY"))
-
+func Decrypt(encryptedStr string, userToken []byte) (string, int64, error) {
 	encryptedData, err := base64.StdEncoding.DecodeString(encryptedStr)
 	if err != nil {
 		return "", 0, err
 	}
 
-	block, err := aes.NewCipher(key)
+	block, err := aes.NewCipher(userToken)
 	if err != nil {
 		return "", 0, err
 	}
@@ -155,8 +152,8 @@ func unpad(data []byte) []byte {
 	return key, nil
 } */
 
-func ValidateCSRFToken(token string) error {
-	decryptedStr, decryptedUnixTime, err := Decrypt(token)
+func ValidateCSRFToken(token string, userToken []byte) error {
+	decryptedStr, decryptedUnixTime, err := Decrypt(token, userToken)
 	if err != nil {
 		return err
 	}

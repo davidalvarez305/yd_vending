@@ -55,19 +55,8 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				http.Error(w, "CSRF token is missing", http.StatusForbidden)
 				return
 			}
-
-			valid := validateCSRFToken(csrfToken)
-			if !valid {
-				http.Error(w, "Invalid CSRF token", http.StatusForbidden)
-				return
-			}
 		}
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-// Placeholder
-func validateCSRFToken(token string) bool {
-	return token != ""
 }

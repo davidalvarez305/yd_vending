@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/davidalvarez305/budgeting/constants"
@@ -69,8 +68,15 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
 
+	token, err := middleware.GetTokenFromSession(r)
+
+	if err != nil {
+		http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
+		return
+	}
+
 	// Only do this on first user session
-	csrfToken, err := middleware.Encrypt(time.Now().Unix(), []byte(os.Getenv("SECRET_AES_KEY")))
+	csrfToken, err := middleware.Encrypt(time.Now().Unix(), token)
 	if err != nil {
 		http.Error(w, "Error generating CSRF token.", http.StatusInternalServerError)
 		return
@@ -103,7 +109,14 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = middleware.ValidateCSRFToken(form.CSRFToken)
+	token, err := middleware.GetTokenFromSession(r)
+
+	if err != nil {
+		http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
+		return
+	}
+
+	err = middleware.ValidateCSRFToken(form.CSRFToken, token)
 	if err != nil {
 		http.Error(w, "Error validating token.", http.StatusBadRequest)
 		return

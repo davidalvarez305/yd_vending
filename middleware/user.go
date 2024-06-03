@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 
@@ -40,8 +41,16 @@ func UserTracking(next http.Handler) http.Handler {
 			}
 		}
 
-		fmt.Printf("AFTER VALUES: %+v\n", session.Values)
-
 		next.ServeHTTP(w, r)
 	})
+}
+
+func GetTokenFromSession(r *http.Request) ([]byte, error) {
+	session, err := sessions.Store.Get(r, "yd_vending_sessions")
+
+	if err != nil {
+		return nil, err
+	}
+
+	return hex.DecodeString(session.Values["csrfToken"].(string))
 }
