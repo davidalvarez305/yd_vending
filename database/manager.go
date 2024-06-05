@@ -106,3 +106,22 @@ func SaveSMS(msg models.TextMessage) error {
 	_, err := DB.Exec(query, msg.MessageSID, msg.UserID, msg.FromNumber, msg.ToNumber, msg.Body, msg.Status, msg.CreatedAt, msg.IsInbound)
 	return err
 }
+
+func GetUserIDFromPhoneNumber(from string) (int, error) {
+	var userId int
+
+	stmt, err := DB.Prepare("SELECT user_id FROM user WHERE phone_number = ?")
+	if err != nil {
+		return token, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(from)
+
+	err = row.Scan(userId)
+	if err != nil {
+		return token, err
+	}
+
+	return token, nil
+}

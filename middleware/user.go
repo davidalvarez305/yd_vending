@@ -67,3 +67,20 @@ func GetTokenFromSession(r *http.Request) ([]byte, error) {
 
 	return nil, errors.New("no secret in session")
 }
+
+func GetUserIDFromSession(r *http.Request) (int, error) {
+	session, err := sessions.Store.Get(r, "yd_vending_sessions")
+
+	if err != nil {
+		return 0, err
+	}
+
+	if userID, ok := session.Values["user_id"]; ok {
+		if intUserID, ok := userID.(int); ok {
+			return intUserID, nil
+		}
+		return 0, errors.New("user_id is not of type int")
+	}
+
+	return 0, errors.New("no user_id in session")
+}

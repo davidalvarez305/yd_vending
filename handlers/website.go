@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/davidalvarez305/budgeting/helpers"
 	"github.com/davidalvarez305/budgeting/middleware"
 	"github.com/davidalvarez305/budgeting/models"
+	"github.com/davidalvarez305/budgeting/services"
 	"github.com/davidalvarez305/budgeting/types"
 )
 
@@ -42,6 +44,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/quote":
 			PostQuote(w, r)
+		case "/contact":
+			PostContactForm(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -167,4 +171,32 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
+}
+
+func PostContactForm(w http.ResponseWriter, r *http.Request) {
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
+		return
+	}
+
+	// Extract form values
+	firstName := r.FormValue("first_name")
+	lastName := r.FormValue("last_name")
+	email := r.FormValue("email")
+	message := r.FormValue("message")
+
+	// Compose email message
+	subject := "Contact Form: YD Vending"
+	body := fmt.Sprintf("Name: %s %s\nEmail: %s\nMessage:\n%s", firstName, lastName, email, message)
+
+	// Send email
+	if err := services.SendSMTPEmail(subject, body, email); err != nil {
+		log.Printf("Error sending email: %s", err)
+		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond to client
+	fmt.Fprintf(w, "Message sent successfully!")
 }
