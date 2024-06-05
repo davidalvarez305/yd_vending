@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // Vending machine, ice machine, coffee machine, snack machine, healthy snack machine, etc...
 type VendingType struct {
 	VendingTypeID int    `gorm:"primaryKey;column:vending_type_id" json:"vending_type_id"`
@@ -66,4 +68,16 @@ type CSRFToken struct {
 	ExpiryTime  int64  `json:"expiry_time"`
 	Token       string `json:"token"`
 	IsUsed      bool   `json:"is_used"`
+}
+
+type TextMessage struct {
+	TextMessageID int       `json:"text_message_id"`
+	MessageSID    string    `json:"message_sid"`
+	UserID        int       `json:"user_id"`
+	FromNumber    string    `json:"from_number"`
+	ToNumber      string    `json:"to_number"`
+	Body          string    `json:"body"`
+	Status        string    `json:"status"`
+	CreatedAt     time.Time `json:"created_at"`
+	IsInbound     bool      `json:"is_inbound"`
 }
