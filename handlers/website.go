@@ -207,7 +207,6 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostLogin(w http.ResponseWriter, r *http.Request) {
-	// Parse form data
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
 		return
@@ -216,14 +215,14 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	email := r.Form.Get("email")
 	password := r.Form.Get("password")
 
-	err := database.GetUserByEmail(email)
+	user, err := database.GetUserByEmail(email)
 	if err != nil {
 		http.Error(w, "Email not found.", http.StatusBadRequest)
 		return
 	}
 
-	err = helpers.ValidatePassword(password)
-	if err != nil {
+	isValid := helpers.ValidatePassword(password, user.Password)
+	if !isValid {
 		http.Error(w, "Invalid password.", http.StatusBadRequest)
 		return
 	}
@@ -239,7 +238,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 		Secure:   true,
 	})
 
-	http.Redirect(w, r, "/crm/", http.StatusFound)
+	http.Redirect(w, r, "/crm", http.StatusFound)
 }
 
 func PostLogout(w http.ResponseWriter, r *http.Request) {

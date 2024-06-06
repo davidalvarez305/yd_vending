@@ -76,3 +76,10 @@ type TextMessage struct {
 	CreatedAt     time.Time `json:"created_at"`
 	IsInbound     bool      `json:"is_inbound"`
 }
+
+type User struct {
+	UserID   int    `json:"user_id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	IsAdmin  bool   `json:"is_admin"`
+}
