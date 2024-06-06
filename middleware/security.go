@@ -55,7 +55,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if strings.Contains(r.URL.Path, "/call/") || strings.Contains(r.URL.Path, "/sms/") {
+		if strings.Contains(r.URL.Path, "/call/inbound") || strings.Contains(r.URL.Path, "/sms/inbound") {
 			if err := validateTwilioWebhook(r); err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error validating Twilio webhook.", http.StatusInternalServerError)

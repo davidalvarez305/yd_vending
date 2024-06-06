@@ -107,8 +107,8 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 	accountSID := os.Getenv("TWILLIO_ACCOUNT_SID")
 	authToken := os.Getenv("TWILLIO_AUTH_TOKEN")
 	from := os.Getenv("DAVID_TWILIO_PHONE_NUMBER")
-	body := r.FormValue("Body")
-	to := r.FormValue("To")
+	body := r.FormValue("body")
+	to := r.FormValue("to")
 
 	twilioURL := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json", accountSID)
 
