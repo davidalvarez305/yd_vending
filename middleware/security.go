@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/davidalvarez305/budgeting/database"
@@ -53,6 +54,17 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 
 func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if strings.Contains(r.URL.Path, "/call/") || strings.Contains(r.URL.Path, "/sms/") {
+			if err := validateTwilioWebhook(r); err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error validating Twilio webhook.", http.StatusInternalServerError)
+				return
+			}
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			token, err := GetTokenFromSession(r)
 
