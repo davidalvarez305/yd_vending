@@ -175,6 +175,4 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
 		return
 	}
-
-	services.HandleOutboundMessage()
 }
