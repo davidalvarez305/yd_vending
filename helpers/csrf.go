@@ -37,10 +37,9 @@ func GenerateCSRFSecret() (string, error) {
 func EncryptToken(unixTime int64, key []byte) (string, error) {
 	var encryptedString string
 
-	tokenBytes := []byte(key)
 	unixTimeBytes := []byte(strconv.FormatInt(unixTime, 10))
 
-	joinedData := strings.Join([]string{string(tokenBytes), string(unixTimeBytes)}, ":")
+	joinedData := strings.Join([]string{string(key), string(unixTimeBytes)}, ":")
 
 	paddedData := pad([]byte(joinedData), aes.BlockSize)
 
