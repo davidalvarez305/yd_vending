@@ -136,3 +136,15 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func AuthRequired(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(os.Getenv("COOKIE_NAME"))
+		if err != nil || cookie == nil {
+			http.Error(w, "Permission denied", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}

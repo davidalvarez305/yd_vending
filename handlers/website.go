@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/davidalvarez305/budgeting/constants"
@@ -37,6 +38,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetQuoteForm(w, r)
 		case "/contact":
 			GetContactForm(w, r)
+		case "/login":
+			GetLogin(w, r)
 		case "/":
 			GetHome(w, r)
 		default:
@@ -48,6 +51,10 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			PostQuote(w, r)
 		case "/contact":
 			PostContactForm(w, r)
+		case "/login":
+			PostLogin(w, r)
+		case "/logout":
+			PostLogout(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -176,4 +183,77 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
+}
+
+func GetLogin(w http.ResponseWriter, r *http.Request) {
+	fileName := "login.html"
+
+	data := websiteContext
+	data["PagePath"] = "http://localhost" + r.URL.Path
+	data["Nonce"] = r.Context().Value("nonce").(string)
+	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
+
+	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error building login form.", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	http.ServeFile(w, r, constants.WEBSITE_PUBLIC_DIR+fileName)
+}
+
+func PostLogin(w http.ResponseWriter, r *http.Request) {
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
+		return
+	}
+
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	err := database.GetUserByEmail(email)
+	if err != nil {
+		http.Error(w, "Email not found.", http.StatusBadRequest)
+		return
+	}
+
+	err = helpers.ValidatePassword(password)
+	if err != nil {
+		http.Error(w, "Invalid password.", http.StatusBadRequest)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     os.Getenv("COOKIE_NAME"),
+		Value:    email,
+		Path:     "/",
+		Domain:   os.Getenv("ROOT_DOMAIN"),
+		Expires:  time.Now().Add(24 * time.Hour), // Expires in 24 hours
+		HttpOnly: false,
+		SameSite: http.SameSiteStrictMode,
+		Secure:   true,
+	})
+
+	http.Redirect(w, r, "/crm/", http.StatusFound)
+}
+
+func PostLogout(w http.ResponseWriter, r *http.Request) {
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     os.Getenv("COOKIE_NAME"),
+		Value:    "",
+		Path:     "/",
+		Domain:   os.Getenv("ROOT_DOMAIN"),
+		Expires:  time.Now().Add(-1 * time.Hour), // Set expiration time to a past date
+		HttpOnly: false,
+		SameSite: http.SameSiteStrictMode,
+		Secure:   true,
+	})
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }

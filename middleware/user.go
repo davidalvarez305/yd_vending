@@ -20,18 +20,6 @@ func UserTracking(next http.Handler) http.Handler {
 		}
 
 		if session.IsNew {
-			// Cookie Settings
-			/* http.SetCookie(w, &http.Cookie{
-				Name:     os.Getenv("COOKIE_NAME"),
-				Value:    "cookie_value",
-				Path:     "/",
-				Domain:   os.Getenv("ROOT_DOMAIN"),
-				Expires:  time.Now().Add(24 * time.Hour), // Expires in 24 hours
-				HttpOnly: false,
-				SameSite: http.SameSiteStrictMode,
-				Secure:   true,
-			}) */
-
 			secret, err := helpers.GenerateCSRFSecret()
 
 			if err != nil {
