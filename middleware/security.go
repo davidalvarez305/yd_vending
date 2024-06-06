@@ -74,7 +74,9 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			encryptedToken, err := helpers.EncryptToken(time.Now().Unix(), token)
+			var unixTime = time.Now().Unix() + 300 // 5 minutes
+
+			encryptedToken, err := helpers.EncryptToken(unixTime, token)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error encrypting CSRF token.", http.StatusInternalServerError)
@@ -82,7 +84,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			}
 
 			csrfToken := models.CSRFToken{
-				ExpiryTime: time.Now().Unix(),
+				ExpiryTime: unixTime,
 				Token:      encryptedToken,
 				IsUsed:     false,
 			}
