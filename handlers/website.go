@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/davidalvarez305/budgeting/constants"
+	"github.com/davidalvarez305/budgeting/database"
 	"github.com/davidalvarez305/budgeting/helpers"
-	"github.com/davidalvarez305/budgeting/models"
+	"github.com/davidalvarez305/budgeting/middleware"
 	"github.com/davidalvarez305/budgeting/services"
 	"github.com/davidalvarez305/budgeting/types"
 )
@@ -100,41 +101,21 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lead := &models.Lead{
-		FirstName:         form.FirstName,
-		LastName:          form.LastName,
-		PhoneNumber:       form.PhoneNumber,
-		CreatedAt:         time.Now().Unix(),
-		Rent:              form.Rent,
-		VendingTypeID:     form.MachineType,
-		CityID:            form.City,
-		VendingLocationID: form.LocationType,
-		LeadMarketing: &models.LeadMarketing{
-			Source:        form.Source,
-			Medium:        form.Medium,
-			Channel:       form.Channel,
-			LandingPage:   form.LandingPage,
-			Keyword:       form.Keyword,
-			Referrer:      form.Referrer,
-			Gclid:         form.Gclid,
-			CampaignID:    form.CampaignID,
-			AdCampaign:    form.AdCampaign,
-			AdGroupID:     form.AdGroupID,
-			AdGroupName:   form.AdGroupName,
-			AdSetID:       form.AdSetID,
-			AdSetName:     form.AdSetName,
-			AdID:          form.AdID,
-			AdHeadline:    form.AdHeadline,
-			Language:      form.Language,
-			OS:            form.OS,
-			UserAgent:     form.UserAgent,
-			ButtonClicked: form.ButtonClicked,
-			DeviceType:    form.DeviceType,
-			IP:            form.IP,
-		},
+	token, err := middleware.GetTokenFromSession(r)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting user token.", http.StatusBadRequest)
+		return
 	}
 
-	fmt.Printf("%+v\n", lead)
+	err = database.CreateLeadAndMarketing(form, token)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting user token.", http.StatusBadRequest)
+		return
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

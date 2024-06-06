@@ -42,7 +42,7 @@ func GetCSRFToken(decryptedToken string) (models.CSRFToken, error) {
 	return token, nil
 }
 
-func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
+func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
@@ -57,10 +57,10 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 
 	// Insert Lead
 	leadQuery := `
-		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id)
-		VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, ?, ?, ?, ?, ?)
+		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id, user_key)
+		VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, ?, ?, ?, ?, ?, ?)
 	`
-	leadResult, err := tx.Exec(leadQuery, quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City)
+	leadResult, err := tx.Exec(leadQuery, quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, string(userKey))
 	if err != nil {
 		return err
 	}
