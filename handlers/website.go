@@ -173,6 +173,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Respond to client
-	fmt.Fprintf(w, "Message sent successfully!")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
 }
