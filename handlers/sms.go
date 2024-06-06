@@ -104,7 +104,6 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Send a response message using Twilio API
 	accountSID := os.Getenv("TWILLIO_ACCOUNT_SID")
 	authToken := os.Getenv("TWILLIO_AUTH_TOKEN")
 	from := os.Getenv("DAVID_TWILLIO_PHONE_NUMBER")
@@ -113,9 +112,8 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 
 	twilioURL := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json", accountSID)
 
-	// Create form data for Twilio API request
 	formData := url.Values{}
-	formData.Set("To", to) // Send the response to the sender
+	formData.Set("To", to)
 	formData.Set("From", from)
 	formData.Set("Body", body)
 
@@ -127,7 +125,6 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a new HTTP request
 	req, err := http.NewRequest("POST", twilioURL, bytes.NewBufferString(formData.Encode()))
 	if err != nil {
 		log.Printf("Error creating request: %s", err)
@@ -135,12 +132,10 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set the appropriate headers
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	auth := base64.StdEncoding.EncodeToString([]byte(accountSID + ":" + authToken))
 	req.Header.Set("Authorization", "Basic "+auth)
 
-	// Send the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -150,7 +145,6 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	// Handle the response
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		var twilioResp struct {
 			SID string `json:"sid"`
@@ -161,7 +155,6 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Save the message to the database
 		sms := models.TextMessage{
 			MessageSID: twilioResp.SID,
 			UserID:     userId,

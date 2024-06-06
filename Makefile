@@ -22,3 +22,6 @@ deps:
 
 deploy:
 	@./deploy.sh
+
+generate:
+	@go run ./cmd/env.go ./.env

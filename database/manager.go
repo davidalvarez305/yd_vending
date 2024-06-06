@@ -112,16 +112,16 @@ func GetUserIDFromPhoneNumber(from string) (int, error) {
 
 	stmt, err := DB.Prepare("SELECT user_id FROM user WHERE phone_number = ?")
 	if err != nil {
-		return token, err
+		return userId, err
 	}
 	defer stmt.Close()
 
 	row := stmt.QueryRow(from)
 
-	err = row.Scan(userId)
+	err = row.Scan(&userId)
 	if err != nil {
-		return token, err
+		return userId, err
 	}
 
-	return token, nil
+	return userId, nil
 }
