@@ -9,7 +9,6 @@ import (
 
 	"github.com/davidalvarez305/budgeting/constants"
 	"github.com/davidalvarez305/budgeting/helpers"
-	"github.com/davidalvarez305/budgeting/middleware"
 	"github.com/davidalvarez305/budgeting/models"
 	"github.com/davidalvarez305/budgeting/services"
 	"github.com/davidalvarez305/budgeting/types"
@@ -72,28 +71,12 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
 
-	token, err := middleware.GetTokenFromSession(r)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
-		return
-	}
-
-	// Only do this on first user session
-	csrfToken, err := middleware.Encrypt(time.Now().Unix(), token)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error generating CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = r.Context().Value("nonce").(string)
-	data["CSRFToken"] = csrfToken
+	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
 
-	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -114,21 +97,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error decoding JSON.", http.StatusBadRequest)
-		return
-	}
-
-	token, err := middleware.GetTokenFromSession(r)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
-		return
-	}
-
-	err = middleware.ValidateCSRFToken(form.CSRFToken, token)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error validating token.", http.StatusBadRequest)
 		return
 	}
 
@@ -180,18 +148,22 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract form values
-	firstName := r.FormValue("first_name")
-	lastName := r.FormValue("last_name")
-	email := r.FormValue("email")
-	message := r.FormValue("message")
+	var form types.ContactForm
+
+	err := json.NewDecoder(r.Body).Decode(&form)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error decoding JSON.", http.StatusBadRequest)
+		return
+	}
 
 	// Compose email message
 	subject := "Contact Form: YD Vending"
-	body := fmt.Sprintf("Name: %s %s\nEmail: %s\nMessage:\n%s", firstName, lastName, email, message)
+	body := fmt.Sprintf("Name: %s %s\nEmail: %s\nMessage:\n%s", form.FirstName, form.LastName, form.Email, form.Message)
 
 	// Send email
-	if err := services.SendSMTPEmail(subject, body, email); err != nil {
+	if err := services.SendSMTPEmail(subject, body, form.Email); err != nil {
 		log.Printf("Error sending email: %s", err)
 		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
 		return

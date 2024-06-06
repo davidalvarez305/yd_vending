@@ -1,4 +1,4 @@
-package middleware
+package helpers
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ const (
 	CSRF_SECRET_LENGTH = 32
 )
 
-func generateCSRFSecret() (string, error) {
+func GenerateCSRFSecret() (string, error) {
 	secret := make([]byte, CSRF_SECRET_LENGTH)
 
 	_, err := rand.Read(secret)
@@ -34,25 +34,10 @@ func generateCSRFSecret() (string, error) {
 	return encodedSecret, nil
 }
 
-func Encrypt(unixTime int64, key []byte) (string, error) {
+func EncryptToken(unixTime int64, key []byte) (string, error) {
 	var encryptedString string
-	var token, err = generateCSRFSecret()
-	if err != nil {
-		return encryptedString, err
-	}
 
-	csrfToken := models.CSRFToken{
-		ExpiryTime: unixTime,
-		Token:      token,
-		IsUsed:     false,
-	}
-
-	err = database.InsertCSRFToken(csrfToken)
-	if err != nil {
-		return encryptedString, err
-	}
-
-	tokenBytes := []byte(token)
+	tokenBytes := []byte(key)
 	unixTimeBytes := []byte(strconv.FormatInt(unixTime, 10))
 
 	joinedData := strings.Join([]string{string(tokenBytes), string(unixTimeBytes)}, ":")
@@ -78,7 +63,7 @@ func Encrypt(unixTime int64, key []byte) (string, error) {
 	return encryptedString, nil
 }
 
-func Decrypt(encryptedStr string, userToken []byte) (string, int64, error) {
+func DecryptToken(encryptedStr string, userToken []byte) (string, int64, error) {
 	encryptedData, err := base64.StdEncoding.DecodeString(encryptedStr)
 	if err != nil {
 		return "", 0, err
@@ -127,36 +112,28 @@ func unpad(data []byte) []byte {
 	return data[:(length - unpadding)]
 }
 
-/* func generateAESKey(length int) ([]byte, error) {
-	key := make([]byte, length)
-	_, err := rand.Read(key)
+func ValidateCSRFToken(token string, userToken []byte) (models.CSRFToken, error) {
+	var csrfToken models.CSRFToken
+	decryptedStr, decryptedUnixTime, err := DecryptToken(token, userToken)
 	if err != nil {
-		return nil, err
-	}
-	return key, nil
-} */
-
-func ValidateCSRFToken(token string, userToken []byte) error {
-	decryptedStr, decryptedUnixTime, err := Decrypt(token, userToken)
-	if err != nil {
-		return err
+		return csrfToken, err
 	}
 
 	// Check if string exists in DB
-	csrfToken, err := database.GetCSRFToken(decryptedStr)
+	csrfToken, err = database.GetCSRFToken(decryptedStr)
 	if err != nil {
-		return err
+		return csrfToken, err
 	}
 
 	// Unix time validation
 	if decryptedUnixTime > time.Now().Unix() || csrfToken.ExpiryTime != decryptedUnixTime {
-		return errors.New("invalid token UNIX time")
+		return csrfToken, errors.New("invalid token UNIX time")
 	}
 
 	// Check if used
 	if !csrfToken.IsUsed {
-		return errors.New("token already used")
+		return csrfToken, errors.New("token already used")
 	}
 
-	return nil
+	return csrfToken, nil
 }

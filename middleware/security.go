@@ -7,6 +7,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/davidalvarez305/budgeting/database"
+	"github.com/davidalvarez305/budgeting/helpers"
+	"github.com/davidalvarez305/budgeting/models"
 )
 
 func SecurityMiddleware(next http.Handler) http.Handler {
@@ -48,11 +53,68 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 
 func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			token, err := GetTokenFromSession(r)
+
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
+				return
+			}
+
+			encryptedToken, err := helpers.EncryptToken(time.Now().Unix(), token)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error encrypting CSRF token.", http.StatusInternalServerError)
+				return
+			}
+
+			csrfToken := models.CSRFToken{
+				ExpiryTime: time.Now().Unix(),
+				Token:      encryptedToken,
+				IsUsed:     false,
+			}
+
+			err = database.InsertCSRFToken(csrfToken)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error inserting CSRF token.", http.StatusBadRequest)
+				return
+			}
+
+			r = r.WithContext(context.WithValue(r.Context(), "csrf_token", encryptedToken))
+
+			next.ServeHTTP(w, r)
+
+		}
+
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
 
 			csrfToken := r.FormValue("csrf_token")
 			if csrfToken == "" {
 				http.Error(w, "CSRF token is missing", http.StatusForbidden)
+				return
+			}
+
+			token, err := GetTokenFromSession(r)
+
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
+				return
+			}
+
+			dbToken, err := helpers.ValidateCSRFToken(csrfToken, token)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error validating token.", http.StatusBadRequest)
+				return
+			}
+
+			err = database.MarkCSRFTokenAsUsed(dbToken.Token)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Error marking token as used.", http.StatusBadRequest)
 				return
 			}
 		}

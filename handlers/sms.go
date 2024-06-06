@@ -46,7 +46,7 @@ func handleIncomingCall(w http.ResponseWriter, r *http.Request) {
 	from := r.FormValue("From")
 	to := r.FormValue("To")
 
-	forwardTo := os.Getenv("DAVID_TWILLIO_PHONE_NUMBER")
+	forwardTo := os.Getenv("DAVID_TWILIO_PHONE_NUMBER")
 
 	fmt.Printf("Incoming call from: %s", from)
 	fmt.Printf("Incoming call to: %s", to)
@@ -106,7 +106,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 
 	accountSID := os.Getenv("TWILLIO_ACCOUNT_SID")
 	authToken := os.Getenv("TWILLIO_AUTH_TOKEN")
-	from := os.Getenv("DAVID_TWILLIO_PHONE_NUMBER")
+	from := os.Getenv("DAVID_TWILIO_PHONE_NUMBER")
 	body := r.FormValue("Body")
 	to := r.FormValue("To")
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/davidalvarez305/budgeting/helpers"
 	"github.com/davidalvarez305/budgeting/sessions"
 )
 
@@ -31,7 +32,7 @@ func UserTracking(next http.Handler) http.Handler {
 				Secure:   true,
 			}) */
 
-			secret, err := generateCSRFSecret()
+			secret, err := helpers.GenerateCSRFSecret()
 
 			if err != nil {
 				fmt.Printf("%+v\n", err)

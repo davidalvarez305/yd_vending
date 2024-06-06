@@ -82,14 +82,14 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 	return nil
 }
 
-func MarkCSRFTokenAsUsed(token models.CSRFToken) error {
+func MarkCSRFTokenAsUsed(token string) error {
 	stmt, err := DB.Prepare("UPDATE csrf_token SET is_used = true WHERE token = ?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(token.Token)
+	_, err = stmt.Exec(token)
 	if err != nil {
 		return err
 	}
