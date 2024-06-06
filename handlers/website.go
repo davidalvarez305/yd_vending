@@ -35,6 +35,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/quote":
 			GetQuoteForm(w, r)
+		case "/contact":
+			GetContactForm(w, r)
 		case "/":
 			GetHome(w, r)
 		default:
@@ -120,6 +122,27 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
+}
+
+func GetContactForm(w http.ResponseWriter, r *http.Request) {
+	fileName := "contact_form.html"
+
+	data := websiteContext
+	data["PagePath"] = "http://localhost" + r.URL.Path
+	data["Nonce"] = r.Context().Value("nonce").(string)
+	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
+
+	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error building quote form.", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	http.ServeFile(w, r, constants.WEBSITE_PUBLIC_DIR+fileName)
 }
 
 func PostContactForm(w http.ResponseWriter, r *http.Request) {
