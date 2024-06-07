@@ -3,7 +3,6 @@ package services
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net/smtp"
 	"os"
 	"strings"
@@ -18,7 +17,7 @@ func SendSMTPEmail(subject, recipient, senderEmail string, data any, templateNam
 	smtpPassword := os.Getenv("GMAIL_PASSWORD")
 
 	templateFile := constants.PARTIAL_TEMPLATES_DIR + templateName
-	templateContent, err := ioutil.ReadFile(templateFile)
+	templateContent, err := os.ReadFile(templateFile)
 	if err != nil {
 		return fmt.Errorf("error reading template file: %v", err)
 	}
