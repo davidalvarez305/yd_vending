@@ -8,7 +8,7 @@ import (
 )
 
 func InsertCSRFToken(token models.CSRFToken) error {
-	stmt, err := DB.Prepare(`INSERT INTO "csrf_token" (expiry_time, token, is_used) VALUES($1, $2, $3)`)
+	stmt, err := DB.Prepare(`INSERT INTO "csrf_token" ("expiry_time", "token", "is_used") VALUES($1, $2, $3)`)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func InsertCSRFToken(token models.CSRFToken) error {
 func GetCSRFToken(decryptedToken string) (models.CSRFToken, error) {
 	var token models.CSRFToken
 
-	stmt, err := DB.Prepare(`SELECT * FROM "csrf_token" WHERE token = $1`)
+	stmt, err := DB.Prepare(`SELECT * FROM "csrf_token" WHERE "token" = $1`)
 	if err != nil {
 		return token, err
 	}
@@ -57,7 +57,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 
 	// Insert Lead
 	leadQuery := `
-		INSERT INTO "lead" (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id, user_key)
+		INSERT INTO "lead" ("first_name", "last_name", "phone_number", "created_at", "rent", "foot_traffic", "foot_traffic_type", "vending_type_id", "vending_location_id", "city_id", "user_key")
 		VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4, $5, $6, $7, $8, $9, $10)
 	`
 	leadResult, err := tx.Exec(leadQuery, quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, string(userKey))
@@ -71,7 +71,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 
 	// Insert Lead Marketing
 	marketingQuery := `
-		INSERT INTO "lead_marketing" (lead_id, source, medium, channel, landing_page, keyword, referrer, gclid, campaign_id, ad_campaign, ad_group_id, ad_group_name, ad_set_id, ad_set_name, ad_id, ad_headline, language, os, user_agent, button_clicked, device_type, ip)
+		INSERT INTO "lead_marketing" ("lead_id", "source", "medium", "channel", "landing_page", "keyword", "referrer", "gclid", "campaign_id", "ad_campaign", "ad_group_id", "ad_group_name", "ad_set_id", "ad_set_name", "ad_id", "ad_headline", "language", "os", "user_agent", "button_clicked", "device_type", "ip")
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
 	`
 	_, err = tx.Exec(marketingQuery, leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.Gclid, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.OS, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.DeviceType, quoteForm.IP)
@@ -83,7 +83,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 }
 
 func MarkCSRFTokenAsUsed(token string) error {
-	stmt, err := DB.Prepare(`UPDATE "csrf_token" SET is_used = true WHERE token = $1`)
+	stmt, err := DB.Prepare(`UPDATE "csrf_token" SET "is_used" = true WHERE "token" = $1`)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func MarkCSRFTokenAsUsed(token string) error {
 
 func SaveSMS(msg models.TextMessage) error {
 	query := `
-		INSERT INTO "text_message" (message_sid, from_number, user_id, to_number, body, status, created_at, is_inbound)
+		INSERT INTO "text_message" ("message_sid", "from_number", "user_id", "to_number", "body", "status", "created_at", "is_inbound")
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 	_, err := DB.Exec(query, msg.MessageSID, msg.UserID, msg.FromNumber, msg.ToNumber, msg.Body, msg.Status, msg.CreatedAt, msg.IsInbound)
@@ -110,7 +110,7 @@ func SaveSMS(msg models.TextMessage) error {
 func GetUserIDFromPhoneNumber(from string) (int, error) {
 	var userId int
 
-	stmt, err := DB.Prepare(`SELECT user_id FROM "user" WHERE phone_number = $1`)
+	stmt, err := DB.Prepare(`SELECT "user_id" FROM "user" WHERE "phone_number" = $1`)
 	if err != nil {
 		return userId, err
 	}
@@ -129,7 +129,7 @@ func GetUserIDFromPhoneNumber(from string) (int, error) {
 func GetUserByEmail(email string) (models.User, error) {
 	var user models.User
 
-	stmt, err := DB.Prepare(`SELECT * FROM "user" WHERE email = $1`)
+	stmt, err := DB.Prepare(`SELECT * FROM "user" WHERE "email" = $1`)
 	if err != nil {
 		return user, err
 	}
@@ -198,7 +198,7 @@ func GetVendingLocations() ([]models.VendingLocation, error) {
 func GetCities() ([]models.City, error) {
 	var cities []models.City
 
-	rows, err := DB.Query(`SELECT city_id, name FROM "city"`)
+	rows, err := DB.Query(`SELECT "city_id", "name" FROM "city"`)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		return cities, err
