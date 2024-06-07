@@ -169,12 +169,13 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Compose email message
 	subject := "Contact Form: YD Vending"
-	body := fmt.Sprintf("Name: %s %s\nEmail: %s\nMessage:\n%s", form.FirstName, form.LastName, form.Email, form.Message)
+	senderEmail := os.Getenv("GMAIL_EMAIL")
+	recipient := form.Email
+	templateName := "contact_form_email.html"
 
 	// Send email
-	if err := services.SendSMTPEmail(subject, body, form.Email); err != nil {
+	if err := services.SendSMTPEmail(subject, recipient, senderEmail, form, templateName); err != nil {
 		log.Printf("Error sending email: %s", err)
 		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
 		return
