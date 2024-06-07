@@ -144,3 +144,78 @@ func GetUserByEmail(email string) (models.User, error) {
 
 	return user, nil
 }
+
+func GetVendingTypes() ([]models.VendingType, error) {
+	var vendingTypes []models.VendingType
+
+	rows, err := DB.Query("SELECT vending_type_id, machine_type FROM vending_type;")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var vt models.VendingType
+		err := rows.Scan(&vt.VendingTypeID, &vt.MachineType)
+		if err != nil {
+			return nil, err
+		}
+		vendingTypes = append(vendingTypes, vt)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return vendingTypes, nil
+}
+
+func GetVendingLocations() ([]models.VendingLocation, error) {
+	var vendingLocations []models.VendingLocation
+
+	rows, err := DB.Query("SELECT * FROM vending_location;")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var vl models.VendingLocation
+		err := rows.Scan(&vl.VendingLocationID, &vl.LocationType)
+		if err != nil {
+			return nil, err
+		}
+		vendingLocations = append(vendingLocations, vl)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return vendingLocations, nil
+}
+
+func GetCities() ([]models.City, error) {
+	var cities []models.City
+
+	rows, err := DB.Query("SELECT * FROM city;")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var city models.City
+		err := rows.Scan(&city.CityID, &city.Name)
+		if err != nil {
+			return nil, err
+		}
+		cities = append(cities, city)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return cities, nil
+}

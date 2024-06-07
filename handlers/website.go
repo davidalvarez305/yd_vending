@@ -81,12 +81,39 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
 
+	vendingTypes, err := database.GetVendingTypes()
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingLocations, err := database.GetVendingLocations()
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
+	cities, err := database.GetCities()
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = r.Context().Value("nonce").(string)
 	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
+	data["VendingTypes"] = vendingTypes
+	data["VendingLocations"] = vendingLocations
+	data["Cities"] = cities
 
-	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
