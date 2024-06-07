@@ -47,3 +47,9 @@ type ContactForm struct {
 	Email     string `json:"email"`
 	Message   string `json:"message"`
 }
+
+type OutboundMessageForm struct {
+	To   string `json:"to"`
+	Body string `json:"body"`
+	From string `json:"form"`
+}
