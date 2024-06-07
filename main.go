@@ -39,7 +39,7 @@ func main() {
 
 	s := &http.Server{
 		Addr:           ":" + os.Getenv("SERVER_PORT"),
-		Handler:        middleware.UserTracking(middleware.SecurityMiddleware(router.Router())),
+		Handler:        middleware.UserTracking(middleware.SecurityMiddleware(middleware.CSRFProtectMiddleware(router.Router()))),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,

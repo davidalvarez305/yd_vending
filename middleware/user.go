@@ -50,11 +50,14 @@ func GetTokenFromSession(r *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	if csrfSecret, ok := session.Values["csrf_secret"]; ok {
-		return hex.DecodeString(csrfSecret.(string))
+	if csrfSecret, ok := session.Values["csrf_secret"].(string); ok {
+		decodedSecret, err := hex.DecodeString(csrfSecret)
+		if err != nil {
+			return nil, err
+		}
+		return decodedSecret, nil
 	}
-
-	return nil, errors.New("no secret in session")
+	return nil, errors.New("csrf_secret not found in session values or is not a string")
 }
 
 func GetUserIDFromSession(r *http.Request) (int, error) {

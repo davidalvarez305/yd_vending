@@ -8,13 +8,13 @@ import (
 )
 
 func InsertCSRFToken(token models.CSRFToken) error {
-	stmt, err := DB.Prepare("INSERT INTO csrf_token(expiry_time, token) VALUES(?, ?)")
+	stmt, err := DB.Prepare("INSERT INTO csrf_token(expiry_time, token, is_used) VALUES($1, $2, $3)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(token.ExpiryTime, token.Token)
+	_, err = stmt.Exec(token.ExpiryTime, token.Token, token.IsUsed)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 	// Insert Lead
 	leadQuery := `
 		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id, user_key)
-		VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, ?, ?, ?, ?, ?, ?)
+		VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4, $5, $6, $7, $8, $9, $10)
 	`
 	leadResult, err := tx.Exec(leadQuery, quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, string(userKey))
 	if err != nil {
@@ -72,7 +72,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 	// Insert Lead Marketing
 	marketingQuery := `
 		INSERT INTO lead_marketing (lead_id, source, medium, channel, landing_page, keyword, referrer, gclid, campaign_id, ad_campaign, ad_group_id, ad_group_name, ad_set_id, ad_set_name, ad_id, ad_headline, language, os, user_agent, button_clicked, device_type, ip)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
 	`
 	_, err = tx.Exec(marketingQuery, leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.Gclid, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.OS, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.DeviceType, quoteForm.IP)
 	if err != nil {
@@ -148,9 +148,9 @@ func GetUserByEmail(email string) (models.User, error) {
 func GetVendingTypes() ([]models.VendingType, error) {
 	var vendingTypes []models.VendingType
 
-	rows, err := DB.Query("SELECT vending_type_id, machine_type FROM vending_type;")
+	rows, err := DB.Query("SELECT * FROM vending_type;")
 	if err != nil {
-		return nil, err
+		return vendingTypes, err
 	}
 	defer rows.Close()
 
@@ -158,13 +158,13 @@ func GetVendingTypes() ([]models.VendingType, error) {
 		var vt models.VendingType
 		err := rows.Scan(&vt.VendingTypeID, &vt.MachineType)
 		if err != nil {
-			return nil, err
+			return vendingTypes, err
 		}
 		vendingTypes = append(vendingTypes, vt)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return vendingTypes, err
 	}
 
 	return vendingTypes, nil
@@ -175,7 +175,7 @@ func GetVendingLocations() ([]models.VendingLocation, error) {
 
 	rows, err := DB.Query("SELECT * FROM vending_location;")
 	if err != nil {
-		return nil, err
+		return vendingLocations, err
 	}
 	defer rows.Close()
 
@@ -183,13 +183,13 @@ func GetVendingLocations() ([]models.VendingLocation, error) {
 		var vl models.VendingLocation
 		err := rows.Scan(&vl.VendingLocationID, &vl.LocationType)
 		if err != nil {
-			return nil, err
+			return vendingLocations, err
 		}
 		vendingLocations = append(vendingLocations, vl)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return vendingLocations, err
 	}
 
 	return vendingLocations, nil
@@ -198,9 +198,10 @@ func GetVendingLocations() ([]models.VendingLocation, error) {
 func GetCities() ([]models.City, error) {
 	var cities []models.City
 
-	rows, err := DB.Query("SELECT * FROM city;")
+	rows, err := DB.Query("SELECT city_id, name FROM city;")
 	if err != nil {
-		return nil, err
+		fmt.Printf("%+v\n", err)
+		return cities, err
 	}
 	defer rows.Close()
 
@@ -208,13 +209,13 @@ func GetCities() ([]models.City, error) {
 		var city models.City
 		err := rows.Scan(&city.CityID, &city.Name)
 		if err != nil {
-			return nil, err
+			return cities, err
 		}
 		cities = append(cities, city)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return cities, err
 	}
 
 	return cities, nil
