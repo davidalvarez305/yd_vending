@@ -90,7 +90,7 @@ func handleIncomingSMS(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Do something with message
-	services.HandleSMS()
+	fmt.Println(r.FormValue("Body"))
 }
 
 func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
