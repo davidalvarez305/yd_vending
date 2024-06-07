@@ -2,11 +2,11 @@ package services
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/smtp"
 	"os"
 	"strings"
-	"text/template"
 
 	"github.com/davidalvarez305/yd_vending/constants"
 )
