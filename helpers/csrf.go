@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davidalvarez305/budgeting/database"
-	"github.com/davidalvarez305/budgeting/models"
+	"github.com/davidalvarez305/yd_vending/database"
+	"github.com/davidalvarez305/yd_vending/models"
 )
 
 const (

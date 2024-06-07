@@ -3,8 +3,8 @@ package database
 import (
 	"fmt"
 
-	"github.com/davidalvarez305/budgeting/models"
-	"github.com/davidalvarez305/budgeting/types"
+	"github.com/davidalvarez305/yd_vending/models"
+	"github.com/davidalvarez305/yd_vending/types"
 )
 
 func InsertCSRFToken(token models.CSRFToken) error {

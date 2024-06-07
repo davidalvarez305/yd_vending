@@ -8,12 +8,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/davidalvarez305/budgeting/constants"
-	"github.com/davidalvarez305/budgeting/database"
-	"github.com/davidalvarez305/budgeting/helpers"
-	"github.com/davidalvarez305/budgeting/middleware"
-	"github.com/davidalvarez305/budgeting/services"
-	"github.com/davidalvarez305/budgeting/types"
+	"github.com/davidalvarez305/yd_vending/constants"
+	"github.com/davidalvarez305/yd_vending/database"
+	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/middleware"
+	"github.com/davidalvarez305/yd_vending/services"
+	"github.com/davidalvarez305/yd_vending/types"
 )
 
 var baseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"

@@ -25,3 +25,6 @@ deploy:
 
 generate:
 	@go run ./cmd/env.go ./.env
+	
+imports:
+	@go run ./cmd/imports.go

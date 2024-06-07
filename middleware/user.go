@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/davidalvarez305/budgeting/helpers"
-	"github.com/davidalvarez305/budgeting/sessions"
+	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
 func UserTracking(next http.Handler) http.Handler {

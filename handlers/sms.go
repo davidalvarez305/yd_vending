@@ -11,10 +11,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/davidalvarez305/budgeting/database"
-	"github.com/davidalvarez305/budgeting/middleware"
-	"github.com/davidalvarez305/budgeting/models"
-	"github.com/davidalvarez305/budgeting/services"
+	"github.com/davidalvarez305/yd_vending/database"
+	"github.com/davidalvarez305/yd_vending/middleware"
+	"github.com/davidalvarez305/yd_vending/models"
+	"github.com/davidalvarez305/yd_vending/services"
 )
 
 func PhoneServiceHandler(w http.ResponseWriter, r *http.Request) {

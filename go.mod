@@ -1,4 +1,4 @@
-module github.com/davidalvarez305/budgeting
+module github.com/davidalvarez305/yd_vending
 
 go 1.22.3
 

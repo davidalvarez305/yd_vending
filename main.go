@@ -9,10 +9,10 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/davidalvarez305/budgeting/database"
-	"github.com/davidalvarez305/budgeting/middleware"
-	"github.com/davidalvarez305/budgeting/router"
-	"github.com/davidalvarez305/budgeting/sessions"
+	"github.com/davidalvarez305/yd_vending/database"
+	"github.com/davidalvarez305/yd_vending/middleware"
+	"github.com/davidalvarez305/yd_vending/router"
+	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
 func main() {
