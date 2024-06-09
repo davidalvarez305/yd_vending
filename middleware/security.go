@@ -23,20 +23,6 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// CSP Settings
-		cspDirective := fmt.Sprintf(`
-		default-src 'self';
-		script-src 'self' https://www.googletagmanager.com %s;
-		font-src 'self' https://fonts.bunny.net;
-		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com;
-		style-src-attr 'self';
-		img-src 'self' https://www.google-analytics.com data:;
-		connect-src 'self' https://www.google-analytics.com;
-		style-src-elem 'self' https://fonts.bunny.net;
-		`, os.Getenv("AWS_STORAGE_BUCKET"))
-
-		w.Header().Set("Content-Security-Policy", cspDirective)
-
 		// Generate a random nonce
 		nonce := make([]byte, 16)
 		if _, err := rand.Read(nonce); err != nil {
@@ -44,6 +30,19 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		nonceBase64 := base64.StdEncoding.EncodeToString(nonce)
+
+		// CSP Settings
+		cspDirective := fmt.Sprintf(`default-src 'self';
+		script-src 'self' https://www.googletagmanager.com %s 'nonce-%s';
+		font-src 'self' https://fonts.bunny.net;
+		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s';
+		style-src 'self';
+		img-src 'self' https://www.google-analytics.com data:;
+		connect-src 'self' https://www.google-analytics.com;
+		style-src-elem 'self' https://fonts.bunny.net;
+		style-src-attr 'self' 'unsafe-inline';`, os.Getenv("AWS_STORAGE_BUCKET"), nonceBase64, nonceBase64)
+
+		w.Header().Set("Content-Security-Policy", cspDirective)
 
 		// Pass the nonce to the next handler
 		r = r.WithContext(context.WithValue(r.Context(), "nonce", nonceBase64))

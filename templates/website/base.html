@@ -4,7 +4,7 @@
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id={{ .GoogleAnalyticsID }}"></script>
-  <script>
+  <script nonce="{{ .Nonce }}">
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag("js", new Date());
@@ -33,7 +33,7 @@
   <meta name="twitter:url" content="{{ .PagePath }}" />
 
   <!-- CSS -->
-  <link href="{{ .StaticPath }}/main.css" rel="preload" as="style" type="text/css" onload="this.onload=null;this.rel='stylesheet'">
+  <link href="{{ .StaticPath }}/main.css" rel="stylesheet" type="text/css">
 
   <!-- Rels -->
   <link rel="shortcut icon" href="{{ .StaticPath }}/media/favicon">
@@ -86,7 +86,7 @@
         {{ template "form.html" . }}
       </div>
 
-      <script src="{{ .StaticPath }}/main.js"></script>
+      <script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>
     </main>
     <!-- Page Content -->
 

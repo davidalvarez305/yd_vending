@@ -12,7 +12,6 @@ import (
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/middleware"
-	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
 )
@@ -98,15 +97,13 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* cities, err := database.GetCities()
+	cities, err := database.GetCities()
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
 		return
-	} */
-
-	var cities []models.City
+	}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
