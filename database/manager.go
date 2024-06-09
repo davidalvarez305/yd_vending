@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/types"
@@ -58,9 +59,9 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 	// Insert Lead
 	leadQuery := `
 		INSERT INTO "lead" ("first_name", "last_name", "phone_number", "created_at", "rent", "foot_traffic", "foot_traffic_type", "vending_type_id", "vending_location_id", "city_id", "user_key")
-		VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4, $5, $6, $7, $8, $9, $10)
+		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10, $11)
 	`
-	leadResult, err := tx.Exec(leadQuery, quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, string(userKey))
+	leadResult, err := tx.Exec(leadQuery, quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, time.Now().Unix(), quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, string(userKey))
 	if err != nil {
 		return err
 	}
@@ -101,7 +102,7 @@ func MarkCSRFTokenAsUsed(token string) error {
 func SaveSMS(msg models.TextMessage) error {
 	query := `
 		INSERT INTO "text_message" ("message_sid", "from_number", "user_id", "to_number", "body", "status", "created_at", "is_inbound")
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		VALUES ($1, $2, $3, $4, $5, $6, to_timestamp($7), $8)
 	`
 	_, err := DB.Exec(query, msg.MessageSID, msg.UserID, msg.FromNumber, msg.ToNumber, msg.Body, msg.Status, msg.CreatedAt, msg.IsInbound)
 	return err
