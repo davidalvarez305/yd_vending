@@ -8,7 +8,7 @@ import (
 )
 
 func InsertCSRFToken(token models.CSRFToken) error {
-	stmt, err := DB.Prepare(`INSERT INTO "csrf_token" ("expiry_time", "token", "is_used") VALUES($1, $2, $3)`)
+	stmt, err := DB.Prepare(`INSERT INTO "csrf_token" ("expiry_time", "token", "is_used") VALUES(to_timestamp($1), $2, $3)`)
 	if err != nil {
 		return err
 	}

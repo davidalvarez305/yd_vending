@@ -105,7 +105,7 @@
         <div
             class="mx-auto flex w-3/4 max-w-xl flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <form id="get-a-quote-form" class="space-y-6 p-5 md:p-10">
-                <input type="hidden" id="csrf_token" name="csrf_token" value="9=yWkwXsSuwwSUXcckynp0k8bckw0nygsbUfWXvzkvXwjv2Nxj0ypaTky_a9XNc8" />
+                <input type="hidden" id="csrf_token" name="csrf_token" value="jLgBBlz/LLvBdPc2IA94MWH88mZFxQUfAYb00AaeaLQEHht5wCOpP255MCx/9YihVVK&#43;O7ZeiLI09pGb8T4Xqw==" />
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="space-y-1">
                         <label for="first_name" class="font-medium">First Name</label>
@@ -132,29 +132,55 @@
                     <label for="machine_type" class="font-medium">Machine Type</label>
                     <select id="machine_type" name="machine_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
-                        <option value="1">Vending Machine</option>
-                        <option value="2">Ice Machine</option>
-                        <option value="3">Coffee Machine</option>
-                        <option value="4">ATM</option>
+                        
+                          <option value="1">Snacks</option>
+                        
+                          <option value="2">Drinks</option>
+                        
+                          <option value="3">Combo</option>
+                        
+                          <option value="4">Gumball</option>
+                        
+                          <option value="5">ATM</option>
+                        
+                          <option value="6">Coffee</option>
+                        
+                          <option value="7">Fresh Food</option>
+                        
+                          <option value="8">Healthy</option>
+                        
+                          <option value="9">Ice Cream</option>
+                        
+                          <option value="10">Cigarette</option>
+                        
+                          <option value="11">Medicine</option>
+                        
+                          <option value="12">DVD or Redbox</option>
+                        
+                          <option value="13">Electronics</option>
+                        
+                          <option value="14">Personal Care Product</option>
+                        
+                          <option value="15">Toy</option>
+                        
+                          <option value="16">Ice</option>
+                        
+                          <option value="17">Car</option>
+                        
                     </select>
                 </div>
                 <div class="space-y-1">
                     <label for="location_type" class="font-medium">Location Type*</label>
                     <select id="location_type" name="location_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
-                        <option value="1">Office</option>
-                        <option value="2">Warehouse</option>
-                        <option value="3">Barbershop</option>
+                        
                     </select>
                 </div>
                 <div class="space-y-1">
                     <label for="city" class="font-medium">City</label>
                     <select id="city" name="city" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
-                        <option value="1">Miami</option>
-                        <option value="2">Hialeah</option>
-                        <option value="3">Miami Lakes</option>
-                        <option value="4">Doral</option>
+                        
                     </select>
                 </div>
                 <div class="space-y-1">
@@ -189,7 +215,7 @@
 
 <div id="alertModal" style="display:none;"></div>
 
-<script type="module" nonce="owUnkk06urPbfMxPJIWZkg==">
+<script type="module" nonce="K6aVkcZhkRgXpXsubSExRQ==">
     import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 	const form = document.getElementById("get-a-quote-form");
 	const alertModal = document.getElementById("alertModal");
