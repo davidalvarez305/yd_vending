@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -107,22 +108,40 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 		}
 
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
-
 			csrfToken := r.FormValue("csrf_token")
+
+			// If CSRF token is not in form values, check the JSON body
 			if csrfToken == "" {
-				http.Error(w, "CSRF token is missing", http.StatusForbidden)
-				return
+				var jsonBody map[string]string
+				err := json.NewDecoder(r.Body).Decode(&jsonBody)
+				if err != nil {
+					http.Error(w, "Invalid JSON body.", http.StatusBadRequest)
+					return
+				}
+
+				csrfToken = jsonBody["csrf_token"]
+				if csrfToken == "" {
+					http.Error(w, "CSRF token is missing.", http.StatusForbidden)
+					return
+				}
 			}
 
 			token, err := GetTokenFromSession(r)
-
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
 				return
 			}
 
-			dbToken, err := helpers.ValidateCSRFToken(csrfToken, token)
+			// Check if string exists in DB
+			dbToken, err := database.GetCSRFToken(csrfToken)
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				http.Error(w, "Token doesn't exist in DB.", http.StatusBadRequest)
+				return
+			}
+
+			err = helpers.ValidateCSRFToken(dbToken, token)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error validating token.", http.StatusBadRequest)

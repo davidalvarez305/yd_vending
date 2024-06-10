@@ -26,6 +26,7 @@ func InsertCSRFToken(token models.CSRFToken) error {
 
 func GetCSRFToken(decryptedToken string) (models.CSRFToken, error) {
 	var token models.CSRFToken
+	var expiryTime time.Time
 
 	stmt, err := DB.Prepare(`SELECT * FROM "csrf_token" WHERE "token" = $1`)
 	if err != nil {
@@ -35,10 +36,12 @@ func GetCSRFToken(decryptedToken string) (models.CSRFToken, error) {
 
 	row := stmt.QueryRow(decryptedToken)
 
-	err = row.Scan(&token.CSRFTokenID, &token.ExpiryTime, &token.Token, &token.IsUsed)
+	err = row.Scan(&token.CSRFTokenID, &expiryTime, &token.Token, &token.IsUsed)
 	if err != nil {
 		return token, err
 	}
+
+	token.ExpiryTime = expiryTime.Unix()
 
 	return token, nil
 }

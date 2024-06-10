@@ -8,12 +8,12 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/models"
 )
 
@@ -39,7 +39,9 @@ func EncryptToken(unixTime int64, key []byte) (string, error) {
 
 	unixTimeBytes := []byte(strconv.FormatInt(unixTime, 10))
 
-	joinedData := strings.Join([]string{string(key), string(unixTimeBytes)}, ":")
+	encodedKey := base64.StdEncoding.EncodeToString(key)
+
+	joinedData := strings.Join([]string{string(encodedKey), string(unixTimeBytes)}, ":")
 
 	paddedData := pad([]byte(joinedData), aes.BlockSize)
 
@@ -62,19 +64,20 @@ func EncryptToken(unixTime int64, key []byte) (string, error) {
 	return encryptedString, nil
 }
 
-func DecryptToken(encryptedStr string, userToken []byte) (string, int64, error) {
+func DecryptToken(encryptedStr string, userToken []byte) ([]byte, int64, error) {
+	var userKey []byte
 	encryptedData, err := base64.StdEncoding.DecodeString(encryptedStr)
 	if err != nil {
-		return "", 0, err
+		return userKey, 0, err
 	}
 
 	block, err := aes.NewCipher(userToken)
 	if err != nil {
-		return "", 0, err
+		return userKey, 0, err
 	}
 
 	if len(encryptedData) < aes.BlockSize {
-		return "", 0, errors.New("encrypted data is too short")
+		return userKey, 0, errors.New("encrypted data is too short")
 	}
 
 	iv := encryptedData[:aes.BlockSize]
@@ -84,19 +87,26 @@ func DecryptToken(encryptedStr string, userToken []byte) (string, int64, error) 
 
 	mode.CryptBlocks(cipherText, cipherText)
 
-	unpaddedData := unpad(cipherText)
+	unpaddedData, err := unpad(cipherText)
+	if err != nil {
+		return userKey, 0, err
+	}
 
 	parts := strings.Split(string(unpaddedData), ":")
 	if len(parts) != 2 {
-		return "", 0, errors.New("invalid decrypted data format")
+		return userKey, 0, errors.New("invalid decrypted data format")
+	}
+
+	userKey, err = base64.StdEncoding.DecodeString(parts[0])
+	if err != nil {
+		return userKey, 0, err
 	}
 
 	unixTime, err := strconv.ParseInt(parts[1], 10, 64)
 	if err != nil {
-		return "", 0, err
+		return userKey, 0, err
 	}
-
-	return parts[0], unixTime, nil
+	return userKey, unixTime, nil
 }
 
 func pad(data []byte, blockSize int) []byte {
@@ -105,34 +115,44 @@ func pad(data []byte, blockSize int) []byte {
 	return append(data, padText...)
 }
 
-func unpad(data []byte) []byte {
+func unpad(data []byte) ([]byte, error) {
 	length := len(data)
+	if length == 0 {
+		return nil, errors.New("unpad error: input data is empty")
+	}
 	unpadding := int(data[length-1])
-	return data[:(length - unpadding)]
+	if unpadding > length || unpadding == 0 {
+		return nil, errors.New("unpad error: unpadding value is invalid")
+	}
+	return data[:(length - unpadding)], nil
 }
 
-func ValidateCSRFToken(token string, userToken []byte) (models.CSRFToken, error) {
-	var csrfToken models.CSRFToken
-	decryptedStr, decryptedUnixTime, err := DecryptToken(token, userToken)
+func ValidateCSRFToken(csrfToken models.CSRFToken, userToken []byte) error {
+
+	decryptedKey, decryptedUnixTime, err := DecryptToken(csrfToken.Token, userToken)
 	if err != nil {
-		return csrfToken, err
+		fmt.Printf("ERROR DECRYPTING TOKEN: %+v\n", err)
+		return err
 	}
 
-	// Check if string exists in DB
-	csrfToken, err = database.GetCSRFToken(decryptedStr)
-	if err != nil {
-		return csrfToken, err
+	if !bytes.Equal(decryptedKey, userToken) {
+		return errors.New("tokens don't match")
 	}
 
 	// Unix time validation
-	if decryptedUnixTime > time.Now().Unix() || csrfToken.ExpiryTime != decryptedUnixTime {
-		return csrfToken, errors.New("invalid token UNIX time")
+	if csrfToken.ExpiryTime != decryptedUnixTime {
+		return errors.New("invalid token UNIX time")
+	}
+
+	// Unix time validation
+	if decryptedUnixTime < time.Now().Unix() {
+		return errors.New("token expired")
 	}
 
 	// Check if used
 	if !csrfToken.IsUsed {
-		return csrfToken, errors.New("token already used")
+		return errors.New("token already used")
 	}
 
-	return csrfToken, nil
+	return nil
 }
