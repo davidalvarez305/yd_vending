@@ -142,7 +142,7 @@ func ValidateCSRFToken(isUsed bool, csrfToken string, userToken []byte) error {
 	}
 
 	// Check if used
-	if !isUsed {
+	if isUsed {
 		return errors.New("token already used")
 	}
 

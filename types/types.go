@@ -1,11 +1,6 @@
 package types
 
-type PostRequest struct {
-	CSRFToken string `json:"csrf_token"`
-}
-
 type QuoteForm struct {
-	PostRequest
 	FirstName       string `json:"first_name" form:"first_name"`
 	LastName        string `json:"last_name" form:"last_name"`
 	PhoneNumber     string `json:"phone_number" form:"phone_number"`
@@ -41,7 +36,6 @@ type QuoteForm struct {
 }
 
 type ContactForm struct {
-	PostRequest
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
