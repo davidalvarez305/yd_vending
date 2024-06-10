@@ -13,8 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/davidalvarez305/yd_vending/models"
 )
 
 const (
@@ -127,9 +125,8 @@ func unpad(data []byte) ([]byte, error) {
 	return data[:(length - unpadding)], nil
 }
 
-func ValidateCSRFToken(csrfToken models.CSRFToken, userToken []byte) error {
-
-	decryptedKey, decryptedUnixTime, err := DecryptToken(csrfToken.Token, userToken)
+func ValidateCSRFToken(isUsed bool, csrfToken string, userToken []byte) error {
+	decryptedKey, decryptedUnixTime, err := DecryptToken(csrfToken, userToken)
 	if err != nil {
 		fmt.Printf("ERROR DECRYPTING TOKEN: %+v\n", err)
 		return err
@@ -140,17 +137,12 @@ func ValidateCSRFToken(csrfToken models.CSRFToken, userToken []byte) error {
 	}
 
 	// Unix time validation
-	if csrfToken.ExpiryTime != decryptedUnixTime {
-		return errors.New("invalid token UNIX time")
-	}
-
-	// Unix time validation
 	if decryptedUnixTime < time.Now().Unix() {
 		return errors.New("token expired")
 	}
 
 	// Check if used
-	if !csrfToken.IsUsed {
+	if !isUsed {
 		return errors.New("token already used")
 	}
 

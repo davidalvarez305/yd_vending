@@ -134,21 +134,21 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			}
 
 			// Check if string exists in DB
-			dbToken, err := database.GetCSRFToken(csrfToken)
+			isUsed, err := database.CheckIsTokenUsed(csrfToken)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Token doesn't exist in DB.", http.StatusBadRequest)
 				return
 			}
 
-			err = helpers.ValidateCSRFToken(dbToken, token)
+			err = helpers.ValidateCSRFToken(isUsed, csrfToken, token)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error validating token.", http.StatusBadRequest)
 				return
 			}
 
-			err = database.MarkCSRFTokenAsUsed(dbToken.Token)
+			err = database.MarkCSRFTokenAsUsed(csrfToken)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error marking token as used.", http.StatusBadRequest)

@@ -24,26 +24,23 @@ func InsertCSRFToken(token models.CSRFToken) error {
 	return nil
 }
 
-func GetCSRFToken(decryptedToken string) (models.CSRFToken, error) {
-	var token models.CSRFToken
-	var expiryTime time.Time
+func CheckIsTokenUsed(decryptedToken string) (bool, error) {
+	var isUsed bool
 
-	stmt, err := DB.Prepare(`SELECT * FROM "csrf_token" WHERE "token" = $1`)
+	stmt, err := DB.Prepare(`SELECT is_used FROM "csrf_token" WHERE "token" = $1`)
 	if err != nil {
-		return token, err
+		return isUsed, err
 	}
 	defer stmt.Close()
 
 	row := stmt.QueryRow(decryptedToken)
 
-	err = row.Scan(&token.CSRFTokenID, &expiryTime, &token.Token, &token.IsUsed)
+	err = row.Scan(&isUsed)
 	if err != nil {
-		return token, err
+		return isUsed, err
 	}
 
-	token.ExpiryTime = expiryTime.Unix()
-
-	return token, nil
+	return isUsed, nil
 }
 
 func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
