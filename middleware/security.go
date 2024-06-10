@@ -54,6 +54,11 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		if strings.Contains(r.URL.Path, "/static/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		if strings.Contains(r.URL.Path, "/call/inbound") || strings.Contains(r.URL.Path, "/sms/inbound") {
 			if err := validateTwilioWebhook(r); err != nil {
 				fmt.Printf("%+v\n", err)
@@ -98,7 +103,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			r = r.WithContext(context.WithValue(r.Context(), "csrf_token", encryptedToken))
 
 			next.ServeHTTP(w, r)
-
+			return
 		}
 
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
@@ -130,9 +135,10 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				http.Error(w, "Error marking token as used.", http.StatusBadRequest)
 				return
 			}
-		}
 
-		next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r)
+			return
+		}
 	})
 }
 

@@ -82,7 +82,6 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
 
 	vendingTypes, err := database.GetVendingTypes()
-
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
@@ -90,7 +89,6 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vendingLocations, err := database.GetVendingLocations()
-
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
@@ -98,23 +96,33 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cities, err := database.GetCities()
-
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
 		return
 	}
 
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
-	data["Nonce"] = r.Context().Value("nonce").(string)
-	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
 	data["Cities"] = cities
 
 	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
-
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error building quote form.", http.StatusInternalServerError)
