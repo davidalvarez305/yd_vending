@@ -4,7 +4,7 @@
 <head>
   
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1231412312"></script>
-  <script nonce="s3SpKk0kQkeI1U5zS66vTA==">
+  <script nonce="4LUva7V8X039lZ2tRlrYCA==">
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag("js", new Date());
@@ -105,7 +105,7 @@
         <div
             class="mx-auto flex w-3/4 max-w-xl flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <form id="get-a-quote-form" class="space-y-6 p-5 md:p-10">
-                <input type="hidden" id="csrf_token" name="csrf_token" value="BS6kZR/0PJ2TNae5HVhkb4I418qF2nYhJukd8ydnuox75UkQa72eUHR5o6q85SrgvAlJEorfNAJFECVc0&#43;RuKg==" />
+                <input type="hidden" id="csrf_token" name="csrf_token" value="cfdVEClViVbeOHTkPpnWpOri5BRQfKEIln6YbmxvQ99cF6Jc9DNvJBvVoZWq7zrSOVagIZlFzN3gDi3phLsBVA==" />
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="space-y-1">
                         <label for="first_name" class="font-medium">First Name</label>
@@ -173,6 +173,46 @@
                     <label for="location_type" class="font-medium">Location Type*</label>
                     <select id="location_type" name="location_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                        
+                          <option value="1">Barbershop</option>
+                        
+                          <option value="2">Dealership</option>
+                        
+                          <option value="3">Salon</option>
+                        
+                          <option value="4">Spa</option>
+                        
+                          <option value="5">Insurance Agency</option>
+                        
+                          <option value="6">Bakery</option>
+                        
+                          <option value="7">Cafe</option>
+                        
+                          <option value="8">Restaurant</option>
+                        
+                          <option value="9">Grocery Store</option>
+                        
+                          <option value="10">Clothing Boutique</option>
+                        
+                          <option value="11">Fitness Center</option>
+                        
+                          <option value="12">Yoga Studio</option>
+                        
+                          <option value="13">Pet Grooming Salon</option>
+                        
+                          <option value="14">Daycare Center</option>
+                        
+                          <option value="15">Bookstore</option>
+                        
+                          <option value="16">Art Gallery</option>
+                        
+                          <option value="17">Hardware Store</option>
+                        
+                          <option value="18">Flower Shop</option>
+                        
+                          <option value="19">Jewelry Store</option>
+                        
+                          <option value="20">Photography Studio</option>
                         
                     </select>
                 </div>
@@ -327,8 +367,8 @@
 
 <div id="alertModal" style="display:none;"></div>
 
-<script type="module" nonce="s3SpKk0kQkeI1U5zS66vTA==">
-    import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+<script type="module" nonce="4LUva7V8X039lZ2tRlrYCA==">
+  import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 	const form = document.getElementById("get-a-quote-form");
 	const alertModal = document.getElementById("alertModal");
 	
@@ -342,7 +382,7 @@
 	  const marketing = Object.fromEntries(new URLSearchParams(window.location.search));
 	  const body = Object.fromEntries(new FormData(e.target).entries());
 
-      console.log({ ...marketing, ...body });
+    console.log({ ...marketing, ...body });
 	  fetch("/quote", {
 	    method: "POST",
 	    credentials: "include",
@@ -378,7 +418,7 @@
 	
 	function validatePhoneNumber(phoneNumberInput) {
 	  let isValid = true;
-	  const phoneNumber = phoneNumberInput.value.trim();
+	  const phoneNumber = phoneNumberInput.trim();
 	
 	  const phonePattern = /^[0-9]{10}$/;
 	
@@ -390,56 +430,83 @@
 	}
 	
 	function validateForm() {
-	  let isValid = true;
-	
-	  
-	  const firstNameInput = document.getElementById("first_name");
-	  if (!firstNameInput.value.trim()) {
-	    isValid = false;
-	  }
-	
-	  
-	  const lastNameInput = document.getElementById("last_name");
-	  if (!lastNameInput.value.trim()) {
-	    isValid = false;
-	  }
-	
-	  
-	  const phoneNumberInput = document.getElementById("phone_number");
-	  if (!validatePhoneNumber(phoneNumberInput)) {
-	    isValid = false;
-	  }
-	
-	  
-	  const serviceSelect = document.getElementById("service");
-	  if (serviceSelect.value === "") {
-	    isValid = false;
-	  }
-	
-	  
-	  const locationSelect = document.getElementById("location");
-	  if (locationSelect.value === "") {
-	    isValid = false;
-	  }
-	
-	  
-	  const messageInput = document.getElementById("message");
-	  if (!messageInput.value.trim()) {
-	    isValid = false;
-	  }
-	
-	  if (!isValid) {
-	    alert("Missing fields on form.");
-	  }
-	
-	  return isValid;
-	}
+    let isValid = true;
+
+    
+    const firstNameInput = document.getElementById("first_name");
+    if (!firstNameInput.value.trim()) {
+        isValid = false;
+        firstNameInput.classList.add("border-red-500");
+    } else {
+        firstNameInput.classList.remove("border-red-500");
+    }
+
+    
+    const lastNameInput = document.getElementById("last_name");
+    if (!lastNameInput.value.trim()) {
+        isValid = false;
+        lastNameInput.classList.add("border-red-500");
+    } else {
+        lastNameInput.classList.remove("border-red-500");
+    }
+
+    
+    const phoneNumberInput = document.getElementById("phone_number");
+    if (!validatePhoneNumber(phoneNumberInput.value)) {
+        isValid = false;
+        phoneNumberInput.classList.add("border-red-500");
+    } else {
+        phoneNumberInput.classList.remove("border-red-500");
+    }
+
+    
+    const machineTypeSelect = document.getElementById("machine_type");
+    if (machineTypeSelect.value === "") {
+        isValid = false;
+        machineTypeSelect.classList.add("border-red-500");
+    } else {
+        machineTypeSelect.classList.remove("border-red-500");
+    }
+
+    
+    const locationTypeSelect = document.getElementById("location_type");
+    if (locationTypeSelect.value === "") {
+        isValid = false;
+        locationTypeSelect.classList.add("border-red-500");
+    } else {
+        locationTypeSelect.classList.remove("border-red-500");
+    }
+
+    
+    const citySelect = document.getElementById("city");
+    if (citySelect.value === "") {
+        isValid = false;
+        citySelect.classList.add("border-red-500");
+    } else {
+        citySelect.classList.remove("border-red-500");
+    }
+
+    
+    const messageInput = document.getElementById("message");
+    if (!messageInput.value.trim()) {
+        isValid = false;
+        messageInput.classList.add("border-red-500");
+    } else {
+        messageInput.classList.remove("border-red-500");
+    }
+
+    if (!isValid) {
+        alert("Please fill in all required fields.");
+    }
+
+    return isValid;
+}
 </script>
 
 
       </div>
 
-      <script src="/static/main.js" nonce="s3SpKk0kQkeI1U5zS66vTA=="></script>
+      <script src="/static/main.js" nonce="4LUva7V8X039lZ2tRlrYCA=="></script>
     </main>
     
 
