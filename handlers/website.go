@@ -40,6 +40,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetContactForm(w, r)
 		case "/login":
 			GetLogin(w, r)
+		case "/lp":
+			GetLP(w, r)
 		case "/":
 			GetHome(w, r)
 		default:
@@ -65,21 +67,37 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetHome(w http.ResponseWriter, r *http.Request) {
 	fileName := "home.html"
-
-	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.PUBLIC_DIR+fileName, constants.TEMPLATES_DIR+fileName, nil)
-
-	if err != nil {
-		http.Error(w, "Error building home page.", http.StatusInternalServerError)
-		return
-	}
+	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	http.ServeFile(w, r, constants.PUBLIC_DIR+fileName)
+	err := helpers.ServeContent(w, fileName, files, nil)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
+}
+
+func GetLP(w http.ResponseWriter, r *http.Request) {
+	fileName := "lp.html"
+	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	err := helpers.ServeContent(w, fileName, files, nil)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
 }
 
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
+	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
 
 	vendingTypes, err := database.GetVendingTypes()
 	if err != nil {
@@ -122,16 +140,15 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	data["VendingLocations"] = vendingLocations
 	data["Cities"] = cities
 
-	err = helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error building quote form.", http.StatusInternalServerError)
-		return
-	}
-
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	http.ServeFile(w, r, constants.WEBSITE_PUBLIC_DIR+fileName)
+	err = helpers.ServeContent(w, fileName, files, nil)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
 }
 
 func PostQuote(w http.ResponseWriter, r *http.Request) {
@@ -175,23 +192,22 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 
 func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "contact_form.html"
+	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = r.Context().Value("nonce").(string)
 	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
 
-	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	err := helpers.ServeContent(w, fileName, files, nil)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error building quote form.", http.StatusInternalServerError)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	http.ServeFile(w, r, constants.WEBSITE_PUBLIC_DIR+fileName)
 }
 
 func PostContactForm(w http.ResponseWriter, r *http.Request) {
@@ -229,23 +245,22 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 
 func GetLogin(w http.ResponseWriter, r *http.Request) {
 	fileName := "login.html"
+	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = r.Context().Value("nonce").(string)
 	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
 
-	err := helpers.BuildFile(fileName, baseFilePath, footerFilePath, constants.WEBSITE_PUBLIC_DIR+fileName, constants.WEBSITE_TEMPLATES_DIR+fileName, data)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	err := helpers.ServeContent(w, fileName, files, nil)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error building login form.", http.StatusInternalServerError)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	http.ServeFile(w, r, constants.WEBSITE_PUBLIC_DIR+fileName)
 }
 
 func PostLogin(w http.ResponseWriter, r *http.Request) {

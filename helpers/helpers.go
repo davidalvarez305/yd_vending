@@ -1,19 +1,32 @@
 package helpers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
 )
 
-func BuildFile(fileName, baseFilePath, footerFilePath, publicFilePath, templateFilePath string, data any) error {
-	if data == nil {
-		if _, err := os.Stat(publicFilePath); err == nil {
-			return nil
-		}
+func ServeContent(w http.ResponseWriter, fileName string, templateFilePaths []string, data any) error {
+	tmpl, err := template.ParseFiles(templateFilePaths...)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error building template.", http.StatusInternalServerError)
+		return err
 	}
 
-	tmpl, err := template.ParseFiles(baseFilePath, footerFilePath, templateFilePath)
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error executing template.", http.StatusInternalServerError)
+		return err
+	}
+
+	return nil
+}
+
+func BuildFile(fileName, publicFilePath string, templateFilePaths []string, data any) error {
+	tmpl, err := template.ParseFiles(templateFilePaths...)
 
 	if err != nil {
 		return err
