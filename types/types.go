@@ -27,10 +27,8 @@ type QuoteForm struct {
 	AdID            int    `json:"ad_id" form:"ad_id" schema:"ad_id"`
 	AdHeadline      int    `json:"ad_headline" form:"ad_headline" schema:"ad_headline"`
 	Language        string `json:"language" form:"language" schema:"language"`
-	OS              string `json:"os" form:"os" schema:"os"`
 	UserAgent       string `json:"user_agent" form:"user_agent" schema:"user_agent"`
 	ButtonClicked   string `json:"button_clicked" form:"button_clicked" schema:"button_clicked"`
-	DeviceType      string `json:"device_type" form:"device_type" schema:"device_type"`
 	IP              string `json:"ip" form:"ip" schema:"ip"`
 	CSRFToken       string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 }

@@ -72,10 +72,10 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm, userKey []byte) error {
 
 	// Insert Lead Marketing
 	marketingQuery := `
-		INSERT INTO "lead_marketing" ("lead_id", "source", "medium", "channel", "landing_page", "keyword", "referrer", "gclid", "campaign_id", "ad_campaign", "ad_group_id", "ad_group_name", "ad_set_id", "ad_set_name", "ad_id", "ad_headline", "language", "os", "user_agent", "button_clicked", "device_type", "ip")
+		INSERT INTO "lead_marketing" ("lead_id", "source", "medium", "channel", "landing_page", "keyword", "referrer", "gclid", "campaign_id", "ad_campaign", "ad_group_id", "ad_group_name", "ad_set_id", "ad_set_name", "ad_id", "ad_headline", "language", "user_agent", "button_clicked", "ip")
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
 	`
-	_, err = tx.Exec(marketingQuery, leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.Gclid, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.OS, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.DeviceType, quoteForm.IP)
+	_, err = tx.Exec(marketingQuery, leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.Gclid, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.IP)
 	if err != nil {
 		return err
 	}
