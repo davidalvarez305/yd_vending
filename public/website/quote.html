@@ -4,7 +4,7 @@
 <head>
   
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1231412312"></script>
-  <script nonce="3V1bMvfYX7jeHMFyH&#43;sz8w==">
+  <script nonce="aKIaTB3i3K&#43;1/B1GcP&#43;y9g==">
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag("js", new Date());
@@ -105,7 +105,7 @@
         <div
             class="mx-auto flex w-3/4 max-w-xl flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <form id="get-a-quote-form" class="space-y-6 p-5 md:p-10">
-                <input type="hidden" id="csrf_token" name="csrf_token" value="dpJ18J74ofn2LwvMRaHfH5JDl2ZJR&#43;J1IiGeXpTEfVXFGxhI/KY0Bw2Mkp&#43;3EMYz0NqxeQQGxYzWNEJjlXpu95jHCs&#43;aqa/LH965/CPWu4k=" />
+                <input type="hidden" id="csrf_token" name="csrf_token" value="9DCxvnJYAya8YApuxieeqQVfsDzMonqrJK2CLuW7ufA2u3F9nb9EFlABG4pI141cflE7pw9bTlmBbR2IK/Iy/WsDFZ6NpB4SJm4KLwsowMU=" />
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="space-y-1">
                         <label for="first_name" class="font-medium">First Name</label>
@@ -367,37 +367,36 @@
 
 <div id="alertModal" style="display:none;"></div>
 
-<script type="module" nonce="3V1bMvfYX7jeHMFyH&#43;sz8w==">
+<script type="module" nonce="aKIaTB3i3K&#43;1/B1GcP&#43;y9g==">
   import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 	const form = document.getElementById("get-a-quote-form");
 	const alertModal = document.getElementById("alertModal");
 	
 	form.addEventListener("submit", e => {
-	  e.preventDefault();
-	  const isValid = validateForm();
-	
-	  if (!isValid) return;
-	
-	  
-	  const marketing = Object.fromEntries(new URLSearchParams(window.location.search));
-	  const body = Object.fromEntries(new FormData(e.target).entries());
+        e.preventDefault();
+        const isValid = validateForm();
 
-    console.log({ ...marketing, ...body });
-	  fetch("/quote", {
-	    method: "POST",
-	    credentials: "include",
-	    headers: {
-	        "Content-Type": "application/json",
-	    },
-	    body: JSON.stringify({ ...marketing, ...body }),
-		})
-	    .then((response) => {
-	      if (response.ok) {
-	        return response.text();
-	      } else {
-	        throw new Error("Error: " + response.statusText);
-	      }
-	    })
+        if (!isValid) return;
+
+        const marketing = Object.fromEntries(new URLSearchParams(window.location.search));
+        const data = new FormData(e.target);
+
+        for (const [key, value] of Object.entries(marketing)) {
+            data.append(key, value);
+        }
+
+        fetch("/quote", {
+            method: "POST",
+            credentials: "include",
+            body: data
+        })
+        .then((response) => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error("Error: " + response.statusText);
+            }
+        })
 	    .then(html => {
 		    const clientId = uuidv4();
 	
@@ -506,7 +505,7 @@
 
       </div>
 
-      <script src="/static/main.js" nonce="3V1bMvfYX7jeHMFyH&#43;sz8w=="></script>
+      <script src="/static/main.js" nonce="aKIaTB3i3K&#43;1/B1GcP&#43;y9g=="></script>
     </main>
     
 
