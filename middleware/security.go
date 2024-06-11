@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -109,17 +108,9 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
 			csrfToken := r.FormValue("csrf_token")
-
-			// If CSRF token is not in form values, check the JSON body
 			if csrfToken == "" {
-				var jsonBody map[string]string
-				err := json.NewDecoder(r.Body).Decode(&jsonBody)
-				if err != nil {
-					http.Error(w, "Invalid JSON body.", http.StatusBadRequest)
-					return
-				}
-
-				csrfToken = jsonBody["csrf_token"]
+				// If CSRF token is not in form values, check the request headers
+				csrfToken = r.Header.Get("X-CSRF-Token")
 				if csrfToken == "" {
 					http.Error(w, "CSRF token is missing.", http.StatusForbidden)
 					return
