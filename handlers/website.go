@@ -151,6 +151,10 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// User Agent & IP
+	form.UserAgent = r.Header.Get("User-Agent")
+	form.IP = helpers.GetUserIPFromRequest(r)
+
 	token, err := middleware.GetTokenFromSession(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)

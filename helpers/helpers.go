@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"html/template"
+	"net/http"
 	"os"
 )
 
@@ -38,4 +39,22 @@ func BuildFile(fileName, baseFilePath, footerFilePath, publicFilePath, templateF
 	}
 
 	return err
+}
+
+func GetUserIPFromRequest(r *http.Request) string {
+	// Try to get the IP from the X-Forwarded-For header (used by proxies and load balancers)
+	forwarded := r.Header.Get("X-Forwarded-For")
+	if forwarded != "" {
+		return forwarded
+	}
+
+	// Try to get the IP from the X-Real-IP header (used by some proxies)
+	realIP := r.Header.Get("X-Real-IP")
+	if realIP != "" {
+		return realIP
+	}
+
+	// Fallback to using the RemoteAddr from the request
+	ip := r.RemoteAddr
+	return ip
 }
