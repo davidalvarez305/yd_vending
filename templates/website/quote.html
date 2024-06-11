@@ -108,31 +108,30 @@
 	const alertModal = document.getElementById("alertModal");
 	
 	form.addEventListener("submit", e => {
-	  e.preventDefault();
-	  const isValid = validateForm();
-	
-	  if (!isValid) return;
-	
-	  // Data inputs
-	  const marketing = Object.fromEntries(new URLSearchParams(window.location.search));
-	  const body = Object.fromEntries(new FormData(e.target).entries());
+        e.preventDefault();
+        const isValid = validateForm();
 
-    console.log({ ...marketing, ...body });
-	  fetch("/quote", {
-	    method: "POST",
-	    credentials: "include",
-	    headers: {
-	        "Content-Type": "application/json",
-	    },
-	    body: JSON.stringify({ ...marketing, ...body }),
-		})
-	    .then((response) => {
-	      if (response.ok) {
-	        return response.text();
-	      } else {
-	        throw new Error("Error: " + response.statusText);
-	      }
-	    })
+        if (!isValid) return;
+
+        const marketing = Object.fromEntries(new URLSearchParams(window.location.search));
+        const data = new FormData(e.target);
+
+        for (const [key, value] of Object.entries(marketing)) {
+            data.append(key, value);
+        }
+
+        fetch("/quote", {
+            method: "POST",
+            credentials: "include",
+            body: data
+        })
+        .then((response) => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error("Error: " + response.statusText);
+            }
+        })
 	    .then(html => {
 		    const clientId = uuidv4();
 	
