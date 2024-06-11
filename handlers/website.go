@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/middleware"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/gorilla/schema"
 )
 
 var baseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
@@ -135,18 +135,23 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostQuote(w http.ResponseWriter, r *http.Request) {
-	var form types.QuoteForm
-
-	err := json.NewDecoder(r.Body).Decode(&form)
-
+	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error decoding JSON.", http.StatusBadRequest)
+		http.Error(w, "Error parsing form data.", http.StatusBadRequest)
+		return
+	}
+
+	var form types.QuoteForm
+	decoder := schema.NewDecoder()
+	err = decoder.Decode(&form, r.PostForm)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error decoding form data.", http.StatusBadRequest)
 		return
 	}
 
 	token, err := middleware.GetTokenFromSession(r)
-
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting user token.", http.StatusBadRequest)
@@ -154,15 +159,13 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = database.CreateLeadAndMarketing(form, token)
-
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting user token.", http.StatusBadRequest)
+		http.Error(w, "Error creating lead and marketing data.", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
 }
 
@@ -195,18 +198,17 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var form types.ContactForm
-
-	err := json.NewDecoder(r.Body).Decode(&form)
-
+	decoder := schema.NewDecoder()
+	err := decoder.Decode(&form, r.PostForm)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error decoding JSON.", http.StatusBadRequest)
+		http.Error(w, "Error decoding form data.", http.StatusBadRequest)
 		return
 	}
 
 	subject := "Contact Form: YD Vending"
-	senderEmail := os.Getenv("GMAIL_EMAIL")
-	recipient := form.Email
+	senderEmail := form.Email
+	recipient := os.Getenv("GMAIL_EMAIL")
 	templateName := "contact_form_email.html"
 
 	// Send email
