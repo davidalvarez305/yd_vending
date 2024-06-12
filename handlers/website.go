@@ -67,7 +67,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetHome(w http.ResponseWriter, r *http.Request) {
 	fileName := "home.html"
-	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
+	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -75,14 +75,12 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
 	}
 }
 
 func GetLP(w http.ResponseWriter, r *http.Request) {
 	fileName := "lp.html"
-	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
+	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -90,14 +88,12 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
 	}
 }
 
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "quote.html"
-	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
+	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	vendingTypes, err := database.GetVendingTypes()
 	if err != nil {
@@ -146,8 +142,6 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
 	}
 }
 
@@ -192,7 +186,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 
 func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "contact_form.html"
-	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
+	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
@@ -205,8 +199,6 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
 	}
 }
 
@@ -245,7 +237,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 
 func GetLogin(w http.ResponseWriter, r *http.Request) {
 	fileName := "login.html"
-	files := []string{baseFilePath, footerFilePath, constants.TEMPLATES_DIR + fileName}
+	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
@@ -258,8 +250,6 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
 	}
 }
 

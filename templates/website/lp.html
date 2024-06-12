@@ -1,3 +1,4 @@
+{{ define "content.html" }}
 <div id="modalOverlay" style="display: none;"></div>
 
 <script src="{{ .StaticPath }}/PopUp.js" nonce="{{ .Nonce }}"></script>
@@ -115,3 +116,5 @@
 	  button.addEventListener("click", handleCTAClick);
 	});
 </script>
+
+{{ end }}
