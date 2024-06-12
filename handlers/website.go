@@ -42,6 +42,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetLogin(w, r)
 		case "/lp":
 			GetLP(w, r)
+		case "/pop-up-modal":
+			GetPopUpModal(w, r)
 		case "/":
 			GetHome(w, r)
 		default:
@@ -320,4 +322,12 @@ func PostLogout(w http.ResponseWriter, r *http.Request) {
 	})
 
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func GetPopUpModal(w http.ResponseWriter, r *http.Request) {
+	fileName := "pop_up.html"
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+fileName)
 }
