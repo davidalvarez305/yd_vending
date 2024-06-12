@@ -15,6 +15,11 @@ export default {
   darkMode: "class",
   theme: {
     extend: {
+      colors: {
+        primary: "#9A2167",
+        secondary: "#F69223",
+        tertiary: "#ED3788",
+      },
       fontFamily: {
         sans: ["Inter", ...defaultTheme.fontFamily.sans],
       },
@@ -88,6 +93,18 @@ export default {
       };
 
       addUtilities(utilFormSwitch);
+
+      // Debugging plugin
+      const debugUtilities = {
+        ".bg-primary": {
+          backgroundColor: "#9A2167",
+        },
+        ".text-primary": {
+          color: "#9A2167",
+        },
+      };
+
+      addUtilities(debugUtilities);
     }),
   ],
 };
