@@ -68,6 +68,15 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 func GetHome(w http.ResponseWriter, r *http.Request) {
 	fileName := "home.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	data := websiteContext
+	data["PagePath"] = "http://localhost" + r.URL.Path
+	data["Nonce"] = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -81,10 +90,19 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 func GetLP(w http.ResponseWriter, r *http.Request) {
 	fileName := "lp.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	data := websiteContext
+	data["PagePath"] = "http://localhost" + r.URL.Path
+	data["Nonce"] = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, nil)
+	err := helpers.ServeContent(w, fileName, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -138,7 +156,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err = helpers.ServeContent(w, fileName, files, nil)
+	err = helpers.ServeContent(w, fileName, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -195,7 +213,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, nil)
+	err := helpers.ServeContent(w, fileName, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -246,7 +264,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, nil)
+	err := helpers.ServeContent(w, fileName, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)

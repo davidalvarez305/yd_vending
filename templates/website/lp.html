@@ -3,7 +3,7 @@
 
 <script src="{{ .StaticPath }}/PopUp.js" nonce="{{ .Nonce }}"></script>
 
-<script>
+<script nonce="{{.Nonce}}">
 	const quoteButtons = document.querySelectorAll(".quoteButton");
 	
 	const qs = new URLSearchParams(window.location.search);
