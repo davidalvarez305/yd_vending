@@ -11,6 +11,10 @@
 
     gtag("config", "{{ .GoogleAnalyticsID }}");
     gtag("set", "user_id", "{{ .MarketingUserID }}");
+
+    gtag("get", "{{ .GoogleAnalyticsID }}", "client_id", (clientID) => {
+      console.log(clientID);
+    });
   </script>
   <!-- End Google tag -->
 

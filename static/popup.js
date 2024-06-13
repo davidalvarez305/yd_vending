@@ -4,7 +4,7 @@ const TRIGGER_THRESHOLD = 3000;
 let alreadyPoppedUp = false;
 
 function showModal() {
-  fetch("/pop-up-modal")
+  fetch("/partials/pop-up-modal")
     .then((response) => {
       if (response.ok) {
         return response.text();

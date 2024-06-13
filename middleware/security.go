@@ -54,7 +54,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if strings.Contains(r.URL.Path, "/static/") {
+		if strings.Contains(r.URL.Path, "/static/") || strings.Contains(r.URL.Path, "/partials/") {
 			next.ServeHTTP(w, r)
 			return
 		}
