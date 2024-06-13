@@ -69,7 +69,9 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if r.Method == http.MethodGet {
+		var csrfURLs = []string{"/contact", "/quote", "/login"}
+
+		if r.Method == http.MethodGet && helpers.IsCSRFURL(csrfURLs, r.URL.Path) {
 			token, err := GetTokenFromSession(r)
 
 			if err != nil {
@@ -101,10 +103,10 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			}
 
 			r = r.WithContext(context.WithValue(r.Context(), "csrf_token", encryptedToken))
-
-			next.ServeHTTP(w, r)
-			return
 		}
+
+		next.ServeHTTP(w, r)
+		return
 
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
 			csrfToken := r.FormValue("csrf_token")
