@@ -77,16 +77,16 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	googleUserId, ok := r.Context().Value("google_user_id").(string)
 	if !ok {
-		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
 		return
 	}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["MarketingUserID"] = marketingUserId
+	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -114,16 +114,16 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	googleUserId, ok := r.Context().Value("google_user_id").(string)
 	if !ok {
-		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
 		return
 	}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["MarketingUserID"] = marketingUserId
+	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -191,9 +191,9 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	googleUserId, ok := r.Context().Value("google_user_id").(string)
 	if !ok {
-		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
 		return
 	}
 
@@ -204,7 +204,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
 	data["Cities"] = cities
-	data["MarketingUserID"] = marketingUserId
+	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -249,15 +249,15 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	googleUserId, ok := r.Context().Value("google_user_id").(string)
 	if !ok {
-		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
 		return
 	}
 
 	payload := conversions.PayloadLead{
 		ClientID: "client_id",
-		UserId:   marketingUserId,
+		UserId:   googleUserId,
 		Events: []conversions.EventLead{
 			{
 				Name: "generated_lead",
@@ -283,9 +283,9 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "contact_form.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
-	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	googleUserId, ok := r.Context().Value("google_user_id").(string)
 	if !ok {
-		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
 		return
 	}
 
@@ -305,7 +305,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["MarketingUserID"] = marketingUserId
+	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -364,9 +364,9 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	googleUserId, ok := r.Context().Value("google_user_id").(string)
 	if !ok {
-		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
 		return
 	}
 
@@ -374,7 +374,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["MarketingUserID"] = marketingUserId
+	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

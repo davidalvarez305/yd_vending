@@ -10,7 +10,7 @@
     gtag("js", new Date());
 
     gtag("config", "{{ .GoogleAnalyticsID }}");
-    gtag("set", "user_id", "{{ .MarketingUserID }}");
+    gtag("set", "user_id", "{{ .GoogleUserID }}");
 
     gtag("get", "{{ .GoogleAnalyticsID }}", "client_id", (clientID) => {
       console.log(clientID);

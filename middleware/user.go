@@ -28,9 +28,33 @@ func UserTracking(next http.Handler) http.Handler {
 				return
 			}
 
-			marketingUserId := uuid.New().String()
+			googleClientID, err := helpers.GetGoogleClientIDFromRequest(r)
+
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				fmt.Println("Couldn't extract client ID from GA.")
+			}
+
+			fbClickID, err := helpers.GetFacebookClickIDFromRequest(r)
+
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				fmt.Println("Couldn't extract FB ClickID.")
+			}
+
+			fbClientID, err := helpers.GetFacebookClientIDFromRequest(r)
+
+			if err != nil {
+				fmt.Printf("%+v\n", err)
+				fmt.Println("Couldn't extract FB ClientID.")
+			}
+
+			googleUserId := uuid.New().String()
 			session.Values["csrf_secret"] = secret
-			session.Values["marketing_user_id"] = marketingUserId
+			session.Values["google_user_id"] = googleUserId
+			session.Values["google_client_id"] = googleClientID
+			session.Values["facebook_click_id"] = fbClickID
+			session.Values["facebook_client_id"] = fbClientID
 
 			err = session.Save(r, w)
 			if err != nil {
@@ -39,16 +63,16 @@ func UserTracking(next http.Handler) http.Handler {
 				return
 			}
 
-			r = r.WithContext(context.WithValue(r.Context(), "marketing_user_id", marketingUserId))
+			r = r.WithContext(context.WithValue(r.Context(), "google_user_id", googleUserId))
 		} else {
-			marketingUserId, err := GetMarketingUserIDFromSession(r)
+			googleUserId, err := GetGoogleUserIDFromRequest(r)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
-				http.Error(w, "Error getting marketing user ID from session.", http.StatusForbidden)
+				http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
 				return
 			}
 
-			r = r.WithContext(context.WithValue(r.Context(), "marketing_user_id", marketingUserId))
+			r = r.WithContext(context.WithValue(r.Context(), "google_user_id", googleUserId))
 		}
 
 		next.ServeHTTP(w, r)
