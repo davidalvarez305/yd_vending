@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	_ "github.com/lib/pq"
 )
 
@@ -20,11 +20,11 @@ var DB *sql.DB
 
 func Connect() (*sql.DB, error) {
 	conn := connection{
-		host:     os.Getenv("POSTGRES_HOST"),
-		port:     os.Getenv("POSTGRES_PORT"),
-		user:     os.Getenv("PGUSER"),
-		password: os.Getenv("POSTGRES_PASSWORD"),
-		dbName:   os.Getenv("POSTGRES_DB"),
+		host:     constants.PostgresHost,
+		port:     constants.PostgresPort,
+		user:     constants.PostgresUser,
+		password: constants.PostgresPassword,
+		dbName:   constants.PostgresDBName,
 	}
 
 	connectionString := connToString(conn)

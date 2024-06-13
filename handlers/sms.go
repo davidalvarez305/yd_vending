@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/models"
@@ -43,7 +43,7 @@ func handleIncomingCall(w http.ResponseWriter, r *http.Request) {
 	from := r.FormValue("From")
 	to := r.FormValue("To")
 
-	forwardTo := os.Getenv("DAVID_TWILIO_PHONE_NUMBER")
+	forwardTo := constants.DavidPhoneNumber
 
 	fmt.Printf("Incoming call from: %s", from)
 	fmt.Printf("Incoming call to: %s", to)
@@ -104,7 +104,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 	form := types.OutboundMessageForm{
 		To:   r.FormValue("to"),
 		Body: r.FormValue("Body"),
-		From: os.Getenv("DAVID_TWILIO_PHONE_NUMBER"),
+		From: constants.DavidPhoneNumber,
 	}
 
 	userId, err := helpers.GetUserIDFromSession(r)

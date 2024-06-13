@@ -3,10 +3,16 @@ package constants
 import "os"
 
 var (
-	AccessToken   string
-	DatasetID     string
-	MeasurementID string
-	APISecret     string
+	AccessToken      string
+	DatasetID        string
+	MeasurementID    string
+	APISecret        string
+	PostgresHost     string
+	PostgresPort     string
+	PostgresUser     string
+	PostgresPassword string
+	PostgresDBName   string
+	DavidPhoneNumber string
 )
 
 func init() {
@@ -14,6 +20,12 @@ func init() {
 	DatasetID = os.Getenv("FACEBOOK_DATASET_ID")
 	MeasurementID = os.Getenv("GOOGLE_ANALYTICS_ID")
 	APISecret = os.Getenv("GOOGLE_ANALYTICS_API_KEY")
+	PostgresHost = os.Getenv("POSTGRES_HOST")
+	PostgresPort = os.Getenv("POSTGRES_PORT")
+	PostgresUser = os.Getenv("PGUSER")
+	PostgresPassword = os.Getenv("POSTGRES_PASSWORD")
+	PostgresDBName = os.Getenv("POSTGRES_DB")
+	DavidPhoneNumber = os.Getenv("DAVID_TWILIO_PHONE_NUMBER")
 }
 
 var TEMPLATES_DIR = "./templates/"
