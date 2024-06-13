@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -96,6 +97,14 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getClientIDFromGACookie(gaCookieValue string) (string, error) {
+	parts := strings.Split(gaCookieValue, ".")
+	if len(parts) != 4 {
+		return "", fmt.Errorf("unexpected _ga cookie format")
+	}
+	return parts[2] + "." + parts[3], nil
+}
+
 func GetLP(w http.ResponseWriter, r *http.Request) {
 	fileName := "lp.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
@@ -118,7 +127,27 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, data)
+	gaCookie, err := r.Cookie("_ga")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			http.Error(w, "No _ga cookie found", http.StatusBadRequest)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Extract the client ID from the _ga cookie value
+	clientID, err := getClientIDFromGACookie(gaCookie.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Do something with the client ID (e.g., print it, log it, etc.)
+	fmt.Printf("Client ID: %s\n", clientID)
+
+	err = helpers.ServeContent(w, fileName, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
