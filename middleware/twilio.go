@@ -6,12 +6,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
-	"os"
 	"strings"
+
+	"github.com/davidalvarez305/yd_vending/constants"
 )
 
 func validateTwilioWebhook(r *http.Request) error {
-	authToken := os.Getenv("TWILLIO_AUTH_TOKEN")
+	authToken := constants.TwilioAuthToken
 	twilioSignature := r.Header.Get("X-Twilio-Signature")
 
 	url := "http://" + r.Host + r.URL.Path

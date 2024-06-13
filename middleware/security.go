@@ -6,10 +6,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/models"
@@ -19,7 +19,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// CORS Settings
-		w.Header().Set("Access-Control-Allow-Origin", os.Getenv("ROOT_DOMAIN"))
+		w.Header().Set("Access-Control-Allow-Origin", constants.RootDomain)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -40,7 +40,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		img-src 'self' https://www.google-analytics.com data:;
 		connect-src 'self' https://www.google-analytics.com;
 		style-src-elem 'self' https://fonts.bunny.net;
-		style-src-attr 'self' 'unsafe-inline';`, os.Getenv("AWS_STORAGE_BUCKET"), nonceBase64, nonceBase64)
+		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64)
 
 		w.Header().Set("Content-Security-Policy", cspDirective)
 
@@ -156,7 +156,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 func AuthRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie(os.Getenv("COOKIE_NAME"))
+		cookie, err := r.Cookie(constants.CookieName)
 		if err != nil || cookie == nil {
 			http.Error(w, "Permission denied", http.StatusUnauthorized)
 			return
