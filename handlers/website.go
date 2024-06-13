@@ -12,7 +12,6 @@ import (
 	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
-	"github.com/davidalvarez305/yd_vending/middleware"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
 	"github.com/gorilla/schema"
@@ -30,7 +29,8 @@ var websiteContext = map[string]any{
 	"StaticPath":        "/static",
 	"PhoneNumber":       "(123) - 456 7890",
 	"CurrentYear":       time.Now().Year(),
-	"GoogleAnalyticsID": "G-1231412312",
+	"GoogleAnalyticsID": os.Getenv("GOOGLE_ANALYTICS_ID"),
+	"FacebookPixelID":   os.Getenv("FACEBOOK_PIXEL_ID"),
 }
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
@@ -231,49 +231,92 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// User Agent & IP
-	form.UserAgent = r.Header.Get("User-Agent")
-	form.IP = helpers.GetUserIPFromRequest(r)
-
-	token, err := middleware.GetTokenFromSession(r)
+	csrfSecret, err := helpers.GetTokenFromSession(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting user token.", http.StatusBadRequest)
 		return
 	}
 
-	err = database.CreateLeadAndMarketing(form, token)
+	googleUserID, ok := r.Context().Value("google_user_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving Google user ID.", http.StatusInternalServerError)
+		return
+	}
+
+	googleClientID, err := helpers.GetSessionValueByKey(r, "google_client_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting client ID from session.", http.StatusBadRequest)
+		return
+	}
+
+	fbClickID, err := helpers.GetSessionValueByKey(r, "facebook_click_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting FB ClickID from session.", http.StatusBadRequest)
+		return
+	}
+
+	fbClientID, err := helpers.GetSessionValueByKey(r, "facebook_client_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting FB ClientID from session.", http.StatusBadRequest)
+		return
+	}
+
+	// User Marketing Variables
+	form.UserAgent = r.Header.Get("User-Agent")
+	form.IP = helpers.GetUserIPFromRequest(r)
+	form.FacebookClickID = fbClickID
+	form.FacebookClientID = fbClientID
+	form.GoogleClientID = googleClientID
+	form.GoogleUserID = googleUserID
+	form.CSRFSecret = csrfSecret
+
+	err = database.CreateLeadAndMarketing(form)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error creating lead and marketing data.", http.StatusInternalServerError)
 		return
 	}
 
-	googleUserId, ok := r.Context().Value("google_user_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
-		return
+	fbEvent := conversions.FacebookEventData{
+		EventName:      "quote",
+		EventTime:      time.Now().Unix(),
+		ActionSource:   "Web",
+		EventSourceURL: r.URL.String(),
+		UserData: conversions.FacebookUserData{
+			FirstName:       helpers.HashString(form.FirstName),
+			LastName:        helpers.HashString(form.LastName),
+			Phone:           helpers.HashString(form.PhoneNumber),
+			FBC:             fbClickID,
+			FBP:             fbClientID,
+			ClientIPAddress: form.IP,
+			ClientUserAgent: form.UserAgent,
+		},
 	}
 
-	payload := conversions.PayloadLead{
-		ClientID: "client_id",
-		UserId:   googleUserId,
-		Events: []conversions.EventLead{
+	metaPayload := conversions.FacebookPayload{
+		Data: []conversions.FacebookEventData{fbEvent},
+	}
+
+	payload := conversions.GooglePayload{
+		ClientID: googleClientID,
+		UserId:   googleUserID,
+		Events: []conversions.GoogleEventLead{
 			{
-				Name: "generated_lead",
-				Params: conversions.EventParamsLead{
-					Gclid: form.Gclid,
+				Name: "quote",
+				Params: conversions.GoogleEventParamsLead{
+					GCLID: form.GCLID,
 				},
 			},
 		},
 	}
 
-	err = conversions.SendLeadEvent(payload)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error sending lead event.", http.StatusInternalServerError)
-		return
-	}
+	// Send conversion events
+	go conversions.SendGoogleConversion(payload)
+	go conversions.SendFacebookConversion(metaPayload)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")

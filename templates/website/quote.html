@@ -102,8 +102,7 @@
 
 <div id="alertModal" style="display:none;"></div>
 
-<script type="module" nonce="{{.Nonce}}">
-  import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+<script nonce="{{.Nonce}}">
 	const form = document.getElementById("get-a-quote-form");
 	const alertModal = document.getElementById("alertModal");
 	
@@ -133,17 +132,8 @@
             }
         })
 	    .then(html => {
-		    const clientId = uuidv4();
-	
             alertModal.outerHTML = html;
-
             const closeModalButton = document.getElementById("closeModal").addEventListener("click", () => alertModal.style.display = "none");
-
-	      // Google Analytics
-	      if (window.gtag) gtag("event", "quote", { event_id: clientId });
-
-	      // Facebook
-	      if (window.fbq) fbq("track", "quote", { event_id: clientId });
 
 	      form.reset();
 	    })

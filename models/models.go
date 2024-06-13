@@ -33,29 +33,34 @@ type Lead struct {
 }
 
 type LeadMarketing struct {
-	LeadMarketingID int    `json:"lead_marketing_id"`
-	LeadID          int    `json:"lead_id"`
-	Source          string `json:"source"`
-	Medium          string `json:"medium"`
-	Channel         string `json:"channel"`
-	LandingPage     string `json:"landing_page"`
-	Keyword         string `json:"keyword"`
-	Referrer        string `json:"referrer"`
-	Gclid           string `json:"gclid"`
-	CampaignID      int    `json:"campaign_id"`
-	AdCampaign      string `json:"ad_campaign"`
-	AdGroupID       int    `json:"ad_group_id"`
-	AdGroupName     string `json:"ad_group_name"`
-	AdSetID         int    `json:"ad_set_id"`
-	AdSetName       string `json:"ad_set_name"`
-	AdID            int    `json:"ad_id"`
-	AdHeadline      int    `json:"ad_headline"`
-	Language        string `json:"language"`
-	OS              string `json:"os"`
-	UserAgent       string `json:"user_agent"`
-	ButtonClicked   string `json:"button_clicked"`
-	DeviceType      string `json:"device_type"`
-	IP              string `json:"ip"`
+	LeadMarketingID  int    `json:"lead_marketing_id"`
+	LeadID           int    `json:"lead_id"`
+	Source           string `json:"source"`
+	Medium           string `json:"medium"`
+	Channel          string `json:"channel"`
+	LandingPage      string `json:"landing_page"`
+	Keyword          string `json:"keyword"`
+	Referrer         string `json:"referrer"`
+	GCLID            string `json:"gclid"`
+	CampaignID       int    `json:"campaign_id"`
+	AdCampaign       string `json:"ad_campaign"`
+	AdGroupID        int    `json:"ad_group_id"`
+	AdGroupName      string `json:"ad_group_name"`
+	AdSetID          int    `json:"ad_set_id"`
+	AdSetName        string `json:"ad_set_name"`
+	AdID             int    `json:"ad_id"`
+	AdHeadline       int    `json:"ad_headline"`
+	Language         string `json:"language"`
+	OS               string `json:"os"`
+	UserAgent        string `json:"user_agent"`
+	ButtonClicked    string `json:"button_clicked"`
+	DeviceType       string `json:"device_type"`
+	IP               string `json:"ip"`
+	GoogleUserID     string `json:"google_user_id"`
+	GoogleClientID   string `json:"google_client_id"`
+	FacebookClickID  string `json:"facebook_click_id"`
+	FacebookClientID string `json:"facebook_client_id"`
+	CSRFSecret       []byte `json:"csrf_secret"`
 }
 
 type CSRFToken struct {

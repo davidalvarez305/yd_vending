@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/database"
-	"github.com/davidalvarez305/yd_vending/middleware"
+	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
@@ -107,7 +107,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		From: os.Getenv("DAVID_TWILIO_PHONE_NUMBER"),
 	}
 
-	userId, err := middleware.GetUserIDFromSession(r)
+	userId, err := helpers.GetUserIDFromSession(r)
 	if err != nil {
 		log.Printf("Error getting user id: %s", err)
 		http.Error(w, "Failed to get UserID from session.", http.StatusInternalServerError)
