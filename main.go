@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/joho/godotenv"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/middleware"
 	"github.com/davidalvarez305/yd_vending/router"
@@ -38,7 +38,7 @@ func main() {
 	fmt.Println("Sessions initialized.")
 
 	s := &http.Server{
-		Addr:           ":" + os.Getenv("SERVER_PORT"),
+		Addr:           ":" + constants.ServerPort,
 		Handler:        middleware.UserTracking(middleware.SecurityMiddleware(middleware.CSRFProtectMiddleware(router.Router()))),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

@@ -9,16 +9,16 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/types"
 )
 
 func SendOutboundMessage(form types.OutboundMessageForm) (string, error) {
 	var response string
 
-	accountSID := os.Getenv("TWILIO_ACCOUNT_SID")
-	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
+	accountSID := constants.TwilioAccountSID
+	authToken := constants.TwilioAuthToken
 
 	twilioURL := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json", accountSID)
 

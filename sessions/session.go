@@ -2,21 +2,21 @@ package sessions
 
 import (
 	"encoding/hex"
-	"os"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/gorilla/sessions"
 )
 
 var Store *sessions.CookieStore
 
 func InitializeSessions() error {
-	authKey, err := hex.DecodeString(os.Getenv("AUTH_SECRET_KEY"))
+	authKey, err := hex.DecodeString(constants.AuthSecretKey)
 
 	if err != nil {
 		return err
 	}
 
-	encKey, err := hex.DecodeString(os.Getenv("ENC_SECRET_KEY"))
+	encKey, err := hex.DecodeString(constants.EncSecretKey)
 
 	if err != nil {
 		return err

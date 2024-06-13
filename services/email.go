@@ -13,8 +13,8 @@ import (
 func SendSMTPEmail(subject, recipient, senderEmail string, data any, templateName string) error {
 	smtpServer := "smtp.gmail.com"
 	smtpPort := "587"
-	smtpUsername := os.Getenv("GMAIL_USERNAME")
-	smtpPassword := os.Getenv("GMAIL_PASSWORD")
+	smtpUsername := constants.GmailUsername
+	smtpPassword := constants.GmailPassword
 
 	templateFile := constants.PARTIAL_TEMPLATES_DIR + templateName
 	templateContent, err := os.ReadFile(templateFile)
