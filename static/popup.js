@@ -31,7 +31,8 @@ function showModal() {
         modalOverlay.style.display = "none";
         alreadyPoppedUp = true;
       });
-    });
+    })
+    .catch(console.error);
 }
 
 // Trigger after time

@@ -41,14 +41,14 @@ func UserTracking(next http.Handler) http.Handler {
 
 			r = r.WithContext(context.WithValue(r.Context(), "marketing_user_id", marketingUserId))
 		} else {
-			userId, err := GetMarketingUserIDFromSession(r)
+			marketingUserId, err := GetMarketingUserIDFromSession(r)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error getting marketing user ID from session.", http.StatusForbidden)
 				return
 			}
 
-			r = r.WithContext(context.WithValue(r.Context(), "marketing_user_id", userId))
+			r = r.WithContext(context.WithValue(r.Context(), "marketing_user_id", marketingUserId))
 		}
 
 		next.ServeHTTP(w, r)
