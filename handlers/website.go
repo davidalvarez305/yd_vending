@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
+	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/middleware"
@@ -76,9 +77,16 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
+	data["MarketingUserID"] = marketingUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -98,9 +106,16 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
+	data["MarketingUserID"] = marketingUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -148,6 +163,12 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
@@ -155,6 +176,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
 	data["Cities"] = cities
+	data["MarketingUserID"] = marketingUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -200,6 +222,32 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		return
+	}
+
+	payload := conversions.PayloadLead{
+		ClientID: "client_id",
+		UserId:   marketingUserId,
+		Events: []conversions.EventLead{
+			{
+				Name: "generated_lead",
+				Params: conversions.EventParamsLead{
+					Gclid: form.Gclid,
+				},
+			},
+		},
+	}
+
+	err = conversions.SendLeadEvent(payload)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error sending lead event.", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
 }
@@ -208,10 +256,29 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "contact_form.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
+	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		return
+	}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
-	data["Nonce"] = r.Context().Value("nonce").(string)
-	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["MarketingUserID"] = marketingUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -259,10 +326,29 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 	fileName := "login.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	marketingUserId, ok := r.Context().Value("marketing_user_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving marketing user ID.", http.StatusInternalServerError)
+		return
+	}
+
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
-	data["Nonce"] = r.Context().Value("nonce").(string)
-	data["CSRFToken"] = r.Context().Value("csrf_token").(string)
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["MarketingUserID"] = marketingUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
