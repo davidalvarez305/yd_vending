@@ -1,4 +1,3 @@
-// Tailwind CSS v3 Configuration - Tailkit
 import plugin from "tailwindcss/plugin";
 import defaultTheme from "tailwindcss/defaultTheme";
 import colors from "tailwindcss/colors";
@@ -10,15 +9,54 @@ import typography from "@tailwindcss/typography";
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "../templates/**/*.{html,js}", // Configure your template paths
+    "../templates/**/*.{html,js}",
   ],
   darkMode: "class",
   theme: {
     extend: {
       colors: {
-        primary: "#9A2167",
-        secondary: "#F69223",
-        tertiary: "#ED3788",
+        primary: {
+				  DEFAULT: '#9A2167',
+				  50: '#E68CC0',
+				  100: '#E37BB7',
+				  200: '#DC5AA5',
+				  300: '#D43893',
+				  400: '#BC287D',
+				  500: '#9A2167',
+				  600: '#6C1748',
+				  700: '#3E0D29',
+				  800: '#0F030A',
+				  900: '#000000',
+				  950: '#000000'
+				},
+        secondary: {
+				  DEFAULT: '#F69223',
+				  50: '#FDE9D3',
+				  100: '#FCE0C0',
+				  200: '#FBCC99',
+				  300: '#F9B971',
+				  400: '#F8A54A',
+				  500: '#F69223',
+				  600: '#D87609',
+				  700: '#A25807',
+				  800: '#6C3B04',
+				  900: '#361E02',
+				  950: '#1B0F01'
+				},
+        tertiary: {
+				  DEFAULT: '#ED3788',
+				  50: '#FCDFEC',
+				  100: '#FACDE1',
+				  200: '#F7A7CB',
+				  300: '#F482B5',
+				  400: '#F05C9E',
+				  500: '#ED3788',
+				  600: '#D8136B',
+				  700: '#A50F52',
+				  800: '#710A38',
+				  900: '#3E061F',
+				  950: '#240312'
+				},
       },
       fontFamily: {
         sans: ["Inter", ...defaultTheme.fontFamily.sans],
@@ -93,18 +131,6 @@ export default {
       };
 
       addUtilities(utilFormSwitch);
-
-      // Debugging plugin
-      const debugUtilities = {
-        ".bg-primary": {
-          backgroundColor: "#9A2167",
-        },
-        ".text-primary": {
-          color: "#9A2167",
-        },
-      };
-
-      addUtilities(debugUtilities);
     }),
   ],
 };
