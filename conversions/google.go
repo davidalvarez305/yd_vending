@@ -33,7 +33,7 @@ func SendGoogleConversion(payload GooglePayload) error {
 		return err
 	}
 
-	url := endpoint + "?measurement_id=" + constants.MeasurementID + "&api_secret=" + constants.MeasurementID
+	url := endpoint + "?measurement_id=" + constants.GoogleAnalyticsID + "&api_secret=" + constants.GoogleAnalyticsAPISecretKey
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {

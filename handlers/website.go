@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -27,10 +26,10 @@ var websiteContext = map[string]any{
 	"SiteName":          "YD Vending",
 	"PagePath":          "http://localhost/quote",
 	"StaticPath":        "/static",
-	"PhoneNumber":       "(123) - 456 7890",
+	"PhoneNumber":       constants.DavidPhoneNumber,
 	"CurrentYear":       time.Now().Year(),
-	"GoogleAnalyticsID": os.Getenv("GOOGLE_ANALYTICS_ID"),
-	"FacebookPixelID":   os.Getenv("FACEBOOK_PIXEL_ID"),
+	"GoogleAnalyticsID": constants.GoogleAnalyticsID,
+	"FacebookPixelID":   constants.FacebookPixelID,
 }
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
@@ -376,7 +375,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 
 	subject := "Contact Form: YD Vending"
 	senderEmail := form.Email
-	recipient := os.Getenv("GMAIL_EMAIL")
+	recipient := constants.GmailEmail
 	templateName := "contact_form_email.html"
 
 	// Send email
@@ -450,10 +449,10 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     os.Getenv("COOKIE_NAME"),
+		Name:     constants.CookieName,
 		Value:    email,
 		Path:     "/",
-		Domain:   os.Getenv("ROOT_DOMAIN"),
+		Domain:   constants.RootDomain,
 		Expires:  time.Now().Add(24 * time.Hour), // Expires in 24 hours
 		HttpOnly: false,
 		SameSite: http.SameSiteStrictMode,
@@ -466,10 +465,10 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 func PostLogout(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     os.Getenv("COOKIE_NAME"),
+		Name:     constants.CookieName,
 		Value:    "",
 		Path:     "/",
-		Domain:   os.Getenv("ROOT_DOMAIN"),
+		Domain:   constants.RootDomain,
 		Expires:  time.Now().Add(-1 * time.Hour), // Set expiration time to a past date
 		HttpOnly: false,
 		SameSite: http.SameSiteStrictMode,
