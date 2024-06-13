@@ -1,10 +1,7 @@
 const SCROLL_THRESHOLD = 50;
-const TIME_THRESHOLD = 3000;
-const TRIGGER_THRESHOLD = 2000;
+const TRIGGER_THRESHOLD = 3000;
 
 let alreadyPoppedUp = false;
-
-const modalOverlay = document.getElementById("modalOverlay");
 
 function showModal() {
   fetch("/pop-up-modal")
@@ -15,11 +12,12 @@ function showModal() {
         throw new Error("Error: " + response.statusText);
       }
     })
-    .then((modal) => {
-      modalOverlay.outerHTML = modal;
+    .then((modalHTML) => {
+      const modalOverlay = document.getElementById("modalOverlay");
+      modalOverlay.outerHTML = modalHTML;
       modalOverlay.style.display = "flex";
 
-      const modalContent = modalOverlay.querySelector(".bg-white");
+      const modalContent = document.getElementById("modalContent");
 
       // Prevent clicks inside the modal content from closing the modal
       modalContent.addEventListener("click", (e) => {
@@ -27,8 +25,9 @@ function showModal() {
       });
 
       // Hide the modal when clicking outside the modal content
-      modalOverlay.addEventListener("click", () => {
-        modalOverlay.style.display = "none";
+      const modal = document.getElementById("modalOverlay");
+      modal.addEventListener("click", () => {
+        modal.outerHTML = "";
         alreadyPoppedUp = true;
       });
     })
@@ -53,9 +52,3 @@ window.addEventListener("scroll", () => {
     showModal();
   }
 });
-
-// Hide after time
-setTimeout(() => {
-  modalOverlay.style.display = "none";
-  alreadyPoppedUp = true;
-}, TIME_THRESHOLD);
