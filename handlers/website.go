@@ -19,6 +19,7 @@ import (
 
 var baseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
 var footerFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
+var decoder = schema.NewDecoder()
 
 var websiteContext = map[string]any{
 	"PageTitle":         "Request Quote",
@@ -196,7 +197,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var form types.QuoteForm
-	decoder := schema.NewDecoder()
 	err = decoder.Decode(&form, r.PostForm)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -297,7 +297,6 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var form types.ContactForm
-	decoder := schema.NewDecoder()
 	err := decoder.Decode(&form, r.PostForm)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
