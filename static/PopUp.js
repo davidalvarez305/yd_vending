@@ -35,7 +35,7 @@ function showModal() {
 }
 
 // Trigger after time
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
   setTimeout(() => {
     if (!alreadyPoppedUp) showModal();
   }, TRIGGER_THRESHOLD);
