@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -60,17 +59,6 @@ func UserTracking(next http.Handler) http.Handler {
 				http.Error(w, "Error saving session.", http.StatusForbidden)
 				return
 			}
-
-			r = r.WithContext(context.WithValue(r.Context(), "google_user_id", googleUserId))
-		} else {
-			googleUserId, err := helpers.GetSessionValueByKey(r, "google_user_id")
-			if err != nil {
-				fmt.Printf("%+v\n", err)
-				http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
-				return
-			}
-
-			r = r.WithContext(context.WithValue(r.Context(), "google_user_id", googleUserId))
 		}
 
 		next.ServeHTTP(w, r)

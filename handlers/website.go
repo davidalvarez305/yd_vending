@@ -76,20 +76,21 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	googleUserId, ok := r.Context().Value("google_user_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
+	googleUserID, err := helpers.GetSessionValueByKey(r, "google_user_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
 		return
 	}
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["GoogleUserID"] = googleUserId
+	data["GoogleUserID"] = googleUserID
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, nil)
+	err = helpers.ServeContent(w, fileName, files, nil)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -113,9 +114,10 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	googleUserId, ok := r.Context().Value("google_user_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
+	googleUserId, err := helpers.GetSessionValueByKey(r, "google_user_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
 		return
 	}
 
@@ -190,9 +192,10 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	googleUserId, ok := r.Context().Value("google_user_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
+	googleUserId, err := helpers.GetSessionValueByKey(r, "google_user_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
 		return
 	}
 
@@ -237,9 +240,10 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	googleUserID, ok := r.Context().Value("google_user_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving Google user ID.", http.StatusInternalServerError)
+	googleUserID, err := helpers.GetSessionValueByKey(r, "google_user_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
 		return
 	}
 
@@ -325,9 +329,10 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	fileName := "contact_form.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
-	googleUserId, ok := r.Context().Value("google_user_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
+	googleUserID, err := helpers.GetSessionValueByKey(r, "google_user_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
 		return
 	}
 
@@ -347,11 +352,11 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["GoogleUserID"] = googleUserId
+	data["GoogleUserID"] = googleUserID
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, data)
+	err = helpers.ServeContent(w, fileName, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -406,9 +411,10 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	googleUserId, ok := r.Context().Value("google_user_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving google user ID.", http.StatusInternalServerError)
+	googleUserID, err := helpers.GetSessionValueByKey(r, "google_user_id")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
 		return
 	}
 
@@ -416,11 +422,11 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["GoogleUserID"] = googleUserId
+	data["GoogleUserID"] = googleUserID
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, data)
+	err = helpers.ServeContent(w, fileName, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
