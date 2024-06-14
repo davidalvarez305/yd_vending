@@ -28,7 +28,7 @@ var (
 	GmailEmail                  string
 )
 
-func init() {
+func Init() {
 	FacebookAccessToken = os.Getenv("FACEBOOK_ACCESS_TOKEN")
 	FacebookDatasetID = os.Getenv("FACEBOOK_DATASET_ID")
 	FacebookPixelID = os.Getenv("FACEBOOK_PIXEL_ID")

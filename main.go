@@ -23,6 +23,8 @@ func main() {
 	}
 	fmt.Println("Environment loaded.")
 
+	constants.Init()
+
 	_, err = database.Connect()
 
 	if err != nil {
