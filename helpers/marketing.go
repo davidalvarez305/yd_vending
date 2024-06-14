@@ -28,24 +28,24 @@ func GetUserIDFromSession(r *http.Request) (int, error) {
 	return 0, errors.New("no user_id in session")
 }
 
-func GetSessionValueByKey(r *http.Request, key string) (string, error) {
+func GetSessionValueByKey(r *http.Request, key string) string {
 	if len(key) == 0 {
-		return "", errors.New("key must be greater than length 0")
+		return ""
 	}
 
 	session, err := sessions.Store.Get(r, SessionName)
 	if err != nil {
-		return "", err
+		return ""
 	}
 
 	if clientID, ok := session.Values[key]; ok {
 		if strClientID, ok := clientID.(string); ok {
-			return strClientID, nil
+			return strClientID
 		}
-		return "", errors.New(key + " is not of type string")
+		return ""
 	}
 
-	return "", errors.New(key + " is not of type string")
+	return ""
 }
 
 func GetGoogleClientIDFromRequest(r *http.Request) (string, error) {

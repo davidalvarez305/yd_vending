@@ -48,7 +48,7 @@
                     <select id="machine_type" name="machine_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                         {{ range .VendingTypes }}
-                          <option value="{{ .VendingTypeID }}">{{ .MachineType }}</option>
+                        <option value="{{ .VendingTypeID }}">{{ .MachineType }}</option>
                         {{ end }}
                     </select>
                 </div>
@@ -57,7 +57,7 @@
                     <select id="location_type" name="location_type" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                         {{ range .VendingLocations }}
-                          <option value="{{ .VendingLocationID }}">{{ .LocationType }}</option>
+                        <option value="{{ .VendingLocationID }}">{{ .LocationType }}</option>
                         {{ end }}
                     </select>
                 </div>
@@ -66,7 +66,7 @@
                     <select id="city" name="city" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                         {{ range .Cities }}
-                          <option value="{{ .CityID }}">{{ .Name }}</option>
+                        <option value="{{ .CityID }}">{{ .Name }}</option>
                         {{ end }}
                     </select>
                 </div>
@@ -76,7 +76,8 @@
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
-                    <label for="foot_traffic_type" class="font-medium">Foot Traffic Type (shopping plaza, busy street, etc...)</label>
+                    <label for="foot_traffic_type" class="font-medium">Foot Traffic Type (shopping plaza, busy street,
+                        etc...)</label>
                     <input type="text" id="foot_traffic_type" name="foot_traffic_type"
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
@@ -103,10 +104,10 @@
 <div id="alertModal" style="display:none;"></div>
 
 <script nonce="{{.Nonce}}">
-	const form = document.getElementById("get-a-quote-form");
-	const alertModal = document.getElementById("alertModal");
-	
-	form.addEventListener("submit", e => {
+    const form = document.getElementById("get-a-quote-form");
+    const alertModal = document.getElementById("alertModal");
+
+    form.addEventListener("submit", e => {
         e.preventDefault();
         const isValid = validateForm();
 
@@ -124,107 +125,117 @@
             credentials: "include",
             body: data
         })
-        .then((response) => {
-            if (response.ok) {
-                return response.text();
-            } else {
-                throw new Error("Error: " + response.statusText);
-            }
-        })
-	    .then(html => {
-            alertModal.outerHTML = html;
-            const closeModalButton = document.getElementById("closeModal").addEventListener("click", () => alertModal.style.display = "none");
+            .then((response) => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error("Error: " + response.statusText);
+                }
+            })
+            .then(html => {
+                alertModal.outerHTML = html;
+                const closeModalButton = document.querySelectorAll(".closeModal");
+                const newModal = document.getElementById("alertModal")
 
-	      form.reset();
-	    })
-	    .catch(console.error);
-	});
-	
-	function validatePhoneNumber(phoneNumberInput) {
-	  let isValid = true;
-	  const phoneNumber = phoneNumberInput.trim();
-	
-	  const phonePattern = /^[0-9]{10}$/;
-	
-	  if (!phonePattern.test(phoneNumber)) {
-	    isValid = false;
-	  }
-	
-	  return isValid;
-	}
-	
-	function validateForm() {
-    let isValid = true;
+                closeModalButton.forEach(button => {
+                    let children = button.children;
+                    Array.from(children).forEach((child) => {
+                        child.setAttribute("name", button.name);
+                    });
 
-    // Validate first name
-    const firstNameInput = document.getElementById("first_name");
-    if (!firstNameInput.value.trim()) {
-        isValid = false;
-        firstNameInput.classList.add("border-red-500");
-    } else {
-        firstNameInput.classList.remove("border-red-500");
+                    button.addEventListener("click", () => newModal.style.display = "none");
+                });
+
+                form.reset();
+            })
+            .catch(console.error);
+    });
+
+    function validatePhoneNumber(phoneNumberInput) {
+        let isValid = true;
+        const phoneNumber = phoneNumberInput.trim();
+
+        const phonePattern = /^[0-9]{10}$/;
+
+        if (!phonePattern.test(phoneNumber)) {
+            isValid = false;
+        }
+
+        return isValid;
     }
 
-    // Validate last name
-    const lastNameInput = document.getElementById("last_name");
-    if (!lastNameInput.value.trim()) {
-        isValid = false;
-        lastNameInput.classList.add("border-red-500");
-    } else {
-        lastNameInput.classList.remove("border-red-500");
-    }
+    function validateForm() {
+        let isValid = true;
 
-    // Validate phone number
-    const phoneNumberInput = document.getElementById("phone_number");
-    if (!validatePhoneNumber(phoneNumberInput.value)) {
-        isValid = false;
-        phoneNumberInput.classList.add("border-red-500");
-    } else {
-        phoneNumberInput.classList.remove("border-red-500");
-    }
+        // Validate first name
+        const firstNameInput = document.getElementById("first_name");
+        if (!firstNameInput.value.trim()) {
+            isValid = false;
+            firstNameInput.classList.add("border-red-500");
+        } else {
+            firstNameInput.classList.remove("border-red-500");
+        }
 
-    // Validate machine type
-    const machineTypeSelect = document.getElementById("machine_type");
-    if (machineTypeSelect.value === "") {
-        isValid = false;
-        machineTypeSelect.classList.add("border-red-500");
-    } else {
-        machineTypeSelect.classList.remove("border-red-500");
-    }
+        // Validate last name
+        const lastNameInput = document.getElementById("last_name");
+        if (!lastNameInput.value.trim()) {
+            isValid = false;
+            lastNameInput.classList.add("border-red-500");
+        } else {
+            lastNameInput.classList.remove("border-red-500");
+        }
 
-    // Validate location type
-    const locationTypeSelect = document.getElementById("location_type");
-    if (locationTypeSelect.value === "") {
-        isValid = false;
-        locationTypeSelect.classList.add("border-red-500");
-    } else {
-        locationTypeSelect.classList.remove("border-red-500");
-    }
+        // Validate phone number
+        const phoneNumberInput = document.getElementById("phone_number");
+        if (!validatePhoneNumber(phoneNumberInput.value)) {
+            isValid = false;
+            phoneNumberInput.classList.add("border-red-500");
+        } else {
+            phoneNumberInput.classList.remove("border-red-500");
+        }
 
-    // Validate city
-    const citySelect = document.getElementById("city");
-    if (citySelect.value === "") {
-        isValid = false;
-        citySelect.classList.add("border-red-500");
-    } else {
-        citySelect.classList.remove("border-red-500");
-    }
+        // Validate machine type
+        const machineTypeSelect = document.getElementById("machine_type");
+        if (machineTypeSelect.value === "") {
+            isValid = false;
+            machineTypeSelect.classList.add("border-red-500");
+        } else {
+            machineTypeSelect.classList.remove("border-red-500");
+        }
 
-    // Validate message
-    const messageInput = document.getElementById("message");
-    if (!messageInput.value.trim()) {
-        isValid = false;
-        messageInput.classList.add("border-red-500");
-    } else {
-        messageInput.classList.remove("border-red-500");
-    }
+        // Validate location type
+        const locationTypeSelect = document.getElementById("location_type");
+        if (locationTypeSelect.value === "") {
+            isValid = false;
+            locationTypeSelect.classList.add("border-red-500");
+        } else {
+            locationTypeSelect.classList.remove("border-red-500");
+        }
 
-    if (!isValid) {
-        alert("Please fill in all required fields.");
-    }
+        // Validate city
+        const citySelect = document.getElementById("city");
+        if (citySelect.value === "") {
+            isValid = false;
+            citySelect.classList.add("border-red-500");
+        } else {
+            citySelect.classList.remove("border-red-500");
+        }
 
-    return isValid;
-}
+        // Validate message
+        const messageInput = document.getElementById("message");
+        if (!messageInput.value.trim()) {
+            isValid = false;
+            messageInput.classList.add("border-red-500");
+        } else {
+            messageInput.classList.remove("border-red-500");
+        }
+
+        if (!isValid) {
+            alert("Please fill in all required fields.");
+        }
+
+        return isValid;
+    }
 </script>
 
 {{ end }}
