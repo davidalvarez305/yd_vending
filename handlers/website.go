@@ -107,9 +107,7 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId, err := helpers.GetSessionValueByKey(r, "google_user_id")
 	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
-		return
+		fmt.Printf("Error getting Google User ID: %+v\n", err)
 	}
 
 	data := websiteContext
@@ -119,11 +117,7 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err = helpers.ServeContent(w, fileName, files, data)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-	}
+	helpers.ServeContent(w, fileName, files, data)
 }
 
 func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
@@ -165,9 +159,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId, err := helpers.GetSessionValueByKey(r, "google_user_id")
 	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting Google user ID from session.", http.StatusForbidden)
-		return
+		fmt.Printf("ERROR GETTING GOOGLE USER ID: %+v\n", err)
 	}
 
 	data := websiteContext
