@@ -29,6 +29,7 @@ var websiteContext = map[string]any{
 	"CurrentYear":       time.Now().Year(),
 	"GoogleAnalyticsID": constants.GoogleAnalyticsID,
 	"FacebookPixelID":   constants.FacebookPixelID,
+	"CompanyName":       "YD Vending, LLC",
 }
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {

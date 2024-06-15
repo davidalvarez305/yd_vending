@@ -1,6 +1,8 @@
 package constants
 
-import "os"
+import (
+	"os"
+)
 
 var (
 	FacebookAccessToken         string
@@ -26,6 +28,7 @@ var (
 	GmailUsername               string
 	GmailPassword               string
 	GmailEmail                  string
+	CompanyName                 string
 )
 
 func Init() {
@@ -52,6 +55,7 @@ func Init() {
 	GmailUsername = os.Getenv("GMAIL_USERNAME")
 	GmailPassword = os.Getenv("GMAIL_PASSWORD")
 	GmailEmail = os.Getenv("GMAIL_EMAIL")
+	CompanyName = os.Getenv("COMPANY_NAME")
 }
 
 var TEMPLATES_DIR = "./templates/"
