@@ -29,6 +29,7 @@ var (
 	GmailPassword               string
 	GmailEmail                  string
 	CompanyName                 string
+	SiteName                    string
 )
 
 func Init() {
@@ -56,6 +57,7 @@ func Init() {
 	GmailPassword = os.Getenv("GMAIL_PASSWORD")
 	GmailEmail = os.Getenv("GMAIL_EMAIL")
 	CompanyName = os.Getenv("COMPANY_NAME")
+	SiteName = os.Getenv("SITE_NAME")
 }
 
 var TEMPLATES_DIR = "./templates/"

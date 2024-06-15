@@ -22,14 +22,14 @@ var decoder = schema.NewDecoder()
 var websiteContext = map[string]any{
 	"PageTitle":         "Request Quote",
 	"MetaDescription":   "Get a quote for vending machine services.",
-	"SiteName":          "YD Vending",
+	"SiteName":          constants.SiteName,
 	"PagePath":          "http://localhost/quote",
 	"StaticPath":        "/static",
 	"PhoneNumber":       constants.DavidPhoneNumber,
 	"CurrentYear":       time.Now().Year(),
 	"GoogleAnalyticsID": constants.GoogleAnalyticsID,
 	"FacebookPixelID":   constants.FacebookPixelID,
-	"CompanyName":       "YD Vending, LLC",
+	"CompanyName":       constants.CompanyName,
 }
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,6 +42,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetContactForm(w, r)
 		case "/login":
 			GetLogin(w, r)
+		case "/about":
+			GetAbout(w, r)
 		case "/lp":
 			GetLP(w, r)
 		case "/":
@@ -90,6 +92,27 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 	}
+}
+
+func GetAbout(w http.ResponseWriter, r *http.Request) {
+	fileName := "about.html"
+	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
+
+	data := websiteContext
+	data["PagePath"] = "http://localhost" + r.URL.Path
+	data["Nonce"] = nonce
+	data["GoogleUserID"] = googleUserId
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, fileName, files, data)
 }
 
 func GetLP(w http.ResponseWriter, r *http.Request) {

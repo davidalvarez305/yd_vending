@@ -37,7 +37,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		font-src 'self' https://fonts.bunny.net;
 		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s';
 		style-src 'self';
-		img-src 'self' https://www.google-analytics.com data:;
+		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com;
 		connect-src 'self' https://www.google-analytics.com;
 		style-src-elem 'self' https://fonts.bunny.net;
 		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64)
