@@ -1,5 +1,3 @@
-const quoteButtons = document.querySelectorAll(".quoteButton");
-
 const qs = new URLSearchParams(window.location.search);
 let latitude = 0.0;
 let longitude = 0.0;
@@ -105,11 +103,17 @@ function handleCTAClick(e) {
   window.location.replace(currentDomain.href);
 }
 
-quoteButtons.forEach((button) => {
-  let children = button.children;
-  Array.from(children).forEach((child) => {
-    child.setAttribute("name", button.name);
-  });
+function applyButtonlogic() {
+  let quoteButtons = document.querySelectorAll(".quoteButton");
 
-  button.addEventListener("click", handleCTAClick);
-});
+  quoteButtons.forEach((button) => {
+    let children = button.children;
+    Array.from(children).forEach((child) => {
+      child.setAttribute("name", button.name);
+    });
+
+    button.addEventListener("click", handleCTAClick);
+  });
+};
+
+applyButtonlogic();

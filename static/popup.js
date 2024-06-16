@@ -30,6 +30,9 @@ function showModal() {
         modal.outerHTML = "";
         alreadyPoppedUp = true;
       });
+
+      // Clicks redirect
+      applyButtonlogic();
     })
     .catch(console.error);
 }
