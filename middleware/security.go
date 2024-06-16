@@ -35,7 +35,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		cspDirective := fmt.Sprintf(`default-src 'self';
 		script-src 'self' https://www.googletagmanager.com %s 'nonce-%s';
 		font-src 'self' https://fonts.bunny.net;
-		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s';
+		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net;
 		style-src 'self';
 		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com;
 		connect-src 'self' https://www.google-analytics.com;

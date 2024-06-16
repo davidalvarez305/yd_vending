@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/sessions"
@@ -11,6 +12,11 @@ import (
 
 func UserTracking(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/static/") || strings.Contains(r.URL.Path, "/partials/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		session, err := sessions.Store.Get(r, "yd_vending_sessions")
 		if err != nil {
 			http.Error(w, "Unable to retrieve session.", http.StatusForbidden)

@@ -46,6 +46,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetAbout(w, r)
 		case "/privacy-policy":
 			GetPrivacyPolicy(w, r)
+		case "/terms-and-conditions":
+			GetTermsAndConditions(w, r)
 		case "/lp":
 			GetLP(w, r)
 		case "/":
@@ -80,20 +82,16 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	googleUserID := helpers.GetSessionValueByKey(r, "google_user_id")
+	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
 	data := websiteContext
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["GoogleUserID"] = googleUserID
+	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, nil)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-	}
+	helpers.ServeContent(w, fileName, files, data)
 }
 
 func GetAbout(w http.ResponseWriter, r *http.Request) {
@@ -119,6 +117,27 @@ func GetAbout(w http.ResponseWriter, r *http.Request) {
 
 func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request) {
 	fileName := "privacy.html"
+	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
+
+	data := websiteContext
+	data["PagePath"] = "http://localhost" + r.URL.Path
+	data["Nonce"] = nonce
+	data["GoogleUserID"] = googleUserId
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, fileName, files, data)
+}
+
+func GetTermsAndConditions(w http.ResponseWriter, r *http.Request) {
+	fileName := "terms.html"
 	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
