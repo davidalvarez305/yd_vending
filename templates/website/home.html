@@ -1,4 +1,6 @@
 {{ define "content.html" }}
+
+<!-- Hero Content -->
 <div class="container relative mx-auto px-2 py-8 lg:px-4 lg:py-16 xl:max-w-7xl">
     <div class="text-center">
         <h1 class="mb-4 text-4xl font-black text-black dark:text-white">
@@ -13,7 +15,12 @@
     <div class="flex flex-col gap-2 pb-28 pt-10 sm:flex-row sm:items-center sm:justify-center">
         <button
             class="quoteButton inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-7 py-3.5 font-semibold leading-6 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
-            <svg class="hi-solid hi-arrow-right inline-block size-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            <svg class="hi-solid hi-arrow-right inline-block size-5" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+            </svg>
             <span>Request our services</span>
         </button>
         <a href="/about" target="_blank"
@@ -42,7 +49,280 @@
             class="relative mx-auto rounded-lg shadow-lg" alt="Hero Image" />
     </div>
 </div>
+<!-- END Hero Content -->
 
+<!-- Features -->
+<div class="bg-white dark:bg-gray-900 dark:text-gray-100">
+    <div class="container mx-auto space-y-16 px-4 py-16 lg:px-8 lg:py-32 xl:max-w-7xl">
+        <div class="text-center">
+            <div class="mb-1 text-sm font-bold uppercase tracking-wider text-primary-600 dark:text-primary-500">
+                What's so unique about you?
+            </div>
+            <h2 class="mb-4 text-4xl font-black text-black dark:text-white">
+                How we set ourselves apart
+            </h2>
+            <h3 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 dark:text-gray-300 lg:w-2/3">
+                We strive to provide best-in-industry vending services.<br>
+                From food & snack machines to coffee, gumball, and ATM's.
+            </h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
+            {{ range .Features }}
+            <div class="flex items-center gap-3">
+                <div class="flex flex-none items-center justify-center text-emerald-500 dark:text-emerald-400">
+                    <svg class="hi-mini hi-check-circle inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <h4 class="font-semibold">{{ . }}</h4>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</div>
+<!-- END Features -->
+
+<!-- FAQ -->
+<div class="bg-white dark:bg-gray-900 dark:text-gray-100">
+    <div class="container mx-auto space-y-16 px-4 py-16 lg:px-8 lg:py-32 xl:max-w-7xl">
+        <div class="text-center">
+            <div class="mb-1 text-sm font-bold uppercase tracking-wider text-primary-600 dark:text-primary-500">
+                Your Questions Answered
+            </div>
+            <h2 class="text-4xl font-black text-black dark:text-white">
+                Frequently Asked Questions
+            </h2>
+        </div>
+
+        <div
+            class="mx-auto max-w-2xl divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 dark:divide-gray-700/50 dark:border-gray-700/50">
+            <details class="group">
+                <summary
+                    class="flex cursor-pointer list-none items-center justify-between px-3 py-4 hover:bg-gray-50 group-open:bg-gray-50 dark:hover:bg-gray-800/50 dark:group-open:bg-gray-800/50 [&::-webkit-details-marker]:hidden">
+                    <h4 class="text-left font-semibold">What types of vending machines do you offer?</h4>
+                    <div class="opacity-50 group-open:rotate-180">
+                        <svg class="hi-mini hi-chevron-down inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </summary>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    We offer a wide range of vending machines including snack machines, beverage machines, combo
+                    machines, and healthy vending machines to meet all your needs.
+                </p>
+            </details>
+            <details class="group">
+                <summary
+                    class="flex cursor-pointer list-none items-center justify-between px-3 py-4 hover:bg-gray-50 group-open:bg-gray-50 dark:hover:bg-gray-800/50 dark:group-open:bg-gray-800/50 [&::-webkit-details-marker]:hidden">
+                    <h4 class="text-left font-semibold">How often are the machines restocked?</h4>
+                    <div class="opacity-50 group-open:rotate-180">
+                        <svg class="hi-mini hi-chevron-down inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </summary>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    Our machines are restocked on a regular schedule to ensure they are always full and ready to serve
+                    your needs. Frequency depends on the machine's location and demand.
+                </p>
+            </details>
+            <details class="group">
+                <summary
+                    class="flex cursor-pointer list-none items-center justify-between px-3 py-4 hover:bg-gray-50 group-open:bg-gray-50 dark:hover:bg-gray-800/50 dark:group-open:bg-gray-800/50 [&::-webkit-details-marker]:hidden">
+                    <h4 class="text-left font-semibold">What payment methods are accepted?</h4>
+                    <div class="opacity-50 group-open:rotate-180">
+                        <svg class="hi-mini hi-chevron-down inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </summary>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    Our vending machines accept various payment methods including cash, credit/debit cards, and mobile
+                    payments such as Apple Pay and Google Wallet.
+                </p>
+            </details>
+            <details class="group">
+                <summary
+                    class="flex cursor-pointer list-none items-center justify-between px-3 py-4 hover:bg-gray-50 group-open:bg-gray-50 dark:hover:bg-gray-800/50 dark:group-open:bg-gray-800/50 [&::-webkit-details-marker]:hidden">
+                    <h4 class="text-left font-semibold">Do you offer customized vending solutions?</h4>
+                    <div class="opacity-50 group-open:rotate-180">
+                        <svg class="hi-mini hi-chevron-down inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </summary>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    Yes, we offer tailored vending solutions to meet the specific needs of your business, including
+                    machine branding and customized product selections.
+                </p>
+            </details>
+            <details class="group">
+                <summary
+                    class="flex cursor-pointer list-none items-center justify-between px-3 py-4 hover:bg-gray-50 group-open:bg-gray-50 dark:hover:bg-gray-800/50 dark:group-open:bg-gray-800/50 [&::-webkit-details-marker]:hidden">
+                    <h4 class="text-left font-semibold">How do you ensure the quality of the products?</h4>
+                    <div class="opacity-50 group-open:rotate-180">
+                        <svg class="hi-mini hi-chevron-down inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </summary>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    We partner with reputable suppliers and conduct regular quality checks to ensure that all products
+                    in our vending machines are fresh and of high quality.
+                </p>
+            </details>
+            <details class="group">
+                <summary
+                    class="flex cursor-pointer list-none items-center justify-between px-3 py-4 hover:bg-gray-50 group-open:bg-gray-50 dark:hover:bg-gray-800/50 dark:group-open:bg-gray-800/50 [&::-webkit-details-marker]:hidden">
+                    <h4 class="text-left font-semibold">What if a machine malfunctions?</h4>
+                    <div class="opacity-50 group-open:rotate-180">
+                        <svg class="hi-mini hi-chevron-down inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </summary>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    We offer prompt maintenance services and have a dedicated support team to quickly address any
+                    malfunctions or issues with our vending machines.
+                </p>
+            </details>
+        </div>
+    </div>
+</div>
+<!-- END FAQ -->
+
+<!-- CTA Section -->
+<div class="dark">
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-100">
+        <div class="container mx-auto space-y-8 px-4 py-16 lg:px-8 lg:py-32 xl:max-w-7xl">
+            <div class="text-center">
+                <h2 class="mb-4 text-4xl font-black text-black dark:text-white">
+                    Heard enough?
+                    <span class="text-primary-600 dark:text-primary-500">Get started today!</span>
+                </h2>
+                <h3 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 dark:text-gray-300 lg:w-2/3">
+                    Start working with professionals who will tend to your business attentively.<br>
+                    We're eager to provide you with hassle-free vending services.
+                </h3>
+            </div>
+
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center sm:gap-3">
+                <button
+                    class="quoteButton inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-6 py-3 font-semibold leading-6 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
+                    <span>Talk to us</span>
+                </button>
+                <a href="/about"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-6 py-3 font-semibold leading-6 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                    <span>Learn More</span>
+                    <svg class="hi-mini hi-arrow-right inline-block size-5 opacity-50"
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END CTA -->
+
+<!-- Team -->
+<div class="bg-white dark:bg-gray-900 dark:text-gray-100">
+    <div class="container mx-auto space-y-16 px-4 py-16 lg:px-8 lg:py-32 xl:max-w-7xl">
+        <div class="text-center">
+            <div class="mb-1 text-sm font-bold uppercase tracking-wider text-primary-600 dark:text-primary-500">
+                Who we are
+            </div>
+            <h2 class="mb-4 text-4xl font-black text-black dark:text-white">
+                The people under the hood
+            </h2>
+            <h3 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 dark:text-gray-300 lg:w-2/3">
+                We're the ones burning the midnight oil to deliver premium vending services.
+            </h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 md:gap-16">
+            <div>
+                <div class="group relative mb-8 p-4">
+                    <div
+                        class="absolute inset-0 skew-y-2 rounded-lg bg-primary-100 transition duration-150 ease-out group-hover:-rotate-2 dark:bg-primary-900/50">
+                    </div>
+                    <img src="https://cdn.tailkit.com/media/placeholders/avatar-nHoaFkrJEx4-740x740.jpg"
+                        class="relative rounded-lg shadow" alt="User Avatar" />
+                </div>
+                <h4 class="mb-0.5 text-xl font-bold">Yovana</h4>
+                <p class="mb-3 font-medium text-gray-600 dark:text-gray-400">
+                    Owner
+                </p>
+                <p class="leading-relaxed text-gray-600 dark:text-gray-400">
+                    Nam commodo turpis id lectus scelerisque vulputate. Integer sed dolor
+                    erat. Fusce erat ipsum, varius vel euismod sed, tristique et lectus?
+                    Etiam egestas fringilla enim, id convallis lectus laoreet at.
+                </p>
+            </div>
+            <div>
+                <div class="group relative mb-8 p-4">
+                    <div
+                        class="absolute inset-0 skew-y-2 rounded-lg bg-primary-100 transition duration-150 ease-out group-hover:-rotate-2 dark:bg-primary-900/50">
+                    </div>
+                    <img src="https://cdn.tailkit.com/media/placeholders/avatar-Nm70URdtf3c-740x740.jpg"
+                        class="relative rounded-lg shadow" alt="User Avatar" />
+                </div>
+                <h4 class="mb-0.5 text-xl font-bold">David</h4>
+                <p class="mb-3 font-medium text-gray-600 dark:text-gray-400">
+                    Owner
+                </p>
+                <p class="leading-relaxed text-gray-600 dark:text-gray-400">
+                    Nam commodo turpis id lectus scelerisque vulputate. Integer sed dolor
+                    erat. Fusce erat ipsum, varius vel euismod sed, tristique et lectus?
+                    Etiam egestas fringilla enim, id convallis lectus laoreet at.
+                </p>
+            </div>
+            <div>
+                <div class="group relative mb-8 p-4">
+                    <div
+                        class="absolute inset-0 skew-y-2 rounded-lg bg-primary-100 transition duration-150 ease-out group-hover:-rotate-2 dark:bg-primary-900/50">
+                    </div>
+                    <img src="https://cdn.tailkit.com/media/placeholders/avatar-mEZ3PoFGs_k-740x740.jpg"
+                        class="relative rounded-lg shadow" alt="User Avatar" />
+                </div>
+                <h4 class="mb-0.5 text-xl font-bold">Abba</h4>
+                <p class="mb-3 font-medium text-gray-600 dark:text-gray-400">
+                    Chief Barks Officer
+                </p>
+                <p class="leading-relaxed text-gray-600 dark:text-gray-400">
+                    Nam commodo turpis id lectus scelerisque vulputate. Integer sed dolor
+                    erat. Fusce erat ipsum, varius vel euismod sed, tristique et lectus?
+                    Etiam egestas fringilla enim, id convallis lectus laoreet at.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END Team -->
 
 <div id="modalOverlay" style="display: none;"></div>
 

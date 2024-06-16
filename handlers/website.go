@@ -88,6 +88,17 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
+	data["Features"] = []string{
+		"Innovative Payment Options",
+		"24/7 Customer Support",
+		"Regular Product Rotation",
+		"Health-Conscious Choices",
+		"Advanced Security Features",
+		"Energy Efficiency",
+		"Detailed Reporting and Analytics",
+		"Local Sourcing Partnerships",
+		"Flexible Contract Terms",
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
