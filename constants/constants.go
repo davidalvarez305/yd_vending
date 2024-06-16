@@ -62,6 +62,7 @@ func Init() {
 
 var TEMPLATES_DIR = "./templates/"
 var WEBSITE_TEMPLATES_DIR = TEMPLATES_DIR + "website/"
+var CRM_TEMPLATES_DIR = TEMPLATES_DIR + "crm/"
 
 var PUBLIC_DIR = "./public/"
 var WEBSITE_PUBLIC_DIR = PUBLIC_DIR + "website/"

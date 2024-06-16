@@ -21,6 +21,7 @@ func Router() *http.ServeMux {
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(currentDir, "static")))))
 
 	router.HandleFunc("/partials/", handlers.PartialsHandler)
+	router.HandleFunc("/crm/", handlers.CRMHandler)
 	router.HandleFunc("/", handlers.WebsiteHandler)
 
 	return router
