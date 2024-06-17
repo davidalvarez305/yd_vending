@@ -1,4 +1,3 @@
-{{ define "contact_form_email.html" }}
 <!DOCTYPE html>
 <html>
 
@@ -36,10 +35,9 @@
     <div class="container">
         <p>First Name: {{ .FirstName}}</p>
         <p>Last Name: {{ .LastName }}</p>
-        <p>Email: {{ .Email }}</p>
-        <p>{{ .Body }}</p>
+        <p>From: Email: {{ .Email }}</p>
+        <p>{{ .Message }}</p>
     </div>
 </body>
 
 </html>
-{{ end }}

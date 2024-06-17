@@ -29,7 +29,7 @@ func BuildStringFromTemplate(templatePath, templateName string, data any) (strin
 		return output, err
 	}
 
-	return output, err
+	return body.String(), err
 }
 
 func ServeContent(w http.ResponseWriter, templateFilePaths []string, data any) error {
