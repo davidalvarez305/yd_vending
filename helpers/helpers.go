@@ -5,7 +5,32 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strings"
 )
+
+func BuildStringFromTemplate(templatePath, templateName string, data any) (string, error) {
+	var output string
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return output, err
+	}
+
+	tmpl, err := template.New(templateName).Parse(string(templateContent))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return output, err
+	}
+
+	var body strings.Builder
+	err = tmpl.Execute(&body, data)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return output, err
+	}
+
+	return output, err
+}
 
 func ServeContent(w http.ResponseWriter, templateFilePaths []string, data any) error {
 	tmpl, err := template.ParseFiles(templateFilePaths...)
@@ -25,7 +50,7 @@ func ServeContent(w http.ResponseWriter, templateFilePaths []string, data any) e
 	return nil
 }
 
-func BuildFile(fileName, publicFilePath string, templateFilePaths []string, data any) error {
+func BuildFile(outputPath string, templateFilePaths []string, data any) error {
 	tmpl, err := template.ParseFiles(templateFilePaths...)
 
 	if err != nil {
@@ -33,7 +58,7 @@ func BuildFile(fileName, publicFilePath string, templateFilePaths []string, data
 	}
 
 	var f *os.File
-	f, err = os.Create(publicFilePath)
+	f, err = os.Create(outputPath)
 
 	if err != nil {
 		return err

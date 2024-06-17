@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -371,7 +370,6 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 }
 
 func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	// Parse form data
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
 		return
@@ -381,18 +379,23 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	err := decoder.Decode(&form, r.PostForm)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error decoding form data.", http.StatusBadRequest)
+		http.Error(w, "Error decoding form data.", http.StatusInternalServerError)
 		return
 	}
 
 	subject := "Contact Form: YD Vending"
-	senderEmail := form.Email
 	recipient := constants.GmailEmail
-	templateName := "contact_form_email.html"
+	templateFile := constants.PARTIAL_TEMPLATES_DIR + "contact_form_email.html"
 
-	// Send email
-	if err := services.SendSMTPEmail(subject, recipient, senderEmail, form, templateName); err != nil {
-		log.Printf("Error sending email: %s", err)
+	body, err := helpers.BuildStringFromTemplate(templateFile, "email", form)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error building e-mail template.", http.StatusInternalServerError)
+		return
+	}
+
+	if err := services.SendGmail(recipient, subject, body); err != nil {
+		fmt.Printf("Error sending email: %v\n", err)
 		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
 		return
 	}

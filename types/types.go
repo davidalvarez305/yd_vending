@@ -39,6 +39,7 @@ type QuoteForm struct {
 }
 
 type ContactForm struct {
+	CSRFToken string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	FirstName string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName  string `json:"last_name" form:"last_name" schema:"last_name"`
 	Email     string `json:"email" form:"email" schema:"email"`
@@ -46,7 +47,8 @@ type ContactForm struct {
 }
 
 type OutboundMessageForm struct {
-	To   string `json:"to" form:"to" schema:"to"`
-	Body string `json:"body" form:"body" schema:"body"`
-	From string `json:"from" form:"from" schema:"from"`
+	To        string `json:"to" form:"to" schema:"to"`
+	Body      string `json:"body" form:"body" schema:"body"`
+	From      string `json:"from" form:"from" schema:"from"`
+	CSRFToken string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 }
