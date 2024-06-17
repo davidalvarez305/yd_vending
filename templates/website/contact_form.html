@@ -63,15 +63,12 @@
   contactForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    var body = Object.fromEntries(new FormData(e.target).entries());
+    var body = new FormData(e.target);
 
     fetch('/contact', {
-      headers: {
-        "Content-Type": "application/json",
-      },
       method: "POST",
       credentials: "include",
-      body: JSON.stringify(body),
+      body: body,
     })
       .then((response) => {
         if (response.ok) {
