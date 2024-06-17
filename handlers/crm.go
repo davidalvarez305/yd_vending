@@ -57,5 +57,5 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	helpers.ServeContent(w, fileName, files, data)
+	helpers.ServeContent(w, files, data)
 }

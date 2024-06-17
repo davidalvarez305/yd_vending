@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func ServeContent(w http.ResponseWriter, fileName string, templateFilePaths []string, data any) error {
+func ServeContent(w http.ResponseWriter, templateFilePaths []string, data any) error {
 	tmpl, err := template.ParseFiles(templateFilePaths...)
 	if err != nil {
 		fmt.Printf("%+v\n", err)

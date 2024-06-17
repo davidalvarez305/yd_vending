@@ -108,7 +108,7 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	helpers.ServeContent(w, fileName, files, data)
+	helpers.ServeContent(w, files, data)
 }
 
 func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -129,7 +129,7 @@ func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	helpers.ServeContent(w, fileName, files, data)
+	helpers.ServeContent(w, files, data)
 }
 
 func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -150,7 +150,7 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	helpers.ServeContent(w, fileName, files, data)
+	helpers.ServeContent(w, files, data)
 }
 
 func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -171,7 +171,7 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[strin
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	helpers.ServeContent(w, fileName, files, data)
+	helpers.ServeContent(w, files, data)
 }
 
 func GetLP(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -192,7 +192,7 @@ func GetLP(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	helpers.ServeContent(w, fileName, files, data)
+	helpers.ServeContent(w, files, data)
 }
 
 func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -245,7 +245,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err = helpers.ServeContent(w, fileName, files, data)
+	err = helpers.ServeContent(w, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -363,7 +363,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, data)
+	err := helpers.ServeContent(w, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -428,7 +428,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, fileName, files, data)
+	err := helpers.ServeContent(w, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
