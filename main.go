@@ -15,7 +15,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
-func main() {
+func init() {
 	err := godotenv.Load()
 
 	if err != nil {
@@ -39,6 +39,9 @@ func main() {
 	}
 	fmt.Println("Sessions initialized.")
 
+}
+
+func main() {
 	s := &http.Server{
 		Addr:           ":" + constants.ServerPort,
 		Handler:        middleware.UserTracking(middleware.SecurityMiddleware(middleware.CSRFProtectMiddleware(router.Router()))),

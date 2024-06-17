@@ -15,56 +15,62 @@ import (
 	"github.com/gorilla/schema"
 )
 
-var baseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
-var footerFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
 var decoder = schema.NewDecoder()
 
-var websiteContext = map[string]any{
-	"PageTitle":         "Request Quote",
-	"MetaDescription":   "Get a quote for vending machine services.",
-	"SiteName":          constants.SiteName,
-	"PagePath":          "http://localhost/quote",
-	"StaticPath":        "/static",
-	"PhoneNumber":       constants.DavidPhoneNumber,
-	"CurrentYear":       time.Now().Year(),
-	"GoogleAnalyticsID": constants.GoogleAnalyticsID,
-	"FacebookPixelID":   constants.FacebookPixelID,
-	"CompanyName":       constants.CompanyName,
+var websiteBaseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
+var websiteFooterFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
+
+func createWebsiteContext() map[string]any {
+	return map[string]any{
+		"PageTitle":         "Request Quote",
+		"MetaDescription":   "Get a quote for vending machine services.",
+		"SiteName":          constants.SiteName,
+		"PagePath":          "http://localhost/quote",
+		"StaticPath":        "/static",
+		"PhoneNumber":       constants.DavidPhoneNumber,
+		"CurrentYear":       time.Now().Year(),
+		"GoogleAnalyticsID": constants.GoogleAnalyticsID,
+		"FacebookPixelID":   constants.FacebookPixelID,
+		"CompanyName":       constants.CompanyName,
+	}
 }
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
+
+	ctx := createWebsiteContext()
+
 	switch r.Method {
 	case http.MethodGet:
 		switch r.URL.Path {
 		case "/quote":
-			GetQuoteForm(w, r)
+			GetQuoteForm(w, r, ctx)
 		case "/contact":
-			GetContactForm(w, r)
+			GetContactForm(w, r, ctx)
 		case "/login":
-			GetLogin(w, r)
+			GetLogin(w, r, ctx)
 		case "/about":
-			GetAbout(w, r)
+			GetAbout(w, r, ctx)
 		case "/privacy-policy":
-			GetPrivacyPolicy(w, r)
+			GetPrivacyPolicy(w, r, ctx)
 		case "/terms-and-conditions":
-			GetTermsAndConditions(w, r)
+			GetTermsAndConditions(w, r, ctx)
 		case "/lp":
-			GetLP(w, r)
+			GetLP(w, r, ctx)
 		case "/":
-			GetHome(w, r)
+			GetHome(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPost:
 		switch r.URL.Path {
 		case "/quote":
-			PostQuote(w, r)
+			PostQuote(w, r, ctx)
 		case "/contact":
-			PostContactForm(w, r)
+			PostContactForm(w, r, ctx)
 		case "/login":
-			PostLogin(w, r)
+			PostLogin(w, r, ctx)
 		case "/logout":
-			PostLogout(w, r)
+			PostLogout(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -73,9 +79,9 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetHome(w http.ResponseWriter, r *http.Request) {
+func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "home.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -84,7 +90,7 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -105,9 +111,9 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeContent(w, fileName, files, data)
 }
 
-func GetAbout(w http.ResponseWriter, r *http.Request) {
+func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "about.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -116,7 +122,7 @@ func GetAbout(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -126,9 +132,9 @@ func GetAbout(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeContent(w, fileName, files, data)
 }
 
-func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request) {
+func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "privacy.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -137,7 +143,7 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -147,9 +153,9 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeContent(w, fileName, files, data)
 }
 
-func GetTermsAndConditions(w http.ResponseWriter, r *http.Request) {
+func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "terms.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -158,7 +164,7 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -168,9 +174,9 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeContent(w, fileName, files, data)
 }
 
-func GetLP(w http.ResponseWriter, r *http.Request) {
+func GetLP(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "lp.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -179,7 +185,7 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -189,9 +195,9 @@ func GetLP(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeContent(w, fileName, files, data)
 }
 
-func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
+func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "quote.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	vendingTypes, err := database.GetVendingTypes()
 	if err != nil {
@@ -228,7 +234,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -246,7 +252,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PostQuote(w http.ResponseWriter, r *http.Request) {
+func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -331,9 +337,9 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
 }
 
-func GetContactForm(w http.ResponseWriter, r *http.Request) {
+func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "contact_form.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	googleUserID := helpers.GetSessionValueByKey(r, "google_user_id")
 
@@ -349,7 +355,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -364,7 +370,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PostContactForm(w http.ResponseWriter, r *http.Request) {
+func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	// Parse form data
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
@@ -396,9 +402,9 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
 }
 
-func GetLogin(w http.ResponseWriter, r *http.Request) {
+func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "login.html"
-	files := []string{baseFilePath, footerFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
@@ -414,7 +420,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 
 	googleUserID := helpers.GetSessionValueByKey(r, "google_user_id")
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -429,7 +435,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PostLogin(w http.ResponseWriter, r *http.Request) {
+func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
 		return
@@ -464,7 +470,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/crm", http.StatusFound)
 }
 
-func PostLogout(w http.ResponseWriter, r *http.Request) {
+func PostLogout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.CookieName,

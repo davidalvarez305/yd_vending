@@ -11,25 +11,29 @@ import (
 var crmBaseFilePath = constants.CRM_TEMPLATES_DIR + "base.html"
 var crmFooterFilePath = constants.CRM_TEMPLATES_DIR + "footer.html"
 
-var crmContext = map[string]any{
-	"PageTitle":         "Request Quote",
-	"MetaDescription":   "Get a quote for vending machine services.",
-	"SiteName":          constants.SiteName,
-	"PagePath":          "http://localhost/quote",
-	"StaticPath":        "/static",
-	"PhoneNumber":       constants.DavidPhoneNumber,
-	"CurrentYear":       time.Now().Year(),
-	"GoogleAnalyticsID": constants.GoogleAnalyticsID,
-	"FacebookPixelID":   constants.FacebookPixelID,
-	"CompanyName":       constants.CompanyName,
+func createCrmContext() map[string]any {
+	return map[string]any{
+		"PageTitle":         "Request Quote",
+		"MetaDescription":   "Get a quote for vending machine services.",
+		"SiteName":          constants.SiteName,
+		"PagePath":          "http://localhost/quote",
+		"StaticPath":        "/static",
+		"PhoneNumber":       constants.DavidPhoneNumber,
+		"CurrentYear":       time.Now().Year(),
+		"GoogleAnalyticsID": constants.GoogleAnalyticsID,
+		"FacebookPixelID":   constants.FacebookPixelID,
+		"CompanyName":       constants.CompanyName,
+	}
 }
 
 func CRMHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := createCrmContext()
+
 	switch r.Method {
 	case http.MethodGet:
 		switch r.URL.Path {
 		case "/crm/leads":
-			GetLeads(w, r)
+			GetLeads(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -38,7 +42,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetLeads(w http.ResponseWriter, r *http.Request) {
+func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "leads.html"
 	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
@@ -47,7 +51,7 @@ func GetLeads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := websiteContext
+	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 
