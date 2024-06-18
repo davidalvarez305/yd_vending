@@ -332,8 +332,12 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	go conversions.SendGoogleConversion(payload)
 	go conversions.SendFacebookConversion(metaPayload)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
+	msg := types.SuccessModal{
+		TemplateName: "modal",
+		AlertHeader:  "Awesome!",
+		AlertMessage: "We received your request and will be right with you.",
+	}
+	helpers.ServeSuccessModal(w, r, msg)
 }
 
 func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -401,9 +405,12 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+"modal.html")
+	msg := types.SuccessModal{
+		TemplateName: "modal",
+		AlertHeader:  "Sent!",
+		AlertMessage: "We've received your message and will be quick to respond.",
+	}
+	helpers.ServeSuccessModal(w, r, msg)
 }
 
 func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {

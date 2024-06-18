@@ -14,7 +14,7 @@
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <h3 class="font-semibold">Quote request sent successfully!</h3>
+                        <h3 class="font-semibold">{{ .AlertHeader }}</h3>
                     </div>
                     <div class="-my-4">
                         <button type="button" class="closeModal nline-flex items-center justify-center space-x-2 rounded-lg border border-transparent px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300 focus:ring-opacity-25 active:border-gray-200 active:shadow-none dark:border-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600 dark:focus:ring-opacity-40 dark:active:border-gray-700">
@@ -28,8 +28,7 @@
                     </div>
                 </div>
                 <p class="ml-8">
-                    In the mean time, you can learn more about us in the
-                    <a class="text-emerald-600 underline hover:text-emerald-400 dark:text-emerald-400 dark:hover:text-emerald-300" href="/">home page</a>.
+                    {{ .AlertText }}
                 </p>
             </div>
         </div>

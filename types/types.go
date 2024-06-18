@@ -52,3 +52,9 @@ type OutboundMessageForm struct {
 	From      string `json:"from" form:"from" schema:"from"`
 	CSRFToken string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 }
+
+type SuccessModal struct {
+	TemplateName string
+	AlertHeader  string
+	AlertMessage string
+}
