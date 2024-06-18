@@ -457,13 +457,19 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	user, err := database.GetUserByEmail(email)
 	if err != nil {
-		http.Error(w, "Email not found.", http.StatusBadRequest)
+		helpers.ServeErrorBanner(w, r, types.ErrorBanner{
+			TemplateName: "error",
+			Message:      "Email not found.",
+		})
 		return
 	}
 
 	isValid := helpers.ValidatePassword(password, user.Password)
 	if !isValid {
-		http.Error(w, "Invalid password.", http.StatusBadRequest)
+		helpers.ServeErrorBanner(w, r, types.ErrorBanner{
+			TemplateName: "error",
+			Message:      "Invalid password.",
+		})
 		return
 	}
 

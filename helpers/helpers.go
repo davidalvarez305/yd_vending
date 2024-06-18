@@ -27,6 +27,22 @@ func ServeSuccessModal(w http.ResponseWriter, r *http.Request, ctx types.Success
 	w.Write([]byte(template))
 }
 
+func ServeErrorBanner(w http.ResponseWriter, r *http.Request, ctx types.ErrorBanner) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	templatePath := constants.PARTIAL_TEMPLATES_DIR + "error_banner.html"
+
+	template, err := BuildStringFromTemplate(templatePath, ctx.TemplateName, ctx)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error parsing template.", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(template))
+}
+
 func BuildStringFromTemplate(templatePath, templateName string, data any) (string, error) {
 	var output string
 	templateContent, err := os.ReadFile(templatePath)

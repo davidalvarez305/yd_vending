@@ -58,3 +58,8 @@ type SuccessModal struct {
 	AlertHeader  string
 	AlertMessage string
 }
+
+type ErrorBanner struct {
+	TemplateName string
+	Message      string
+}
