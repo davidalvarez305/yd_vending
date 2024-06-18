@@ -387,14 +387,15 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	recipient := constants.GmailEmail
 	templateFile := constants.PARTIAL_TEMPLATES_DIR + "contact_form_email.html"
 
-	body, err := helpers.BuildStringFromTemplate(templateFile, "email", form)
+	template, err := helpers.BuildStringFromTemplate(templateFile, "email", form)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error building e-mail template.", http.StatusInternalServerError)
 		return
 	}
 
-	if err := services.SendGmail(recipient, subject, body); err != nil {
+	body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
+	if err := services.SendGmail(recipient, subject, form.Email, body); err != nil {
 		fmt.Printf("Error sending email: %v\n", err)
 		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
 		return
