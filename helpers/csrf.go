@@ -150,8 +150,8 @@ func ValidateCSRFToken(isUsed bool, csrfToken string, userToken []byte) error {
 }
 
 func IsCSRFURL(csrfURLs []string, url string) bool {
-	for _, u := range csrfURLs {
-		if url == u {
+	for _, protectedUrl := range csrfURLs {
+		if strings.Contains(url, protectedUrl) {
 			return true
 		}
 	}
