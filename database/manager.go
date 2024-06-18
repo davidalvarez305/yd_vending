@@ -219,3 +219,48 @@ func GetCities() ([]models.City, error) {
 
 	return cities, nil
 }
+
+func GetQuotes() ([]types.Quote, error) {
+	var quotes []types.Quote
+
+	query := `SELECT l.first_name, l.last_name, l.phone_number, 
+		l.created_at, l.rent, l.foot_traffic, l.foot_traffic_type, 
+		vt.machine_type, vl.location_type, c.name as city, lm.language
+		FROM lead AS l
+		JOIN city AS c ON c.city_id = l.city_id
+		JOIN vending_type AS vt ON vt.vending_type_id = l.vending_type_id
+		JOIN vending_location AS vl ON vl.vending_location_id = l.vending_location_id
+		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id`
+
+	rows, err := DB.Query(query)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return quotes, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var quote types.Quote
+		err := rows.Scan(&quote.FirstName,
+			&quote.LastName,
+			&quote.PhoneNumber,
+			&quote.CreatedAt,
+			&quote.Rent,
+			&quote.FootTraffic,
+			&quote.FootTrafficType,
+			&quote.MachineType,
+			&quote.LocationType,
+			&quote.City,
+			&quote.Language)
+		if err != nil {
+			return quotes, err
+		}
+		quotes = append(quotes, quote)
+	}
+
+	if err := rows.Err(); err != nil {
+		return quotes, err
+	}
+
+	return quotes, nil
+}

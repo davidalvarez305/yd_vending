@@ -49,8 +49,9 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	fileName := "leads.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	fileName := "quotes_table.html"
+	baseFile := constants.CRM_TEMPLATES_DIR + "leads.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, constants.PARTIAL_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -63,10 +64,18 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	/* quotes, err := database.GetQuotes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting quotes from DB.", http.StatusInternalServerError)
+		return
+	} */
+
 	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
+	/* data["Quotes"] = quotes */
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

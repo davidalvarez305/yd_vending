@@ -63,3 +63,17 @@ type ErrorBanner struct {
 	TemplateName string
 	Message      string
 }
+
+type Quote struct {
+	FirstName       string `json:"first_name"`
+	LastName        string `json:"last_name"`
+	PhoneNumber     string `json:"phone_number"`
+	CreatedAt       int64  `json:"created_at"`
+	Rent            string `json:"rent"`
+	FootTraffic     int    `json:"foot_traffic"`
+	FootTrafficType string `json:"foot_traffic_type"`
+	MachineType     string `json:"machine_type"`
+	LocationType    string `json:"location_type"`
+	City            string `json:"city"`
+	Language        string `json:"language"`
+}
