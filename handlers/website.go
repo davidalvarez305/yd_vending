@@ -395,7 +395,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	}
 
 	body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
-	if err := services.SendGmail(recipient, subject, form.Email, body); err != nil {
+	if err := services.SendGmail(recipient, subject, body); err != nil {
 		fmt.Printf("Error sending email: %v\n", err)
 		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
 		return

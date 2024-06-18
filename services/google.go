@@ -74,7 +74,7 @@ func initializeGoogleClient(scope string) (*http.Client, error) {
 	return config.Client(context.Background(), &token), nil
 }
 
-func SendGmail(recipient, sender, subject, body string) error {
+func SendGmail(recipient, subject, body string) error {
 	client, err := initializeGoogleClient(gmail.GmailSendScope)
 	if err != nil {
 		fmt.Printf("Unable to initialize Gmail client: %v", err)
@@ -91,7 +91,7 @@ func SendGmail(recipient, sender, subject, body string) error {
 
 	var message gmail.Message
 
-	emailContent := fmt.Sprintf("To: %s\r\nFrom:%s\r\nSubject: %s\r\n%s", recipient, sender, subject, body)
+	emailContent := fmt.Sprintf("To: %s\r\nSubject: %s\r\n%s", recipient, subject, body)
 	message.Raw = base64.URLEncoding.EncodeToString([]byte(emailContent))
 
 	_, err = srv.Users.Messages.Send(user, &message).Do()
