@@ -14,7 +14,7 @@ import (
 func ServeSuccessModal(w http.ResponseWriter, r *http.Request, ctx types.SuccessModal) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	templatePath := constants.PARTIAL_TEMPLATES_DIR + "modal+html"
+	templatePath := constants.PARTIAL_TEMPLATES_DIR + "modal.html"
 
 	template, err := BuildStringFromTemplate(templatePath, ctx.TemplateName, ctx)
 
@@ -24,7 +24,7 @@ func ServeSuccessModal(w http.ResponseWriter, r *http.Request, ctx types.Success
 		return
 	}
 
-	http.ServeFile(w, r, template)
+	w.Write([]byte(template))
 }
 
 func BuildStringFromTemplate(templatePath, templateName string, data any) (string, error) {
