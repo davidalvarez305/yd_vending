@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
@@ -18,7 +19,7 @@ import (
 func refreshAuthToken(config *oauth2.Config) (oauth2.Token, error) {
 	var token oauth2.Token
 
-	refreshToken := os.Getenv("GOOGLE_REFRESH_TOKEN")
+	refreshToken := constants.GoogleRefreshToken
 	client := &http.Client{}
 
 	url := config.Endpoint.TokenURL
@@ -55,7 +56,7 @@ func refreshAuthToken(config *oauth2.Config) (oauth2.Token, error) {
 func initializeGoogleClient(scope string) (*http.Client, error) {
 	var client *http.Client
 
-	b, err := os.ReadFile("./google.json")
+	b, err := os.ReadFile(constants.GoogleJSONPath)
 	if err != nil {
 		return client, err
 	}

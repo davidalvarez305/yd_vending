@@ -388,7 +388,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	}
 
 	subject := "Contact Form: YD Vending"
-	recipient := constants.GmailEmail
+	recipient := constants.DavidEmail
 	templateFile := constants.PARTIAL_TEMPLATES_DIR + "contact_form_email.html"
 
 	template, err := helpers.BuildStringFromTemplate(templateFile, "email", form)

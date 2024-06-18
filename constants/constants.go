@@ -10,12 +10,15 @@ var (
 	FacebookPixelID             string
 	GoogleAnalyticsID           string
 	GoogleAnalyticsAPISecretKey string
+	GoogleRefreshToken          string
+	GoogleJSONPath              string
 	PostgresHost                string
 	PostgresPort                string
 	PostgresUser                string
 	PostgresPassword            string
 	PostgresDBName              string
 	DavidPhoneNumber            string
+	DavidEmail                  string
 	ServerPort                  string
 	RootDomain                  string
 	AWSStorageBucket            string
@@ -25,9 +28,6 @@ var (
 	EncSecretKey                string
 	TwilioAccountSID            string
 	TwilioAuthToken             string
-	GmailUsername               string
-	GmailPassword               string
-	GmailEmail                  string
 	CompanyName                 string
 	SiteName                    string
 )
@@ -53,11 +53,11 @@ func Init() {
 	EncSecretKey = os.Getenv("ENC_SECRET_KEY")
 	TwilioAccountSID = os.Getenv("TWILIO_ACCOUNT_SID")
 	TwilioAuthToken = os.Getenv("TWILIO_AUTH_TOKEN")
-	GmailUsername = os.Getenv("GMAIL_USERNAME")
-	GmailPassword = os.Getenv("GMAIL_PASSWORD")
-	GmailEmail = os.Getenv("GMAIL_EMAIL")
 	CompanyName = os.Getenv("COMPANY_NAME")
 	SiteName = os.Getenv("SITE_NAME")
+	GoogleRefreshToken = os.Getenv("GOOGLE_REFRESH_TOKEN")
+	GoogleJSONPath = "./google.json"
+	DavidEmail = os.Getenv("DAVID_EMAIL")
 }
 
 var TEMPLATES_DIR = "./templates/"
