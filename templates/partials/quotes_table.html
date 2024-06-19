@@ -71,10 +71,10 @@
     </nav>
 
     <nav class="hidden sm:inline-flex">
-        {{ range $page := seq 1 .TotalRows }}
-        <button type="button" class="pagination-link {{ if eq $page $.CurrentPage }}bg-gray-100{{ end }}">
-            {{ $page }}
-        </button>
+        {{ range .Pages }}
+            <button type="button" class="pagination-link {{ if eq . $.CurrentPage }}bg-gray-100{{ end }}">
+                {{ . }}
+            </button>
         {{ end }}
     </nav>
 </div>

@@ -135,3 +135,11 @@ func GetLeadIDFromURLPath(path string) (string, error) {
 		return "", errors.New("invalid URL params")
 	}
 }
+
+func GenerateSequence(start, end int) []int {
+	var sequence []int
+	for i := start; i <= end; i++ {
+		sequence = append(sequence, i)
+	}
+	return sequence
+}

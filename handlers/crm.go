@@ -101,11 +101,14 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 		return
 	}
 
+	pages := helpers.GenerateSequence(1, totalRows)
+
 	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Quotes"] = quotes
+	data["Pages"] = pages
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
