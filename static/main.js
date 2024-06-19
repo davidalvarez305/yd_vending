@@ -1,11 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const telephoneButton = document.getElementById("telephone-button");
-  const phoneNumber = telephoneButton.textContent.trim();
+  const phoneButtons = document.querySelectorAll(".phoneNumber");
 
-  telephoneButton.textContent = formatPhoneNumber(phoneNumber);
-
-  telephoneButton.addEventListener("click", () => {
-    window.location.href = "tel:" + phoneNumber;
+  phoneButtons.forEach(telephoneButton => {
+    const phoneNumber = telephoneButton.textContent.trim();
+  
+    telephoneButton.textContent = formatPhoneNumber(phoneNumber);
+  
+    telephoneButton.addEventListener("click", () => {
+      window.location.href = "tel:" + phoneNumber;
+    });
   });
 
   function formatPhoneNumber(phoneNumber) {

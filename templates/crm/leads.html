@@ -1,5 +1,7 @@
 {{ define "content.html" }}
 <div class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-    {{ template "quotes_table.html" }}
+    {{ template "leads_table.html" . }}
 </div>
+
+<script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>
 {{ end }}

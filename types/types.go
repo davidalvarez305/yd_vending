@@ -77,6 +77,7 @@ type LeadDetails struct {
 }
 
 type LeadList struct {
+	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	FirstName         string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName          string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber       string `json:"phone_number" form:"phone_number" schema:"phone_number"`

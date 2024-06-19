@@ -243,7 +243,7 @@ func GetCities() ([]models.City, error) {
 func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	var leads []types.LeadList
 
-	query := `SELECT l.first_name, l.last_name, l.phone_number, 
+	query := `SELECT l.lead_id, l.first_name, l.last_name, l.phone_number, 
 		l.created_at, l.rent, l.foot_traffic, l.foot_traffic_type, 
 		vt.machine_type, vl.location_type, c.name as city, lm.language,
 		l.city_id, l.vending_type_id, l.vending_location_id,
@@ -293,7 +293,8 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		var lead types.LeadList
 		var createdAt time.Time
 
-		err := rows.Scan(&lead.FirstName,
+		err := rows.Scan(&lead.LeadID,
+			&lead.FirstName,
 			&lead.LastName,
 			&lead.PhoneNumber,
 			&createdAt,

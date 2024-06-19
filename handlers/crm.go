@@ -53,7 +53,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}) {
-	fileName := "quotes_table.html"
+	fileName := "leads_table.html"
 	baseFile := constants.CRM_TEMPLATES_DIR + "leads.html"
 	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, constants.PARTIAL_TEMPLATES_DIR + fileName}
 
@@ -71,7 +71,6 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 		return
 	}
 
-	// Parse query parameters into GetQuotesParams struct
 	var params types.GetLeadsParams
 	err := schema.NewDecoder().Decode(&params, r.URL.Query())
 	if err != nil {
@@ -80,19 +79,19 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 		return
 	}
 
-	quotes, totalRows, err := database.GetLeadList(params)
+	leads, totalRows, err := database.GetLeadList(params)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting quotes from DB.", http.StatusInternalServerError)
+		http.Error(w, "Error getting leads from DB.", http.StatusInternalServerError)
 		return
 	}
 
 	if len(r.URL.RawQuery) > 0 {
 		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "quotes_table",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "quotes_table.html",
+			TemplateName: "leads_table",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "qleads_table.html",
 			Data: map[string]any{
-				"Quotes":      quotes,
+				"Leads":       leads,
 				"TotalRows":   totalRows,
 				"CurrentPage": params.PageNum,
 			},
@@ -107,7 +106,7 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["Quotes"] = quotes
+	data["Leads"] = leads
 	data["Pages"] = pages
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
