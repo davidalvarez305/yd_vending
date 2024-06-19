@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -35,7 +36,15 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		switch r.URL.Path {
+		path := r.URL.Path
+
+		// Handle lead details
+		if strings.HasPrefix(path, "/crm/lead/") {
+			GetLeadDetail(w, r, ctx)
+			return
+		}
+
+		switch path {
 		case "/crm/dashboard":
 			GetDashboard(w, r, ctx)
 		case "/crm/leads":
@@ -204,12 +213,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	leadId, err := helpers.GetLeadIDFromURLPath(r.URL.Path)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Invalid URL path.", http.StatusInternalServerError)
-		return
-	}
+	leadId := strings.TrimPrefix(r.URL.Path, "/crm/lead/")
 
 	leadDetails, err := database.GetLeadDetails(leadId)
 	if err != nil {
@@ -225,12 +229,14 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	userId, err := helpers.GetUserIDFromSession(r)
+	/* userId, err := helpers.GetUserIDFromSession(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting user ID from session.", http.StatusInternalServerError)
 		return
-	}
+	} */
+
+	userId := 1
 
 	phoneNumber, err := database.GetPhoneNumberFromUserID(userId)
 	if err != nil {

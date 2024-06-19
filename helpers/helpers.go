@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -119,21 +118,6 @@ func RemoveCountryCode(phoneNumber string) string {
 		return phoneNumber[2:]
 	}
 	return phoneNumber
-}
-
-func GetLeadIDFromURLPath(path string) (string, error) {
-	cleanedPath := strings.Trim(path, "/")
-
-	parts := strings.Split(cleanedPath, "/")
-
-	// Ensure there are at least 3 parts in the path
-	if len(parts) >= 3 {
-		thirdParam := parts[2]
-
-		return thirdParam, nil
-	} else {
-		return "", errors.New("invalid URL params")
-	}
 }
 
 func GenerateSequence(start, end int) []int {

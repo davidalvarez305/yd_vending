@@ -61,7 +61,6 @@ type LeadDetails struct {
 	LeadID          int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	FullName        string `json:"full_name" form:"full_name" schema:"full_name"`
 	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email           string `json:"email" form:"email" schema:"email"`
 	VendingType     string `json:"vending_type" form:"vending_type" schema:"vending_type"`
 	VendingLocation string `json:"vending_location" form:"vending_location" schema:"vending_location"`
 	CampaignName    string `json:"campaign_name" form:"campaign_name" schema:"campaign_name"`

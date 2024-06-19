@@ -324,37 +324,27 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 }
 
 func GetLeadDetails(leadID string) (types.LeadDetails, error) {
-	query := `
-    SELECT
-        CONCAT(l.lead_id,
-		l.first_name, ' ', l.last_name) AS full_name,
-        l.phone_number,
-        l.email,
-        vt.machine_type AS vending_type,
-        vl.location_type AS vending_location,
-        lm.ad_campaign AS campaign_name,
-        lm.medium,
-        lm.source,
-        lm.referrer,
-        lm.landing_page,
-        lm.ip,
-        lm.keyword,
-        lm.channel,
-        lm.language,
-        c.city
-    FROM
-        lead l
-    JOIN
-        vending_type vt ON l.vending_type_id = vt.vending_type_id
-    JOIN
-        vending_location vl ON l.vending_location_id = vl.vending_location_id
-    JOIN
-        lead_marketing lm ON l.lead_id = lm.lead_id
-    JOIN
-		    city c ON c.city_id = l.city_id
-    WHERE
-        l.lead_id = ?
-    `
+	query := `SELECT l.lead_id,
+	CONCAT(l.first_name, ' ', l.last_name),
+	l.phone_number,
+	vt.machine_type,
+	vl.location_type,
+	lm.ad_campaign,
+	lm.medium,
+	lm.source,
+	lm.referrer,
+	lm.landing_page,
+	lm.ip,
+	lm.keyword,
+	lm.channel,
+	lm.language,
+	c."name"
+	FROM lead l
+	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
+	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
+	JOIN lead_marketing lm ON l.lead_id = lm.lead_id
+	JOIN city c ON c.city_id = l.city_id
+	WHERE l.lead_id = $1`
 
 	var leadDetails types.LeadDetails
 
@@ -366,7 +356,6 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		&leadDetails.LeadID,
 		&leadDetails.FullName,
 		&leadDetails.PhoneNumber,
-		&leadDetails.Email,
 		&leadDetails.VendingType,
 		&leadDetails.VendingLocation,
 		&leadDetails.CampaignName,
