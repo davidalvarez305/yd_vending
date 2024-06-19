@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -59,44 +60,51 @@ func handleIncomingCall(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleIncomingSMS(w http.ResponseWriter, r *http.Request) {
-	// Parse the form data
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
+	var twilioMessage types.TwilioMessage
+
+	if err := json.NewDecoder(r.Body).Decode(&twilioMessage); err != nil {
+		http.Error(w, "Failed to decode JSON payload", http.StatusBadRequest)
 		return
 	}
 
-	userId, err := database.GetUserIDFromPhoneNumber(r.FormValue("From"))
+	userId, err := database.GetUserIDFromPhoneNumber(helpers.RemoveCountryCode(twilioMessage.To))
 	if err != nil {
 		http.Error(w, "Failed to get User ID.", http.StatusBadRequest)
 		return
 	}
 
-	sms := models.TextMessage{
-		MessageSID: r.FormValue("MessageSid"),
-		UserID:     userId,
-		FromNumber: r.FormValue("From"),
-		ToNumber:   r.FormValue("To"),
-		Body:       r.FormValue("Body"),
-		Status:     "received",
-		CreatedAt:  time.Now(),
-		IsInbound:  true,
+	leadId, err := database.GetLeadIDFromPhoneNumber(helpers.RemoveCountryCode(twilioMessage.From))
+	if err != nil {
+		http.Error(w, "Failed to get Lead ID.", http.StatusBadRequest)
+		return
 	}
 
-	// Save the SMS to the database
-	if err := database.SaveSMS(sms); err != nil {
+	dateCreated := time.Unix(twilioMessage.DateCreated.Unix(), 0).Unix()
+
+	message := models.Message{
+		ExternalID:  twilioMessage.MessageSid,
+		UserID:      userId,
+		LeadID:      leadId,
+		Text:        twilioMessage.Body,
+		TextFrom:    helpers.RemoveCountryCode(twilioMessage.From),
+		TextTo:      helpers.RemoveCountryCode(twilioMessage.To),
+		IsInbound:   true,
+		DateCreated: dateCreated,
+	}
+
+	if err := database.SaveSMS(message); err != nil {
 		log.Printf("Error saving SMS to database: %s", err)
 		http.Error(w, "Failed to save message.", http.StatusInternalServerError)
 		return
 	}
 
-	// Do something with message
-	fmt.Println(r.FormValue("Body"))
+	w.WriteHeader(http.StatusOK)
 }
 
 func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 	// Parse the form data
 	if err := r.ParseForm(); err != nil {
-		log.Printf("Failed to parse form data: %s", err)
+		fmt.Printf("Failed to parse form data: %s", err)
 		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
 		return
 	}
@@ -104,13 +112,18 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 	form := types.OutboundMessageForm{
 		To:   r.FormValue("to"),
 		Body: r.FormValue("Body"),
-		From: constants.DavidPhoneNumber,
+		From: r.FormValue("From"),
 	}
 
-	userId, err := helpers.GetUserIDFromSession(r)
+	userId, err := database.GetUserIDFromPhoneNumber(r.FormValue("From"))
 	if err != nil {
-		log.Printf("Error getting user id: %s", err)
-		http.Error(w, "Failed to get UserID from session.", http.StatusInternalServerError)
+		http.Error(w, "Failed to get User ID.", http.StatusInternalServerError)
+		return
+	}
+
+	leadId, err := database.GetLeadIDFromPhoneNumber(r.FormValue("To"))
+	if err != nil {
+		http.Error(w, "Failed to get Lead ID.", http.StatusInternalServerError)
 		return
 	}
 
@@ -121,17 +134,18 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sms := models.TextMessage{
-		MessageSID: messageSID,
-		UserID:     userId,
-		ToNumber:   form.To,
-		FromNumber: form.From,
-		Body:       form.Body,
-		Status:     "sent",
-		CreatedAt:  time.Now(),
-		IsInbound:  false,
+	message := models.Message{
+		ExternalID:  messageSID,
+		UserID:      userId,
+		LeadID:      leadId,
+		Text:        form.Body,
+		TextFrom:    form.From,
+		TextTo:      form.To,
+		IsInbound:   false,
+		DateCreated: time.Now().Unix(),
 	}
-	if err := database.SaveSMS(sms); err != nil {
+
+	if err := database.SaveSMS(message); err != nil {
 		log.Printf("Error saving SMS to database: %s", err)
 		http.Error(w, "Failed to save message to database.", http.StatusInternalServerError)
 		return

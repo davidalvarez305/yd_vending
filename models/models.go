@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type VendingType struct {
 	VendingTypeID int    `json:"vending_type_id"`
 	MachineType   string `json:"machine_type"`
@@ -70,21 +68,22 @@ type CSRFToken struct {
 	IsUsed      bool   `json:"is_used"`
 }
 
-type TextMessage struct {
-	TextMessageID int       `json:"text_message_id"`
-	MessageSID    string    `json:"message_sid"`
-	UserID        int       `json:"user_id"`
-	FromNumber    string    `json:"from_number"`
-	ToNumber      string    `json:"to_number"`
-	Body          string    `json:"body"`
-	Status        string    `json:"status"`
-	CreatedAt     time.Time `json:"created_at"`
-	IsInbound     bool      `json:"is_inbound"`
+type Message struct {
+	MessageID   int    `json:"message_id"`
+	ExternalID  string `json:"external_id"`
+	UserID      int    `json:"user_id"`
+	LeadID      int    `json:"lead_id"`
+	Text        string `json:"text"`
+	DateCreated int64  `json:"date_created"`
+	TextFrom    string `json:"text_from"`
+	TextTo      string `json:"text_to"`
+	IsInbound   bool   `json:"is_inbound"`
 }
 
 type User struct {
-	UserID   int    `json:"user_id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	IsAdmin  bool   `json:"is_admin"`
+	UserID      int    `json:"user_id"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
+	IsAdmin     bool   `json:"is_admin"`
 }

@@ -1,38 +1,20 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"os"
 	"strings"
 
-	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/types"
 )
 
-func ServeSuccessModal(w http.ResponseWriter, r *http.Request, ctx types.SuccessModal) {
+func ServeDynamicPartialTemplate(w http.ResponseWriter, ctx types.DynamicPartialTemplate) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	templatePath := constants.PARTIAL_TEMPLATES_DIR + "modal.html"
-
-	template, err := BuildStringFromTemplate(templatePath, ctx.TemplateName, ctx)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error parsing template.", http.StatusInternalServerError)
-		return
-	}
-
-	w.Write([]byte(template))
-}
-
-func ServeErrorBanner(w http.ResponseWriter, r *http.Request, ctx types.ErrorBanner) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	templatePath := constants.PARTIAL_TEMPLATES_DIR + "error_banner.html"
-
-	template, err := BuildStringFromTemplate(templatePath, ctx.TemplateName, ctx)
+	template, err := BuildStringFromTemplate(ctx.TemplatePath, ctx.TemplateName, ctx.Data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -130,4 +112,26 @@ func GetUserIPFromRequest(r *http.Request) string {
 	// Fallback to using the RemoteAddr from the request
 	ip := r.RemoteAddr
 	return ip
+}
+
+func RemoveCountryCode(phoneNumber string) string {
+	if strings.HasPrefix(phoneNumber, "+1") {
+		return phoneNumber[2:]
+	}
+	return phoneNumber
+}
+
+func GetLeadIDFromURLPath(path string) (string, error) {
+	cleanedPath := strings.Trim(path, "/")
+
+	parts := strings.Split(cleanedPath, "/")
+
+	// Ensure there are at least 3 parts in the path
+	if len(parts) >= 3 {
+		thirdParam := parts[2]
+
+		return thirdParam, nil
+	} else {
+		return "", errors.New("invalid URL params")
+	}
 }

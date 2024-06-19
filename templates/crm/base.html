@@ -201,10 +201,10 @@
     const navButtons = document.querySelectorAll(".navButtons");
 
     navButtons.forEach(button => {
-        const span = button.querySelector(".pageNameSpan");
+        const href = button.getAttribute('href').trim().toLowerCase();
         const pageName = span.textContent.trim().toLowerCase();
 
-        if (currentPage.includes(pageName)) {
+        if (currentPage.includes(href)) {
             button.className = highlightedPageClass;
             return;
         }

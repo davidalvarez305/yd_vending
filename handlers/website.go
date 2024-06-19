@@ -332,12 +332,16 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	go conversions.SendGoogleConversion(payload)
 	go conversions.SendFacebookConversion(metaPayload)
 
-	msg := types.SuccessModal{
+	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "modal",
-		AlertHeader:  "Awesome!",
-		AlertMessage: "We received your request and will be right with you.",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Awesome!",
+			"AlertMessage": "We received your request and will be right with you.",
+		},
 	}
-	helpers.ServeSuccessModal(w, r, msg)
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
 func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -405,12 +409,16 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 		return
 	}
 
-	msg := types.SuccessModal{
+	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "modal",
-		AlertHeader:  "Sent!",
-		AlertMessage: "We've received your message and will be quick to respond.",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Sent!",
+			"AlertMessage": "We've received your message and will be quick to respond.",
+		},
 	}
-	helpers.ServeSuccessModal(w, r, msg)
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
 func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
@@ -455,21 +463,24 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	email := r.Form.Get("email")
 	password := r.Form.Get("password")
 
+	// Error handling
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "error",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+		Data:         map[string]any{},
+	}
+
 	user, err := database.GetUserByEmail(email)
 	if err != nil {
-		helpers.ServeErrorBanner(w, r, types.ErrorBanner{
-			TemplateName: "error",
-			Message:      "Email not found.",
-		})
+		tmplCtx.Data["Message"] = "Invalid e-mail."
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	isValid := helpers.ValidatePassword(password, user.Password)
 	if !isValid {
-		helpers.ServeErrorBanner(w, r, types.ErrorBanner{
-			TemplateName: "error",
-			Message:      "Invalid password.",
-		})
+		tmplCtx.Data["Message"] = "Invalid password."
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 

@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type QuoteForm struct {
 	FirstName        string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName         string `json:"last_name" form:"last_name" schema:"last_name"`
@@ -53,27 +55,67 @@ type OutboundMessageForm struct {
 	CSRFToken string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 }
 
-type SuccessModal struct {
-	TemplateName string
-	AlertHeader  string
-	AlertMessage string
+type LeadDetails struct {
+	LeadID          int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	FullName        string `json:"full_name" form:"full_name" schema:"full_name"`
+	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email           string `json:"email" form:"email" schema:"email"`
+	VendingType     string `json:"vending_type" form:"vending_type" schema:"vending_type"`
+	VendingLocation string `json:"vending_location" form:"vending_location" schema:"vending_location"`
+	CampaignName    string `json:"campaign_name" form:"campaign_name" schema:"campaign_name"`
+	Medium          string `json:"medium" form:"medium" schema:"medium"`
+	Source          string `json:"source" form:"source" schema:"source"`
+	Referrer        string `json:"referrer" form:"referrer" schema:"referrer"`
+	LandingPage     string `json:"landing_page" form:"landing_page" schema:"landing_page"`
+	IP              string `json:"ip" form:"ip" schema:"ip"`
+	Keyword         string `json:"keyword" form:"keyword" schema:"keyword"`
+	Channel         string `json:"channel" form:"channel" schema:"channel"`
+	Language        string `json:"language" form:"language" schema:"language"`
+	City            string `json:"city" form:"city" schema:"city"`
 }
 
-type ErrorBanner struct {
-	TemplateName string
-	Message      string
+type LeadList struct {
+	FirstName         string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName          string `json:"last_name" form:"last_name" schema:"last_name"`
+	PhoneNumber       string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	CreatedAt         int64  `json:"created_at" form:"created_at" schema:"created_at"`
+	Rent              string `json:"rent" form:"rent" schema:"rent"`
+	FootTraffic       string `json:"foot_traffic" form:"foot_traffic" schema:"foot_traffic"`
+	FootTrafficType   string `json:"foot_traffic_type" form:"foot_traffic_type" schema:"foot_traffic_type"`
+	MachineType       string `json:"machine_type" form:"machine_type" schema:"machine_type"`
+	LocationType      string `json:"location_type" form:"location_type" schema:"location_type"`
+	City              string `json:"city" form:"city" schema:"city"`
+	Language          string `json:"language" form:"language" schema:"language"`
+	CityID            int    `json:"city_id" form:"city_id" schema:"city_id"`
+	VendingTypeID     int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	VendingLocationID int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
+	TotalRows         int    `json:"total_rows" form:"total_rows" schema:"total_rows"`
 }
 
-type Quote struct {
-	FirstName       string `json:"first_name"`
-	LastName        string `json:"last_name"`
-	PhoneNumber     string `json:"phone_number"`
-	CreatedAt       int64  `json:"created_at"`
-	Rent            string `json:"rent"`
-	FootTraffic     int    `json:"foot_traffic"`
-	FootTrafficType string `json:"foot_traffic_type"`
-	MachineType     string `json:"machine_type"`
-	LocationType    string `json:"location_type"`
-	City            string `json:"city"`
-	Language        string `json:"language"`
+type GetLeadsParams struct {
+	VendingType     string `json:"vending_type" form:"vending_type"`
+	LocationType    string `json:"location_type" form:"location_type"`
+	City            string `json:"city" form:"city"`
+	SearchFieldType string `json:"search_field_type" form:"search_field_type"`
+	PageNum         int    `json:"page_num" form:"page_num" schema:"page_num"`
+}
+
+type DynamicPartialTemplate struct {
+	TemplateName string
+	TemplatePath string
+	Data         map[string]any
+}
+
+type TwilioMessage struct {
+	MessageSid          string    `json:"MessageSid"`
+	AccountSid          string    `json:"AccountSid"`
+	MessagingServiceSid string    `json:"MessagingServiceSid"`
+	From                string    `json:"From"`
+	To                  string    `json:"To"`
+	Body                string    `json:"Body"`
+	NumMedia            string    `json:"NumMedia"`
+	NumSegments         string    `json:"NumSegments"`
+	SmsStatus           string    `json:"SmsStatus"`
+	ApiVersion          string    `json:"ApiVersion"`
+	DateCreated         time.Time `json:"DateCreated"`
 }
