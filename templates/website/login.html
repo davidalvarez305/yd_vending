@@ -66,7 +66,7 @@
             .then(html => {
                 errorBanner.outerHTML = html;
                 const closeModalButton = document.querySelectorAll(".closeModal");
-                const banner = document.getElementById("errorBanner");
+                const banner = document.getElementById("alertModal");
 
                 closeModalButton.forEach(button => {
                     let children = button.children;

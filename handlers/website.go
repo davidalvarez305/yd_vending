@@ -255,7 +255,14 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error parsing form data.", http.StatusBadRequest)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
@@ -263,14 +270,28 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	err = decoder.Decode(&form, r.PostForm)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error decoding form data.", http.StatusBadRequest)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	csrfSecret, err := helpers.GetTokenFromSession(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting user token.", http.StatusBadRequest)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Poorly formed request.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
@@ -291,7 +312,14 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	err = database.CreateLeadAndMarketing(form)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error creating lead and marketing data.", http.StatusInternalServerError)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Server error while creating quote request.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
@@ -378,16 +406,34 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 }
 
 func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
+	err := r.ParseForm()
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to parse form data.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	var form types.ContactForm
-	err := decoder.Decode(&form, r.PostForm)
+	err = decoder.Decode(&form, r.PostForm)
+
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error decoding form data.", http.StatusInternalServerError)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
@@ -398,14 +444,29 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	template, err := helpers.BuildStringFromTemplate(templateFile, "email", form)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error building e-mail template.", http.StatusInternalServerError)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error building e-mail template.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
-	if err := services.SendGmail(recipient, subject, form.Email, body); err != nil {
-		fmt.Printf("Error sending email: %v\n", err)
-		http.Error(w, "Failed to send message.", http.StatusInternalServerError)
+	err = services.SendGmail(recipient, subject, form.Email, body)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to send message.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
