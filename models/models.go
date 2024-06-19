@@ -37,6 +37,8 @@ type LeadMarketing struct {
 	Medium           string `json:"medium"`
 	Channel          string `json:"channel"`
 	LandingPage      string `json:"landing_page"`
+	Longitude        string `json:"longitude" form:"longitude" schema:"longitude"`
+	Latitude         string `json:"latitude" form:"latitude" schema:"latitude"`
 	Keyword          string `json:"keyword"`
 	Referrer         string `json:"referrer"`
 	GCLID            string `json:"gclid"`
