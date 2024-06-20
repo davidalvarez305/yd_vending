@@ -112,6 +112,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 				"Message": "Invalid request.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -122,7 +123,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		From: r.FormValue("from"),
 	}
 
-	userId, err := database.GetUserIDFromPhoneNumber(form.From)
+	userId, err := database.GetUserIDFromPhoneNumber("1231231324")
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -132,6 +133,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 				"Message": "Could not find matching user.",
 			},
 		}
+		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -146,6 +148,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 				"Message": "Could not find matching lead.",
 			},
 		}
+		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -160,6 +163,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 				"Message": "Failed to send text message.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -185,6 +189,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 				"Message": "Failed to save message.",
 			},
 		}
+		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -199,16 +204,19 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 				"Message": "Failed to get new messages.",
 			},
 		}
+		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "messages",
+		TemplateName: "messages.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "messages.html",
 		Data: map[string]any{
 			"Messages": messages,
 		},
 	}
+
+	w.WriteHeader(http.StatusOK)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

@@ -429,7 +429,8 @@ func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 	FROM "message" AS m
 	JOIN "lead" AS l ON l.lead_id  = m.lead_id 
 	JOIN "user" AS u ON u.user_id = m.user_id
-	WHERE m.lead_id = $1`
+	WHERE m.lead_id = $1
+	ORDER BY m.date_created DESC`
 
 	rows, err := DB.Query(query, leadId)
 	if err != nil {
