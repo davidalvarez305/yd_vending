@@ -20,9 +20,9 @@ func PhoneServiceHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		switch r.URL.Path {
 		case "/call/inbound":
-			handleIncomingCall(w, r)
+			handleInboundCall(w, r)
 		case "/sms/inbound":
-			handleIncomingSMS(w, r)
+			handleInboundSMS(w, r)
 		case "/sms/outbound":
 			handleOutboundSMS(w, r)
 		default:
@@ -33,7 +33,7 @@ func PhoneServiceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleIncomingCall(w http.ResponseWriter, r *http.Request) {
+func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 
 	// Parse the form data
 	if err := r.ParseForm(); err != nil {
@@ -59,7 +59,7 @@ func handleIncomingCall(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(twiML))
 }
 
-func handleIncomingSMS(w http.ResponseWriter, r *http.Request) {
+func handleInboundSMS(w http.ResponseWriter, r *http.Request) {
 	var twilioMessage types.TwilioMessage
 
 	if err := json.NewDecoder(r.Body).Decode(&twilioMessage); err != nil {
@@ -102,35 +102,65 @@ func handleIncomingSMS(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
-	// Parse the form data
-	if err := r.ParseForm(); err != nil {
-		fmt.Printf("Failed to parse form data: %s", err)
-		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	form := types.OutboundMessageForm{
 		To:   r.FormValue("to"),
-		Body: r.FormValue("Body"),
-		From: r.FormValue("From"),
+		Body: r.FormValue("body"),
+		From: r.FormValue("from"),
 	}
 
-	userId, err := database.GetUserIDFromPhoneNumber(r.FormValue("From"))
+	userId, err := database.GetUserIDFromPhoneNumber(form.From)
 	if err != nil {
-		http.Error(w, "Failed to get User ID.", http.StatusInternalServerError)
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Could not find matching user.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
-	leadId, err := database.GetLeadIDFromPhoneNumber(r.FormValue("To"))
+	leadId, err := database.GetLeadIDFromPhoneNumber(form.To)
 	if err != nil {
-		http.Error(w, "Failed to get Lead ID.", http.StatusInternalServerError)
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Could not find matching lead.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	messageSID, err := services.SendOutboundMessage(form)
 	if err != nil {
-		log.Printf("Error sending message: %s", err)
-		http.Error(w, "Error sending message.", http.StatusInternalServerError)
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to send text message.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
@@ -145,9 +175,40 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		DateCreated: time.Now().Unix(),
 	}
 
-	if err := database.SaveSMS(message); err != nil {
-		log.Printf("Error saving SMS to database: %s", err)
-		http.Error(w, "Failed to save message to database.", http.StatusInternalServerError)
+	err = database.SaveSMS(message)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to save message.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
+
+	messages, err := database.GetMessagesByLeadID(leadId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get new messages.",
+			},
+		}
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "messages",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "messages.html",
+		Data: map[string]any{
+			"Messages": messages,
+		},
+	}
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
