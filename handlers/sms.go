@@ -123,7 +123,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		From: r.FormValue("from"),
 	}
 
-	userId, err := database.GetUserIDFromPhoneNumber("1231231324")
+	userId, err := database.GetUserIDFromPhoneNumber(form.From)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
