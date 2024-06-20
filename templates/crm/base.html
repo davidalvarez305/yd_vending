@@ -184,10 +184,7 @@
 
         <main id="page-content" class="flex max-w-full flex-auto flex-col pt-16">
             <div class="mx-auto w-full max-w-10xl p-4 lg:p-8">
-                <div
-                    class="flex items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-64 text-gray-400 dark:border-gray-700 dark:bg-gray-800">
-                    {{ template "content.html" . }}
-                </div>
+                {{ template "content.html" . }}
             </div>
         </main>
         {{ template "footer.html" . }}

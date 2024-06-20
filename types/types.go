@@ -121,3 +121,11 @@ type TwilioMessage struct {
 	ApiVersion          string    `json:"ApiVersion"`
 	DateCreated         time.Time `json:"DateCreated"`
 }
+
+type FrontendMessage struct {
+	ClientName  string `json:"client_name"`
+	UserName    string `json:"user_name"`
+	DateCreated int64  `json:"date_created"`
+	Message     string `json:"message"`
+	IsInbound   bool   `json:"is_inbound"`
+}

@@ -399,10 +399,18 @@ func GetLeadIDFromPhoneNumber(from string) (int, error) {
 	return leadId, nil
 }
 
-func GetMessagesByLeadID(leadId int) ([]models.Message, error) {
-	var messages []models.Message
+func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
+	var messages []types.FrontendMessage
 
-	query := `SELECT * FROM "message" WHERE lead_id = $1`
+	query := `SELECT CONCAT(l.first_name, ' ', l.last_name) as client_name,
+	CONCAT(u.first_name, ' ', u.last_name) as user_name,
+	m.text,
+	m.date_created,
+	m.is_inbound
+	FROM "message" AS m
+	JOIN "lead" AS l ON l.lead_id  = m.lead_id 
+	JOIN "user" AS u ON u.user_id = m.user_id
+	WHERE m.lead_id = $1`
 
 	rows, err := DB.Query(query, leadId)
 	if err != nil {
@@ -412,22 +420,22 @@ func GetMessagesByLeadID(leadId int) ([]models.Message, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var message models.Message
+		var dateCreated time.Time
+
+		var message types.FrontendMessage
 		err := rows.Scan(
-			&message.MessageID,
-			&message.ExternalID,
-			&message.UserID,
-			&message.LeadID,
-			&message.Text,
-			&message.DateCreated,
-			&message.TextFrom,
-			&message.TextTo,
+			&message.ClientName,
+			&message.UserName,
+			&message.Message,
+			&dateCreated,
 			&message.IsInbound,
 		)
 		if err != nil {
 			fmt.Printf("%+v\n", err)
 			return messages, err
 		}
+
+		message.DateCreated = dateCreated.Unix()
 		messages = append(messages, message)
 	}
 
