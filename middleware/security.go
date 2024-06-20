@@ -160,6 +160,27 @@ func AuthRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie(constants.CookieName)
 		if err != nil || cookie == nil {
+			fmt.Printf("COOKIE PERMISSION DENIED: %+v\n", err)
+			http.Error(w, "Permission denied", http.StatusUnauthorized)
+			return
+		}
+
+		userId, err := helpers.GetUserIDFromSession(r)
+		if err != nil {
+			fmt.Printf("USER ID PERMISSION DENIED: %+v\n", err)
+			http.Error(w, "Permission denied", http.StatusUnauthorized)
+			return
+		}
+
+		user, err := database.GetUserById(userId)
+		if err != nil {
+			fmt.Printf("CANNOT GET USER PERMISSION DENIED: %+v\n", err)
+			http.Error(w, "Permission denied", http.StatusUnauthorized)
+			return
+		}
+
+		if !user.IsAdmin {
+			fmt.Printf("IS NOT ADMIN PERMISSION DENIED: %+v\n", err)
 			http.Error(w, "Permission denied", http.StatusUnauthorized)
 			return
 		}

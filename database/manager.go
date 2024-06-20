@@ -145,6 +145,25 @@ func GetPhoneNumberFromUserID(userID int) (string, error) {
 	return phoneNumber, nil
 }
 
+func GetUserById(id int) (models.User, error) {
+	var user models.User
+
+	stmt, err := DB.Prepare(`SELECT * FROM "user" WHERE "user_id" = $1`)
+	if err != nil {
+		return user, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(id)
+
+	err = row.Scan(&user.UserID, &user.Email, &user.Password, &user.IsAdmin, &user.PhoneNumber, &user.FirstName, &user.LastName)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func GetUserByEmail(email string) (models.User, error) {
 	var user models.User
 
