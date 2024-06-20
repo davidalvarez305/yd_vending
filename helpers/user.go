@@ -5,13 +5,12 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
 
-const (
-	SessionName = "yd_vending_sessions"
-)
+const ()
 
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -27,7 +26,7 @@ func ValidatePassword(formPassword, userPassword string) bool {
 }
 
 func GetTokenFromSession(r *http.Request) ([]byte, error) {
-	session, err := sessions.Store.Get(r, SessionName)
+	session, err := sessions.Store.Get(r, constants.SessionName)
 
 	if err != nil {
 		return nil, err

@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
 func GetUserIDFromSession(r *http.Request) (int, error) {
-	session, err := sessions.Store.Get(r, SessionName)
+	session, err := sessions.Store.Get(r, constants.SessionName)
 
 	if err != nil {
 		return 0, err
@@ -28,12 +29,28 @@ func GetUserIDFromSession(r *http.Request) (int, error) {
 	return 0, errors.New("no user_id in session")
 }
 
+func SaveUserIDInSession(w http.ResponseWriter, r *http.Request, userID int) error {
+	session, err := sessions.Store.Get(r, constants.SessionName)
+	if err != nil {
+		return err
+	}
+
+	session.Values["user_id"] = userID
+
+	err = session.Save(r, w)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetSessionValueByKey(r *http.Request, key string) string {
 	if len(key) == 0 {
 		return ""
 	}
 
-	session, err := sessions.Store.Get(r, SessionName)
+	session, err := sessions.Store.Get(r, constants.SessionName)
 	if err != nil {
 		return ""
 	}

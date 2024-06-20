@@ -30,6 +30,7 @@ var (
 	TwilioAuthToken             string
 	CompanyName                 string
 	SiteName                    string
+	SessionName                 string
 )
 
 func Init() {
@@ -58,6 +59,7 @@ func Init() {
 	GoogleRefreshToken = os.Getenv("GOOGLE_REFRESH_TOKEN")
 	GoogleJSONPath = "./google.json"
 	DavidEmail = os.Getenv("DAVID_EMAIL")
+	SessionName = "yd_vending_sessions"
 }
 
 var TEMPLATES_DIR = "./templates/"

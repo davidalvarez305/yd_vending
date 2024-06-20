@@ -545,6 +545,13 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	err = helpers.SaveUserIDInSession(w, r, user.UserID)
+	if err != nil {
+		tmplCtx.Data["Message"] = "Could not save session."
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.CookieName,
 		Value:    email,
@@ -572,5 +579,5 @@ func PostLogout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		Secure:   true,
 	})
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	w.WriteHeader(http.StatusOK)
 }
