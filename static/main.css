@@ -1522,6 +1522,11 @@ select{
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
+.bg-emerald-700{
+  --tw-bg-opacity: 1;
+  background-color: rgb(4 120 87 / var(--tw-bg-opacity));
+}
+
 .bg-opacity-75{
   --tw-bg-opacity: 0.75;
 }
@@ -1946,6 +1951,15 @@ select{
 .text-secondary-600{
   --tw-text-opacity: 1;
   color: rgb(216 118 9 / var(--tw-text-opacity));
+}
+
+.text-emerald-50{
+  --tw-text-opacity: 1;
+  color: rgb(236 253 245 / var(--tw-text-opacity));
+}
+
+.underline{
+  text-decoration-line: underline;
 }
 
 .placeholder-gray-500::-moz-placeholder{
@@ -2968,6 +2982,10 @@ select{
   opacity: 1;
 }
 
+.hover\:opacity-75:hover{
+  opacity: 0.75;
+}
+
 .hover\:shadow-sm:hover{
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
@@ -3234,6 +3252,10 @@ select{
 
 .dark\:bg-transparent:is(.dark *){
   background-color: transparent;
+}
+
+.dark\:bg-emerald-900\/75:is(.dark *){
+  background-color: rgb(6 78 59 / 0.75);
 }
 
 .dark\:bg-opacity-75:is(.dark *){

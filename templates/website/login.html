@@ -37,14 +37,14 @@
                     </button>
                 </form>
             </div>
-            <div id="errorBanner"></div>
+            <div id="alertModal"></div>
         </div>
     </section>
 </div>
 
 <script nonce="{{.Nonce}}">
     var form = document.getElementById("loginForm");
-    var errorBanner = document.getElementById("errorBanner");
+    const alertModal = document.getElementById("alertModal");
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -56,33 +56,31 @@
             credentials: "include",
             body: body,
         })
-            .then((response) => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    throw new Error("Error: " + response.statusText);
-                }
-            })
-            .then(html => {
-                if (html.length === 0) {
-                    window.location.replace("/crm/dashboard");
-                    return;
-                }
-
-                errorBanner.outerHTML = html;
-                const closeModalButton = document.querySelectorAll(".closeModal");
-                const banner = document.getElementById("alertModal");
-
-                closeModalButton.forEach(button => {
-                    let children = button.children;
-                    Array.from(children).forEach((child) => {
-                        child.addEventListener("click", () => banner.style.display = "none");
-                    });
-
-                    button.addEventListener("click", () => banner.style.display = "none");
+        .then((response) => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                return response.text().then((err) => {
+                    throw new Error(err);
                 });
-            })
-            .catch(console.error);
+            }
+        })
+        .then(html => {
+            if (html.length === 0) {
+                window.location.replace("/crm/dashboard");
+                return;
+            }
+
+            alertModal.outerHTML = html;
+            const modal = document.getElementById("alertModal");
+            handleCloseAlertModal();
+
+            contactForm.reset();
+        })
+        .catch(errorHTML => {
+            alertModal.outerHTML = errorHTML
+            handleCloseAlertModal();
+        });
     });
 </script>
 

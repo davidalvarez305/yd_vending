@@ -262,6 +262,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 				"Message": "Invalid request.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -277,6 +278,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 				"Message": "Error decoding form data.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -291,6 +293,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 				"Message": "Poorly formed request.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -319,6 +322,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 				"Message": "Server error while creating quote request.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -417,6 +421,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 				"Message": "Failed to parse form data.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -433,6 +438,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 				"Message": "Error decoding form data.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -451,6 +457,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 				"Message": "Error building e-mail template.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -466,6 +473,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 				"Message": "Failed to send message.",
 			},
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
