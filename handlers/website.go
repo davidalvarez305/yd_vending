@@ -556,7 +556,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		Secure:   true,
 	})
 
-	http.Redirect(w, r, "/crm", http.StatusFound)
+	w.WriteHeader(http.StatusOK)
 }
 
 func PostLogout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {

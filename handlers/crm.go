@@ -229,14 +229,12 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	/* userId, err := helpers.GetUserIDFromSession(r)
+	userId, err := helpers.GetUserIDFromSession(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting user ID from session.", http.StatusInternalServerError)
 		return
-	} */
-
-	userId := 1
+	}
 
 	phoneNumber, err := database.GetPhoneNumberFromUserID(userId)
 	if err != nil {

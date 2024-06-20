@@ -26,7 +26,6 @@ func SendOutboundMessage(form types.OutboundMessageForm) (string, error) {
 	formData.Set("To", "+1"+form.To)
 	formData.Set("From", "+1"+form.From)
 	formData.Set("Body", form.Body)
-	fmt.Printf("%+v\n", formData)
 
 	req, err := http.NewRequest("POST", twilioURL, bytes.NewBufferString(formData.Encode()))
 	if err != nil {

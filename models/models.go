@@ -88,4 +88,6 @@ type User struct {
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`
 	IsAdmin     bool   `json:"is_admin"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
 }

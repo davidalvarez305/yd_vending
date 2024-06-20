@@ -156,7 +156,7 @@ func GetUserByEmail(email string) (models.User, error) {
 
 	row := stmt.QueryRow(email)
 
-	err = row.Scan(&user.UserID, &user.Email, &user.Password, &user.IsAdmin)
+	err = row.Scan(&user.UserID, &user.Email, &user.Password, &user.IsAdmin, &user.PhoneNumber, &user.FirstName, &user.LastName)
 	if err != nil {
 		return user, err
 	}

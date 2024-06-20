@@ -64,6 +64,11 @@
                 }
             })
             .then(html => {
+                if (html.length === 0) {
+                    window.location.replace("/crm/dashboard");
+                    return;
+                }
+
                 errorBanner.outerHTML = html;
                 const closeModalButton = document.querySelectorAll(".closeModal");
                 const banner = document.getElementById("alertModal");
