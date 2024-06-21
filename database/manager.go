@@ -473,7 +473,7 @@ func UpdateLead(form types.UpdateLeadForm) error {
 		WHERE lead_id = $1
 	`
 
-	_, err := db.Exec(query, form.LeadID, form.FullName, form.PhoneNumber, form.City, form.VendingType, form.VendingLocation)
+	_, err := DB.Exec(query, form.LeadID, form.FullName, form.PhoneNumber, form.City, form.VendingType, form.VendingLocation)
 	if err != nil {
 		return fmt.Errorf("failed to update lead: %v", err)
 	}
