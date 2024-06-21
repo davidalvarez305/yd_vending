@@ -59,7 +59,8 @@ type OutboundMessageForm struct {
 
 type LeadDetails struct {
 	LeadID          int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	FullName        string `json:"full_name" form:"full_name" schema:"full_name"`
+	FirstName       string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName        string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
 	VendingType     string `json:"vending_type" form:"vending_type" schema:"vending_type"`
 	VendingLocation string `json:"vending_location" form:"vending_location" schema:"vending_location"`
@@ -131,8 +132,11 @@ type FrontendMessage struct {
 }
 
 type UpdateLeadForm struct {
+	Method          string `json:"_method" form:"_method" schema:"_method"`
+	CSRFToken       string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	LeadID          string `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	FullName        string `json:"full_name" form:"full_name" schema:"full_name"`
+	FirstName       string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName        string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
 	City            string `json:"city" form:"city" schema:"city"`
 	VendingType     string `json:"vending_type" form:"vending_type" schema:"vending_type"`
@@ -140,6 +144,8 @@ type UpdateLeadForm struct {
 }
 
 type UpdateLeadMarketingForm struct {
+	Method       string `json:"_method" form:"_method" schema:"_method"`
+	CSRFToken    string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	LeadID       string `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	CampaignName string `json:"campaign_name" form:"campaign_name" schema:"campaign_name"`
 	Medium       string `json:"medium" form:"medium" schema:"medium"`

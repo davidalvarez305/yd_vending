@@ -344,7 +344,8 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 
 func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	query := `SELECT l.lead_id,
-	CONCAT(l.first_name, ' ', l.last_name),
+	l.first_name,
+	l.last_name,
 	l.phone_number,
 	vt.machine_type,
 	vl.location_type,
@@ -373,7 +374,8 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	// Scan the result into the LeadDetails struct
 	err := row.Scan(
 		&leadDetails.LeadID,
-		&leadDetails.FullName,
+		&leadDetails.FirstName,
+		&leadDetails.LastName,
 		&leadDetails.PhoneNumber,
 		&leadDetails.VendingType,
 		&leadDetails.VendingLocation,
@@ -469,11 +471,11 @@ func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 func UpdateLead(form types.UpdateLeadForm) error {
 	query := `
 		UPDATE lead
-		SET full_name = $2, phone_number = $3, city = $4, vending_type = $5, vending_location = $6
+		SET first_name = $2, last_name = $3, phone_number = $4, city = $5, vending_type = $6, vending_location = $7
 		WHERE lead_id = $1
 	`
 
-	_, err := DB.Exec(query, form.LeadID, form.FullName, form.PhoneNumber, form.City, form.VendingType, form.VendingLocation)
+	_, err := DB.Exec(query, form.LeadID, form.FirstName, form.LastName, form.PhoneNumber, form.City, form.VendingType, form.VendingLocation)
 	if err != nil {
 		return fmt.Errorf("failed to update lead: %v", err)
 	}
