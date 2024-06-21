@@ -140,6 +140,7 @@ type UpdateLeadForm struct {
 }
 
 type UpdateLeadMarketingForm struct {
+	LeadID       string `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	CampaignName string `json:"campaign_name" form:"campaign_name" schema:"campaign_name"`
 	Medium       string `json:"medium" form:"medium" schema:"medium"`
 	Source       string `json:"source" form:"source" schema:"source"`

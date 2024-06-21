@@ -19,6 +19,8 @@
             </div>
             <div class="md:w-2/3 md:pl-24">
                 <form id="leadForm" class="space-y-6 xl:w-2/3" action="/crm/lead/{{ .Lead.LeadID }}" action="PUT">
+                    <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
+                    <input type="hidden" id="lead_id" name="lead_id" value="{{ .Lead.LeadID }}" />
                     <div class="space-y-1">
                         <label for="full_name" class="font-medium">Full Name</label>
                         <input type="text" id="full_name" name="full_name" value="{{ .Lead.FullName }}"
@@ -73,8 +75,9 @@
                 </p>
             </div>
             <div class="md:w-2/3 md:pl-24">
-                <form id="leadMarketingForm" action="/crm/lead-marketing/{{ .Lead.LeadID }}" method="PUT"
-                    class="space-y-6 xl:w-2/3">
+                <form id="leadMarketingForm" action="/crm/lead-marketing/{{ .Lead.LeadID }}" method="PUT" class="space-y-6 xl:w-2/3">
+                    <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
+                    <input type="hidden" id="lead_id" name="lead_id" value="{{ .Lead.LeadID }}" />
                     <div class="space-y-1">
                         <label for="campaign_name" class="font-medium">Campaign Name</label>
                         <input type="text" id="campaign_name" name="campaign_name" value="{{ .Lead.CampaignName }}"
