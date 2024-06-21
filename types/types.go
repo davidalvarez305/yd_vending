@@ -129,3 +129,24 @@ type FrontendMessage struct {
 	Message     string `json:"message"`
 	IsInbound   bool   `json:"is_inbound"`
 }
+
+type UpdateLeadForm struct {
+	LeadID          string `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	FullName        string `json:"full_name" form:"full_name" schema:"full_name"`
+	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	City            string `json:"city" form:"city" schema:"city"`
+	VendingType     string `json:"vending_type" form:"vending_type" schema:"vending_type"`
+	VendingLocation string `json:"vending_location" form:"vending_location" schema:"vending_location"`
+}
+
+type UpdateLeadMarketingForm struct {
+	CampaignName string `json:"campaign_name" form:"campaign_name" schema:"campaign_name"`
+	Medium       string `json:"medium" form:"medium" schema:"medium"`
+	Source       string `json:"source" form:"source" schema:"source"`
+	Referrer     string `json:"referrer" form:"referrer" schema:"referrer"`
+	LandingPage  string `json:"landing_page" form:"landing_page" schema:"landing_page"`
+	IP           string `json:"ip" form:"ip" schema:"ip"`
+	Keyword      string `json:"keyword" form:"keyword" schema:"keyword"`
+	Channel      string `json:"channel" form:"channel" schema:"channel"`
+	Language     string `json:"language" form:"language" schema:"language"`
+}
