@@ -471,7 +471,7 @@ func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 func UpdateLead(form types.UpdateLeadForm) error {
 	query := `
 		UPDATE lead
-		SET first_name = $2, last_name = $3, phone_number = $4, city = $5, vending_type = $6, vending_location = $7
+		SET first_name = $2, last_name = $3, phone_number = $4, city_id = $5, vending_type_id = $6, vending_location_id = $7
 		WHERE lead_id = $1
 	`
 

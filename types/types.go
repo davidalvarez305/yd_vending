@@ -138,9 +138,9 @@ type UpdateLeadForm struct {
 	FirstName       string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName        string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	City            string `json:"city" form:"city" schema:"city"`
-	VendingType     string `json:"vending_type" form:"vending_type" schema:"vending_type"`
-	VendingLocation string `json:"vending_location" form:"vending_location" schema:"vending_location"`
+	City            int    `json:"city" form:"city" schema:"city"`
+	VendingType     int    `json:"vending_type" form:"vending_type" schema:"vending_type"`
+	VendingLocation int    `json:"vending_location" form:"vending_location" schema:"vending_location"`
 }
 
 type UpdateLeadMarketingForm struct {
