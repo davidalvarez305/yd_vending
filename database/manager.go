@@ -465,3 +465,35 @@ func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 
 	return messages, nil
 }
+
+func UpdateLead(form types.UpdateLeadForm) error {
+	query := `
+		UPDATE lead
+		SET full_name = $2, phone_number = $3, city = $4, vending_type = $5, vending_location = $6
+		WHERE lead_id = $1
+	`
+
+	_, err := db.Exec(query, form.LeadID, form.FullName, form.PhoneNumber, form.City, form.VendingType, form.VendingLocation)
+	if err != nil {
+		return fmt.Errorf("failed to update lead: %v", err)
+	}
+
+	return nil
+}
+
+func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
+	query := `
+		UPDATE lead_marketing
+		SET campaign_name = $2, medium = $3, source = $4, referrer = $5, landing_page = $6,
+			ip = $7, keyword = $8, channel = $9, language = $10
+		WHERE lead_id = $1
+	`
+
+	_, err := db.Exec(query, form.LeadID, form.CampaignName, form.Medium, form.Source, form.Referrer,
+		form.LandingPage, form.IP, form.Keyword, form.Channel, form.Language)
+	if err != nil {
+		return fmt.Errorf("failed to update lead marketing: %v", err)
+	}
+
+	return nil
+}
