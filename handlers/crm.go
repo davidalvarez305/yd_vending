@@ -10,7 +10,6 @@ import (
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/types"
-	"github.com/gorilla/schema"
 )
 
 var crmBaseFilePath = constants.CRM_TEMPLATES_DIR + "base.html"
@@ -75,7 +74,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "leads.html"
-	leadsPerPage := 5
 	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
 
 	// Retrieve nonce from request context
@@ -93,12 +91,10 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	}
 
 	var params types.GetLeadsParams
-	err := schema.NewDecoder().Decode(&params, r.URL.Query())
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error parsing query parameters.", http.StatusBadRequest)
-		return
-	}
+	params.City = r.URL.Query().Get("city")
+	params.LocationType = r.URL.Query().Get("location_type")
+	params.VendingType = r.URL.Query().Get("vending_type")
+	params.PageNum = r.URL.Query().Get("page_num")
 
 	leads, totalRows, err := database.GetLeadList(params)
 	if err != nil {
@@ -133,11 +129,16 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Leads"] = leads
-	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, leadsPerPage)
-	data["CurrentPage"] = params.PageNum
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
 	data["Cities"] = cities
+
+	if params.PageNum == "" {
+		data["CurrentPage"] = 1
+	} else {
+		data["CurrentPage"] = params.PageNum
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

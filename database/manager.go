@@ -3,8 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/types"
 )
@@ -275,30 +277,46 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		WHERE 1=1`
 
 	args := []interface{}{}
+	argIdx := 1
 
 	// Add conditions based on non-empty fields in params
 	if params.VendingType != "" {
-		query += " AND vt.machine_type = ?"
+		query += fmt.Sprintf(" AND vt.vending_type_id = $%d", argIdx)
 		args = append(args, params.VendingType)
+		argIdx++
 	}
 
 	if params.LocationType != "" {
-		query += " AND vl.location_type = ?"
+		query += fmt.Sprintf(" AND vl.vending_location_id = $%d", argIdx)
 		args = append(args, params.LocationType)
+		argIdx++
 	}
 
 	if params.City != "" {
-		query += " AND c.name = ?"
+		query += fmt.Sprintf(" AND c.city_id = $%d", argIdx)
 		args = append(args, params.City)
+		argIdx++
 	}
 
-	query += " LIMIT 10"
+	query += fmt.Sprintf(" LIMIT $%d", argIdx)
+	args = append(args, constants.LeadsPerPage)
+	argIdx++
 
-	if params.PageNum > 0 {
-		query += " OFFSET ?"
-		offset := (params.PageNum - 1) * 10
+	if params.PageNum != "" {
+		pageNum, err := strconv.Atoi(params.PageNum)
+		if err != nil {
+			fmt.Printf("Could not convert page num: %+v\n", err)
+			return leads, 0, err
+		}
+
+		offset := (pageNum - 1) * constants.LeadsPerPage
+		query += fmt.Sprintf(" OFFSET $%d", argIdx)
 		args = append(args, offset)
 	}
+
+	// Print query and args for debugging
+	fmt.Println("Query:", query)
+	fmt.Println("Args:", args)
 
 	rows, err := DB.Query(query, args...)
 	if err != nil {

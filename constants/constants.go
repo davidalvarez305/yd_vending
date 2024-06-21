@@ -31,6 +31,7 @@ var (
 	CompanyName                 string
 	SiteName                    string
 	SessionName                 string
+	LeadsPerPage                int
 )
 
 func Init() {
@@ -60,6 +61,7 @@ func Init() {
 	GoogleJSONPath = "./google.json"
 	DavidEmail = os.Getenv("DAVID_EMAIL")
 	SessionName = "yd_vending_sessions"
+	LeadsPerPage = 10
 }
 
 var TEMPLATES_DIR = "./templates/"
