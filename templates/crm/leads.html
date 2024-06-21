@@ -1,4 +1,40 @@
 {{ define "content.html" }}
+<div class="flex flex-col my-6 overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+  <div
+    class="flex flex-col gap-3 bg-gray-50 px-5 py-4 text-center dark:bg-gray-700/50 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+    <form id="filters" class="flex items-center gap-2">
+      <button type="button"
+        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+        Filter
+      </button>
+      <select id="vending_type" name="vending_type" class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+        <option selected>Vending Type</option>
+        {{ range .VendingTypes }}
+        <option value="{{ .VendingTypeID }}">
+            {{ .MachineType }}
+        </option>
+        {{ end }}
+      </select>
+      <select id="location_type" name="location_type" class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+        <option selected>Location Type</option>
+        {{ range .VendingLocations }}
+        <option value="{{ .VendingLocationID }}">
+            {{ .LocationType }}
+        </option>
+        {{ end }}
+      </select>
+      <select id="city" name="city" class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+        <option selected>City</option>
+        {{ range .Cities }}
+        <option value="{{ .CityID }}">
+            {{ .Name }}
+        </option>
+        {{ end }}
+      </select>
+    </form>
+  </div>
+</div>
+
 <div class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
   <table class="min-w-full whitespace-nowrap align-middle text-sm">
     <thead>
@@ -70,7 +106,8 @@
         </svg>
       </button>
       <div class="flex grow items-center justify-center px-2 sm:px-4">
-        <span>Page <span class="font-semibold">{{ .CurrentPage }}</span> of <span id="maxPages" class="font-semibold">{{ .MaxPages }}</span></span>
+        <span>Page <span class="font-semibold">{{ .CurrentPage }}</span> of <span id="maxPages" class="font-semibold">{{
+            .MaxPages }}</span></span>
       </div>
       <button name="right"
         class="pagination-link inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
@@ -87,7 +124,7 @@
 
   <script nonce="{{ .Nonce }}">
     const params = new URLSearchParams(window.location.search);
-    const form = document.getElementById("filtersForm");
+    const form = document.getElementById("filters");
     const clear = document.getElementById("clearButton");
 
     clear.addEventListener('click', () => window.location.href = "/crm/leads/");
@@ -133,4 +170,5 @@
 </div>
 
 <script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>
+
 {{ end }}

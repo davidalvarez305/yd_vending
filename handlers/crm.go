@@ -107,6 +107,27 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 		return
 	}
 
+	vendingTypes, err := database.GetVendingTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingLocations, err := database.GetVendingLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
+	cities, err := database.GetCities()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
@@ -114,6 +135,9 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	data["Leads"] = leads
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, leadsPerPage)
 	data["CurrentPage"] = params.PageNum
+	data["VendingTypes"] = vendingTypes
+	data["VendingLocations"] = vendingLocations
+	data["Cities"] = cities
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

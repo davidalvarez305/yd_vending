@@ -96,11 +96,10 @@ type LeadList struct {
 }
 
 type GetLeadsParams struct {
-	VendingType     string `json:"vending_type" form:"vending_type"`
-	LocationType    string `json:"location_type" form:"location_type"`
-	City            string `json:"city" form:"city"`
-	SearchFieldType string `json:"search_field_type" form:"search_field_type"`
-	PageNum         int    `json:"page_num" form:"page_num" schema:"page_num"`
+	VendingType  string `json:"vending_type" form:"vending_type" schema:"vending_type"`
+	LocationType string `json:"location_type" form:"location_type" schema:"location_type"`
+	City         string `json:"city" form:"city" schema:"city"`
+	PageNum      int    `json:"page_num" form:"page_num" schema:"page_num"`
 }
 
 type DynamicPartialTemplate struct {
