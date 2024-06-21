@@ -74,9 +74,9 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}) {
-	fileName := "leads_table.html"
 	baseFile := constants.CRM_TEMPLATES_DIR + "leads.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, constants.PARTIAL_TEMPLATES_DIR + fileName}
+	leadsPerPage := 5
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
 
 	// Retrieve nonce from request context
 	nonce, ok := r.Context().Value("nonce").(string)
@@ -107,28 +107,13 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 		return
 	}
 
-	if len(r.URL.RawQuery) > 0 {
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "leads_table",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "qleads_table.html",
-			Data: map[string]any{
-				"Leads":       leads,
-				"TotalRows":   totalRows,
-				"CurrentPage": params.PageNum,
-			},
-		}
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	pages := helpers.GenerateSequence(1, totalRows)
-
 	data := ctx
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Leads"] = leads
-	data["Pages"] = pages
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, leadsPerPage)
+	data["CurrentPage"] = params.PageNum
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

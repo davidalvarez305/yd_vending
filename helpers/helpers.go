@@ -127,3 +127,10 @@ func GenerateSequence(start, end int) []int {
 	}
 	return sequence
 }
+
+func CalculateMaxPages(totalRows, itemsPerPage int) int {
+	if totalRows <= 0 {
+		return 0
+	}
+	return (totalRows + itemsPerPage - 1) / itemsPerPage
+}

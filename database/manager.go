@@ -489,7 +489,7 @@ func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 		WHERE lead_id = $1
 	`
 
-	_, err := db.Exec(query, form.LeadID, form.CampaignName, form.Medium, form.Source, form.Referrer,
+	_, err := DB.Exec(query, form.LeadID, form.CampaignName, form.Medium, form.Source, form.Referrer,
 		form.LandingPage, form.IP, form.Keyword, form.Channel, form.Language)
 	if err != nil {
 		return fmt.Errorf("failed to update lead marketing: %v", err)
