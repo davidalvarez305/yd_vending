@@ -314,10 +314,6 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		args = append(args, offset)
 	}
 
-	// Print query and args for debugging
-	fmt.Println("Query:", query)
-	fmt.Println("Args:", args)
-
 	rows, err := DB.Query(query, args...)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
