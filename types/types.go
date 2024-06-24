@@ -156,3 +156,65 @@ type UpdateLeadMarketingForm struct {
 	Channel      string `json:"channel" form:"channel" schema:"channel"`
 	Language     string `json:"language" form:"language" schema:"language"`
 }
+
+type TwilioSMSResponse struct {
+	Sid                 string            `json:"sid"`
+	DateCreated         string            `json:"date_created"`
+	DateUpdated         string            `json:"date_updated"`
+	DateSent            string            `json:"date_sent"`
+	AccountSid          string            `json:"account_sid"`
+	To                  string            `json:"to"`
+	From                string            `json:"from"`
+	MessagingServiceSid string            `json:"messaging_service_sid"`
+	Body                string            `json:"body"`
+	Status              string            `json:"status"`
+	NumSegments         string            `json:"num_segments"`
+	NumMedia            string            `json:"num_media"`
+	Direction           string            `json:"direction"`
+	ApiVersion          string            `json:"api_version"`
+	Price               string            `json:"price"`
+	PriceUnit           string            `json:"price_unit"`
+	ErrorCode           string            `json:"error_code"`
+	ErrorMessage        string            `json:"error_message"`
+	Uri                 string            `json:"uri"`
+	SubresourceUris     map[string]string `json:"subresource_uris"`
+}
+
+type TwilioIncomingCallBody struct {
+	CallSid       string  `json:"CallSid" form:"CallSid" schema:"CallSid"`
+	AccountSid    string  `json:"AccountSid" form:"AccountSid" schema:"AccountSid"`
+	From          string  `json:"From" form:"From" schema:"From"`
+	To            string  `json:"To" form:"To" schema:"To"`
+	CallStatus    string  `json:"CallStatus" form:"CallStatus" schema:"CallStatus"`
+	ApiVersion    string  `json:"ApiVersion" form:"ApiVersion" schema:"ApiVersion"`
+	Direction     string  `json:"Direction" form:"Direction" schema:"Direction"`
+	ForwardedFrom string  `json:"ForwardedFrom" form:"ForwardedFrom" schema:"ForwardedFrom"`
+	CallerName    string  `json:"CallerName" form:"CallerName" schema:"CallerName"`
+	FromCity      string  `json:"FromCity" form:"FromCity" schema:"FromCity"`
+	FromState     string  `json:"FromState" form:"FromState" schema:"FromState"`
+	FromZip       string  `json:"FromZip" form:"FromZip" schema:"FromZip"`
+	FromCountry   string  `json:"FromCountry" form:"FromCountry" schema:"FromCountry"`
+	ToCity        string  `json:"ToCity" form:"ToCity" schema:"ToCity"`
+	ToState       string  `json:"ToState" form:"ToState" schema:"ToState"`
+	ToZip         string  `json:"ToZip" form:"ToZip" schema:"ToZip"`
+	ToCountry     string  `json:"ToCountry" form:"ToCountry" schema:"ToCountry"`
+	Caller        string  `json:"Caller" form:"Caller" schema:"Caller"`
+	Digits        string  `json:"Digits" form:"Digits" schema:"Digits"`
+	SpeechResult  string  `json:"SpeechResult" form:"SpeechResult" schema:"SpeechResult"`
+	Confidence    float64 `json:"Confidence" form:"Confidence" schema:"Confidence"`
+}
+
+type IncomingPhoneCallForwarding struct {
+	FirstName          string `json:"first_name"`
+	UserID             int    `json:"user_id"`
+	LeadID             int    `json:"lead_id"`
+	ForwardPhoneNumber string `json:"forward_phone_number"`
+}
+
+type IncomingPhoneCallDialStatus struct {
+	DialCallStatus   string `json:"dial_call_status" form:"dial_call_status" schema:"dial_call_status"`
+	DialCallSid      string `json:"dial_call_sid" form:"dial_call_sid" schema:"dial_call_sid"`
+	DialCallDuration int    `json:"dial_call_duration" form:"dial_call_duration" schema:"dial_call_duration"`
+	DialBridged      bool   `json:"dial_bridged" form:"dial_bridged" schema:"dial_bridged"`
+	RecordingURL     string `json:"recording_url" form:"recording_url" schema:"recording_url"`
+}

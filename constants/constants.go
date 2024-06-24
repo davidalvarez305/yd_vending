@@ -28,6 +28,7 @@ var (
 	EncSecretKey                string
 	TwilioAccountSID            string
 	TwilioAuthToken             string
+	TwilioCallbackWebhook       string
 	CompanyName                 string
 	SiteName                    string
 	SessionName                 string
@@ -62,6 +63,7 @@ func Init() {
 	DavidEmail = os.Getenv("DAVID_EMAIL")
 	SessionName = "yd_vending_sessions"
 	LeadsPerPage = 10
+	TwilioCallbackWebhook = "/call/inbound/end"
 }
 
 var TEMPLATES_DIR = "./templates/"

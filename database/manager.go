@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -107,6 +108,35 @@ func SaveSMS(msg models.Message) error {
 	`
 	_, err := DB.Exec(query, msg.ExternalID, msg.UserID, msg.LeadID, msg.Text, msg.DateCreated, msg.TextFrom, msg.TextTo, msg.IsInbound)
 	return err
+}
+
+func SavePhoneCall(phoneCall models.PhoneCall) error {
+	query := `
+		INSERT INTO phone_calls (
+			external_id, user_id, lead_id, call_duration,
+			date_created, call_from, call_to, is_inbound,
+			recording_url, status
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+
+	err := DB.QueryRow(
+		query,
+		phoneCall.ExternalID,
+		phoneCall.UserID,
+		phoneCall.LeadID,
+		phoneCall.CallDuration,
+		phoneCall.DateCreated,
+		phoneCall.CallFrom,
+		phoneCall.CallTo,
+		phoneCall.IsInbound,
+		phoneCall.RecordingURL,
+		phoneCall.Status,
+	)
+
+	if err != nil {
+		return fmt.Errorf("error saving phone call: %w", err)
+	}
+
+	return nil
 }
 
 func GetUserIDFromPhoneNumber(from string) (int, error) {
@@ -509,6 +539,104 @@ func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 		form.LandingPage, form.IP, form.Keyword, form.Channel, form.Language)
 	if err != nil {
 		return fmt.Errorf("failed to update lead marketing: %v", err)
+	}
+
+	return nil
+}
+
+func GetForwardPhoneNumber(to, from string) (types.IncomingPhoneCallForwarding, error) {
+	var forwardingCall types.IncomingPhoneCallForwarding
+
+	stmt, err := DB.Prepare(`SELECT u.first_name, u.user_id, l.lead_id
+	FROM "user" AS u
+	FULL OUTER JOIN "lead" AS l ON l.phone_number = $2
+	WHERE phone_number = $1`)
+	if err != nil {
+		return forwardingCall, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(to, from)
+
+	err = row.Scan(&forwardingCall.FirstName, forwardingCall.UserID, forwardingCall.LeadID)
+	if err != nil {
+		return forwardingCall, err
+	}
+
+	if forwardingCall.FirstName == "Yovana" {
+		forwardingCall.ForwardPhoneNumber = "+1" + constants.YovaPhoneNumber
+		return forwardingCall, nil
+	}
+
+	if forwardingCall.FirstName == "David" {
+		forwardingCall.ForwardPhoneNumber = "+1" + constants.DavidPhoneNumber
+		return forwardingCall, nil
+	}
+
+	return forwardingCall, errors.New("no matching phone number")
+}
+
+func GetPhoneCallBySID(sid string) (models.PhoneCall, error) {
+	var phoneCall models.PhoneCall
+
+	stmt, err := DB.Prepare(`SELECT * FROM phone_calls WHERE external_id = $1`)
+	if err != nil {
+		return phoneCall, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(sid)
+
+	err = row.Scan(
+		&phoneCall.PhoneCallID,
+		&phoneCall.ExternalID,
+		&phoneCall.UserID,
+		&phoneCall.LeadID,
+		&phoneCall.CallDuration,
+		&phoneCall.DateCreated,
+		&phoneCall.CallFrom,
+		&phoneCall.CallTo,
+		&phoneCall.IsInbound,
+		&phoneCall.RecordingURL,
+		&phoneCall.Status,
+	)
+	if err != nil {
+		return phoneCall, err
+	}
+
+	return phoneCall, nil
+}
+
+func UpdatePhoneCall(phoneCall models.PhoneCall) error {
+	query := `
+		UPDATE phone_calls SET
+			user_id = $1,
+			lead_id = $2,
+			call_duration = $3,
+			date_created = $4,
+			call_from = $5,
+			call_to = $6,
+			is_inbound = $7,
+			recording_url = $8,
+			status = $9
+		WHERE external_id = $10`
+
+	_, err := DB.Exec(
+		query,
+		phoneCall.UserID,
+		phoneCall.LeadID,
+		phoneCall.CallDuration,
+		phoneCall.DateCreated,
+		phoneCall.CallFrom,
+		phoneCall.CallTo,
+		phoneCall.IsInbound,
+		phoneCall.RecordingURL,
+		phoneCall.Status,
+		phoneCall.ExternalID,
+	)
+
+	if err != nil {
+		return fmt.Errorf("error updating phone call: %w", err)
 	}
 
 	return nil

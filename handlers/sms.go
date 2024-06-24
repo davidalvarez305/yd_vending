@@ -21,6 +21,8 @@ func PhoneServiceHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/call/inbound":
 			handleInboundCall(w, r)
+		case "/call/inbound/end":
+			handleInboundCallEnd(w, r)
 		case "/sms/inbound":
 			handleInboundSMS(w, r)
 		case "/sms/outbound":
@@ -34,29 +36,71 @@ func PhoneServiceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleInboundCall(w http.ResponseWriter, r *http.Request) {
+	var incomingPhoneCall types.TwilioIncomingCallBody
 
-	// Parse the form data
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&incomingPhoneCall); err != nil {
+		http.Error(w, "Failed to decode JSON payload", http.StatusBadRequest)
 		return
 	}
 
-	from := r.FormValue("From")
-	to := r.FormValue("To")
-
-	forwardTo := constants.DavidPhoneNumber
-
-	fmt.Printf("Incoming call from: %s", from)
-	fmt.Printf("Incoming call to: %s", to)
+	forwardNumber, err := database.GetForwardPhoneNumber(helpers.RemoveCountryCode(incomingPhoneCall.To), helpers.RemoveCountryCode(incomingPhoneCall.From))
+	if err != nil {
+		http.Error(w, "Failed to get matching phone number.", http.StatusInternalServerError)
+		return
+	}
 
 	twiML := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 	<Response>
-		<Dial>%s</Dial>
-	</Response>`, forwardTo)
+		<Dial action="%s">%s</Dial>
+	</Response>`, forwardNumber.ForwardPhoneNumber, constants.TwilioCallbackWebhook)
+
+	phoneCall := models.PhoneCall{
+		ExternalID:   incomingPhoneCall.CallSid,
+		UserID:       forwardNumber.UserID,
+		LeadID:       forwardNumber.LeadID,
+		CallDuration: 0,
+		DateCreated:  time.Now().Unix(),
+		CallFrom:     incomingPhoneCall.From,
+		CallTo:       incomingPhoneCall.To,
+		IsInbound:    incomingPhoneCall.Direction == "inbound",
+		RecordingURL: "",
+		Status:       incomingPhoneCall.CallStatus,
+	}
+
+	if err := database.SavePhoneCall(phoneCall); err != nil {
+		http.Error(w, "Failed to save phone call.", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/xml")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(twiML))
+}
+
+func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
+	var dialStatus types.IncomingPhoneCallDialStatus
+
+	if err := json.NewDecoder(r.Body).Decode(&dialStatus); err != nil {
+		http.Error(w, "Failed to decode JSON payload", http.StatusBadRequest)
+		return
+	}
+
+	phoneCall, err := database.GetPhoneCallBySID(dialStatus.DialCallSid)
+	if err != nil {
+		http.Error(w, "Failed to get phone call by SID.", http.StatusInternalServerError)
+		return
+	}
+
+	phoneCall.CallDuration = dialStatus.DialCallDuration
+	phoneCall.RecordingURL = dialStatus.RecordingURL
+
+	if err := database.UpdatePhoneCall(phoneCall); err != nil {
+		http.Error(w, "Failed to save phone call.", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/xml")
+	w.WriteHeader(http.StatusOK)
 }
 
 func handleInboundSMS(w http.ResponseWriter, r *http.Request) {
@@ -90,6 +134,7 @@ func handleInboundSMS(w http.ResponseWriter, r *http.Request) {
 		TextTo:      helpers.RemoveCountryCode(twilioMessage.To),
 		IsInbound:   true,
 		DateCreated: dateCreated,
+		Status:      twilioMessage.SmsStatus,
 	}
 
 	if err := database.SaveSMS(message); err != nil {
@@ -153,7 +198,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messageSID, err := services.SendOutboundMessage(form)
+	messageResponse, err := services.SendOutboundMessage(form)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -169,7 +214,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message := models.Message{
-		ExternalID:  messageSID,
+		ExternalID:  messageResponse.Sid,
 		UserID:      userId,
 		LeadID:      leadId,
 		Text:        form.Body,
@@ -177,6 +222,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		TextTo:      form.To,
 		IsInbound:   false,
 		DateCreated: time.Now().Unix(),
+		Status:      messageResponse.Status,
 	}
 
 	err = database.SaveSMS(message)

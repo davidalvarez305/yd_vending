@@ -14,8 +14,8 @@ import (
 	"github.com/davidalvarez305/yd_vending/types"
 )
 
-func SendOutboundMessage(form types.OutboundMessageForm) (string, error) {
-	var response string
+func SendOutboundMessage(form types.OutboundMessageForm) (types.TwilioSMSResponse, error) {
+	var response types.TwilioSMSResponse
 
 	accountSID := constants.TwilioAccountSID
 	authToken := constants.TwilioAuthToken
@@ -46,14 +46,11 @@ func SendOutboundMessage(form types.OutboundMessageForm) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		var twilioResp struct {
-			SID string `json:"sid"`
-		}
-		if err := json.NewDecoder(resp.Body).Decode(&twilioResp); err != nil {
+		if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 			log.Printf("Error parsing Twilio response: %s", err)
 			return response, err
 		}
-		return twilioResp.SID, nil // Return the Twilio SID if successful
+		return response, nil
 	} else {
 		log.Printf("Error sending request: status %d", resp.StatusCode)
 		return response, errors.New("failed to send message")
