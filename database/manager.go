@@ -550,7 +550,7 @@ func GetForwardPhoneNumber(to, from string) (types.IncomingPhoneCallForwarding, 
 	stmt, err := DB.Prepare(`SELECT u.first_name, u.user_id, l.lead_id
 	FROM "user" AS u
 	FULL OUTER JOIN "lead" AS l ON l.phone_number = $2
-	WHERE phone_number = $1`)
+	WHERE u.phone_number = $1`)
 	if err != nil {
 		return forwardingCall, err
 	}
