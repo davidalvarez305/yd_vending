@@ -547,33 +547,49 @@ func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 func GetForwardPhoneNumber(to, from string) (types.IncomingPhoneCallForwarding, error) {
 	var forwardingCall types.IncomingPhoneCallForwarding
 
-	stmt, err := DB.Prepare(`SELECT u.first_name, u.user_id, l.lead_id
-	FROM "user" AS u
-	FULL OUTER JOIN "lead" AS l ON l.phone_number = $2
-	WHERE u.phone_number = $1`)
+	stmt, err := DB.Prepare(`SELECT u.first_name, u.user_id FROM "user" AS u WHERE u.phone_number = $1`)
 	if err != nil {
 		return forwardingCall, err
 	}
 	defer stmt.Close()
 
-	row := stmt.QueryRow(to, from)
+	row := stmt.QueryRow(to)
 
-	err = row.Scan(&forwardingCall.FirstName, forwardingCall.UserID, forwardingCall.LeadID)
+	err = row.Scan(&forwardingCall.FirstName, &forwardingCall.UserID)
 	if err != nil {
 		return forwardingCall, err
 	}
 
-	if forwardingCall.FirstName == "Yovana" {
+	stmt, err = DB.Prepare(`SELECT l.lead_id FROM "lead" AS l WHERE l.phone_number = $1`)
+	if err != nil {
+		return forwardingCall, err
+	}
+	defer stmt.Close()
+
+	row = stmt.QueryRow(from)
+
+	var leadID sql.NullInt64
+	err = row.Scan(&leadID)
+	if err != nil && err != sql.ErrNoRows {
+		return forwardingCall, err
+	}
+
+	if leadID.Valid {
+		forwardingCall.LeadID = int(leadID.Int64)
+	} else {
+		forwardingCall.LeadID = 0
+	}
+
+	switch forwardingCall.FirstName {
+	case "Yovana":
 		forwardingCall.ForwardPhoneNumber = "+1" + constants.YovaPhoneNumber
-		return forwardingCall, nil
-	}
-
-	if forwardingCall.FirstName == "David" {
+	case "David":
 		forwardingCall.ForwardPhoneNumber = "+1" + constants.DavidPhoneNumber
-		return forwardingCall, nil
+	default:
+		return forwardingCall, errors.New("no matching phone number")
 	}
 
-	return forwardingCall, errors.New("no matching phone number")
+	return forwardingCall, nil
 }
 
 func GetPhoneCallBySID(sid string) (models.PhoneCall, error) {
