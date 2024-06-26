@@ -19,6 +19,7 @@ var (
 	PostgresDBName              string
 	DavidPhoneNumber            string
 	DavidEmail                  string
+	YovaPhoneNumber             string
 	ServerPort                  string
 	RootDomain                  string
 	AWSStorageBucket            string
@@ -46,7 +47,8 @@ func Init() {
 	PostgresUser = os.Getenv("PGUSER")
 	PostgresPassword = os.Getenv("POSTGRES_PASSWORD")
 	PostgresDBName = os.Getenv("POSTGRES_DB")
-	DavidPhoneNumber = os.Getenv("DAVID_TWILIO_PHONE_NUMBER")
+	DavidPhoneNumber = os.Getenv("DAVID_PHONE_NUMBER")
+	YovaPhoneNumber = os.Getenv("YOVA_PHONE_NUMBER")
 	ServerPort = os.Getenv("SERVER_PORT")
 	RootDomain = os.Getenv("ROOT_DOMAIN")
 	AWSStorageBucket = os.Getenv("AWS_STORAGE_BUCKET")
