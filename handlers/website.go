@@ -26,7 +26,7 @@ func createWebsiteContext() map[string]any {
 		"SiteName":          constants.SiteName,
 		"PagePath":          "http://localhost/quote",
 		"StaticPath":        "/static",
-		"PhoneNumber":       constants.DavidPhoneNumber,
+		"PhoneNumber":       constants.CompanyPhoneNumber,
 		"CurrentYear":       time.Now().Year(),
 		"GoogleAnalyticsID": constants.GoogleAnalyticsID,
 		"FacebookPixelID":   constants.FacebookPixelID,

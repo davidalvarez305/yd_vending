@@ -34,6 +34,7 @@ var (
 	SiteName                    string
 	SessionName                 string
 	LeadsPerPage                int
+	CompanyPhoneNumber          string
 )
 
 func Init() {
@@ -66,6 +67,7 @@ func Init() {
 	SessionName = "yd_vending_sessions"
 	LeadsPerPage = 10
 	TwilioCallbackWebhook = "/call/inbound/end"
+	CompanyPhoneNumber = os.Getenv("COMPANY_PHONE_NUMBER")
 }
 
 var TEMPLATES_DIR = "./templates/"
