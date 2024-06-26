@@ -112,7 +112,7 @@ func SaveSMS(msg models.Message) error {
 
 func SavePhoneCall(phoneCall models.PhoneCall) error {
 	query := `
-		INSERT INTO phone_calls (
+		INSERT INTO phone_call (
 			external_id, user_id, lead_id, call_duration,
 			date_created, call_from, call_to, is_inbound,
 			recording_url, status
@@ -595,7 +595,7 @@ func GetForwardPhoneNumber(to, from string) (types.IncomingPhoneCallForwarding, 
 func GetPhoneCallBySID(sid string) (models.PhoneCall, error) {
 	var phoneCall models.PhoneCall
 
-	stmt, err := DB.Prepare(`SELECT * FROM phone_calls WHERE external_id = $1`)
+	stmt, err := DB.Prepare(`SELECT * FROM phone_call WHERE external_id = $1`)
 	if err != nil {
 		return phoneCall, err
 	}
@@ -625,7 +625,7 @@ func GetPhoneCallBySID(sid string) (models.PhoneCall, error) {
 
 func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 	query := `
-		UPDATE phone_calls SET
+		UPDATE phone_call SET
 			user_id = $1,
 			lead_id = $2,
 			call_duration = $3,
