@@ -17,7 +17,7 @@ var crmFooterFilePath = constants.CRM_TEMPLATES_DIR + "footer.html"
 
 func createCrmContext() map[string]any {
 	return map[string]any{
-		"PageTitle":         "Request Quote",
+		"PageTitle":         constants.CompanyName,
 		"MetaDescription":   "Get a quote for vending machine services.",
 		"SiteName":          constants.SiteName,
 		"PagePath":          "http://localhost/quote",
@@ -125,6 +125,7 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	}
 
 	data := ctx
+	data["PageTitle"] = "Leads — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -161,6 +162,7 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
+	data["PageTitle"] = "Machines — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -211,6 +213,7 @@ func GetDashboard(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
+	data["PageTitle"] = "Dashboard — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -287,6 +290,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
+	data["PageTitle"] = "Lead Detail — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
