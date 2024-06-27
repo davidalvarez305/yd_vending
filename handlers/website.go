@@ -21,7 +21,7 @@ var websiteFooterFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
 
 func createWebsiteContext() map[string]any {
 	return map[string]any{
-		"PageTitle":         "Request Quote",
+		"PageTitle":         constants.CompanyName,
 		"MetaDescription":   "Get a quote for vending machine services.",
 		"SiteName":          constants.SiteName,
 		"PagePath":          "http://localhost/quote",
@@ -88,6 +88,7 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
 	data := ctx
+	data["PageTitle"] = "Miami Vending Services — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -120,6 +121,7 @@ func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
 	data := ctx
+	data["PageTitle"] = "About Us — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -141,6 +143,7 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
 	data := ctx
+	data["PageTitle"] = "Privacy Policy — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -162,6 +165,7 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[strin
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
 	data := ctx
+	data["PageTitle"] = "Terms & Conditions — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["GoogleUserID"] = googleUserId
@@ -211,6 +215,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
 
 	data := ctx
+	data["PageTitle"] = "Request A Quote — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -372,6 +377,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 	}
 
 	data := ctx
+	data["PageTitle"] = "Contact Us — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
@@ -486,6 +492,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	googleUserID := helpers.GetSessionValueByKey(r, "google_user_id")
 
 	data := ctx
+	data["PageTitle"] = "Login — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
