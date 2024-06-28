@@ -336,7 +336,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 			{
 				Name: "quote",
 				Params: conversions.GoogleEventParamsLead{
-					GCLID: form.GCLID,
+					GCLID: form.ClickID,
 				},
 			},
 		},

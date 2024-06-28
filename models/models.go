@@ -15,6 +15,16 @@ type City struct {
 	Name   string `json:"name"`
 }
 
+type User struct {
+	UserID      int    `json:"user_id"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
+	IsAdmin     bool   `json:"is_admin"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+}
+
 type Lead struct {
 	LeadID            int    `json:"lead_id"`
 	FirstName         string `json:"first_name"`
@@ -27,7 +37,6 @@ type Lead struct {
 	VendingTypeID     int    `json:"vending_type_id"`
 	VendingLocationID int    `json:"vending_location_id"`
 	CityID            int    `json:"city_id"`
-	UserKey           string `json:"user_key"`
 }
 
 type LeadMarketing struct {
@@ -95,14 +104,4 @@ type PhoneCall struct {
 	IsInbound    bool   `json:"is_inbound" form:"is_inbound" schema:"is_inbound"`
 	RecordingURL string `json:"recording_url" form:"recording_url" schema:"recording_url"`
 	Status       string `json:"status" form:"status" schema:"status"`
-}
-
-type User struct {
-	UserID      int    `json:"user_id"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phone_number"`
-	Password    string `json:"password"`
-	IsAdmin     bool   `json:"is_admin"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
 }

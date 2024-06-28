@@ -19,7 +19,7 @@ type QuoteForm struct {
 	LandingPage      string `json:"landing_page" form:"landing_page" schema:"landing_page"`
 	Keyword          string `json:"keyword" form:"keyword" schema:"keyword"`
 	Referrer         string `json:"referrer" form:"referrer" schema:"referrer"`
-	GCLID            string `json:"gclid" form:"gclid" schema:"gclid"`
+	ClickID          string `json:"click_id" form:"click_id" schema:"click_id"`
 	CampaignID       int    `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
 	AdCampaign       string `json:"ad_campaign" form:"ad_campaign" schema:"ad_campaign"`
 	AdGroupID        int    `json:"ad_group_id" form:"ad_group_id" schema:"ad_group_id"`

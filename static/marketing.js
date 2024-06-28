@@ -26,6 +26,20 @@ function getHostFromURL() {
   return host;
 }
 
+function checkClickId() {
+  const keys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
+  
+  for (const key of keys) {
+    if (qs.has(key)) {
+      qs.set("click_id", qs.get(key));
+      qs.delete(key);
+      break;
+    }
+  }
+
+  return qs.has("click_id");
+}
+
 function getLeadChannel() {
   // No referrer means the user accessed the website directly
   if (document.referrer.length === 0) return "direct";
@@ -41,7 +55,7 @@ function getLeadChannel() {
   }
 
   // Google Ads
-  if (qs.has("gclid") || qs.has("msclkid")) return "paid";
+  if (checkClickId()) return "paid";
 
   return "other";
 }
