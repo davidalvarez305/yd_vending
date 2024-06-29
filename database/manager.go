@@ -661,9 +661,9 @@ func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 func GetSession(userKey string) (models.Session, error) {
 	var session models.Session
 	sqlStatement := `
-        SELECT id, csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
+        SELECT session_id, csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
         FROM sessions
-        WHERE id = $1
+        WHERE csrf_secret = $1
     `
 	row := DB.QueryRow(sqlStatement, userKey)
 
@@ -686,7 +686,7 @@ func CreateSession(session models.Session) error {
         INSERT INTO sessions (csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires)
         VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))
     `
-	err := DB.QueryRow(sqlStatement, session.CSRFSecret, session.GoogleUserID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID)
+	err := DB.QueryRow(sqlStatement, session.CSRFSecret, session.GoogleUserID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.DateCreated, session.DateExpires)
 	if err != nil {
 		return err.Err()
 	}

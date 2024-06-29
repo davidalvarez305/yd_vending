@@ -86,6 +86,7 @@ func Create(r *http.Request, w http.ResponseWriter) error {
 
 	err = database.CreateSession(session)
 	if err != nil {
+		fmt.Printf("FAILED TO CREATE SESSION: %+v\n", err)
 		return err
 	}
 

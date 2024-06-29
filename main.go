@@ -12,7 +12,6 @@ import (
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/middleware"
 	"github.com/davidalvarez305/yd_vending/router"
-	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
 func init() {
@@ -31,13 +30,6 @@ func init() {
 		log.Fatalf("ERROR CONNECTING TO DB: %+v\n", err)
 	}
 	fmt.Println("Database connected.")
-
-	err = sessions.InitializeSessions()
-
-	if err != nil {
-		log.Fatalf("ERROR INITIALIZING SESSIONS: %+v\n", err)
-	}
-	fmt.Println("Sessions initialized.")
 
 }
 
