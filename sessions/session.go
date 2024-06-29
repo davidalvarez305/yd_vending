@@ -9,6 +9,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/csrf"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/models"
+	"github.com/google/uuid"
 )
 
 func getSessionFromRequest(r *http.Request) (string, error) {
@@ -75,7 +76,7 @@ func Create(r *http.Request, w http.ResponseWriter) error {
 
 	session := models.Session{
 		CSRFSecret:       secret,
-		GoogleUserID:     "someGoogleUserId",
+		GoogleUserID:     uuid.New().String(),
 		GoogleClientID:   googleClientID,
 		FacebookClickID:  fbClickID,
 		FacebookClientID: fbClientID,
