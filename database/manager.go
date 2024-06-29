@@ -701,8 +701,8 @@ func UpdateSession(session models.Session) error {
             google_client_id = $2,
             facebook_click_id = $3,
             facebook_client_id = $4,
-			user_id = $5
-        WHERE csrf_secret = $6
+			user_id = $6
+        WHERE csrf_secret = $5
     `
 	_, err := DB.Exec(sqlStatement, session.GoogleUserID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.CSRFSecret, session.UserID)
 	if err != nil {
