@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/services"
+	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
 	"github.com/gorilla/schema"
 )
@@ -37,6 +39,15 @@ func createWebsiteContext() map[string]any {
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := createWebsiteContext()
+
+	session, err := sessions.Get(r)
+	if err != nil {
+		fmt.Printf("SESSIONS ERROR AT CONTEXT: %+v\n", err)
+		http.Error(w, "Error with sessions.", http.StatusInternalServerError)
+		return
+	}
+
+	ctx["Session"] = session
 
 	switch r.Method {
 	case http.MethodGet:
@@ -85,13 +96,10 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
-
 	data := ctx
 	data["PageTitle"] = "Miami Vending Services — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["GoogleUserID"] = googleUserId
 	data["Features"] = []string{
 		"Innovative Payment Options",
 		"24/7 Customer Support",
@@ -118,13 +126,10 @@ func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
-
 	data := ctx
 	data["PageTitle"] = "About Us — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -140,13 +145,10 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any
 		return
 	}
 
-	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
-
 	data := ctx
 	data["PageTitle"] = "Privacy Policy — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -162,13 +164,10 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[strin
 		return
 	}
 
-	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
-
 	data := ctx
 	data["PageTitle"] = "Terms & Conditions — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
-	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -212,8 +211,6 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	googleUserId := helpers.GetSessionValueByKey(r, "google_user_id")
-
 	data := ctx
 	data["PageTitle"] = "Request A Quote — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
@@ -222,7 +219,6 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
 	data["Cities"] = cities
-	data["GoogleUserID"] = googleUserId
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -265,14 +261,14 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	csrfSecret, err := helpers.GetTokenFromSession(r)
+	session, err := sessions.Get(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Poorly formed request.",
+				"Message": "Failed to retrieve session from request.",
 			},
 		}
 		w.WriteHeader(http.StatusBadRequest)
@@ -280,19 +276,29 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	googleUserID := helpers.GetSessionValueByKey(r, "google_user_id")
-	googleClientID := helpers.GetSessionValueByKey(r, "google_client_id")
-	fbClickID := helpers.GetSessionValueByKey(r, "facebook_click_id")
-	fbClientID := helpers.GetSessionValueByKey(r, "facebook_client_id")
+	decodedSecret, err := hex.DecodeString(session.CSRFSecret)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to decode csrf secret.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
 
 	// User Marketing Variables
 	form.UserAgent = r.Header.Get("User-Agent")
 	form.IP = helpers.GetUserIPFromRequest(r)
-	form.FacebookClickID = fbClickID
-	form.FacebookClientID = fbClientID
-	form.GoogleClientID = googleClientID
-	form.GoogleUserID = googleUserID
-	form.CSRFSecret = csrfSecret
+	form.FacebookClickID = session.FacebookClickID
+	form.FacebookClientID = session.FacebookClientID
+	form.GoogleClientID = session.GoogleClientID
+	form.GoogleUserID = session.GoogleUserID
+	form.CSRFSecret = decodedSecret
 
 	err = database.CreateLeadAndMarketing(form)
 	if err != nil {
@@ -318,8 +324,8 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 			FirstName:       helpers.HashString(form.FirstName),
 			LastName:        helpers.HashString(form.LastName),
 			Phone:           helpers.HashString(form.PhoneNumber),
-			FBC:             fbClickID,
-			FBP:             fbClientID,
+			FBC:             form.FacebookClickID,
+			FBP:             form.FacebookClientID,
 			ClientIPAddress: form.IP,
 			ClientUserAgent: form.UserAgent,
 		},
@@ -330,8 +336,8 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	payload := conversions.GooglePayload{
-		ClientID: googleClientID,
-		UserId:   googleUserID,
+		ClientID: form.GoogleClientID,
+		UserId:   form.GoogleUserID,
 		Events: []conversions.GoogleEventLead{
 			{
 				Name: "quote",
@@ -362,8 +368,6 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 	fileName := "contact_form.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
-	googleUserID := helpers.GetSessionValueByKey(r, "google_user_id")
-
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -381,7 +385,6 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["GoogleUserID"] = googleUserID
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -489,14 +492,11 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	googleUserID := helpers.GetSessionValueByKey(r, "google_user_id")
-
 	data := ctx
 	data["PageTitle"] = "Login — " + constants.CompanyName
 	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["GoogleUserID"] = googleUserID
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -537,9 +537,17 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	err = helpers.SaveUserIDInSession(w, r, user.UserID)
+	session, err := sessions.Get(r)
 	if err != nil {
-		tmplCtx.Data["Message"] = "Could not save session."
+		tmplCtx.Data["Message"] = "Could not get session."
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	session.UserID = user.UserID
+	err = sessions.Update(session)
+	if err != nil {
+		tmplCtx.Data["Message"] = "Could not update session."
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}

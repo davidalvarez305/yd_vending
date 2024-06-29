@@ -10,9 +10,11 @@ import (
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
+	"github.com/davidalvarez305/yd_vending/csrf"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/models"
+	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
 func SecurityMiddleware(next http.Handler) http.Handler {
@@ -71,7 +73,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 		var csrfURLs = []string{"/contact", "/quote", "/login", "/crm"}
 
-		if r.Method == http.MethodGet && helpers.IsCSRFURL(csrfURLs, r.URL.Path) {
+		if r.Method == http.MethodGet && csrf.IsCSRFURL(csrfURLs, r.URL.Path) {
 			token, err := helpers.GetTokenFromSession(r)
 
 			if err != nil {
@@ -82,7 +84,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 			var unixTime = time.Now().Unix() + 300 // 5 minutes
 
-			encryptedToken, err := helpers.EncryptToken(unixTime, token)
+			encryptedToken, err := csrf.EncryptToken(unixTime, token)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error encrypting CSRF token.", http.StatusInternalServerError)
@@ -134,7 +136,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			err = helpers.ValidateCSRFToken(isUsed, csrfToken, token)
+			err = csrf.ValidateCSRFToken(isUsed, csrfToken, token)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error validating token.", http.StatusBadRequest)
@@ -165,14 +167,14 @@ func AuthRequired(next http.Handler) http.Handler {
 			return
 		}
 
-		userId, err := helpers.GetUserIDFromSession(r)
+		values, err := sessions.Get(r)
 		if err != nil {
 			fmt.Printf("USER ID PERMISSION DENIED: %+v\n", err)
 			http.Error(w, "Permission denied", http.StatusUnauthorized)
 			return
 		}
 
-		user, err := database.GetUserById(userId)
+		user, err := database.GetUserById(values.UserID)
 		if err != nil {
 			fmt.Printf("CANNOT GET USER PERMISSION DENIED: %+v\n", err)
 			http.Error(w, "Permission denied", http.StatusUnauthorized)

@@ -3,14 +3,14 @@
 
 <head>
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ .GoogleAnalyticsID }}"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ .Session.GoogleAnalyticsID }}"></script>
   <script nonce="{{ .Nonce }}">
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag("js", new Date());
 
-    gtag("config", "{{ .GoogleAnalyticsID }}");
-    gtag("set", "user_id", "{{ .GoogleUserID }}");
+    gtag("config", "{{ .Session.GoogleAnalyticsID }}");
+    gtag("set", "user_id", "{{ .Session.GoogleUserID }}");
   </script>
   <!-- End Google tag -->
 
@@ -27,11 +27,11 @@
       s.parentNode.insertBefore(t, s)
     }(window, document, 'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '{{ .FacebookPixelID }}');
+    fbq('init', '{{ .Session.FacebookPixelID }}');
     fbq('track', 'PageView');
   </script>
   <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id={{ .FacebookPixelID }}&ev=PageView&noscript=1" /></noscript>
+      src="https://www.facebook.com/tr?id={{ .Session.FacebookPixelID }}&ev=PageView&noscript=1" /></noscript>
   <!-- End Facebook Pixel Code -->
 
   <!-- Essential Meta Tags -->

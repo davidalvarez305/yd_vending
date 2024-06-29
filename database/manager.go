@@ -657,3 +657,69 @@ func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 
 	return nil
 }
+
+func GetSession(userKey string) (models.Session, error) {
+	var session models.Session
+	sqlStatement := `
+        SELECT id, csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
+        FROM sessions
+        WHERE id = $1
+    `
+	row := DB.QueryRow(sqlStatement, userKey)
+
+	var dateCreated time.Time
+	var dateExpires time.Time
+
+	err := row.Scan(&session.SessionID, &session.CSRFSecret, &session.GoogleUserID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
+	if err != nil {
+		return session, err
+	}
+
+	session.DateCreated = dateCreated.Unix()
+	session.DateExpires = dateExpires.Unix()
+
+	return session, nil
+}
+
+func CreateSession(session models.Session) error {
+	sqlStatement := `
+        INSERT INTO sessions (csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires)
+        VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))
+    `
+	err := DB.QueryRow(sqlStatement, session.CSRFSecret, session.GoogleUserID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID)
+	if err != nil {
+		return err.Err()
+	}
+
+	return nil
+}
+
+func UpdateSession(session models.Session) error {
+	sqlStatement := `
+        UPDATE sessions
+        SET google_user_id = $1,
+            google_client_id = $2,
+            facebook_click_id = $3,
+            facebook_client_id = $4,
+			user_id = $5
+        WHERE csrf_secret = $6
+    `
+	_, err := DB.Exec(sqlStatement, session.GoogleUserID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.CSRFSecret, session.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteSession(secret string) error {
+	sqlStatement := `
+        DELETE FROM sessions WHERE csrf_secret = $1
+    `
+	_, err := DB.Exec(sqlStatement, secret)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

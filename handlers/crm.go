@@ -9,6 +9,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
 )
 
@@ -254,14 +255,14 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	userId, err := helpers.GetUserIDFromSession(r)
+	values, err := sessions.Get(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting user ID from session.", http.StatusInternalServerError)
 		return
 	}
 
-	phoneNumber, err := database.GetPhoneNumberFromUserID(userId)
+	phoneNumber, err := database.GetPhoneNumberFromUserID(values.UserID)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting phone number from user ID.", http.StatusInternalServerError)
