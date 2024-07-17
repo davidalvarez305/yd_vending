@@ -1,37 +1,51 @@
 const qs = new URLSearchParams(window.location.search);
+const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
 let latitude = 0.0;
 let longitude = 0.0;
 
 document.addEventListener("DOMContentLoaded", getUserLocation());
 
-function toTitleCase(str) {
-  return str.replace(/\w\S*/g, function (txt) {
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  });
+function getHost(urlString) {
+    let url;
+    try {
+        url = new URL(urlString);
+    } catch (error) {
+        return '';
+    }
+
+    let host = url.hostname.toLowerCase();
+
+    if (host.startsWith('www.')) {
+        host = host.slice(4);
+    }
+
+    const parts = host.split('.');
+
+    // Handle cases like ftp.google.com or ads.google.com
+    if (parts.length > 2 && !['com', 'net', 'org', 'edu', 'gov', 'mil', 'int'].includes(parts[parts.length - 2])) {
+        host = parts.slice(-3).join('.');
+    } else if (parts.length > 1) {
+        // Check if the last part is a two-letter country code
+        const lastPart = parts[parts.length - 1];
+        if (lastPart.length === 2 && lastPart !== 'co') { // 'co' is a special case like .co.uk, .co.in, etc.
+            host = parts.slice(-3).join('.');
+        } else {
+            host = parts.slice(-2).join('.');
+        }
+    }
+
+    return host;
 }
 
-function getHostFromURL() {
-  const referrer = document.referrer;
-
-  if (referrer.length === 0) return referrer;
-
-  const parsedURL = new URL(document.referrer);
-
-  const getSplitStr = parsedURL.hostname.split(".");
-
-  if (getSplitStr.length < 2) return getSplitStr.toString();
-
-  const host = parsedURL.hostname.split(".")[1];
-
-  return host;
+function getClickId() {
+  for (const key of clickIdKeys) {
+    if (qs.has(key)) return qs.get(key);
+  }
 }
 
 function checkClickId() {
-  const keys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
-  
-  for (const key of keys) {
+  for (const key of clickIdKeys) {
     if (qs.has(key)) {
-      qs.set("click_id", qs.get(key));
       qs.delete(key);
       break;
     }
@@ -40,24 +54,18 @@ function checkClickId() {
   return qs.has("click_id");
 }
 
-function getLeadChannel() {
+function getMedium(referrer) {
   // No referrer means the user accessed the website directly
-  if (document.referrer.length === 0) return "direct";
+  if (referrer.length === 0) return "direct";
 
-  // If we get to this point, it means that document.referrer is not empty
-  if (qs.size === 0) {
-    const host = getHostFromURL();
+  // Non-empty referrer and no querystring === organic
+  if (qs.size === 0) return "organic";
 
-    qs.set("source", host);
-    qs.set("medium", `${toTitleCase(host)} - SEO`);
-
-    return "organic";
-  }
-
-  // Google Ads
+  // Paid ads
   if (checkClickId()) return "paid";
 
-  return "other";
+  // Querystring + non-empty referrer and no click id === referral
+  return "referral";
 }
 
 function getUserLocation() {
@@ -70,7 +78,6 @@ function getUserLocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       function (position) {
-        // Success callback
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
       },
@@ -84,31 +91,120 @@ function getUserLocation() {
   }
 }
 
+function getChannel(referrerUrl) {
+    const searchEngines = [
+        { domain: "google.", path: "/search" },
+        { domain: "bing.", path: "/search" },
+        { domain: "yahoo.", path: "/search" },
+        { domain: "ecosia.", path: "/search" },
+        { domain: "duckduckgo.com", path: "" },
+        { domain: "yandex." },
+        { domain: "baidu." },
+        { domain: "naver." },
+        { domain: "ask.com" },
+        { domain: "adsensecustomsearchads" },
+        { domain: "aol." },
+        { domain: "brave." }
+    ];
+
+    const majorSocialNetworks = [
+        "facebook",
+        "instagram",
+        "twitter",
+        "linkedin",
+        "pinterest",
+        "snapchat",
+        "reddit",
+        "whatsapp",
+        "wechat",
+        "telegram",
+        "discord",
+        "vkontakte",
+        "weibo",
+        "line",
+        "kakaotalk",
+        "qq",
+        "viber",
+        "telegram",
+        "tumblr",
+        "flickr",
+        "meetup",
+        "tagged",
+        "badoo",
+        "myspace"
+    ];
+
+    const majorVideoPlatforms = [
+        "youtube",
+        "tiktok",
+        "vimeo",
+        "dailymotion",
+        "twitch",
+        "bilibili",
+        "youku",
+        "rutube",
+        "vine",
+        "peertube",
+        "ig tv",
+        "veoh",
+        "metacafe",
+        "vudu",
+        "vidyard",
+        "rumble",
+        "bit chute",
+        "brightcove",
+        "viddler",
+        "vzaar"
+    ];
+
+    // Check search engines
+    for (let engine of searchEngines) {
+        if (referrerUrl.includes(engine.domain) && (engine.path === "" || referrerUrl.includes(engine.path))) {
+            return "search";
+        }
+    }
+
+    // Check social networks
+    for (let network of majorSocialNetworks) {
+        if (referrerUrl.includes(network)) {
+            return "social";
+        }
+    }
+
+    // Check video platforms
+    for (let platform of majorVideoPlatforms) {
+        if (referrerUrl.includes(platform)) {
+            return "video";
+        }
+    }
+
+    return "other";
+}
+
 function handleCTAClick(e) {
   const language = navigator.language || navigator.userLanguage;
 
   const buttonName = e.target.getAttribute("name");
-  // This set method must be first in order for the getLeadChannel logic to work correctly
-  // Because it checks that all qs.entries are of length 0 ('meaning organic traffic')
-  // It also checks document.referrer to differentiate direct vs organic
-  var data = JSON.parse(localStorage.getItem("user")) || {};
+
+  // Get user variables from browser
+  var user = JSON.parse(localStorage.getItem("user")) || {};
 
   if (Object.keys(data).length === 0) {
-    data.landingPage = window.location.href;
-    data.referrer = document.referrer;
-    data.trafficSource = getLeadChannel();
-    localStorage.setItem("user", JSON.stringify(data));
+    user.landingPage = window.location.href;
+    user.referrer = document.referrer;
+    localStorage.setItem("user", JSON.stringify(user));
   }
 
-  qs.set("landing_page", data.landingPage);
-  qs.set("referrer", data.referrer);
-  qs.set("channel", data.trafficSource);
-  qs.set("channel", getLeadChannel());
-  qs.set("landing_page", window.location.href);
+  qs.set("landing_page", user.landingPage);
+  qs.set("referrer", user.referrer);
+  qs.set("source", qs.get('source') ?? getHost(user.referrer)); // google.com || facebook.com || youtube.com
+  qs.set("medium", qs.get('medium') ?? getMedium(user.referrer)); // organic || paid || direct
+  qs.set("channel", qs.get('channel') ?? getChannel(user.referrer)); // search || social || video
   qs.set("button_clicked", buttonName);
   qs.set("longitude", longitude);
   qs.set("latitude", latitude);
   qs.set("language", language);
+  if (checkClickId()) qs.set("click_id", getClickId());
 
   const currentDomain = new URL(window.location.origin + "/quote");
 

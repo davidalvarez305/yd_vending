@@ -264,6 +264,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	session, err := sessions.Get(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
+
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
