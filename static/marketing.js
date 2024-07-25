@@ -93,18 +93,18 @@ function getUserLocation() {
 
 function getChannel(referrerUrl) {
     const searchEngines = [
-        { domain: "google.", path: "/search" },
-        { domain: "bing.", path: "/search" },
-        { domain: "yahoo.", path: "/search" },
-        { domain: "ecosia.", path: "/search" },
-        { domain: "duckduckgo.com", path: "" },
-        { domain: "yandex." },
-        { domain: "baidu." },
-        { domain: "naver." },
+        { domain: "google" },
+        { domain: "bing" },
+        { domain: "yahoo" },
+        { domain: "ecosia" },
+        { domain: "duckduckgo"},
+        { domain: "yandex" },
+        { domain: "baidu" },
+        { domain: "naver" },
         { domain: "ask.com" },
         { domain: "adsensecustomsearchads" },
-        { domain: "aol." },
-        { domain: "brave." }
+        { domain: "aol" },
+        { domain: "brave" }
     ];
 
     const majorSocialNetworks = [
@@ -159,7 +159,7 @@ function getChannel(referrerUrl) {
 
     // Check search engines
     for (let engine of searchEngines) {
-        if (referrerUrl.includes(engine.domain) && (engine.path === "" || referrerUrl.includes(engine.path))) {
+        if (referrerUrl.includes(engine.domain)) {
             return "search";
         }
     }
