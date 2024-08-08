@@ -555,7 +555,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.CookieName,
-		Value:    email,
+		Value:    session.CSRFSecret,
 		Path:     "/",
 		Domain:   constants.RootDomain,
 		Expires:  time.Now().Add(24 * time.Hour), // Expires in 24 hours
