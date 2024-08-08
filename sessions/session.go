@@ -26,6 +26,7 @@ func IsNew(r *http.Request) (bool, error) {
 	if err == http.ErrNoCookie {
 		return false, nil
 	}
+	fmt.Printf("%+v\n", err)
 	return err != nil, err
 }
 
