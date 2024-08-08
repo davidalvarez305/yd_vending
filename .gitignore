@@ -2,6 +2,7 @@
 *.env
 *.sql
 *.json
+*.conf
 node_modules
 env.md
 exec
