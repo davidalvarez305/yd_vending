@@ -1,1 +1,1 @@
-Budgeting app for tracking expenses.
+Vending machines management system

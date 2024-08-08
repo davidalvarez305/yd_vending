@@ -1,20 +1,15 @@
-BINARY_NAME := budgeting
-BUILD_DIR := build
+BINARY_NAME := exec
 SRC_DIR := .
 
 all: build
 
 build:
 	@echo "Building the project..."
-	@go build -o $(BUILD_DIR)/$(BINARY_NAME) $(SRC_DIR)
+	@go build -o ./$(BINARY_NAME) $(SRC_DIR)
 
 run: build
 	@echo "Running the project..."
-	@./$(BUILD_DIR)/$(BINARY_NAME)
-
-clean:
-	@echo "Cleaning up..."
-	@rm -rf $(BUILD_DIR)
+	@./$(BINARY_NAME)
 
 deps:
 	@echo "Installing dependencies..."

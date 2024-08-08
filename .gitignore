@@ -2,6 +2,6 @@
 *.env
 *.sql
 *.json
-build
 node_modules
 env.md
+exec
