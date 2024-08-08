@@ -27,7 +27,7 @@ func createWebsiteContext() map[string]any {
 		"MetaDescription":   "Get a quote for vending machine services.",
 		"SiteName":          constants.SiteName,
 		"PagePath":          "http://localhost/quote",
-		"StaticPath":        "/static",
+		"StaticPath":        constants.StaticPath,
 		"PhoneNumber":       constants.CompanyPhoneNumber,
 		"CurrentYear":       time.Now().Year(),
 		"GoogleAnalyticsID": constants.GoogleAnalyticsID,

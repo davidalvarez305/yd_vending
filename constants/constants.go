@@ -36,6 +36,7 @@ var (
 	LeadsPerPage                int
 	CompanyPhoneNumber          string
 	SessionLength               int64
+	StaticPath                  string
 )
 
 func Init() {
@@ -70,6 +71,7 @@ func Init() {
 	TwilioCallbackWebhook = "/call/inbound/end"
 	CompanyPhoneNumber = os.Getenv("COMPANY_PHONE_NUMBER")
 	SessionLength = 86400
+	StaticPath = os.Getenv("STATIC_PATH")
 }
 
 var TEMPLATES_DIR = "./templates/"
