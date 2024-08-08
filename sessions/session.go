@@ -18,11 +18,13 @@ func getSessionFromRequest(r *http.Request) (string, error) {
 		return "", err
 	}
 
+	fmt.Printf("cookie: %+v\n", cookie)
 	return cookie.Value, err
 }
 
 func IsNew(r *http.Request) (bool, error) {
 	_, err := r.Cookie(constants.CookieName)
+	fmt.Printf("err: %+v\n", err)
 	if err == http.ErrNoCookie {
 		return true, nil
 	}
@@ -44,6 +46,7 @@ func Get(r *http.Request) (models.Session, error) {
 	if err != nil {
 		return sessions, err
 	}
+	fmt.Printf("sessions: %+v\n", sessions)
 
 	return sessions, nil
 }
