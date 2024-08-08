@@ -37,17 +37,7 @@ func createWebsiteContext() map[string]any {
 }
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
-
 	ctx := createWebsiteContext()
-
-	session, err := sessions.Get(r)
-	if err != nil {
-		fmt.Printf("SESSIONS ERROR AT CONTEXT: %+v\n", err)
-		http.Error(w, "Error with sessions.", http.StatusInternalServerError)
-		return
-	}
-
-	ctx["Session"] = session
 
 	switch r.Method {
 	case http.MethodGet:
