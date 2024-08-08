@@ -26,7 +26,10 @@ func IsNew(r *http.Request) (bool, error) {
 	if err == http.ErrNoCookie {
 		return true, nil
 	}
-	return false, err
+	if err != nil {
+		return false, err
+	}
+	return false, nil
 }
 
 func Get(r *http.Request) (models.Session, error) {
