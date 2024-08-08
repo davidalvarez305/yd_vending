@@ -24,6 +24,7 @@ func getSessionFromRequest(r *http.Request) (string, error) {
 func IsNew(r *http.Request) (bool, error) {
 	cookie, err := r.Cookie(constants.CookieName)
 	fmt.Printf("cookie: %+v\n", cookie)
+	fmt.Printf("err: %+v\n", err)
 	if err == http.ErrNoCookie {
 		return true, nil
 	}
