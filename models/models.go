@@ -108,7 +108,7 @@ type PhoneCall struct {
 
 type Session struct {
 	SessionID        int    `json:"session_id" form:"session_id" schema:"session_id"`
-	UserID           int    `json:"user_id" form:"user_id" schema:"user_id"`
+	UserID           *int   `json:"user_id" form:"user_id" schema:"user_id"`
 	CSRFSecret       string `json:"csrf_secret" form:"csrf_secret" schema:"csrf_secret"`
 	GoogleUserID     string `json:"google_user_id" form:"google_user_id" schema:"google_user_id"`
 	GoogleClientID   string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`

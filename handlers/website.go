@@ -528,7 +528,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	session.UserID = user.UserID
+	session.UserID = &user.UserID
 	err = sessions.Update(session)
 	if err != nil {
 		tmplCtx.Data["Message"] = "Could not update session."
