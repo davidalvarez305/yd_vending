@@ -189,7 +189,7 @@ function handleCTAClick(e) {
   // Get user variables from browser
   var user = JSON.parse(localStorage.getItem("user")) || {};
 
-  if (Object.keys(data).length === 0) {
+  if (Object.keys(user).length === 0) {
     user.landingPage = window.location.href;
     user.referrer = document.referrer;
     localStorage.setItem("user", JSON.stringify(user));
