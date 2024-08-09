@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
 	_ "github.com/lib/pq"
@@ -32,6 +34,35 @@ func Connect() (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
+
+	MaxOpenConnectionsStr := constants.MaxOpenConnections
+	MaxIdleConnectionsStr := constants.MaxIdleConnections
+	MaxConnectionLifetimeStr := constants.MaxConnectionLifetime
+
+	MaxOpenConnections, err := strconv.Atoi(MaxOpenConnectionsStr)
+	if err != nil {
+		fmt.Printf("Error parsing MAX_OPEN_CONNECTIONS: %v\n", err)
+		return nil, fmt.Errorf("error parsing max connections: %v", err)
+	}
+
+	MaxIdleConnections, err := strconv.Atoi(MaxIdleConnectionsStr)
+	if err != nil {
+		fmt.Printf("Error parsing MAX_IDLE_CONNECTIONS: %v\n", err)
+		return nil, fmt.Errorf("error parsing idle connections: %v", err)
+	}
+
+	// Assuming the connection lifetime is in seconds, parse it to int and convert to time.Duration
+	MaxConnectionLifetimeSeconds, err := strconv.Atoi(MaxConnectionLifetimeStr)
+	if err != nil {
+		fmt.Printf("Error parsing MAX_CONN_LIFETIME: %v\n", err)
+		return nil, fmt.Errorf("error parsing max connection lfetime: %v", err)
+	}
+	MaxConnectionLifetime := time.Duration(MaxConnectionLifetimeSeconds) * time.Second
+
+	// Set connection pool parameters
+	db.SetMaxOpenConns(MaxOpenConnections)
+	db.SetMaxIdleConns(MaxIdleConnections)
+	db.SetConnMaxLifetime(MaxConnectionLifetime)
 
 	// Verify the connection
 	if err := db.Ping(); err != nil {

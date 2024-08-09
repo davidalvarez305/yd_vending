@@ -37,6 +37,9 @@ var (
 	CompanyPhoneNumber          string
 	SessionLength               int64
 	StaticPath                  string
+	MaxOpenConnections          string
+	MaxIdleConnections          string
+	MaxConnectionLifetime       string
 )
 
 func Init() {
@@ -72,6 +75,9 @@ func Init() {
 	CompanyPhoneNumber = os.Getenv("COMPANY_PHONE_NUMBER")
 	SessionLength = 86400
 	StaticPath = os.Getenv("STATIC_PATH")
+	MaxOpenConnections = os.Getenv("MAX_OPEN_CONNECTIONS")
+	MaxIdleConnections = os.Getenv("MAX_IDLE_CONNECTIONS")
+	MaxConnectionLifetime = os.Getenv("MAX_CONN_LIFETIME")
 }
 
 var TEMPLATES_DIR = "./templates/"

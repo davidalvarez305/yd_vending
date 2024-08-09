@@ -36,8 +36,6 @@ func Get(r *http.Request) (models.Session, error) {
 	var sessions models.Session
 
 	userSecret, err := getSessionFromRequest(r)
-	fmt.Printf("SESSION: %+v\n", userSecret)
-	fmt.Printf("err: %+v\n", err)
 	if err != nil {
 		return sessions, err
 	}
