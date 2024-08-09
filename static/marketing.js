@@ -189,12 +189,6 @@ function handleCTAClick(e) {
   // Get user variables from browser
   var user = JSON.parse(localStorage.getItem("user")) || {};
 
-  if (Object.keys(user).length === 0) {
-    user.landingPage = window.location.href;
-    user.referrer = document.referrer;
-    localStorage.setItem("user", JSON.stringify(user));
-  }
-
   qs.set("landing_page", user.landingPage);
   qs.set("referrer", user.referrer);
   qs.set("source", qs.get('source') ?? getHost(user.referrer)); // google.com || facebook.com || youtube.com

@@ -35,3 +35,14 @@ function handleCloseAlertModal() {
     button.addEventListener("click", () => (newModal.style.display = "none"));
   });
 }
+
+function setUser() {
+  const user = {
+    landingPage: window.location.href,
+    referrer: document.referrer,
+  };
+
+  localStorage.setItem("user", JSON.stringify(user));
+}
+
+document.addEventListener("DOMContentLoaded", () => localStorage.getItem("user") ?? setUser());
