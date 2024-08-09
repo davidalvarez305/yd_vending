@@ -661,7 +661,7 @@ func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 func GetSession(userKey string) (models.Session, error) {
 	var session models.Session
 	sqlStatement := `
-        SELECT session_id, csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
+        SELECT session_id, user_id, csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
         FROM sessions
         WHERE csrf_secret = $1
     `
@@ -670,7 +670,7 @@ func GetSession(userKey string) (models.Session, error) {
 	var dateCreated time.Time
 	var dateExpires time.Time
 
-	err := row.Scan(&session.SessionID, &session.CSRFSecret, &session.GoogleUserID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
+	err := row.Scan(&session.SessionID, &session.UserID, &session.CSRFSecret, &session.GoogleUserID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
 	if err != nil {
 		return session, err
 	}

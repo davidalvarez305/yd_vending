@@ -166,7 +166,6 @@ func AuthRequired(next http.Handler) http.Handler {
 			http.Error(w, "Permission denied", http.StatusUnauthorized)
 			return
 		}
-		fmt.Printf("session: %+v\n", values)
 
 		user, err := database.GetUserById(values.UserID)
 		if err != nil {
