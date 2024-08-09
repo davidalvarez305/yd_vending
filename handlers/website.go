@@ -536,32 +536,14 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     constants.CookieName,
-		Value:    session.CSRFSecret,
-		Path:     "/",
-		Domain:   constants.RootDomain,
-		Expires:  time.Now().Add(24 * time.Hour), // Expires in 24 hours
-		HttpOnly: false,
-		SameSite: http.SameSiteStrictMode,
-		Secure:   true,
-	})
+	sessions.SetCookie(w, time.Now().Add(24*time.Hour), session.CSRFSecret)
 
 	w.WriteHeader(http.StatusOK)
 }
 
 func PostLogout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     constants.CookieName,
-		Value:    "",
-		Path:     "/",
-		Domain:   constants.RootDomain,
-		Expires:  time.Now().Add(-1 * time.Hour), // Set expiration time to a past date
-		HttpOnly: false,
-		SameSite: http.SameSiteStrictMode,
-		Secure:   true,
-	})
+	sessions.SetCookie(w, time.Now().Add(-1*time.Hour), "")
 
 	w.WriteHeader(http.StatusOK)
 }

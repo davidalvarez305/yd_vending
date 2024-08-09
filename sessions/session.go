@@ -93,17 +93,7 @@ func Create(r *http.Request, w http.ResponseWriter) error {
 		return err
 	}
 
-	cookie := &http.Cookie{
-		Name:     constants.SessionName,
-		Value:    session.CSRFSecret,
-		Path:     "/",
-		Domain:   constants.RootDomain,
-		HttpOnly: true,
-		Secure:   true,
-		Expires:  expirationTime,
-		SameSite: http.SameSiteStrictMode,
-	}
-	http.SetCookie(w, cookie)
+	SetCookie(w, expirationTime, session.CSRFSecret)
 
 	return nil
 }
@@ -130,16 +120,20 @@ func Destroy(r *http.Request, w http.ResponseWriter) error {
 
 	expirationTime := time.Now().Add(-24 * time.Hour)
 
-	cookie := &http.Cookie{
-		Name:     constants.SessionName,
-		Value:    secret,
-		Domain:   constants.RootDomain,
-		HttpOnly: true,
-		Secure:   true,
-		Expires:  expirationTime,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, cookie)
+	SetCookie(w, expirationTime, secret)
 
 	return nil
+}
+
+func SetCookie(w http.ResponseWriter, expires time.Time, value string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     constants.CookieName,
+		Value:    value,
+		Path:     "/",
+		Domain:   constants.DomainHost,
+		Expires:  expires,
+		HttpOnly: false,
+		SameSite: http.SameSiteStrictMode,
+		Secure:   true,
+	})
 }

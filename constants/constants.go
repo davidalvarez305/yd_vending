@@ -24,6 +24,7 @@ var (
 	RootDomain                  string
 	AWSStorageBucket            string
 	CookieName                  string
+	DomainHost                  string
 	SecretAESKey                string
 	AuthSecretKey               string
 	EncSecretKey                string
@@ -78,6 +79,7 @@ func Init() {
 	MaxOpenConnections = os.Getenv("MAX_OPEN_CONNECTIONS")
 	MaxIdleConnections = os.Getenv("MAX_IDLE_CONNECTIONS")
 	MaxConnectionLifetime = os.Getenv("MAX_CONN_LIFETIME")
+	DomainHost = os.Getenv("DOMAIN_HOST")
 }
 
 var TEMPLATES_DIR = "./templates/"
