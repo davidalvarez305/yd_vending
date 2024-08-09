@@ -261,8 +261,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	// This should be safe because the only way to access this page is by having UserID stored in session
-	phoneNumber, err := database.GetPhoneNumberFromUserID(*values.UserID)
+	phoneNumber, err := database.GetPhoneNumberFromUserID(values.UserID)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting phone number from user ID.", http.StatusInternalServerError)

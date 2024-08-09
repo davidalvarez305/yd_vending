@@ -167,13 +167,7 @@ func AuthRequired(next http.Handler) http.Handler {
 			return
 		}
 
-		if values.UserID == nil {
-			fmt.Printf("User ID Pointer is NIL in Auth Required: %+v\n", err)
-			http.Error(w, "Permission denied", http.StatusUnauthorized)
-			return
-		}
-
-		user, err := database.GetUserById(*values.UserID)
+		user, err := database.GetUserById(values.UserID)
 		if err != nil {
 			fmt.Printf("CANNOT GET USER PERMISSION DENIED: %+v\n", err)
 			http.Error(w, "Permission denied", http.StatusUnauthorized)

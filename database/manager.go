@@ -670,9 +670,14 @@ func GetSession(userKey string) (models.Session, error) {
 	var dateCreated time.Time
 	var dateExpires time.Time
 
-	err := row.Scan(&session.SessionID, &session.UserID, &session.CSRFSecret, &session.GoogleUserID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
+	var userID sql.NullInt32
+	err := row.Scan(&session.SessionID, &userID, &session.CSRFSecret, &session.GoogleUserID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
 	if err != nil {
 		return session, err
+	}
+
+	if userID.Valid {
+		session.UserID = int(userID.Int32)
 	}
 
 	session.DateCreated = dateCreated.Unix()
