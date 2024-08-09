@@ -32,7 +32,6 @@ func createCrmContext() map[string]any {
 
 func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createCrmContext()
-	ctx["StaticPath"] = r.URL.Path
 	ctx["PagePath"] = constants.RootDomain + r.URL.Path
 
 	switch r.Method {
@@ -216,7 +215,6 @@ func GetDashboard(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Dashboard — " + constants.CompanyName
-
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 
@@ -293,7 +291,6 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Lead Detail — " + constants.CompanyName
-
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Lead"] = leadDetails
