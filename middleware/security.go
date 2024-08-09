@@ -160,21 +160,13 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 func AuthRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie(constants.CookieName)
-		if err != nil || cookie == nil {
-			fmt.Printf("COOKIE PERMISSION DENIED: %+v\n", err)
-			http.Error(w, "Permission denied", http.StatusUnauthorized)
-			return
-		}
-
-		fmt.Printf("COOKIE: %+v\n", cookie.Value)
-
 		values, err := sessions.Get(r)
 		if err != nil {
 			fmt.Printf("USER ID PERMISSION DENIED: %+v\n", err)
 			http.Error(w, "Permission denied", http.StatusUnauthorized)
 			return
 		}
+		fmt.Printf("session: %+v\n", values)
 
 		user, err := database.GetUserById(values.UserID)
 		if err != nil {
