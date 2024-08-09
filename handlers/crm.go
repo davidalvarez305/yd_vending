@@ -21,8 +21,7 @@ func createCrmContext() map[string]any {
 		"PageTitle":         constants.CompanyName,
 		"MetaDescription":   "Get a quote for vending machine services.",
 		"SiteName":          constants.SiteName,
-		"PagePath":          "http://localhost/quote",
-		"StaticPath":        "/static",
+		"StaticPath":        constants.StaticPath,
 		"PhoneNumber":       constants.DavidPhoneNumber,
 		"CurrentYear":       time.Now().Year(),
 		"GoogleAnalyticsID": constants.GoogleAnalyticsID,
@@ -33,6 +32,8 @@ func createCrmContext() map[string]any {
 
 func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createCrmContext()
+	ctx["StaticPath"] = r.URL.Path
+	ctx["PagePath"] = constants.RootDomain + r.URL.Path
 
 	switch r.Method {
 	case http.MethodGet:
@@ -127,7 +128,7 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 
 	data := ctx
 	data["PageTitle"] = "Leads — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
+
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Leads"] = leads
@@ -164,7 +165,7 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Machines — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
+
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 
@@ -189,7 +190,7 @@ func GetTickets(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
-	data["PagePath"] = "http://localhost" + r.URL.Path
+
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 
@@ -215,7 +216,7 @@ func GetDashboard(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Dashboard — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
+
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 
@@ -292,7 +293,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Lead Detail — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
+
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Lead"] = leadDetails

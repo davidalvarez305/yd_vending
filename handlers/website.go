@@ -26,7 +26,6 @@ func createWebsiteContext() map[string]any {
 		"PageTitle":         constants.CompanyName,
 		"MetaDescription":   "Get a quote for vending machine services.",
 		"SiteName":          constants.SiteName,
-		"PagePath":          "http://localhost/quote",
 		"StaticPath":        constants.StaticPath,
 		"PhoneNumber":       constants.CompanyPhoneNumber,
 		"CurrentYear":       time.Now().Year(),
@@ -38,6 +37,7 @@ func createWebsiteContext() map[string]any {
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createWebsiteContext()
+	ctx["PagePath"] = constants.RootDomain + r.URL.Path
 
 	switch r.Method {
 	case http.MethodGet:
@@ -88,7 +88,6 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Miami Vending Services — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["Features"] = []string{
 		"Innovative Payment Options",
@@ -118,7 +117,6 @@ func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "About Us — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -137,7 +135,6 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any
 
 	data := ctx
 	data["PageTitle"] = "Privacy Policy — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -156,7 +153,6 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[strin
 
 	data := ctx
 	data["PageTitle"] = "Terms & Conditions — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -203,7 +199,6 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Request A Quote — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["VendingTypes"] = vendingTypes
@@ -373,7 +368,6 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 
 	data := ctx
 	data["PageTitle"] = "Contact Us — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 
@@ -485,7 +479,6 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	data := ctx
 	data["PageTitle"] = "Login — " + constants.CompanyName
-	data["PagePath"] = "http://localhost" + r.URL.Path
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 
