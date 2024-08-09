@@ -167,6 +167,8 @@ func AuthRequired(next http.Handler) http.Handler {
 			return
 		}
 
+		fmt.Printf("COOKIE: %+v\n", cookie.Value)
+
 		values, err := sessions.Get(r)
 		if err != nil {
 			fmt.Printf("USER ID PERMISSION DENIED: %+v\n", err)
