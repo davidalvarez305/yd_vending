@@ -34,6 +34,7 @@ func Connect() (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
+	defer db.Close()
 
 	MaxOpenConnectionsStr := constants.MaxOpenConnections
 	MaxIdleConnectionsStr := constants.MaxIdleConnections
