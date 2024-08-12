@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/davidalvarez305/yd_vending/sessions"
+	"github.com/davidalvarez305/yd_vending/helpers"
 )
 
 func UserTracking(next http.Handler) http.Handler {
@@ -14,7 +15,7 @@ func UserTracking(next http.Handler) http.Handler {
 			return
 		}
 
-		if UserAgentIsBot(r.Header.Get("User-Agent")) {
+		if helpers.UserAgentIsBot(r.Header.Get("User-Agent")) {
 			next.ServeHTTP(w, r)
 			return
 		}
