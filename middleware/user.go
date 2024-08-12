@@ -14,6 +14,11 @@ func UserTracking(next http.Handler) http.Handler {
 			return
 		}
 
+		if UserAgentIsBot(r.Header.Get("User-Agent")) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		isNew, err := sessions.IsNew(r)
 		if err != nil {
 			http.Error(w, "Unable to check if session is new.", http.StatusForbidden)
