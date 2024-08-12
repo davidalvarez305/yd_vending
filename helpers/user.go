@@ -37,3 +37,26 @@ func GetTokenFromSession(r *http.Request) ([]byte, error) {
 
 	return decodedSecret, nil
 }
+
+func UserAgentIsBot(userAgent string) bool {
+	var botUserAgents = []string{
+		"Googlebot", // Google Bot
+		"Bingbot",   // Bing Bot
+		"Slurp",     // Yahoo Bot
+		"DuckDuckBot", // DuckDuckGo Bot
+		"Bot",       // Generic Bot
+		"crawler",   // Generic Crawler
+		"spider",    // Generic Spider
+		"facebookexternalhit", // Facebook Bot
+		"twitterbot", // Twitter Bot
+		"linkedinbot", // LinkedIn Bot
+		// Add more known bot user-agents as needed
+	}
+	
+	for _, botAgent := range botUserAgents {
+		if strings.Contains(userAgent, botAgent) {
+			return true
+		}
+	}
+	return false
+}
