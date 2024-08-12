@@ -3,6 +3,7 @@ package helpers
 import (
 	"encoding/hex"
 	"net/http"
+	"strings"
 
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"golang.org/x/crypto/bcrypt"
