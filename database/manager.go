@@ -83,9 +83,9 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 	if err != nil {
 		return fmt.Errorf("error inserting marketing data: %w", err)
 	}
-	
+
 	err = tx.Commit()
-	
+
 	if err != nil {
 		return fmt.Errorf("error committing transaction: %w", err)
 	}
@@ -737,9 +737,6 @@ func DeleteSession(secret string) error {
 	if err != nil {
 		return err
 	}
-
-	return nil
-}
 
 	return nil
 }
