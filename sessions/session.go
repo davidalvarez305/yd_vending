@@ -125,7 +125,7 @@ func Destroy(r *http.Request, w http.ResponseWriter) error {
 	return nil
 }
 
-func SetCookie(w http.ResponseWriter, expires time.Time, value string) {
+func SetCookie(w http.ResponseWriter, expires time.Time, value string) http.ResponseWriter {
 	http.SetCookie(w, &http.Cookie{
 		Name:     constants.CookieName,
 		Value:    value,
@@ -136,4 +136,6 @@ func SetCookie(w http.ResponseWriter, expires time.Time, value string) {
 		SameSite: http.SameSiteStrictMode,
 		Secure:   true,
 	})
+
+	return w
 }

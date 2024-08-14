@@ -23,15 +23,15 @@ var websiteFooterFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
 
 func createWebsiteContext() types.WebsiteContext {
 	return types.WebsiteContext{
-		"PageTitle":         constants.CompanyName,
-		"MetaDescription":   "Get a quote for vending machine services.",
-		"SiteName":          constants.SiteName,
-		"StaticPath":        constants.StaticPath,
-		"PhoneNumber":       constants.CompanyPhoneNumber,
-		"CurrentYear":       time.Now().Year(),
-		"GoogleAnalyticsID": constants.GoogleAnalyticsID,
-		"FacebookDataSetID": constants.FacebookDatasetID,
-		"CompanyName":       constants.CompanyName,
+		PageTitle:         constants.CompanyName,
+		MetaDescription:   "Get a quote for vending machine services.",
+		SiteName:          constants.SiteName,
+		StaticPath:        constants.StaticPath,
+		PhoneNumber:       constants.CompanyPhoneNumber,
+		CurrentYear:       time.Now().Year(),
+		GoogleAnalyticsID: constants.GoogleAnalyticsID,
+		FacebookDataSetID: constants.FacebookDatasetID,
+		CompanyName:       constants.CompanyName,
 	}
 }
 
@@ -39,13 +39,13 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createWebsiteContext()
 	ctx.PagePath = constants.RootDomain + r.URL.Path
 
-	session, err := sessions.Get(r)
-	if err != nil {
-		http.Error(w, "Error getting session in context.", http.StatusInternalServerError)
+	externalId, ok := r.Context().Value("external_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving session in context.", http.StatusInternalServerError)
 		return
 	}
 
-	ctx.Session = session
+	ctx.ExternalID = externalId
 
 	switch r.Method {
 	case http.MethodGet:
@@ -85,7 +85,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "home.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
@@ -114,7 +114,7 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	helpers.ServeContent(w, files, data)
 }
 
-func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetAbout(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "about.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
@@ -132,7 +132,7 @@ func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	helpers.ServeContent(w, files, data)
 }
 
-func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "privacy.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
@@ -150,7 +150,7 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	helpers.ServeContent(w, files, data)
 }
 
-func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "terms.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
@@ -168,7 +168,7 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[strin
 	helpers.ServeContent(w, files, data)
 }
 
-func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "quote.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
@@ -222,7 +222,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 }
 
-func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -254,7 +254,20 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	session := ctx.Session
+	session, err := sessions.Get(r)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to retrieve session.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
 
 	decodedSecret, err := hex.DecodeString(session.CSRFSecret)
 	if err != nil {
@@ -347,7 +360,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "contact_form.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
@@ -377,7 +390,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 	}
 }
 
-func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	err := r.ParseForm()
 
 	if err != nil {
@@ -458,11 +471,15 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "login.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
-	session := ctx.Session
+	session, err := sessions.Get(r)
+	if err != nil {
+		http.Error(w, "Error trying to retrieve session.", http.StatusInternalServerError)
+		return
+	}
 
 	if session.UserID > 0 {
 		user, err := database.GetUserById(session.UserID)
@@ -496,14 +513,14 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, files, data)
+	err = helpers.ServeContent(w, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 	}
 }
 
-func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
 		return
@@ -533,7 +550,12 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	session := ctx.Session
+	session, err := sessions.Get(r)
+	if err != nil {
+		tmplCtx.Data["Message"] = "Could not retrieve session."
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
 
 	session.UserID = user.UserID
 	err = sessions.Update(session)
@@ -548,7 +570,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func PostLogout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func PostLogout(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 
 	sessions.SetCookie(w, time.Now().Add(-1*time.Hour), "")
 
