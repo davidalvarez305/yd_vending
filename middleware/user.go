@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/sessions"
@@ -28,13 +28,15 @@ func UserTracking(next http.Handler) http.Handler {
 		}
 
 		if isNew {
-			session, err = sessions.Create(r, w)
+			session, err := sessions.Create(r, w)
 			if err != nil {
 				http.Error(w, "Failed to create session.", http.StatusForbidden)
 				return
 			}
 
-			SetCookie(w, expirationTime, session.CSRFSecret)
+			expirationTime := time.Unix(session.DateExpires, 0).UTC()
+
+			sessions.SetCookie(w, expirationTime, session.CSRFSecret)
 		}
 
 		next.ServeHTTP(w, r)
