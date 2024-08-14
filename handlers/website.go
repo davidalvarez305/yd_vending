@@ -39,15 +39,12 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createWebsiteContext()
 	ctx["PagePath"] = constants.RootDomain + r.URL.Path
 
-	// If user agent is not a bot -- get Google User ID
-	if !helpers.UserAgentIsBot(r.Header.Get("User-Agent")) && len(r.Cookies()) > 0 {
-		session, err := sessions.Get(r)
-		if err != nil {
-			http.Error(w, "Error getting session in context.", http.StatusInternalServerError)
-			return
-		}
-		ctx["Session"] = session
+	externalId, ok := r.Context().Value("external_id").(string)
+	if !ok {
+		http.Error(w, "Error retrieving external id.", http.StatusInternalServerError)
+		return
 	}
+	ctx["ExternalID"] = externalId
 
 	switch r.Method {
 	case http.MethodGet:

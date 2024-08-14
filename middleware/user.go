@@ -1,11 +1,12 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
-	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
 func UserTracking(next http.Handler) http.Handler {
@@ -33,6 +34,13 @@ func UserTracking(next http.Handler) http.Handler {
 				return
 			}
 		}
+
+		session, err := sessions.Get(r)
+		if err != nil {
+			http.Error(w, "Error getting session in context.", http.StatusInternalServerError)
+			return
+		}
+		r = r.WithContext(context.WithValue(r.Context(), "external_id", session.ExternalID))
 
 		next.ServeHTTP(w, r)
 	})
