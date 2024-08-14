@@ -1,7 +1,6 @@
 package sessions
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"time"
