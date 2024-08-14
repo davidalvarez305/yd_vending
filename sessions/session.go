@@ -15,7 +15,12 @@ import (
 func getSessionFromRequest(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(constants.CookieName)
 	fmt.Println("=========================")
+	fmt.Println("RequestURI", r.RequestURI)
 	fmt.Println("Method", r.Method)
+	fmt.Println("URL", r.URL)
+	fmt.Println("r.URL.User", r.URL.User)
+	fmt.Println("Cookies", r.Cookies())
+	fmt.Println("Method", r.UserAgent())
 	fmt.Println("cookie", cookie)
 	fmt.Println("=========================")
 	if err != nil {
