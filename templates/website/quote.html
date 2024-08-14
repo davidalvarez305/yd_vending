@@ -64,7 +64,7 @@
                 <div class="space-y-1">
                     <label for="city" class="font-medium">City</label>
                     <select id="city" name="city" required
-                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                        class="customSelect block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                         {{ range .Cities }}
                         <option value="{{ .CityID }}">{{ .Name }}</option>
                         {{ end }}
@@ -118,6 +118,12 @@
 
         for (const [key, value] of Object.entries(marketing)) {
             data.append(key, value);
+        }
+
+        // City name for conv reporting
+        const city = document.getElementById('city');
+        if (city) {
+            data.append('city_string', city.options[city.selectedIndex]?.textContent || '');
         }
 
         fetch("/quote", {

@@ -5,18 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
-)
 
-var (
-	accessToken string
-	datasetID   string
+	"github.com/davidalvarez305/yd_vending/constants"
 )
-
-func init() {
-	accessToken = os.Getenv("FACEBOOK_ACCESS_TOKEN")
-	datasetID = os.Getenv("FACEBOOK_DATASET_ID")
-}
 
 type FacebookUserData struct {
 	Phone           string `json:"ph"`
@@ -26,6 +17,9 @@ type FacebookUserData struct {
 	ClientUserAgent string `json:"client_user_agent"`
 	FBC             string `json:"fbc"`
 	FBP             string `json:"fbp"`
+	City            string `json:"ct"`
+	State           string `json:"st"`
+	ExternalID      string `json:"external_id"`
 }
 
 type FacebookEventData struct {
@@ -41,7 +35,7 @@ type FacebookPayload struct {
 }
 
 func SendFacebookConversion(payload FacebookPayload) error {
-	url := fmt.Sprintf("https://graph.facebook.com/v15.0/%s/events?access_token=%s", datasetID, accessToken)
+	url := fmt.Sprintf("https://graph.facebook.com/v15.0/%s/events?access_token=%s", constants.FacebookDatasetID, constants.FacebookAccessToken)
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		fmt.Printf("Error marshaling meta payload: %+v\n", err)
