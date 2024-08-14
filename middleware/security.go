@@ -38,11 +38,11 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		script-src 'self' https://www.googletagmanager.com %s 'nonce-%s';
 		font-src 'self' https://fonts.bunny.net;
 		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net;
-		style-src 'self';
+		style-src 'self' %s;
 		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com %s;
 		connect-src 'self' https://www.google-analytics.com;
 		style-src-elem 'self' https://fonts.bunny.net %s;
-		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64, constants.AWSStorageBucket, constants.AWSStorageBucket)
+		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64, constants.AWSStorageBucket, constants.AWSStorageBucket, constants.AWSStorageBucket)
 
 		w.Header().Set("Content-Security-Policy", cspDirective)
 
