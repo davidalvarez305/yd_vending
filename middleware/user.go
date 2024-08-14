@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/sessions"
 )
@@ -37,16 +36,7 @@ func UserTracking(next http.Handler) http.Handler {
 
 			expirationTime := time.Unix(session.DateExpires, 0).UTC()
 
-			http.SetCookie(w, &http.Cookie{
-				Name:     constants.CookieName,
-				Value:    session.CSRFSecret,
-				Path:     "/",
-				Domain:   constants.DomainHost,
-				Expires:  expirationTime,
-				HttpOnly: false,
-				SameSite: http.SameSiteStrictMode,
-				Secure:   true,
-			})
+			sessions.SetCookie(w, expirationTime, session.CSRFSecret)
 		}
 
 		next.ServeHTTP(w, r)
