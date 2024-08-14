@@ -59,6 +59,7 @@ func Connect() (*sql.DB, error) {
 		return nil, fmt.Errorf("error parsing max connection lfetime: %v", err)
 	}
 	MaxConnectionLifetime := time.Duration(MaxConnectionLifetimeSeconds) * time.Second
+	fmt.Printf("MAX CONNECTION TIME: %+v\n", MaxConnectionLifetime)
 
 	// Set connection pool parameters
 	db.SetMaxOpenConns(MaxOpenConnections)
