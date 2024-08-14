@@ -34,7 +34,6 @@ func Connect() (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
-	defer db.Close()
 
 	MaxOpenConnectionsStr := constants.MaxOpenConnections
 	MaxIdleConnectionsStr := constants.MaxIdleConnections
@@ -59,7 +58,6 @@ func Connect() (*sql.DB, error) {
 		return nil, fmt.Errorf("error parsing max connection lfetime: %v", err)
 	}
 	MaxConnectionLifetime := time.Duration(MaxConnectionLifetimeSeconds) * time.Second
-	fmt.Printf("MAX CONNECTION TIME: %+v\n", MaxConnectionLifetime)
 
 	// Set connection pool parameters
 	db.SetMaxOpenConns(MaxOpenConnections)
