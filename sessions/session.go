@@ -14,6 +14,7 @@ import (
 
 func getSessionFromRequest(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(constants.CookieName)
+	fmt.Printf("COOKIE: %+v\n", cookie)
 	if err != nil {
 		return "", err
 	}
