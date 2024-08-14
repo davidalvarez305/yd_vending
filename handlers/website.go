@@ -39,6 +39,13 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createWebsiteContext()
 	ctx["PagePath"] = constants.RootDomain + r.URL.Path
 
+	session, err := sessions.Get(r)
+	if err != nil {
+		http.Error(w, "Error getting session in context.", http.StatusInternalServerError)
+		return
+	}
+	ctx["Session"] = session
+
 	switch r.Method {
 	case http.MethodGet:
 		switch r.URL.Path {
