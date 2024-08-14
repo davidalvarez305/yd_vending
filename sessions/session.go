@@ -49,9 +49,11 @@ func Get(r *http.Request) (models.Session, error) {
 }
 
 func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
+	var session models.Session
+
 	secret, err := csrf.GenerateCSRFSecret()
 	if err != nil {
-		return err
+		return session, err
 	}
 
 	googleClientID, err := GetGoogleClientIDFromRequest(r)
@@ -77,7 +79,7 @@ func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
 
 	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * time.Second)
 
-	session := models.Session{
+	session = models.Session{
 		CSRFSecret:       secret,
 		ExternalID:       uuid.New().String(),
 		GoogleClientID:   googleClientID,
@@ -90,7 +92,7 @@ func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
 	err = database.CreateSession(session)
 	if err != nil {
 		fmt.Printf("FAILED TO CREATE SESSION: %+v\n", err)
-		return err
+		return session, err
 	}
 
 	return session, nil
