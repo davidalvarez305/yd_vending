@@ -10,7 +10,7 @@
     gtag("js", new Date());
 
     gtag("config", "{{ .GoogleAnalyticsID }}");
-    gtag("set", "user_id", "{{ .Session.GoogleUserID }}");
+    gtag("set", "user_id", "{{ .Session.ExternalID }}");
   </script>
   <!-- End Google tag -->
 

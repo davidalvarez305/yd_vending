@@ -293,7 +293,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	form.FacebookClickID = session.FacebookClickID
 	form.FacebookClientID = session.FacebookClientID
 	form.GoogleClientID = session.GoogleClientID
-	form.GoogleUserID = session.GoogleUserID
+	form.ExternalID = session.ExternalID
 	form.CSRFSecret = decodedSecret
 
 	err = database.CreateLeadAndMarketing(form)
@@ -324,7 +324,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 			FBP:             form.FacebookClientID,
 			City:            helpers.HashString(form.CityString),
 			State:           helpers.HashString("Florida"),
-			ExternalID:      helpers.HashString(session.CSRFSecret),
+			ExternalID:      helpers.HashString(form.ExternalID),
 			ClientIPAddress: form.IP,
 			ClientUserAgent: form.UserAgent,
 		},
@@ -336,7 +336,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	payload := conversions.GooglePayload{
 		ClientID: form.GoogleClientID,
-		UserId:   form.GoogleUserID,
+		UserId:   form.ExternalID,
 		Events: []conversions.GoogleEventLead{
 			{
 				Name: "quote",

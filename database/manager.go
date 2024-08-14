@@ -71,7 +71,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 	}
 
 	marketingStmt, err := tx.Prepare(`
-		INSERT INTO lead_marketing (lead_id, source, medium, channel, landing_page, keyword, referrer, click_id, campaign_id, ad_campaign, ad_group_id, ad_group_name, ad_set_id, ad_set_name, ad_id, ad_headline, language, user_agent, button_clicked, ip, google_user_id, google_client_id, csrf_secret, facebook_click_id, facebook_client_id, longitude, latitude)
+		INSERT INTO lead_marketing (lead_id, source, medium, channel, landing_page, keyword, referrer, click_id, campaign_id, ad_campaign, ad_group_id, ad_group_name, ad_set_id, ad_set_name, ad_id, ad_headline, language, user_agent, button_clicked, ip, external_id, google_client_id, csrf_secret, facebook_click_id, facebook_client_id, longitude, latitude)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
 	`)
 	if err != nil {
@@ -79,7 +79,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 	}
 	defer marketingStmt.Close()
 
-	_, err = marketingStmt.Exec(leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.ClickID, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.IP, quoteForm.GoogleUserID, quoteForm.GoogleClientID, quoteForm.CSRFSecret, quoteForm.FacebookClickID, quoteForm.FacebookClientID, quoteForm.Longitude, quoteForm.Latitude)
+	_, err = marketingStmt.Exec(leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.ClickID, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.IP, quoteForm.ExternalID, quoteForm.GoogleClientID, quoteForm.CSRFSecret, quoteForm.FacebookClickID, quoteForm.FacebookClientID, quoteForm.Longitude, quoteForm.Latitude)
 	if err != nil {
 		return fmt.Errorf("error inserting marketing data: %w", err)
 	}
@@ -673,7 +673,7 @@ func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 func GetSession(userKey string) (models.Session, error) {
 	var session models.Session
 	sqlStatement := `
-        SELECT session_id, user_id, csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
+        SELECT session_id, user_id, csrf_secret, external_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
         FROM sessions
         WHERE csrf_secret = $1
     `
@@ -683,7 +683,7 @@ func GetSession(userKey string) (models.Session, error) {
 	var dateExpires time.Time
 
 	var userID sql.NullInt32
-	err := row.Scan(&session.SessionID, &userID, &session.CSRFSecret, &session.GoogleUserID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
+	err := row.Scan(&session.SessionID, &userID, &session.CSRFSecret, &session.ExternalID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
 	if err != nil {
 		return session, err
 	}
@@ -700,10 +700,10 @@ func GetSession(userKey string) (models.Session, error) {
 
 func CreateSession(session models.Session) error {
 	sqlStatement := `
-        INSERT INTO sessions (csrf_secret, google_user_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires)
+        INSERT INTO sessions (csrf_secret, external_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires)
         VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))
     `
-	_, err := DB.Exec(sqlStatement, session.CSRFSecret, session.GoogleUserID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.DateCreated, session.DateExpires)
+	_, err := DB.Exec(sqlStatement, session.CSRFSecret, session.ExternalID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.DateCreated, session.DateExpires)
 	if err != nil {
 		return err
 	}
@@ -714,14 +714,14 @@ func CreateSession(session models.Session) error {
 func UpdateSession(session models.Session) error {
 	sqlStatement := `
         UPDATE sessions
-        SET google_user_id = $1,
+        SET external_id = $1,
             google_client_id = $2,
             facebook_click_id = $3,
             facebook_client_id = $4,
 			user_id = $5
         WHERE csrf_secret = $6
     `
-	_, err := DB.Exec(sqlStatement, session.GoogleUserID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.UserID, session.CSRFSecret)
+	_, err := DB.Exec(sqlStatement, session.ExternalID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.UserID, session.CSRFSecret)
 	if err != nil {
 		return err
 	}

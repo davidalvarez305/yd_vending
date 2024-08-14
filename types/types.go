@@ -35,7 +35,7 @@ type QuoteForm struct {
 	ButtonClicked    string `json:"button_clicked" form:"button_clicked" schema:"button_clicked"`
 	IP               string `json:"ip" form:"ip" schema:"ip"`
 	CSRFToken        string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	GoogleUserID     string `json:"google_user_id" form:"google_user_id" schema:"google_user_id"`
+	ExternalID       string `json:"external_id" form:"external_id" schema:"external_id"`
 	GoogleClientID   string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
 	FacebookClickID  string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
 	FacebookClientID string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`

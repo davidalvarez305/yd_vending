@@ -79,7 +79,7 @@ func Create(r *http.Request, w http.ResponseWriter) error {
 
 	session := models.Session{
 		CSRFSecret:       secret,
-		GoogleUserID:     uuid.New().String(),
+		ExternalID:       uuid.New().String(),
 		GoogleClientID:   googleClientID,
 		FacebookClickID:  fbClickID,
 		FacebookClientID: fbClientID,

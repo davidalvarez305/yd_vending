@@ -110,7 +110,7 @@ type Session struct {
 	SessionID        int    `json:"session_id" form:"session_id" schema:"session_id"`
 	UserID           int    `json:"user_id" form:"user_id" schema:"user_id"`
 	CSRFSecret       string `json:"csrf_secret" form:"csrf_secret" schema:"csrf_secret"`
-	GoogleUserID     string `json:"google_user_id" form:"google_user_id" schema:"google_user_id"`
+	ExternalID       string `json:"external_id" form:"external_id" schema:"external_id"`
 	GoogleClientID   string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
 	FacebookClickID  string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
 	FacebookClientID string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
