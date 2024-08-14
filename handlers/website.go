@@ -39,12 +39,13 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createWebsiteContext()
 	ctx["PagePath"] = constants.RootDomain + r.URL.Path
 
-	externalId, ok := r.Context().Value("external_id").(string)
-	if !ok {
-		http.Error(w, "Error retrieving external id.", http.StatusInternalServerError)
+	session, err := sessions.Get(r)
+	if err != nil {
+		http.Error(w, "Error getting session in context.", http.StatusInternalServerError)
 		return
 	}
-	ctx["ExternalID"] = externalId
+
+	ctx["Session"] = session
 
 	switch r.Method {
 	case http.MethodGet:
@@ -253,21 +254,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	session, err := sessions.Get(r)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to retrieve session from request.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
+	session := ctx["Session"]
 
 	decodedSecret, err := hex.DecodeString(session.CSRFSecret)
 	if err != nil {
@@ -475,13 +462,10 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "login.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
-	values, err := sessions.Get(r)
-	if err != nil {
-		fmt.Printf("User session not found: %+v\n", err)
-	}
+	session := ctx["Session"]
 
-	if values.UserID > 0 {
-		user, err := database.GetUserById(values.UserID)
+	if session.UserID > 0 {
+		user, err := database.GetUserById(session.UserID)
 		if err != nil {
 			http.Error(w, "Error trying to get existing user from DB.", http.StatusInternalServerError)
 			return
@@ -549,12 +533,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	session, err := sessions.Get(r)
-	if err != nil {
-		tmplCtx.Data["Message"] = "Could not get session."
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
+	session := ctx["Session"]
 
 	session.UserID = user.UserID
 	err = sessions.Update(session)
