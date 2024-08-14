@@ -7,7 +7,6 @@ import (
 var (
 	FacebookAccessToken         string
 	FacebookDatasetID           string
-	FacebookPixelID             string
 	GoogleAnalyticsID           string
 	GoogleAnalyticsAPISecretKey string
 	GoogleRefreshToken          string
@@ -46,7 +45,6 @@ var (
 func Init() {
 	FacebookAccessToken = os.Getenv("FACEBOOK_ACCESS_TOKEN")
 	FacebookDatasetID = os.Getenv("FACEBOOK_DATASET_ID")
-	FacebookPixelID = os.Getenv("FACEBOOK_PIXEL_ID")
 	GoogleAnalyticsID = os.Getenv("GOOGLE_ANALYTICS_ID")
 	GoogleAnalyticsAPISecretKey = os.Getenv("GOOGLE_ANALYTICS_API_KEY")
 	PostgresHost = os.Getenv("POSTGRES_HOST")

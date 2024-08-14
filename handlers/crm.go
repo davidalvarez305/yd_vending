@@ -18,15 +18,13 @@ var crmFooterFilePath = constants.CRM_TEMPLATES_DIR + "footer.html"
 
 func createCrmContext() map[string]any {
 	return map[string]any{
-		"PageTitle":         constants.CompanyName,
-		"MetaDescription":   "Get a quote for vending machine services.",
-		"SiteName":          constants.SiteName,
-		"StaticPath":        constants.StaticPath,
-		"PhoneNumber":       constants.DavidPhoneNumber,
-		"CurrentYear":       time.Now().Year(),
-		"GoogleAnalyticsID": constants.GoogleAnalyticsID,
-		"FacebookPixelID":   constants.FacebookPixelID,
-		"CompanyName":       constants.CompanyName,
+		"PageTitle":       constants.CompanyName,
+		"MetaDescription": "Get a quote for vending machine services.",
+		"SiteName":        constants.SiteName,
+		"StaticPath":      constants.StaticPath,
+		"PhoneNumber":     constants.DavidPhoneNumber,
+		"CurrentYear":     time.Now().Year(),
+		"CompanyName":     constants.CompanyName,
 	}
 }
 
