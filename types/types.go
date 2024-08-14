@@ -1,6 +1,9 @@
 package types
 
-import "time"
+import (
+	"time"
+	"github.com/davidalvarez305/yd_vending/models"
+)
 
 type QuoteForm struct {
 	FirstName        string `json:"first_name" form:"first_name" schema:"first_name"`
@@ -232,4 +235,10 @@ type WebsiteContext struct {
 	CompanyName       string `json:"company_name" form:"company_name"`
 	PagePath          string `json:"page_path" form:"page_path"`
 	Session           *sessions.Session `json:"-"`
+	Nonce string `json:"nonce form:"nonce"`
+	Features []string `json:"features" form:"features"`
+	CSRFToken string `json:"csrf_token" form:"csrf_token"`
+	VendingTypes []models.VendingType `json:"vending_types" form:"vending_types"`
+	VendingLocations []models.VendingLocation `json:"vending_locations form:"vending_location"`
+	Cities []models.City `json:"cities" form:"cities"`
 }
