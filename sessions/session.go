@@ -94,9 +94,9 @@ func Create(r *http.Request, w http.ResponseWriter) error {
 		return err
 	}
 
-	SetCookie(w, expirationTime, session.CSRFSecret)
-
 	r = r.WithContext(context.WithValue(r.Context(), "external_id", session.ExternalID))
+
+	SetCookie(w, expirationTime, session.CSRFSecret)
 
 	return nil
 }
