@@ -49,7 +49,7 @@ func Get(r *http.Request) (models.Session, error) {
 	return sessions, nil
 }
 
-func Create(r *http.Request, w http.ResponseWriter) error {
+func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
 	secret, err := csrf.GenerateCSRFSecret()
 	if err != nil {
 		return err
@@ -94,11 +94,7 @@ func Create(r *http.Request, w http.ResponseWriter) error {
 		return err
 	}
 
-	r = r.WithContext(context.WithValue(r.Context(), "external_id", session.ExternalID))
-
-	SetCookie(w, expirationTime, session.CSRFSecret)
-
-	return nil
+	return session, nil
 }
 
 func Update(values models.Session) error {
