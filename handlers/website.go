@@ -30,7 +30,7 @@ func createWebsiteContext() map[string]any {
 		"PhoneNumber":       constants.CompanyPhoneNumber,
 		"CurrentYear":       time.Now().Year(),
 		"GoogleAnalyticsID": constants.GoogleAnalyticsID,
-		"FacebookPixelID":   constants.FacebookPixelID,
+		"FacebookDataSetID": constants.FacebookDatasetID,
 		"CompanyName":       constants.CompanyName,
 	}
 }
@@ -314,7 +314,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 			FBP:             form.FacebookClientID,
 			City:            helpers.HashString(form.CityString),
 			State:           helpers.HashString("Florida"),
-			ExternalID:      helpers.HashString(string(form.CSRFSecret)),
+			ExternalID:      helpers.HashString(session.CSRFSecret),
 			ClientIPAddress: form.IP,
 			ClientUserAgent: form.UserAgent,
 		},
