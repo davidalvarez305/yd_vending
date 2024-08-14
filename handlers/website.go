@@ -465,6 +465,24 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "login.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
+	values, err := sessions.Get(r)
+	if err != nil {
+		fmt.Printf("User session not found: %+v\n", err)
+	}
+
+	if values.UserID > 0 {
+		user, err := database.GetUserById(values.UserID)
+		if err != nil {
+			http.Error(w, "Error trying to get existing user from DB.", http.StatusInternalServerError)
+			return
+		}
+
+		if user.IsAdmin {
+			http.Redirect(w, r, "/crm/dashboard", http.StatusSeeOther)
+			return
+		}
+	}
+
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -484,7 +502,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := helpers.ServeContent(w, files, data)
+	err = helpers.ServeContent(w, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
