@@ -20,7 +20,10 @@ func getSessionFromRequest(r *http.Request) (string, error) {
 	fmt.Println("URL", r.URL)
 	fmt.Println("r.URL.User", r.URL.User)
 	fmt.Println("Cookies", r.Cookies())
-	fmt.Println("Method", r.UserAgent())
+	fmt.Println("Header", r.Header)
+	fmt.Println("Body", r.Body)
+	fmt.Println("ContentLength", r.ContentLength)
+	fmt.Println("Referer", r.Referer())
 	fmt.Println("cookie", cookie)
 	fmt.Println("=========================")
 	if err != nil {
