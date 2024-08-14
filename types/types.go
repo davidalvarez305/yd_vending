@@ -219,3 +219,17 @@ type IncomingPhoneCallDialStatus struct {
 	DialBridged      bool   `json:"dial_bridged" form:"dial_bridged" schema:"dial_bridged"`
 	RecordingURL     string `json:"recording_url" form:"recording_url" schema:"recording_url"`
 }
+
+type WebsiteContext struct {
+	PageTitle         string `json:"page_title" form:"page_title"`
+	MetaDescription   string `json:"meta_description" form:"meta_description"`
+	SiteName          string `json:"site_name" form:"site_name"`
+	StaticPath        string `json:"static_path" form:"static_path"`
+	PhoneNumber       string `json:"phone_number" form:"phone_number"`
+	CurrentYear       int    `json:"current_year" form:"current_year"`
+	GoogleAnalyticsID string `json:"google_analytics_id" form:"google_analytics_id"`
+	FacebookDataSetID string `json:"facebook_data_set_id" form:"facebook_data_set_id"`
+	CompanyName       string `json:"company_name" form:"company_name"`
+	PagePath          string `json:"page_path" form:"page_path"`
+	Session           *sessions.Session `json:"-"`
+}
