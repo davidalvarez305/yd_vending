@@ -21,8 +21,8 @@ var decoder = schema.NewDecoder()
 var websiteBaseFilePath = constants.WEBSITE_TEMPLATES_DIR + "base.html"
 var websiteFooterFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
 
-func createWebsiteContext() map[string]any {
-	return map[string]any{
+func createWebsiteContext() types.WebsiteContext {
+	return types.WebsiteContext{
 		"PageTitle":         constants.CompanyName,
 		"MetaDescription":   "Get a quote for vending machine services.",
 		"SiteName":          constants.SiteName,
@@ -37,7 +37,7 @@ func createWebsiteContext() map[string]any {
 
 func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createWebsiteContext()
-	ctx["PagePath"] = constants.RootDomain + r.URL.Path
+	ctx.PagePath = constants.RootDomain + r.URL.Path
 
 	session, err := sessions.Get(r)
 	if err != nil {
@@ -45,7 +45,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx["Session"] = session
+	ctx.Session = session
 
 	switch r.Method {
 	case http.MethodGet:
@@ -95,9 +95,9 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
-	data["PageTitle"] = "Miami Vending Services — " + constants.CompanyName
-	data["Nonce"] = nonce
-	data["Features"] = []string{
+	data.PageTitle = "Miami Vending Services — " + constants.CompanyName
+	data.Nonce = nonce
+	data.Features = []string{
 		"Innovative Payment Options",
 		"24/7 Customer Support",
 		"Regular Product Rotation",
@@ -124,8 +124,8 @@ func GetAbout(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
-	data["PageTitle"] = "About Us — " + constants.CompanyName
-	data["Nonce"] = nonce
+	data.PageTitle = "About Us — " + constants.CompanyName
+	data.Nonce = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -142,8 +142,8 @@ func GetPrivacyPolicy(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	}
 
 	data := ctx
-	data["PageTitle"] = "Privacy Policy — " + constants.CompanyName
-	data["Nonce"] = nonce
+	data.PageTitle = "Privacy Policy — " + constants.CompanyName
+	data.Nonce = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -160,8 +160,8 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx map[strin
 	}
 
 	data := ctx
-	data["PageTitle"] = "Terms & Conditions — " + constants.CompanyName
-	data["Nonce"] = nonce
+	data.PageTitle = "Terms & Conditions — " + constants.CompanyName
+	data.Nonce = nonce
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -206,12 +206,12 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
-	data["PageTitle"] = "Request A Quote — " + constants.CompanyName
-	data["Nonce"] = nonce
-	data["CSRFToken"] = csrfToken
-	data["VendingTypes"] = vendingTypes
-	data["VendingLocations"] = vendingLocations
-	data["Cities"] = cities
+	data.PageTitle = "Request A Quote — " + constants.CompanyName
+	data.Nonce = nonce
+	data.CSRFToken = csrfToken
+	data.VendingTypes = vendingTypes
+	data.VendingLocations = vendingLocations
+	data.Cities = cities
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -254,7 +254,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	session := ctx["Session"]
+	session := ctx.Session
 
 	decodedSecret, err := hex.DecodeString(session.CSRFSecret)
 	if err != nil {
@@ -364,9 +364,9 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) 
 	}
 
 	data := ctx
-	data["PageTitle"] = "Contact Us — " + constants.CompanyName
-	data["Nonce"] = nonce
-	data["CSRFToken"] = csrfToken
+	data.PageTitle = "Contact Us — " + constants.CompanyName
+	data.Nonce = nonce
+	data.CSRFToken = csrfToken
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -462,7 +462,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "login.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
-	session := ctx["Session"]
+	session := ctx.Session
 
 	if session.UserID > 0 {
 		user, err := database.GetUserById(session.UserID)
@@ -490,13 +490,13 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
-	data["PageTitle"] = "Login — " + constants.CompanyName
-	data["Nonce"] = nonce
-	data["CSRFToken"] = csrfToken
+	data.PageTitle = "Login — " + constants.CompanyName
+	data.Nonce = nonce
+	data.CSRFToken = csrfToken
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err = helpers.ServeContent(w, files, data)
+	err := helpers.ServeContent(w, files, data)
 
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -533,7 +533,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	session := ctx["Session"]
+	session := ctx.Session
 
 	session.UserID = user.UserID
 	err = sessions.Update(session)
