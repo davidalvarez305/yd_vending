@@ -28,18 +28,13 @@ func UserTracking(next http.Handler) http.Handler {
 		}
 
 		if isNew {
-			err = sessions.Create(r, w)
+			session, err = sessions.Create(r, w)
 			if err != nil {
 				http.Error(w, "Failed to create session.", http.StatusForbidden)
 				return
 			}
-		} else {
-			session, err := sessions.Get(r)
-			if err != nil {
-				http.Error(w, "Error getting session in context.", http.StatusInternalServerError)
-				return
-			}
-			r = r.WithContext(context.WithValue(r.Context(), "external_id", session.ExternalID))
+
+			SetCookie(w, expirationTime, session.CSRFSecret)
 		}
 
 		next.ServeHTTP(w, r)
