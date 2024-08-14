@@ -234,11 +234,11 @@ type WebsiteContext struct {
 	FacebookDataSetID string `json:"facebook_data_set_id" form:"facebook_data_set_id"`
 	CompanyName       string `json:"company_name" form:"company_name"`
 	PagePath          string `json:"page_path" form:"page_path"`
-	Session           *sessions.Session `json:"-"`
-	Nonce string `json:"nonce form:"nonce"`
-	Features []string `json:"features" form:"features"`
-	CSRFToken string `json:"csrf_token" form:"csrf_token"`
-	VendingTypes []models.VendingType `json:"vending_types" form:"vending_types"`
-	VendingLocations []models.VendingLocation `json:"vending_locations form:"vending_location"`
-	Cities []models.City `json:"cities" form:"cities"`
+	Session           models.Session `json:"-"`
+	Nonce 		  string `json:"nonce form:"nonce"`
+	Features 	  []string `json:"features" form:"features"`
+	CSRFToken 	  string `json:"csrf_token" form:"csrf_token"`
+	VendingTypes 	  []models.VendingType `json:"vending_types" form:"vending_types"`
+	VendingLocations  []models.VendingLocation `json:"vending_locations form:"vending_location"`
+	Cities 		  []models.City `json:"cities" form:"cities"`
 }
