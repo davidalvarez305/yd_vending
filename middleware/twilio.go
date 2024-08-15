@@ -27,7 +27,6 @@ func validateTwilioWebhook(r *http.Request) error {
 	var data strings.Builder
 	data.WriteString(url)
 
-	fmt.Println(http.MethodPost)
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
 			return errors.New("error parsing form data")
@@ -47,6 +46,9 @@ func validateTwilioWebhook(r *http.Request) error {
 			}
 		}
 	}
+
+	fmt.Println(data)
+	fmt.Println(r.Method)
 
 	mac := hmac.New(sha1.New, []byte(authToken))
 	mac.Write([]byte(data.String()))
