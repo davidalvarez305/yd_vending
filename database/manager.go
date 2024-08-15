@@ -848,13 +848,12 @@ func UpdateSession(session models.Session) error {
 	}
 
 	_, err := DB.Exec(sqlStatement,
-		session.CSRFSecret,
 		session.ExternalID,
 		googleClientID,
 		facebookClickID,
 		facebookClientID,
-		session.DateCreated,
-		session.DateExpires,
+		session.UserID,
+		session.CSRFSecret,
 	)
 
 	if err != nil {
