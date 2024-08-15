@@ -52,7 +52,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
-	tx.Rollback()
+	defer tx.Rollback()
 
 	var leadID int
 	leadStmt, err := tx.Prepare(`
