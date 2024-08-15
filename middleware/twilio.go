@@ -5,7 +5,6 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"net/http"
 	"sort"
 	"strings"
@@ -34,8 +33,7 @@ func validateTwilioWebhook(r *http.Request) error {
 	}
 	sort.Strings(sortedParams)
 
-	data := baseURL + strings.Join(sortedParams, "")
-	fmt.Println(data)
+	data := baseURL + "?" + strings.Join(sortedParams, "")
 
 	mac := hmac.New(sha1.New, []byte(authToken))
 	mac.Write([]byte(data))
