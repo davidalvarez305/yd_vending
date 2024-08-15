@@ -39,6 +39,7 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 	var incomingPhoneCall types.TwilioIncomingCallBody
 
 	if err := json.NewDecoder(r.Body).Decode(&incomingPhoneCall); err != nil {
+		fmt.Printf("Error decoding JSON for incoming phone call: %+v\n", err)
 		http.Error(w, "Failed to decode JSON payload", http.StatusBadRequest)
 		return
 	}
