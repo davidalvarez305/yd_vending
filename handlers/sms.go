@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -41,11 +42,34 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var incomingPhoneCall types.TwilioIncomingCallBody
-	if err := decoder.Decode(&incomingPhoneCall, r.PostForm); err != nil {
-		fmt.Printf("Error decoding form data: %+v\n", err)
-		http.Error(w, "Failed to decode form data", http.StatusBadRequest)
-		return
+	incomingPhoneCall := types.TwilioIncomingCallBody{
+		CallSid:       r.FormValue("CallSid"),
+		AccountSid:    r.FormValue("AccountSid"),
+		From:          r.FormValue("From"),
+		To:            r.FormValue("To"),
+		CallStatus:    r.FormValue("CallStatus"),
+		ApiVersion:    r.FormValue("ApiVersion"),
+		Direction:     r.FormValue("Direction"),
+		ForwardedFrom: r.FormValue("ForwardedFrom"),
+		CallerName:    r.FormValue("CallerName"),
+		FromCity:      r.FormValue("FromCity"),
+		FromState:     r.FormValue("FromState"),
+		FromZip:       r.FormValue("FromZip"),
+		FromCountry:   r.FormValue("FromCountry"),
+		ToCity:        r.FormValue("ToCity"),
+		ToState:       r.FormValue("ToState"),
+		ToZip:         r.FormValue("ToZip"),
+		ToCountry:     r.FormValue("ToCountry"),
+		Caller:        r.FormValue("Caller"),
+		Digits:        r.FormValue("Digits"),
+		SpeechResult:  r.FormValue("SpeechResult"),
+	}
+
+	// Convert Confidence to float64
+	if confidenceStr := r.FormValue("Confidence"); confidenceStr != "" {
+		if confidence, err := strconv.ParseFloat(confidenceStr, 64); err == nil {
+			incomingPhoneCall.Confidence = confidence
+		}
 	}
 
 	forwardNumber, err := database.GetForwardPhoneNumber(helpers.RemoveCountryCode(incomingPhoneCall.To), helpers.RemoveCountryCode(incomingPhoneCall.From))
