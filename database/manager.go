@@ -717,18 +717,39 @@ func GetSession(userKey string) (models.Session, error) {
     `
 	row := DB.QueryRow(sqlStatement, userKey)
 
-	var dateCreated time.Time
-	var dateExpires time.Time
-
+	var dateCreated, dateExpires time.Time
 	var userID sql.NullInt32
-	err := row.Scan(&session.SessionID, &userID, &session.CSRFSecret, &session.ExternalID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
+	var googleClientID, facebookClickID, facebookClientID sql.NullString
+
+	err := row.Scan(
+		&session.SessionID,
+		&userID,
+		&session.CSRFSecret,
+		&session.ExternalID,
+		&googleClientID,
+		&facebookClickID,
+		&facebookClientID,
+		&dateCreated,
+		&dateExpires,
+	)
 	if err != nil {
-		fmt.Printf("get session error: %+v\n", err)
 		return session, err
 	}
 
 	if userID.Valid {
 		session.UserID = int(userID.Int32)
+	}
+
+	if googleClientID.Valid {
+		session.GoogleClientID = googleClientID.String
+	}
+
+	if facebookClickID.Valid {
+		session.FacebookClickID = facebookClickID.String
+	}
+
+	if facebookClientID.Valid {
+		session.FacebookClientID = facebookClientID.String
 	}
 
 	session.DateCreated = dateCreated.Unix()
