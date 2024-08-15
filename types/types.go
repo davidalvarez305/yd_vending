@@ -229,6 +229,7 @@ type WebsiteContext struct {
 	MetaDescription   string                   `json:"meta_description" form:"meta_description"`
 	SiteName          string                   `json:"site_name" form:"site_name"`
 	StaticPath        string                   `json:"static_path" form:"static_path"`
+	MediaPath         string                   `json:"media_path" form:"media_path"`
 	PhoneNumber       string                   `json:"phone_number" form:"phone_number"`
 	CurrentYear       int                      `json:"current_year" form:"current_year"`
 	GoogleAnalyticsID string                   `json:"google_analytics_id" form:"google_analytics_id"`

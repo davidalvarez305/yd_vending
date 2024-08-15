@@ -27,6 +27,7 @@ func createWebsiteContext() types.WebsiteContext {
 		MetaDescription:   "Get a quote for vending machine services.",
 		SiteName:          constants.SiteName,
 		StaticPath:        constants.StaticPath,
+		MediaPath:         constants.MediaPath,
 		PhoneNumber:       constants.CompanyPhoneNumber,
 		CurrentYear:       time.Now().Year(),
 		GoogleAnalyticsID: constants.GoogleAnalyticsID,
