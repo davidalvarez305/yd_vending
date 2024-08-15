@@ -134,3 +134,10 @@ func CalculateMaxPages(totalRows, itemsPerPage int) int {
 	}
 	return (totalRows + itemsPerPage - 1) / itemsPerPage
 }
+
+func SafeString(ptr *string) string {
+	if ptr != nil {
+		return *ptr
+	}
+	return ""
+}

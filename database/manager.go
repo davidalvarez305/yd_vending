@@ -119,7 +119,12 @@ func SaveSMS(msg models.Message) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(msg.ExternalID, msg.UserID, msg.LeadID, msg.Text, msg.DateCreated, msg.TextFrom, msg.TextTo, msg.IsInbound)
+	var leadID sql.NullInt64
+	if msg.LeadID != 0 {
+		leadID = sql.NullInt64{Int64: int64(msg.LeadID), Valid: true}
+	}
+
+	_, err = stmt.Exec(msg.ExternalID, msg.UserID, leadID, msg.Text, msg.DateCreated, msg.TextFrom, msg.TextTo, msg.IsInbound)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
 	}
@@ -139,11 +144,20 @@ func SavePhoneCall(phoneCall models.PhoneCall) error {
 	}
 	defer stmt.Close()
 
+	var leadID, callDuration sql.NullInt64
+
+	if phoneCall.LeadID != 0 {
+		leadID = sql.NullInt64{Int64: int64(phoneCall.LeadID), Valid: true}
+	}
+	if phoneCall.CallDuration != 0 {
+		callDuration = sql.NullInt64{Int64: int64(phoneCall.CallDuration), Valid: true}
+	}
+
 	_, err = stmt.Exec(
 		phoneCall.ExternalID,
 		phoneCall.UserID,
-		phoneCall.LeadID,
-		phoneCall.CallDuration,
+		leadID,
+		callDuration,
 		phoneCall.DateCreated,
 		phoneCall.CallFrom,
 		phoneCall.CallTo,
@@ -199,7 +213,7 @@ func GetPhoneNumberFromUserID(userID int) (string, error) {
 func GetUserById(id int) (models.User, error) {
 	var user models.User
 
-	stmt, err := DB.Prepare(`SELECT * FROM "user" WHERE "user_id" = $1`)
+	stmt, err := DB.Prepare(`SELECT user_id, email, password, is_admin, phone_number, first_name, last_name FROM "user" WHERE "user_id" = $1`)
 	if err != nil {
 		return user, fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -218,7 +232,7 @@ func GetUserById(id int) (models.User, error) {
 func GetUserByEmail(email string) (models.User, error) {
 	var user models.User
 
-	stmt, err := DB.Prepare(`SELECT * FROM "user" WHERE "email" = $1`)
+	stmt, err := DB.Prepare(`SELECT user_id, email, password, is_admin, phone_number, first_name, last_name FROM "user" WHERE "email" = $1`)
 	if err != nil {
 		return user, fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -237,7 +251,7 @@ func GetUserByEmail(email string) (models.User, error) {
 func GetVendingTypes() ([]models.VendingType, error) {
 	var vendingTypes []models.VendingType
 
-	rows, err := DB.Query(`SELECT * FROM "vending_type"`)
+	rows, err := DB.Query(`SELECT vending_type_id, machine_type FROM "vending_type"`)
 	if err != nil {
 		return vendingTypes, fmt.Errorf("error executing query: %w", err)
 	}
@@ -262,7 +276,7 @@ func GetVendingTypes() ([]models.VendingType, error) {
 func GetVendingLocations() ([]models.VendingLocation, error) {
 	var vendingLocations []models.VendingLocation
 
-	rows, err := DB.Query(`SELECT * FROM "vending_location"`)
+	rows, err := DB.Query(`SELECT vending_location_id, location_type FROM "vending_location"`)
 	if err != nil {
 		return vendingLocations, fmt.Errorf("error executing query: %w", err)
 	}
@@ -631,7 +645,7 @@ func GetForwardPhoneNumber(to, from string) (types.IncomingPhoneCallForwarding, 
 func GetPhoneCallBySID(sid string) (models.PhoneCall, error) {
 	var phoneCall models.PhoneCall
 
-	stmt, err := DB.Prepare(`SELECT * FROM phone_call WHERE external_id = $1`)
+	stmt, err := DB.Prepare(`SELECT phone_call_id, external_id, user_id, lead_id, call_duration, date_created, call_from, call_to, is_inbound, recording_url, status FROM phone_call WHERE external_id = $1`)
 	if err != nil {
 		return phoneCall, err
 	}
@@ -727,7 +741,31 @@ func CreateSession(session models.Session) error {
         INSERT INTO sessions (csrf_secret, external_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires)
         VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))
     `
-	_, err := DB.Exec(sqlStatement, session.CSRFSecret, session.ExternalID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.DateCreated, session.DateExpires)
+
+	var googleClientID, facebookClickID, facebookClientID sql.NullString
+
+	if session.GoogleClientID != "" {
+		googleClientID = sql.NullString{String: session.GoogleClientID, Valid: true}
+	}
+
+	if session.FacebookClickID != "" {
+		facebookClickID = sql.NullString{String: session.FacebookClickID, Valid: true}
+	}
+
+	if session.FacebookClientID != "" {
+		facebookClientID = sql.NullString{String: session.FacebookClientID, Valid: true}
+	}
+
+	_, err := DB.Exec(sqlStatement,
+		session.CSRFSecret,
+		session.ExternalID,
+		googleClientID,
+		facebookClickID,
+		facebookClientID,
+		session.DateCreated,
+		session.DateExpires,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -745,7 +783,30 @@ func UpdateSession(session models.Session) error {
 			user_id = $5
         WHERE csrf_secret = $6
     `
-	_, err := DB.Exec(sqlStatement, session.ExternalID, session.GoogleClientID, session.FacebookClickID, session.FacebookClientID, session.UserID, session.CSRFSecret)
+	var googleClientID, facebookClickID, facebookClientID sql.NullString
+
+	if session.GoogleClientID != "" {
+		googleClientID = sql.NullString{String: session.GoogleClientID, Valid: true}
+	}
+
+	if session.FacebookClickID != "" {
+		facebookClickID = sql.NullString{String: session.FacebookClickID, Valid: true}
+	}
+
+	if session.FacebookClientID != "" {
+		facebookClientID = sql.NullString{String: session.FacebookClientID, Valid: true}
+	}
+
+	_, err := DB.Exec(sqlStatement,
+		session.CSRFSecret,
+		session.ExternalID,
+		googleClientID,
+		facebookClickID,
+		facebookClientID,
+		session.DateCreated,
+		session.DateExpires,
+	)
+
 	if err != nil {
 		return err
 	}

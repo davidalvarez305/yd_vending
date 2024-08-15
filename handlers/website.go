@@ -286,13 +286,15 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	}
 
 	// User Marketing Variables
-	form.UserAgent = r.Header.Get("User-Agent")
-	form.IP = helpers.GetUserIPFromRequest(r)
-	form.FacebookClickID = session.FacebookClickID
-	form.FacebookClientID = session.FacebookClientID
-	form.GoogleClientID = session.GoogleClientID
-	form.ExternalID = session.ExternalID
-	form.CSRFSecret = decodedSecret
+	var userIP = helpers.GetUserIPFromRequest(r)
+	var userAgent = r.Header.Get("User-Agent")
+	form.UserAgent = &userAgent
+	form.IP = &userIP
+	form.FacebookClickID = &session.FacebookClickID
+	form.FacebookClientID = &session.FacebookClientID
+	form.GoogleClientID = &session.GoogleClientID
+	form.ExternalID = &session.ExternalID
+	form.CSRFSecret = &decodedSecret
 
 	err = database.CreateLeadAndMarketing(form)
 	if err != nil {
@@ -313,18 +315,18 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		EventName:      "quote",
 		EventTime:      time.Now().Unix(),
 		ActionSource:   "Web",
-		EventSourceURL: form.LandingPage,
+		EventSourceURL: helpers.SafeString(form.LandingPage),
 		UserData: conversions.FacebookUserData{
-			FirstName:       helpers.HashString(form.FirstName),
-			LastName:        helpers.HashString(form.LastName),
-			Phone:           helpers.HashString(form.PhoneNumber),
-			FBC:             form.FacebookClickID,
-			FBP:             form.FacebookClientID,
-			City:            helpers.HashString(form.CityString),
+			FirstName:       helpers.HashString(helpers.SafeString(form.FirstName)),
+			LastName:        helpers.HashString(helpers.SafeString(form.LastName)),
+			Phone:           helpers.HashString(helpers.SafeString(form.PhoneNumber)),
+			FBC:             helpers.SafeString(form.FacebookClickID),
+			FBP:             helpers.SafeString(form.FacebookClientID),
+			City:            helpers.HashString(helpers.SafeString(form.CityString)),
 			State:           helpers.HashString("Florida"),
-			ExternalID:      helpers.HashString(form.ExternalID),
-			ClientIPAddress: form.IP,
-			ClientUserAgent: form.UserAgent,
+			ExternalID:      helpers.HashString(helpers.SafeString(form.ExternalID)),
+			ClientIPAddress: helpers.SafeString(form.IP),
+			ClientUserAgent: helpers.SafeString(form.UserAgent),
 		},
 	}
 
@@ -333,13 +335,13 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	}
 
 	payload := conversions.GooglePayload{
-		ClientID: form.GoogleClientID,
-		UserId:   form.ExternalID,
+		ClientID: helpers.SafeString(form.GoogleClientID),
+		UserId:   helpers.SafeString(form.ExternalID),
 		Events: []conversions.GoogleEventLead{
 			{
 				Name: "quote",
 				Params: conversions.GoogleEventParamsLead{
-					GCLID: form.ClickID,
+					GCLID: helpers.SafeString(form.ClickID),
 				},
 			},
 		},
