@@ -296,7 +296,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 
 	err = database.CreateLeadAndMarketing(form)
 	if err != nil {
-		fmt.Printf("%+v\n", err)
+		fmt.Printf("Error creating lead: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
