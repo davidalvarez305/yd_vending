@@ -22,6 +22,7 @@ func createCrmContext() map[string]any {
 		"MetaDescription": "Get a quote for vending machine services.",
 		"SiteName":        constants.SiteName,
 		"StaticPath":      constants.StaticPath,
+		"MediaPath":       constants.MediaPath,
 		"PhoneNumber":     constants.DavidPhoneNumber,
 		"CurrentYear":     time.Now().Year(),
 		"CompanyName":     constants.CompanyName,
