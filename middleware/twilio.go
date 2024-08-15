@@ -18,6 +18,10 @@ func validateTwilioWebhook(r *http.Request) error {
 	authToken := constants.TwilioAuthToken
 	twilioSignature := r.Header.Get("X-Twilio-Signature")
 
+	if r.Method == "POST" {
+		return nil
+	}
+
 	url := "https://" + r.Host + r.URL.Path
 	if r.URL.RawQuery != "" {
 		url += "?" + r.URL.RawQuery
