@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"net/http"
 	"sort"
 	"strings"
@@ -15,9 +16,11 @@ import (
 func validateTwilioWebhook(r *http.Request) error {
 	authToken := constants.TwilioAuthToken
 	twilioSignature := r.Header.Get("X-Twilio-Signature")
+	fmt.Println(authToken)
 
 	scheme := "https"
 	baseURL := scheme + "://" + r.Host + r.URL.Path
+	fmt.Println(baseURL)
 
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
@@ -39,6 +42,7 @@ func validateTwilioWebhook(r *http.Request) error {
 	}
 
 	data := baseURL + sortedParams.String()
+	fmt.Println(data)
 
 	mac := hmac.New(sha1.New, []byte(authToken))
 	mac.Write([]byte(data))
