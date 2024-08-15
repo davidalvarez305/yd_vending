@@ -74,6 +74,7 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 
 	forwardNumber, err := database.GetForwardPhoneNumber(helpers.RemoveCountryCode(incomingPhoneCall.To), helpers.RemoveCountryCode(incomingPhoneCall.From))
 	if err != nil {
+		fmt.Printf("Failed to get matching phone number: %+v\n", err)
 		http.Error(w, "Failed to get matching phone number.", http.StatusInternalServerError)
 		return
 	}
@@ -97,6 +98,7 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := database.SavePhoneCall(phoneCall); err != nil {
+		fmt.Printf("Failed to save phone call: %+v\n", err)
 		http.Error(w, "Failed to save phone call.", http.StatusInternalServerError)
 		return
 	}
