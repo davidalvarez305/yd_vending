@@ -35,9 +35,7 @@ func validateTwilioWebhook(r *http.Request) error {
 	var sortedParams []string
 	for _, key := range sortedKeys {
 		values := r.Form[key]
-		for _, value := range values {
-			sortedParams = append(sortedParams, key+value)
-		}
+		sortedParams = append(sortedParams, key+values[0])
 	}
 
 	data := baseURL + strings.Join(sortedParams, "")
