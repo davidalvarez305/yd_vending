@@ -47,8 +47,7 @@ func validateTwilioWebhook(r *http.Request) error {
 		}
 	}
 
-	fmt.Println(data)
-	fmt.Println(r.Method)
+	fmt.Println(data.String())
 
 	mac := hmac.New(sha1.New, []byte(authToken))
 	mac.Write([]byte(data.String()))
