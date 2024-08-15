@@ -288,13 +288,34 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	// User Marketing Variables
 	var userIP = helpers.GetUserIPFromRequest(r)
 	var userAgent = r.Header.Get("User-Agent")
-	form.UserAgent = &userAgent
-	form.IP = &userIP
-	form.FacebookClickID = &session.FacebookClickID
-	form.FacebookClientID = &session.FacebookClientID
-	form.GoogleClientID = &session.GoogleClientID
-	form.ExternalID = &session.ExternalID
-	form.CSRFSecret = &decodedSecret
+
+	if userIP != "" {
+		form.IP = &userIP
+	}
+
+	if userAgent != "" {
+		form.UserAgent = &userAgent
+	}
+
+	if session.FacebookClickID != "" {
+		form.FacebookClickID = &session.FacebookClickID
+	}
+
+	if session.FacebookClientID != "" {
+		form.FacebookClientID = &session.FacebookClientID
+	}
+
+	if session.GoogleClientID != "" {
+		form.GoogleClientID = &session.GoogleClientID
+	}
+
+	if session.ExternalID != "" {
+		form.ExternalID = &session.ExternalID
+	}
+
+	if len(decodedSecret) > 0 {
+		form.CSRFSecret = &decodedSecret
+	}
 
 	err = database.CreateLeadAndMarketing(form)
 	if err != nil {
