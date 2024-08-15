@@ -476,6 +476,30 @@ func GetLeadIDFromPhoneNumber(from string) (int, error) {
 	return leadId, nil
 }
 
+func GetLeadIDFromIncomingTextMessage(from string) (int, error) {
+	var leadId int
+
+	stmt, err := DB.Prepare(`SELECT l.lead_id FROM "lead" AS l WHERE l.phone_number = $1`)
+	if err != nil {
+		return leadId, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(from)
+
+	var forwardingLeadID sql.NullInt64
+	err = row.Scan(&forwardingLeadID)
+	if err != nil && err != sql.ErrNoRows {
+		return leadId, err
+	}
+
+	if forwardingLeadID.Valid {
+		leadId = int(forwardingLeadID.Int64)
+	}
+
+	return leadId, nil
+}
+
 func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 	var messages []types.FrontendMessage
 

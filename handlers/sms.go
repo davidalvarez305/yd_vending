@@ -91,7 +91,7 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 		DateCreated:  time.Now().Unix(),
 		CallFrom:     incomingPhoneCall.From,
 		CallTo:       incomingPhoneCall.To,
-		IsInbound:    incomingPhoneCall.Direction == "inbound",
+		IsInbound:    true,
 		RecordingURL: "",
 		Status:       incomingPhoneCall.CallStatus,
 	}
@@ -185,7 +185,7 @@ func handleInboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	leadId, err := database.GetLeadIDFromPhoneNumber(helpers.RemoveCountryCode(twilioMessage.From))
+	leadId, err := database.GetLeadIDFromIncomingTextMessage(helpers.RemoveCountryCode(twilioMessage.From))
 	if err != nil {
 		http.Error(w, "Failed to get Lead ID.", http.StatusBadRequest)
 		return
