@@ -32,13 +32,15 @@ func validateTwilioWebhook(r *http.Request) error {
 
 	sort.Strings(sortedKeys)
 
-	var sortedParams []string
+	var sortedParams strings.Builder
 	for _, key := range sortedKeys {
-		values := r.Form[key]
-		sortedParams = append(sortedParams, key+values[0])
+		value := r.Form[key][0]
+
+		sortedParams.WriteString(key)
+		sortedParams.WriteString(value)
 	}
 
-	data := baseURL + strings.Join(sortedParams, "")
+	data := baseURL + sortedParams.String()
 
 	mac := hmac.New(sha1.New, []byte(authToken))
 	mac.Write([]byte(data))
