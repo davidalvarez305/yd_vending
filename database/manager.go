@@ -723,6 +723,7 @@ func GetSession(userKey string) (models.Session, error) {
 	var userID sql.NullInt32
 	err := row.Scan(&session.SessionID, &userID, &session.CSRFSecret, &session.ExternalID, &session.GoogleClientID, &session.FacebookClickID, &session.FacebookClientID, &dateCreated, &dateExpires)
 	if err != nil {
+		fmt.Printf("get session error: %+v\n", err)
 		return session, err
 	}
 
