@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -109,12 +108,29 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
-	var dialStatus types.IncomingPhoneCallDialStatus
-
-	if err := json.NewDecoder(r.Body).Decode(&dialStatus); err != nil {
-		http.Error(w, "Failed to decode JSON payload", http.StatusBadRequest)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
+
+	var dialStatus types.IncomingPhoneCallDialStatus
+
+	dialStatus.DialCallStatus = r.FormValue("dial_call_status")
+	dialStatus.DialCallSid = r.FormValue("dial_call_sid")
+
+	if durationStr := r.FormValue("dial_call_duration"); durationStr != "" {
+		if duration, err := strconv.Atoi(durationStr); err == nil {
+			dialStatus.DialCallDuration = duration
+		}
+	}
+
+	if bridgedStr := r.FormValue("dial_bridged"); bridgedStr != "" {
+		if bridged, err := strconv.ParseBool(bridgedStr); err == nil {
+			dialStatus.DialBridged = bridged
+		}
+	}
+
+	dialStatus.RecordingURL = r.FormValue("recording_url")
 
 	phoneCall, err := database.GetPhoneCallBySID(dialStatus.DialCallSid)
 	if err != nil {
@@ -135,11 +151,32 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleInboundSMS(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		return
+	}
+
 	var twilioMessage types.TwilioMessage
 
-	if err := json.NewDecoder(r.Body).Decode(&twilioMessage); err != nil {
-		http.Error(w, "Failed to decode JSON payload", http.StatusBadRequest)
-		return
+	twilioMessage.MessageSid = r.FormValue("MessageSid")
+	twilioMessage.AccountSid = r.FormValue("AccountSid")
+	twilioMessage.MessagingServiceSid = r.FormValue("MessagingServiceSid")
+	twilioMessage.From = r.FormValue("From")
+	twilioMessage.To = r.FormValue("To")
+	twilioMessage.Body = r.FormValue("Body")
+	twilioMessage.NumMedia = r.FormValue("NumMedia")
+	twilioMessage.NumSegments = r.FormValue("NumSegments")
+	twilioMessage.SmsStatus = r.FormValue("SmsStatus")
+	twilioMessage.ApiVersion = r.FormValue("ApiVersion")
+
+	// DateCreated needs to be parsed into time.Time
+	if dateCreatedStr := r.FormValue("DateCreated"); dateCreatedStr != "" {
+		if dateCreated, err := time.Parse(time.RFC3339, dateCreatedStr); err == nil {
+			twilioMessage.DateCreated = dateCreated
+		} else {
+			http.Error(w, "Failed to parse DateCreated", http.StatusBadRequest)
+			return
+		}
 	}
 
 	userId, err := database.GetUserIDFromPhoneNumber(helpers.RemoveCountryCode(twilioMessage.To))
