@@ -1,10 +1,13 @@
 package middleware
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -22,6 +25,13 @@ func validateTwilioWebhook(r *http.Request) error {
 
 	data := url
 	if r.Method == "POST" {
+		// Copy the body so it can be read multiple times
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			return errors.New("failed to read request body")
+		}
+		r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
 		r.ParseForm()
 		data += strings.Join(r.Form["Body"], "")
 	}
