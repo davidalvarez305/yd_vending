@@ -26,10 +26,8 @@ func validateTwilioWebhook(r *http.Request) error {
 	}
 
 	var sortedKeys []string
-	for key := range r.Form {
-		sortedKeys = append(sortedKeys, key)
-	}
 
+	sortedKeys = append(sortedKeys, r.Form["Body"]...)
 	sort.Strings(sortedKeys)
 
 	var sortedParams strings.Builder
