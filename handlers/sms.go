@@ -36,11 +36,15 @@ func PhoneServiceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleInboundCall(w http.ResponseWriter, r *http.Request) {
-	var incomingPhoneCall types.TwilioIncomingCallBody
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		return
+	}
 
-	if err := json.NewDecoder(r.Body).Decode(&incomingPhoneCall); err != nil {
-		fmt.Printf("Error decoding JSON for incoming phone call: %+v\n", err)
-		http.Error(w, "Failed to decode JSON payload", http.StatusBadRequest)
+	var incomingPhoneCall types.TwilioIncomingCallBody
+	if err := decoder.Decode(&incomingPhoneCall, r.PostForm); err != nil {
+		fmt.Printf("Error decoding form data: %+v\n", err)
+		http.Error(w, "Failed to decode form data", http.StatusBadRequest)
 		return
 	}
 
