@@ -385,14 +385,16 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		var lead types.LeadList
 		var createdAt time.Time
 
+		var rent, footTraffic, footTrafficType sql.NullString
+
 		err := rows.Scan(&lead.LeadID,
 			&lead.FirstName,
 			&lead.LastName,
 			&lead.PhoneNumber,
 			&createdAt,
-			&lead.Rent,
-			&lead.FootTraffic,
-			&lead.FootTrafficType,
+			&rent,
+			&footTraffic,
+			&footTrafficType,
 			&lead.MachineType,
 			&lead.LocationType,
 			&lead.City,
@@ -405,6 +407,17 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 			return leads, 0, fmt.Errorf("error scanning row: %w", err)
 		}
 		lead.CreatedAt = createdAt.Unix()
+
+		if rent.Valid {
+			lead.Rent = rent.String
+		}
+		if footTraffic.Valid {
+			lead.FootTraffic = footTraffic.String
+		}
+		if footTrafficType.Valid {
+			lead.FootTrafficType = footTrafficType.String
+		}
+
 		leads = append(leads, lead)
 	}
 
@@ -443,31 +456,46 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 
 	row := DB.QueryRow(query, leadID)
 
+	var adCampaign, medium, source, referrer, landingPage, ip, keyword, channel, language sql.NullString
+	var vendingType, vendingLocation, city sql.NullString
+
 	err := row.Scan(
 		&leadDetails.LeadID,
 		&leadDetails.FirstName,
 		&leadDetails.LastName,
 		&leadDetails.PhoneNumber,
-		&leadDetails.VendingType,
-		&leadDetails.VendingLocation,
-		&leadDetails.CampaignName,
-		&leadDetails.Medium,
-		&leadDetails.Source,
-		&leadDetails.Referrer,
-		&leadDetails.LandingPage,
-		&leadDetails.IP,
-		&leadDetails.Keyword,
-		&leadDetails.Channel,
-		&leadDetails.Language,
-		&leadDetails.City,
+		&vendingType,
+		&vendingLocation,
+		&adCampaign,
+		&medium,
+		&source,
+		&referrer,
+		&landingPage,
+		&ip,
+		&keyword,
+		&channel,
+		&language,
+		&city,
 	)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return leadDetails, fmt.Errorf("no lead found with ID %s", leadID)
 		}
 		return leadDetails, fmt.Errorf("error scanning row: %w", err)
 	}
+
+	leadDetails.VendingType = vendingType.String
+	leadDetails.VendingLocation = vendingLocation.String
+	leadDetails.CampaignName = adCampaign.String
+	leadDetails.Medium = medium.String
+	leadDetails.Source = source.String
+	leadDetails.Referrer = referrer.String
+	leadDetails.LandingPage = landingPage.String
+	leadDetails.IP = ip.String
+	leadDetails.Keyword = keyword.String
+	leadDetails.Channel = channel.String
+	leadDetails.Language = language.String
+	leadDetails.City = city.String
 
 	return leadDetails, nil
 }
