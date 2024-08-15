@@ -24,6 +24,7 @@ func validateTwilioWebhook(r *http.Request) error {
 	if r.Method == "POST" {
 		r.ParseForm()
 		data += strings.Join(r.Form["Body"], "")
+		return nil
 	}
 
 	mac := hmac.New(sha1.New, []byte(authToken))
