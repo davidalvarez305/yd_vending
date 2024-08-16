@@ -572,11 +572,54 @@ func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 func UpdateLead(form types.UpdateLeadForm) error {
 	query := `
 		UPDATE lead
-		SET first_name = $2, last_name = $3, phone_number = $4, city_id = $5, vending_type_id = $6, vending_location_id = $7
+		SET first_name = COALESCE($2, first_name), 
+		    last_name = COALESCE($3, last_name), 
+		    phone_number = COALESCE($4, phone_number), 
+		    city_id = COALESCE($5, city_id), 
+		    vending_type_id = COALESCE($6, vending_type_id), 
+		    vending_location_id = COALESCE($7, vending_location_id)
 		WHERE lead_id = $1
 	`
 
-	_, err := DB.Exec(query, form.LeadID, form.FirstName, form.LastName, form.PhoneNumber, form.City, form.VendingType, form.VendingLocation)
+	args := []interface{}{}
+	if form.LeadID != nil {
+		args = append(args, *form.LeadID)
+	} else {
+		return fmt.Errorf("lead_id cannot be nil")
+	}
+
+	if form.FirstName != nil {
+		args = append(args, *form.FirstName)
+	} else {
+		args = append(args, nil)
+	}
+	if form.LastName != nil {
+		args = append(args, *form.LastName)
+	} else {
+		args = append(args, nil)
+	}
+	if form.PhoneNumber != nil {
+		args = append(args, *form.PhoneNumber)
+	} else {
+		args = append(args, nil)
+	}
+	if form.City != nil {
+		args = append(args, *form.City)
+	} else {
+		args = append(args, nil)
+	}
+	if form.VendingType != nil {
+		args = append(args, *form.VendingType)
+	} else {
+		args = append(args, nil)
+	}
+	if form.VendingLocation != nil {
+		args = append(args, *form.VendingLocation)
+	} else {
+		args = append(args, nil)
+	}
+
+	_, err := DB.Exec(query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update lead: %v", err)
 	}
@@ -587,13 +630,72 @@ func UpdateLead(form types.UpdateLeadForm) error {
 func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 	query := `
 		UPDATE lead_marketing
-		SET campaign_name = $2, medium = $3, source = $4, referrer = $5, landing_page = $6,
-			ip = $7, keyword = $8, channel = $9, language = $10
+		SET campaign_name = COALESCE($2, campaign_name), 
+		    medium = COALESCE($3, medium), 
+		    source = COALESCE($4, source), 
+		    referrer = COALESCE($5, referrer), 
+		    landing_page = COALESCE($6, landing_page),
+		    ip = COALESCE($7, ip), 
+		    keyword = COALESCE($8, keyword), 
+		    channel = COALESCE($9, channel), 
+		    language = COALESCE($10, language)
 		WHERE lead_id = $1
 	`
 
-	_, err := DB.Exec(query, form.LeadID, form.CampaignName, form.Medium, form.Source, form.Referrer,
-		form.LandingPage, form.IP, form.Keyword, form.Channel, form.Language)
+	args := []interface{}{}
+	if form.LeadID != nil {
+		args = append(args, *form.LeadID)
+	} else {
+		return fmt.Errorf("lead_id cannot be nil")
+	}
+
+	if form.CampaignName != nil {
+		args = append(args, *form.CampaignName)
+	} else {
+		args = append(args, nil)
+	}
+	if form.Medium != nil {
+		args = append(args, *form.Medium)
+	} else {
+		args = append(args, nil)
+	}
+	if form.Source != nil {
+		args = append(args, *form.Source)
+	} else {
+		args = append(args, nil)
+	}
+	if form.Referrer != nil {
+		args = append(args, *form.Referrer)
+	} else {
+		args = append(args, nil)
+	}
+	if form.LandingPage != nil {
+		args = append(args, *form.LandingPage)
+	} else {
+		args = append(args, nil)
+	}
+	if form.IP != nil {
+		args = append(args, *form.IP)
+	} else {
+		args = append(args, nil)
+	}
+	if form.Keyword != nil {
+		args = append(args, *form.Keyword)
+	} else {
+		args = append(args, nil)
+	}
+	if form.Channel != nil {
+		args = append(args, *form.Channel)
+	} else {
+		args = append(args, nil)
+	}
+	if form.Language != nil {
+		args = append(args, *form.Language)
+	} else {
+		args = append(args, nil)
+	}
+
+	_, err := DB.Exec(query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update lead marketing: %v", err)
 	}
@@ -694,17 +796,39 @@ func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 			status = $9
 		WHERE external_id = $10`
 
+	var callDuration sql.NullInt32
+	var recordingURL sql.NullString
+	var status sql.NullString
+
+	if phoneCall.CallDuration != 0 {
+		callDuration = sql.NullInt32{Int32: int32(phoneCall.CallDuration), Valid: true}
+	} else {
+		callDuration = sql.NullInt32{Valid: false}
+	}
+
+	if phoneCall.RecordingURL != "" {
+		recordingURL = sql.NullString{String: phoneCall.RecordingURL, Valid: true}
+	} else {
+		recordingURL = sql.NullString{Valid: false}
+	}
+
+	if phoneCall.Status != "" {
+		status = sql.NullString{String: phoneCall.Status, Valid: true}
+	} else {
+		status = sql.NullString{Valid: false}
+	}
+
 	_, err := DB.Exec(
 		query,
 		phoneCall.UserID,
 		phoneCall.LeadID,
-		phoneCall.CallDuration,
+		callDuration,
 		phoneCall.DateCreated,
 		phoneCall.CallFrom,
 		phoneCall.CallTo,
 		phoneCall.IsInbound,
-		phoneCall.RecordingURL,
-		phoneCall.Status,
+		recordingURL,
+		status,
 		phoneCall.ExternalID,
 	)
 
