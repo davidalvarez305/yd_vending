@@ -91,10 +91,10 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	}
 
 	var params types.GetLeadsParams
-	params.City = r.URL.Query().Get("city")
-	params.LocationType = r.URL.Query().Get("location_type")
-	params.VendingType = r.URL.Query().Get("vending_type")
-	params.PageNum = r.URL.Query().Get("page_num")
+	params.City = helpers.SafeStringToPointer(r.URL.Query().Get("city"))
+	params.LocationType = helpers.SafeStringToPointer(r.URL.Query().Get("location_type"))
+	params.VendingType = helpers.SafeStringToPointer(r.URL.Query().Get("vending_type"))
+	params.PageNum = helpers.SafeStringToPointer(r.URL.Query().Get("page_num"))
 
 	leads, totalRows, err := database.GetLeadList(params)
 	if err != nil {
@@ -135,10 +135,9 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	data["VendingLocations"] = vendingLocations
 	data["Cities"] = cities
 
-	if params.PageNum == "" {
-		data["CurrentPage"] = 1
-	} else {
-		data["CurrentPage"] = params.PageNum
+	data["CurrentPage"] = 1
+	if params.PageNum != nil {
+		data["CurrentPage"] = *params.PageNum
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

@@ -141,3 +141,10 @@ func SafeString(ptr *string) string {
 	}
 	return ""
 }
+
+func SafeStringToPointer(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
+}

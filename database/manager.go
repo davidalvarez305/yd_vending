@@ -326,6 +326,7 @@ func GetCities() ([]models.City, error) {
 func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	var leads []types.LeadList
 
+	// Base query with placeholders for optional filters
 	query := `SELECT l.lead_id, l.first_name, l.last_name, l.phone_number, 
 		l.created_at, l.rent, l.foot_traffic, l.foot_traffic_type, 
 		vt.machine_type, vl.location_type, c.name as city, lm.language,
@@ -336,50 +337,72 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		JOIN vending_type AS vt ON vt.vending_type_id = l.vending_type_id
 		JOIN vending_location AS vl ON vl.vending_location_id = l.vending_location_id
 		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id
-		WHERE 1=1`
+		WHERE (vt.vending_type_id = $1 OR $1 IS NULL) 
+		AND (vl.vending_location_id = $2 OR $2 IS NULL)
+		AND (c.city_id = $3 OR $3 IS NULL)`
 
-	args := []interface{}{}
-	argIdx := 1
+	// Initialize parameters
+	var args []interface{}
+	var limit int = constants.LeadsPerPage
+	var offset int
 
-	if params.VendingType != "" {
-		query += fmt.Sprintf(" AND vt.vending_type_id = $%d", argIdx)
-		args = append(args, params.VendingType)
-		argIdx++
-	}
-
-	if params.LocationType != "" {
-		query += fmt.Sprintf(" AND vl.vending_location_id = $%d", argIdx)
-		args = append(args, params.LocationType)
-		argIdx++
-	}
-
-	if params.City != "" {
-		query += fmt.Sprintf(" AND c.city_id = $%d", argIdx)
-		args = append(args, params.City)
-		argIdx++
-	}
-
-	query += fmt.Sprintf(" LIMIT $%d", argIdx)
-	args = append(args, constants.LeadsPerPage)
-	argIdx++
-
-	if params.PageNum != "" {
-		pageNum, err := strconv.Atoi(params.PageNum)
+	// Append parameters based on input
+	if params.VendingType != nil {
+		vendingTypeID, err := strconv.ParseInt(*params.VendingType, 10, 64)
 		if err != nil {
-			return leads, 0, fmt.Errorf("could not convert page num: %w", err)
+			return nil, 0, fmt.Errorf("invalid vending type: %w", err)
 		}
+		args = append(args, vendingTypeID)
+	} else {
+		args = append(args, nil)
+	}
 
-		offset := (pageNum - 1) * constants.LeadsPerPage
-		query += fmt.Sprintf(" OFFSET $%d", argIdx)
+	if params.LocationType != nil {
+		locationTypeID, err := strconv.ParseInt(*params.LocationType, 10, 64)
+		if err != nil {
+			return nil, 0, fmt.Errorf("invalid location type: %w", err)
+		}
+		args = append(args, locationTypeID)
+	} else {
+		args = append(args, nil)
+	}
+
+	if params.City != nil {
+		cityID, err := strconv.ParseInt(*params.City, 10, 64)
+		if err != nil {
+			return nil, 0, fmt.Errorf("invalid city: %w", err)
+		}
+		args = append(args, cityID)
+	} else {
+		args = append(args, nil)
+	}
+
+	// Handle pagination
+	if params.PageNum != nil {
+		pageNum, err := strconv.Atoi(*params.PageNum)
+		if err != nil {
+			return nil, 0, fmt.Errorf("could not convert page num: %w", err)
+		}
+		offset = (pageNum - 1) * int(constants.LeadsPerPage)
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
+	} else {
+		query += fmt.Sprintf(" LIMIT $%d", len(args)+1)
+	}
+
+	// Append limit and offset to args
+	args = append(args, limit)
+	if params.PageNum != nil {
 		args = append(args, offset)
 	}
 
+	// Execute the query
 	rows, err := DB.Query(query, args...)
 	if err != nil {
-		return leads, 0, fmt.Errorf("error executing query: %w", err)
+		return nil, 0, fmt.Errorf("error executing query: %w", err)
 	}
 	defer rows.Close()
 
+	// Process results
 	var totalRows int
 	for rows.Next() {
 		var lead types.LeadList
@@ -404,7 +427,7 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 			&lead.VendingLocationID,
 			&totalRows)
 		if err != nil {
-			return leads, 0, fmt.Errorf("error scanning row: %w", err)
+			return nil, 0, fmt.Errorf("error scanning row: %w", err)
 		}
 		lead.CreatedAt = createdAt.Unix()
 
@@ -422,7 +445,7 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		return leads, 0, fmt.Errorf("error iterating rows: %w", err)
+		return nil, 0, fmt.Errorf("error iterating rows: %w", err)
 	}
 
 	return leads, totalRows, nil

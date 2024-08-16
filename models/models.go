@@ -65,7 +65,7 @@ type LeadMarketing struct {
 	ButtonClicked    string `json:"button_clicked"`
 	DeviceType       string `json:"device_type"`
 	IP               string `json:"ip"`
-	GoogleUserID     string `json:"google_user_id"`
+	ExternalID       string `json:"external_id"`
 	GoogleClientID   string `json:"google_client_id"`
 	FacebookClickID  string `json:"facebook_click_id"`
 	FacebookClientID string `json:"facebook_client_id"`
