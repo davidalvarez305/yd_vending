@@ -7,24 +7,10 @@ import (
 	"net/http"
 
 	"github.com/davidalvarez305/yd_vending/constants"
+	"github.com/davidalvarez305/yd_vending/types"
 )
 
-type GoogleEventParamsLead struct {
-	GCLID string `json:"gclid"`
-}
-
-type GoogleEventLead struct {
-	Name   string                `json:"name"`
-	Params GoogleEventParamsLead `json:"params"`
-}
-
-type GooglePayload struct {
-	ClientID string            `json:"client_id"`
-	UserId   string            `json:"userId"`
-	Events   []GoogleEventLead `json:"events"`
-}
-
-func SendGoogleConversion(payload GooglePayload) error {
+func SendGoogleConversion(payload types.GooglePayload) error {
 	endpoint := "https://www.google-analytics.com/mp/collect"
 
 	jsonData, err := json.Marshal(payload)

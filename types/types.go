@@ -245,3 +245,43 @@ type WebsiteContext struct {
 	Cities            []models.City            `json:"cities" form:"cities"`
 	ExternalID        string                   `json:"external_id" form:"external_id"`
 }
+
+type FacebookUserData struct {
+	Phone           string `json:"ph"`
+	FirstName       string `json:"fn"`
+	LastName        string `json:"ln"`
+	ClientIPAddress string `json:"client_ip_address"`
+	ClientUserAgent string `json:"client_user_agent"`
+	FBC             string `json:"fbc"`
+	FBP             string `json:"fbp"`
+	City            string `json:"ct"`
+	State           string `json:"st"`
+	ExternalID      string `json:"external_id"`
+}
+
+type FacebookEventData struct {
+	EventName      string           `json:"event_name"`
+	EventTime      int64            `json:"event_time"`
+	ActionSource   string           `json:"action_source"`
+	EventSourceURL string           `json:"event_source_url"`
+	UserData       FacebookUserData `json:"user_data"`
+}
+
+type FacebookPayload struct {
+	Data []FacebookEventData `json:"data"`
+}
+
+type GoogleEventParamsLead struct {
+	GCLID string `json:"gclid"`
+}
+
+type GoogleEventLead struct {
+	Name   string                `json:"name"`
+	Params GoogleEventParamsLead `json:"params"`
+}
+
+type GooglePayload struct {
+	ClientID string            `json:"client_id"`
+	UserId   string            `json:"userId"`
+	Events   []GoogleEventLead `json:"events"`
+}

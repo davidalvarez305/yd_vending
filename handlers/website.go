@@ -332,12 +332,12 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		return
 	}
 
-	fbEvent := conversions.FacebookEventData{
+	fbEvent := types.FacebookEventData{
 		EventName:      "quote",
 		EventTime:      time.Now().Unix(),
 		ActionSource:   "Web",
 		EventSourceURL: helpers.SafeString(form.LandingPage),
-		UserData: conversions.FacebookUserData{
+		UserData: types.FacebookUserData{
 			FirstName:       helpers.HashString(helpers.SafeString(form.FirstName)),
 			LastName:        helpers.HashString(helpers.SafeString(form.LastName)),
 			Phone:           helpers.HashString(helpers.SafeString(form.PhoneNumber)),
@@ -351,17 +351,17 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		},
 	}
 
-	metaPayload := conversions.FacebookPayload{
-		Data: []conversions.FacebookEventData{fbEvent},
+	metaPayload := types.FacebookPayload{
+		Data: []types.FacebookEventData{fbEvent},
 	}
 
-	payload := conversions.GooglePayload{
+	payload := types.GooglePayload{
 		ClientID: helpers.SafeString(form.GoogleClientID),
 		UserId:   helpers.SafeString(form.ExternalID),
-		Events: []conversions.GoogleEventLead{
+		Events: []types.GoogleEventLead{
 			{
 				Name: "quote",
-				Params: conversions.GoogleEventParamsLead{
+				Params: types.GoogleEventParamsLead{
 					GCLID: helpers.SafeString(form.ClickID),
 				},
 			},
