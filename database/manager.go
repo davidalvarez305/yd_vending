@@ -423,7 +423,8 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	lm.keyword,
 	lm.channel,
 	lm.language,
-	c."name"
+	c."name",
+	l.message
 	FROM lead l
 	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
@@ -436,7 +437,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	row := DB.QueryRow(query, leadID)
 
 	var adCampaign, medium, source, referrer, landingPage, ip, keyword, channel, language sql.NullString
-	var vendingType, vendingLocation, city sql.NullString
+	var vendingType, vendingLocation, city, message sql.NullString
 
 	err := row.Scan(
 		&leadDetails.LeadID,
@@ -455,6 +456,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		&channel,
 		&language,
 		&city,
+		&message,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -475,6 +477,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	leadDetails.Channel = channel.String
 	leadDetails.Language = language.String
 	leadDetails.City = city.String
+	leadDetails.Message = message.String
 
 	return leadDetails, nil
 }

@@ -37,6 +37,7 @@ type Lead struct {
 	VendingTypeID     int    `json:"vending_type_id"`
 	VendingLocationID int    `json:"vending_location_id"`
 	CityID            int    `json:"city_id"`
+	Message           string `json:"message"`
 }
 
 type LeadMarketing struct {

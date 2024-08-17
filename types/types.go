@@ -79,6 +79,7 @@ type LeadDetails struct {
 	Channel         string `json:"channel" form:"channel" schema:"channel"`
 	Language        string `json:"language" form:"language" schema:"language"`
 	City            string `json:"city" form:"city" schema:"city"`
+	Message         string `json:"message" form:"message" schema:"message"`
 }
 
 type LeadList struct {
