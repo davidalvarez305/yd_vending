@@ -35,7 +35,7 @@ type FacebookPayload struct {
 }
 
 func SendFacebookConversion(payload FacebookPayload) error {
-	url := fmt.Sprintf("https://graph.facebook.com/v15.0/%s/events?access_token=%s", constants.FacebookDatasetID, constants.FacebookAccessToken)
+	url := fmt.Sprintf("https://graph.facebook.com/v20.0/%s/events?access_token=%s", constants.FacebookDatasetID, constants.FacebookAppAccessToken)
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		fmt.Printf("Error marshaling meta payload: %+v\n", err)

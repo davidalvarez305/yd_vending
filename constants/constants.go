@@ -6,6 +6,7 @@ import (
 
 var (
 	FacebookAccessToken         string
+	FacebookAppAccessToken      string
 	FacebookDatasetID           string
 	GoogleAnalyticsID           string
 	GoogleAnalyticsAPISecretKey string
@@ -45,6 +46,7 @@ var (
 
 func Init() {
 	FacebookAccessToken = os.Getenv("FACEBOOK_ACCESS_TOKEN")
+	FacebookAppAccessToken = os.Getenv("FACEBOOK_APP_ACCESS_TOKEN")
 	FacebookDatasetID = os.Getenv("FACEBOOK_DATASET_ID")
 	GoogleAnalyticsID = os.Getenv("GOOGLE_ANALYTICS_ID")
 	GoogleAnalyticsAPISecretKey = os.Getenv("GOOGLE_ANALYTICS_API_KEY")
