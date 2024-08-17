@@ -56,8 +56,8 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 
 	var leadID int
 	leadStmt, err := tx.Prepare(`
-		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id)
-		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10)
+		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id, message)
+		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10, $11)
 		RETURNING lead_id
 	`)
 	if err != nil {
@@ -65,7 +65,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 	}
 	defer leadStmt.Close()
 
-	err = leadStmt.QueryRow(quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, time.Now().Unix(), quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City).Scan(&leadID)
+	err = leadStmt.QueryRow(quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, time.Now().Unix(), quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, quoteForm.Message).Scan(&leadID)
 	if err != nil {
 		return fmt.Errorf("error inserting lead: %w", err)
 	}
