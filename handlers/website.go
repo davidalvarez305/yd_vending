@@ -624,7 +624,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		return
 	}
 
-	email := r.Form.Get("email")
+	username := r.Form.Get("username")
 	password := r.Form.Get("password")
 
 	// Error handling
@@ -634,9 +634,9 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		Data:         map[string]any{},
 	}
 
-	user, err := database.GetUserByEmail(email)
+	user, err := database.GetUserByUsername(username)
 	if err != nil {
-		tmplCtx.Data["Message"] = "Invalid e-mail."
+		tmplCtx.Data["Message"] = "Invalid username."
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}

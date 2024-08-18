@@ -17,7 +17,7 @@ type City struct {
 
 type User struct {
 	UserID      int    `json:"user_id"`
-	Email       string `json:"email"`
+	Username    string `json:"username"`
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`
 	IsAdmin     bool   `json:"is_admin"`

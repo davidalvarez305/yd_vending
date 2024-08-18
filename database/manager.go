@@ -245,7 +245,7 @@ func GetPhoneNumberFromUserID(userID int) (string, error) {
 func GetUserById(id int) (models.User, error) {
 	var user models.User
 
-	stmt, err := DB.Prepare(`SELECT user_id, email, password, is_admin, phone_number, first_name, last_name FROM "user" WHERE "user_id" = $1`)
+	stmt, err := DB.Prepare(`SELECT user_id, username, password, is_admin, phone_number, first_name, last_name FROM "user" WHERE "user_id" = $1`)
 	if err != nil {
 		return user, fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -253,7 +253,7 @@ func GetUserById(id int) (models.User, error) {
 
 	row := stmt.QueryRow(id)
 
-	err = row.Scan(&user.UserID, &user.Email, &user.Password, &user.IsAdmin, &user.PhoneNumber, &user.FirstName, &user.LastName)
+	err = row.Scan(&user.UserID, &user.Username, &user.Password, &user.IsAdmin, &user.PhoneNumber, &user.FirstName, &user.LastName)
 	if err != nil {
 		return user, fmt.Errorf("error scanning row: %w", err)
 	}
@@ -261,18 +261,18 @@ func GetUserById(id int) (models.User, error) {
 	return user, nil
 }
 
-func GetUserByEmail(email string) (models.User, error) {
+func GetUserByUsername(username string) (models.User, error) {
 	var user models.User
 
-	stmt, err := DB.Prepare(`SELECT user_id, email, password, is_admin, phone_number, first_name, last_name FROM "user" WHERE "email" = $1`)
+	stmt, err := DB.Prepare(`SELECT user_id, username, password, is_admin, phone_number, first_name, last_name FROM "user" WHERE "username" = $1`)
 	if err != nil {
 		return user, fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
-	row := stmt.QueryRow(email)
+	row := stmt.QueryRow(username)
 
-	err = row.Scan(&user.UserID, &user.Email, &user.Password, &user.IsAdmin, &user.PhoneNumber, &user.FirstName, &user.LastName)
+	err = row.Scan(&user.UserID, &user.Username, &user.Password, &user.IsAdmin, &user.PhoneNumber, &user.FirstName, &user.LastName)
 	if err != nil {
 		return user, fmt.Errorf("error scanning row: %w", err)
 	}
