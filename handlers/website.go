@@ -63,6 +63,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetPrivacyPolicy(w, r, ctx)
 		case "/terms-and-conditions":
 			GetTermsAndConditions(w, r, ctx)
+		case "/robots.txt":
+			GetHome(w, r, ctx)
 		case "/":
 			GetHome(w, r, ctx)
 		default:
