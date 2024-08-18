@@ -64,7 +64,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 		case "/terms-and-conditions":
 			GetTermsAndConditions(w, r, ctx)
 		case "/robots.txt":
-			GetHome(w, r, ctx)
+			GetRobots(w, r, ctx)
 		case "/":
 			GetHome(w, r, ctx)
 		default:
