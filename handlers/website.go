@@ -369,8 +369,17 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	}
 
 	// Send conversion events
-	go conversions.SendGoogleConversion(payload)
-	go conversions.SendFacebookConversion(metaPayload)
+	err = conversions.SendGoogleConversion(payload)
+
+	if err != nil {
+		fmt.Printf("Error sending Google conversion: %+v\n", err)
+	}
+
+	err = conversions.SendFacebookConversion(metaPayload)
+
+	if err != nil {
+		fmt.Printf("Error sending Facebook conversion: %+v\n", err)
+	}
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "modal",
