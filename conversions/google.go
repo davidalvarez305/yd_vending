@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -27,9 +28,16 @@ func SendGoogleConversion(payload types.GooglePayload) error {
 		return err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("Google conversions request error: %+v\n", err)
-		return fmt.Errorf("facebook API returned non-200 status code: %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("GOOGLE REPORTING ERROR: %s\n", bodyString)
+
+		return fmt.Errorf("google API returned non-200 status code: %d", resp.StatusCode)
 	}
 
 	return nil

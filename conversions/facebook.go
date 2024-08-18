@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -25,8 +26,14 @@ func SendFacebookConversion(payload types.FacebookPayload) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("Meta conversions request error: %+v\n", err)
-		return fmt.Errorf("facebook API returned non-200 status code: %d", resp.StatusCode)
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("FACEBOOK REPORTING ERROR: %s\n", bodyString)
+
+		return fmt.Errorf("facebook API returned non-200 status code: %d. Response body: %s", resp.StatusCode, bodyString)
 	}
 
 	return nil
