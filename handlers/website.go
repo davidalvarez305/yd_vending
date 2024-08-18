@@ -42,7 +42,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 
 	externalId, ok := r.Context().Value("external_id").(string)
 	if !ok {
-		http.Error(w, "Error retrieving session in context.", http.StatusInternalServerError)
+		http.Error(w, "Error retrieving external id in context.", http.StatusInternalServerError)
 		return
 	}
 

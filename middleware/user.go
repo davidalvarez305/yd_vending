@@ -6,18 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
 func UserTracking(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.Path, "/static/") || strings.Contains(r.URL.Path, "/partials/") {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		if helpers.UserAgentIsBot(r.Header.Get("User-Agent")) {
 			next.ServeHTTP(w, r)
 			return
 		}
