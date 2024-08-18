@@ -115,6 +115,23 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	helpers.ServeContent(w, files, data)
 }
 
+func GetRobots(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+	robotsTxtContent := `
+	# robots.txt for https://ydvending.com/
+
+	# Allow all robots complete access
+	User-agent: *
+	Disallow:
+	`
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+	_, err := w.Write([]byte(robotsTxtContent))
+	if err != nil {
+		http.Error(w, "Error writing robots.txt content.", http.StatusInternalServerError)
+	}
+}
+
 func GetAbout(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "about.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
