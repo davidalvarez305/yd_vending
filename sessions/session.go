@@ -1,6 +1,7 @@
 package sessions
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
@@ -56,35 +57,23 @@ func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
 		return session, err
 	}
 
-	googleClientID, err := GetGoogleClientIDFromRequest(r)
+	googleClientID, _ := GetGoogleClientIDFromRequest(r)
+	fbClickID, _ := GetFacebookClickIDFromRequest(r)
+	fbClientID, _ := GetFacebookClientIDFromRequest(r)
 
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		fmt.Println("Couldn't extract client ID from GA.")
-	}
-
-	fbClickID, err := GetFacebookClickIDFromRequest(r)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		fmt.Println("Couldn't extract FB ClickID.")
-	}
-
-	fbClientID, err := GetFacebookClientIDFromRequest(r)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		fmt.Println("Couldn't extract FB ClientID.")
-	}
+	// Convert strings to sql.NullString, setting Valid to false if empty.
+	googleClientIDNull := sql.NullString{String: googleClientID, Valid: googleClientID != ""}
+	fbClickIDNull := sql.NullString{String: fbClickID, Valid: fbClickID != ""}
+	fbClientIDNull := sql.NullString{String: fbClientID, Valid: fbClientID != ""}
 
 	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * time.Second)
 
 	session = models.Session{
 		CSRFSecret:       secret,
 		ExternalID:       uuid.New().String(),
-		GoogleClientID:   googleClientID,
-		FacebookClickID:  fbClickID,
-		FacebookClientID: fbClientID,
+		GoogleClientID:   googleClientIDNull.String,
+		FacebookClickID:  fbClickIDNull.String,
+		FacebookClientID: fbClientIDNull.String,
 		DateCreated:      time.Now().Unix(),
 		DateExpires:      expirationTime.Unix(),
 	}
