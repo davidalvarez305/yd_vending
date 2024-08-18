@@ -350,7 +350,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 			ClientUserAgent: helpers.SafeString(form.UserAgent),
 		},
 	}
-	fmt.Printf("FACEBOOK: %+v\n", fbEvent)
 
 	metaPayload := types.FacebookPayload{
 		Data: []types.FacebookEventData{fbEvent},
