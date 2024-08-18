@@ -18,6 +18,7 @@ var (
 	PostgresDBName              string
 	DavidPhoneNumber            string
 	DavidEmail                  string
+	YovaEmail                   string
 	YovaPhoneNumber             string
 	ServerPort                  string
 	RootDomain                  string
@@ -41,6 +42,7 @@ var (
 	MaxOpenConnections          string
 	MaxIdleConnections          string
 	MaxConnectionLifetime       string
+	CompanyEmail                string
 )
 
 func Init() {
@@ -69,6 +71,7 @@ func Init() {
 	GoogleRefreshToken = os.Getenv("GOOGLE_REFRESH_TOKEN")
 	GoogleJSONPath = "./google.json"
 	DavidEmail = os.Getenv("DAVID_EMAIL")
+	YovaEmail = os.Getenv("YOVA_EMAIL")
 	SessionName = "yd_vending_sessions"
 	LeadsPerPage = 10
 	TwilioCallbackWebhook = "/call/inbound/end"
@@ -80,6 +83,7 @@ func Init() {
 	MaxIdleConnections = os.Getenv("MAX_IDLE_CONNECTIONS")
 	MaxConnectionLifetime = os.Getenv("MAX_CONN_LIFETIME")
 	DomainHost = os.Getenv("DOMAIN_HOST")
+	CompanyEmail = os.Getenv("COMPANY_EMAIL")
 }
 
 var TEMPLATES_DIR = "./templates/"

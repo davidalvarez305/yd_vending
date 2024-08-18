@@ -47,27 +47,26 @@ func CheckIsTokenUsed(decryptedToken string) (bool, error) {
 	return isUsed, nil
 }
 
-func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
+func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
+	var leadID int
 	tx, err := DB.Begin()
 	if err != nil {
-		return fmt.Errorf("error starting transaction: %w", err)
+		return leadID, fmt.Errorf("error starting transaction: %w", err)
 	}
 	defer tx.Rollback()
-
-	var leadID int
 	leadStmt, err := tx.Prepare(`
 		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id, message)
 		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10, $11)
 		RETURNING lead_id
 	`)
 	if err != nil {
-		return fmt.Errorf("error preparing lead statement: %w", err)
+		return leadID, fmt.Errorf("error preparing lead statement: %w", err)
 	}
 	defer leadStmt.Close()
 
 	err = leadStmt.QueryRow(quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, time.Now().Unix(), quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, quoteForm.Message).Scan(&leadID)
 	if err != nil {
-		return fmt.Errorf("error inserting lead: %w", err)
+		return leadID, fmt.Errorf("error inserting lead: %w", err)
 	}
 
 	marketingStmt, err := tx.Prepare(`
@@ -75,22 +74,22 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
 	`)
 	if err != nil {
-		return fmt.Errorf("error preparing marketing statement: %w", err)
+		return leadID, fmt.Errorf("error preparing marketing statement: %w", err)
 	}
 	defer marketingStmt.Close()
 
 	_, err = marketingStmt.Exec(leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.ClickID, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.IP, quoteForm.ExternalID, quoteForm.GoogleClientID, quoteForm.CSRFSecret, quoteForm.FacebookClickID, quoteForm.FacebookClientID, quoteForm.Longitude, quoteForm.Latitude)
 	if err != nil {
-		return fmt.Errorf("error inserting marketing data: %w", err)
+		return leadID, fmt.Errorf("error inserting marketing data: %w", err)
 	}
 
 	err = tx.Commit()
 
 	if err != nil {
-		return fmt.Errorf("error committing transaction: %w", err)
+		return leadID, fmt.Errorf("error committing transaction: %w", err)
 	}
 
-	return nil
+	return leadID, nil
 }
 
 func MarkCSRFTokenAsUsed(token string) error {
@@ -189,6 +188,39 @@ func GetUserIDFromPhoneNumber(from string) (int, error) {
 	}
 
 	return userId, nil
+}
+
+func GetConversionLeadInfo(leadId int) (types.ConversionLeadInfo, error) {
+	var leadConversionInfo types.ConversionLeadInfo
+
+	stmt, err := DB.Prepare(`SELECT l.lead_id, l.created_at, c."name" , vt.machine_type, vl.location_type
+		FROM "lead" AS l
+	JOIN vending_type  AS vt ON vt.vending_type_id = l.vending_type_id
+	JOIN vending_location AS vl ON vl.vending_location_id  = l.vending_location_id 
+	join city as c on c.city_id = l.city_id
+	WHERE l.lead_id = $1;`)
+
+	if err != nil {
+		return leadConversionInfo, fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(leadId)
+
+	var createdAt time.Time
+	err = row.Scan(&leadConversionInfo.LeadID,
+		&createdAt,
+		&leadConversionInfo.City,
+		&leadConversionInfo.MachineType,
+		&leadConversionInfo.LocationType,
+	)
+	if err != nil {
+		return leadConversionInfo, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	leadConversionInfo.CreatedAt = createdAt.Unix()
+
+	return leadConversionInfo, nil
 }
 
 func GetPhoneNumberFromUserID(userID int) (string, error) {

@@ -336,7 +336,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		form.CSRFSecret = &decodedSecret
 	}
 
-	err = database.CreateLeadAndMarketing(form)
+	leadID, err := database.CreateLeadAndMarketing(form)
 	if err != nil {
 		fmt.Printf("Error creating lead: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -347,6 +347,24 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 			},
 		}
 		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	// HTML successful lead creation
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Awesome!",
+			"AlertMessage": "We received your request and will be right with you.",
+		},
+	}
+
+	lead, err := database.GetConversionLeadInfo(leadID)
+
+	if err != nil {
+		fmt.Printf("ERROR GETTING NEW LEAD FROM DB: %+v\n", err)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -362,7 +380,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 			Phone:           helpers.HashString(helpers.SafeString(form.PhoneNumber)),
 			FBC:             helpers.SafeString(form.FacebookClickID),
 			FBP:             helpers.SafeString(form.FacebookClientID),
-			City:            helpers.HashString(helpers.SafeString(form.CityString)),
+			City:            helpers.HashString(lead.City),
 			State:           helpers.HashString("Florida"),
 			ExternalID:      helpers.HashString(helpers.SafeString(form.ExternalID)),
 			ClientIPAddress: helpers.SafeString(form.IP),
@@ -400,13 +418,41 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		fmt.Printf("Error sending Facebook conversion: %+v\n", err)
 	}
 
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "modal",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
-		Data: map[string]any{
-			"AlertHeader":  "Awesome!",
-			"AlertMessage": "We received your request and will be right with you.",
-		},
+	// New lead notification
+	subject := "YD Vending: New Lead"
+	recipients := []string{constants.DavidEmail, constants.YovaEmail}
+	templateFile := constants.PARTIAL_TEMPLATES_DIR + "new_lead_notification_email.html"
+
+	var notificationTemplateData = map[string]any{
+		"Name":           helpers.SafeString(form.FirstName) + " " + helpers.SafeString(form.LastName),
+		"PhoneNumber":    helpers.SafeString(form.PhoneNumber),
+		"DateCreated":    time.Unix(lead.CreatedAt, 0).Format("01/02/2006 3 PM"),
+		"MachineType":    lead.MachineType,
+		"LocationType":   lead.LocationType,
+		"City":           lead.City,
+		"Message":        helpers.SafeString(form.Message),
+		"LeadDetailsURL": fmt.Sprintf("%s/crm/lead/%d", constants.RootDomain, leadID),
+		"Location":       "",
+	}
+
+	if helpers.SafeString(form.Longitude) != "0.0" && len(helpers.SafeString(form.Longitude)) > 0 || helpers.SafeString(form.Latitude) != "0.0" && len(helpers.SafeString(form.Latitude)) > 0 {
+		notificationTemplateData["Location"] = fmt.Sprintf("https://www.google.com/maps?q=%s,%s", helpers.SafeString(form.Latitude), helpers.SafeString(form.Longitude))
+	}
+
+	template, err := helpers.BuildStringFromTemplate(templateFile, "email", notificationTemplateData)
+
+	if err != nil {
+		fmt.Printf("ERROR BUILDING QUOTE NOTIFICATION TEMPLATE: %+v\n", err)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
+	err = services.SendGmail(recipients, subject, constants.CompanyEmail, body)
+	if err != nil {
+		fmt.Printf("ERROR SENDING QUOTE NOTIFICATION EMAIL: %+v\n", err)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
 	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
@@ -477,7 +523,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 	}
 
 	subject := "Contact Form: YD Vending"
-	recipient := constants.DavidEmail
+	recipients := []string{constants.DavidEmail, constants.YovaEmail}
 	templateFile := constants.PARTIAL_TEMPLATES_DIR + "contact_form_email.html"
 
 	template, err := helpers.BuildStringFromTemplate(templateFile, "email", form)
@@ -496,7 +542,7 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 	}
 
 	body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
-	err = services.SendGmail(recipient, subject, form.Email, body)
+	err = services.SendGmail(recipients, subject, form.Email, body)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

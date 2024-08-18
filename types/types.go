@@ -43,7 +43,6 @@ type QuoteForm struct {
 	GoogleClientID   *string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
 	FacebookClickID  *string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
 	FacebookClientID *string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
-	CityString       *string `json:"city_string" form:"city_string" schema:"city_string"`
 	CSRFSecret       *[]byte `json:"csrf_secret"`
 }
 
@@ -284,4 +283,12 @@ type GooglePayload struct {
 	ClientID string            `json:"client_id"`
 	UserId   string            `json:"userId"`
 	Events   []GoogleEventLead `json:"events"`
+}
+
+type ConversionLeadInfo struct {
+	LeadID       int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	City         string `json:"city" form:"city" schema:"city"`
+	MachineType  string `json:"machine_type" form:"machine_type" schema:"machine_type"`
+	LocationType string `json:"location_type" form:"location_type" schema:"location_type"`
+	CreatedAt    int64  `json:"created_at" form:"created_at" schema:"created_at"`
 }

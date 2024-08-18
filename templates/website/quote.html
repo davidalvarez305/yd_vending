@@ -120,12 +120,6 @@
             data.append(key, value);
         }
 
-        // City name for conv reporting
-        const city = document.getElementById('city');
-        if (city) {
-            data.append('city_string', city.options[city.selectedIndex]?.textContent || '');
-        }
-
         fetch("/quote", {
             method: "POST",
             credentials: "include",
