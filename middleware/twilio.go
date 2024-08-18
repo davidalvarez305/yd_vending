@@ -1,39 +1,38 @@
 package middleware
 
 import (
-	"crypto/hmac"
-	"crypto/sha1"
-	"encoding/base64"
 	"fmt"
 	"net/http"
-	"strings"
+	"os"
 
-	"github.com/davidalvarez305/yd_vending/constants"
+	"github.com/twilio/twilio-go/client"
 )
 
 func validateTwilioWebhook(r *http.Request) error {
-	authToken := constants.TwilioAuthToken
+	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
+
+	requestValidator := client.NewRequestValidator(authToken)
 	twilioSignature := r.Header.Get("X-Twilio-Signature")
 
 	url := "https://" + r.Host + r.URL.Path
-	if r.URL.RawQuery != "" {
-		url += "?" + r.URL.RawQuery
-	}
 
-	data := url
 	if r.Method == "POST" {
-		r.ParseForm()
-		data += strings.Join(r.Form["Body"], "")
-		return nil
+		if err := r.ParseForm(); err != nil {
+			return fmt.Errorf("failed to parse form data: %w", err)
+		}
 	}
 
-	mac := hmac.New(sha1.New, []byte(authToken))
-	mac.Write([]byte(data))
-	expectedSignature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	params := make(map[string]string)
+	for key, values := range r.Form {
+		if len(values) > 0 {
+			params[key] = values[0]
+		}
+	}
 
-	if !hmac.Equal([]byte(twilioSignature), []byte(expectedSignature)) {
-		// return errors.New("invalid Twilio signature")
-		fmt.Println("invalid Twilio signature")
+	isValid := requestValidator.Validate(url, params, twilioSignature)
+
+	if !isValid {
+		return fmt.Errorf("invalid Twilio signature")
 	}
 
 	return nil

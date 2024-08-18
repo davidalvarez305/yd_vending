@@ -12,9 +12,11 @@ import (
 
 	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/types"
+	twilio "github.com/twilio/twilio-go"
+	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
-func SendOutboundMessage(form types.OutboundMessageForm) (types.TwilioSMSResponse, error) {
+func SendOutboundMessageREST(form types.OutboundMessageForm) (types.TwilioSMSResponse, error) {
 	var response types.TwilioSMSResponse
 
 	accountSID := constants.TwilioAccountSID
@@ -55,4 +57,15 @@ func SendOutboundMessage(form types.OutboundMessageForm) (types.TwilioSMSRespons
 		log.Printf("Error sending request: status %d", resp.StatusCode)
 		return response, errors.New("failed to send message")
 	}
+}
+
+func SendOutboundMessage(form types.OutboundMessageForm) (*openapi.ApiV2010Message, error) {
+	client := twilio.NewRestClient()
+
+	params := &openapi.CreateMessageParams{}
+	params.SetTo("+1" + form.To)
+	params.SetFrom("+1" + form.From)
+	params.SetBody(form.Body)
+
+	return client.Api.CreateMessage(params)
 }

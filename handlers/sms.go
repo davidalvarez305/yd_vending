@@ -281,8 +281,11 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var externalID = helpers.SafeString(messageResponse.Sid)
+	var messageStatus = helpers.SafeString(messageResponse.Status)
+
 	message := models.Message{
-		ExternalID:  messageResponse.Sid,
+		ExternalID:  externalID,
 		UserID:      userId,
 		LeadID:      leadId,
 		Text:        form.Body,
@@ -290,7 +293,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		TextTo:      form.To,
 		IsInbound:   false,
 		DateCreated: time.Now().Unix(),
-		Status:      messageResponse.Status,
+		Status:      messageStatus,
 	}
 
 	err = database.SaveSMS(message)
