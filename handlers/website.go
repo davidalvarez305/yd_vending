@@ -335,7 +335,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	fbEvent := types.FacebookEventData{
 		EventName:      "quote",
 		EventTime:      time.Now().Unix(),
-		ActionSource:   "Web",
+		ActionSource:   "website",
 		EventSourceURL: helpers.SafeString(form.LandingPage),
 		UserData: types.FacebookUserData{
 			FirstName:       helpers.HashString(helpers.SafeString(form.FirstName)),
