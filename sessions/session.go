@@ -122,7 +122,7 @@ func SetCookie(w http.ResponseWriter, expires time.Time, value string) http.Resp
 		Domain:   constants.DomainHost,
 		Expires:  expires,
 		HttpOnly: false,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 		Secure:   true,
 	})
 
