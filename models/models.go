@@ -70,7 +70,7 @@ type LeadMarketing struct {
 	GoogleClientID   string `json:"google_client_id"`
 	FacebookClickID  string `json:"facebook_click_id"`
 	FacebookClientID string `json:"facebook_client_id"`
-	CSRFSecret       []byte `json:"csrf_secret"`
+	CSRFSecret       string `json:"csrf_secret"`
 }
 
 type CSRFToken struct {

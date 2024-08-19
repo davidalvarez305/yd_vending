@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net/http"
 	"time"
@@ -306,21 +305,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		return
 	}
 
-	decodedSecret, err := hex.DecodeString(session.CSRFSecret)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to decode csrf secret.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
 	// User Marketing Variables
 	var userIP = helpers.GetUserIPFromRequest(r)
 	var userAgent = r.Header.Get("User-Agent")
@@ -349,8 +333,8 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		form.ExternalID = &session.ExternalID
 	}
 
-	if len(decodedSecret) > 0 {
-		form.CSRFSecret = &decodedSecret
+	if session.CSRFSecret != "" {
+		form.CSRFSecret = &session.CSRFSecret
 	}
 
 	leadID, err := database.CreateLeadAndMarketing(form)

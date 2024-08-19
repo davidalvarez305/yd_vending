@@ -43,7 +43,7 @@ type QuoteForm struct {
 	GoogleClientID   *string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
 	FacebookClickID  *string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
 	FacebookClientID *string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
-	CSRFSecret       *[]byte `json:"csrf_secret"`
+	CSRFSecret       *string `json:"csrf_secret" form:"csrf_secret"`
 }
 
 type ContactForm struct {
