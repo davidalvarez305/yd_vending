@@ -37,7 +37,29 @@ type Lead struct {
 	VendingTypeID     int    `json:"vending_type_id"`
 	VendingLocationID int    `json:"vending_location_id"`
 	CityID            int    `json:"city_id"`
+	LeadStatusID      int    `json:"lead_status_id" form:"lead_status_id" schema:"lead_status_id"`
 	Message           string `json:"message"`
+}
+
+type LeadStatus struct {
+	LeadStatusID int    `json:"lead_status_id" form:"lead_status_id" schema:"lead_status_id"`
+	Status       string `json:"status" form:"status" schema:"status"`
+}
+
+type LeadStatusLog struct {
+	LeadStatusLogID int   `json:"lead_status_log_id" form:"lead_status_log_id" schema:"lead_status_log_id"`
+	LeadID          int   `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	LeadStatusID    int   `json:"lead_status_id" form:"lead_status_id" schema:"lead_status_id"`
+	DateAdded       int64 `json:"date_added" form:"date_added" schema:"date_added"`
+	ChangedByUserID int   `json:"changed_by_user_id" form:"changed_by_user_id" schema:"changed_by_user_id"`
+}
+
+type LeadNote struct {
+	LeadNoteID    int    `json:"lead_note_id" form:"lead_note_id" schema:"lead_note_id"`
+	Note          string `json:"note" form:"note" schema:"note"`
+	LeadID        int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	DateAdded     int64  `json:"date_added" form:"date_added" schema:"date_added"`
+	AddedByUserID int    `json:"added_by_user_id" form:"added_by_user_id" schema:"added_by_user_id"`
 }
 
 type LeadMarketing struct {
