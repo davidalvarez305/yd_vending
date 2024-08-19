@@ -253,9 +253,9 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 			},
 		}
 
-		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		token, err := helpers.GenerateTokenInHeader(w, r)
 		if err == nil {
-			w = newWriter
+			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -307,9 +307,9 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 			},
 		}
 
-		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		token, err := helpers.GenerateTokenInHeader(w, r)
 		if err == nil {
-			w = newWriter
+			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -360,9 +360,9 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 			},
 		}
 
-		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		token, err := helpers.GenerateTokenInHeader(w, r)
 		if err == nil {
-			w = newWriter
+			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -520,9 +520,9 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 			},
 		}
 
-		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		token, err := helpers.GenerateTokenInHeader(w, r)
 		if err == nil {
-			w = newWriter
+			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -542,9 +542,9 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 				"Message": "Error decoding form data.",
 			},
 		}
-		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		token, err := helpers.GenerateTokenInHeader(w, r)
 		if err == nil {
-			w = newWriter
+			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -566,9 +566,9 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 				"Message": "Error building e-mail template.",
 			},
 		}
-		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		token, err := helpers.GenerateTokenInHeader(w, r)
 		if err == nil {
-			w = newWriter
+			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -587,9 +587,9 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 				"Message": "Failed to send message.",
 			},
 		}
-		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		token, err := helpers.GenerateTokenInHeader(w, r)
 		if err == nil {
-			w = newWriter
+			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -677,6 +677,11 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	user, err := database.GetUserByUsername(username)
 	if err != nil {
 		tmplCtx.Data["Message"] = "Invalid username."
+
+		token, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w.Header().Set("X-Csrf-Token", token)
+		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -684,6 +689,11 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	isValid := helpers.ValidatePassword(password, user.Password)
 	if !isValid {
 		tmplCtx.Data["Message"] = "Invalid password."
+
+		token, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w.Header().Set("X-Csrf-Token", token)
+		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -691,6 +701,11 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	session, err := sessions.Get(r)
 	if err != nil {
 		tmplCtx.Data["Message"] = "Could not retrieve session."
+
+		token, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w.Header().Set("X-Csrf-Token", token)
+		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -699,6 +714,11 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	err = sessions.Update(session)
 	if err != nil {
 		tmplCtx.Data["Message"] = "Could not update session."
+
+		token, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w.Header().Set("X-Csrf-Token", token)
+		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}

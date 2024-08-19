@@ -58,6 +58,14 @@
         })
         .then((response) => {
             if (response.ok) {
+                const token = response.headers.get('X-Csrf-Token');
+                if (token) {
+                    const csrf_token = document.getElementById('csrf_token');
+
+                    if (!csrf_token) return;
+
+                    csrf_token.value = token;
+                }
                 return response.text();
             } else {
                 return response.text().then((err) => {

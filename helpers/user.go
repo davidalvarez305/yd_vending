@@ -96,16 +96,17 @@ func UserAgentIsBot(userAgent string) bool {
 	return false
 }
 
-func GenerateTokenInHeader(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
+func GenerateTokenInHeader(w http.ResponseWriter, r *http.Request) (string, error) {
+	var token string
 	csrfSecret, ok := r.Context().Value("csrf_secret").(string)
 	if !ok {
-		return w, fmt.Errorf("error retrieving user secret token in middleware")
+		return token, fmt.Errorf("error retrieving user secret token in middleware")
 	}
 
 	decodedSecret, err := hex.DecodeString(csrfSecret)
 	if err != nil {
 		fmt.Printf("Error decoding user secret token in middleware: %+v\n", err)
-		return w, err
+		return token, err
 	}
 
 	var unixTime = time.Now().Unix() + 300
@@ -113,7 +114,7 @@ func GenerateTokenInHeader(w http.ResponseWriter, r *http.Request) (http.Respons
 	encryptedToken, err := csrf.EncryptToken(unixTime, decodedSecret)
 	if err != nil {
 		fmt.Printf("Error encrypting new CSRF token: %+v\n", err)
-		return w, err
+		return token, err
 	}
 
 	csrfToken := models.CSRFToken{
@@ -125,10 +126,10 @@ func GenerateTokenInHeader(w http.ResponseWriter, r *http.Request) (http.Respons
 	err = database.InsertCSRFToken(csrfToken)
 	if err != nil {
 		fmt.Printf("Error inserting CSRF token: %+v\n", err)
-		return w, err
+		return token, err
 	}
 
-	w.Header().Set("X-Csrf-Token", csrfToken.Token)
+	token = csrfToken.Token
 
-	return w, nil
+	return token, nil
 }

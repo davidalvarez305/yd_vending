@@ -79,7 +79,7 @@
 
             if (!csrf_token) return;
 
-            csrf_token.textContent = token;
+            csrf_token.value = token;
           }
 
           return response.text();

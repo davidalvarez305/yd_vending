@@ -361,7 +361,7 @@ func PutLead(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	newWriter, err := helpers.GenerateTokenInHeader(w, r)
+	token, err := helpers.GenerateTokenInHeader(w, r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -376,7 +376,7 @@ func PutLead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w = newWriter
+	w.Header().Set("X-Csrf-Token", token)
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
@@ -439,7 +439,7 @@ func PutLeadMarketing(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	newWriter, err := helpers.GenerateTokenInHeader(w, r)
+	token, err := helpers.GenerateTokenInHeader(w, r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -454,7 +454,7 @@ func PutLeadMarketing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w = newWriter
+	w.Header().Set("X-Csrf-Token", token)
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

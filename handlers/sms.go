@@ -334,7 +334,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	newWriter, err := helpers.GenerateTokenInHeader(w, r)
+	token, err := helpers.GenerateTokenInHeader(w, r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -349,8 +349,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w = newWriter
-
+	w.Header().Set("X-Csrf-Token", token)
 	w.WriteHeader(http.StatusOK)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

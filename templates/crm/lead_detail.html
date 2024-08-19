@@ -295,11 +295,9 @@
                     const token = response.headers.get('X-Csrf-Token');
 
                     if (token) {
-                        const csrf_token = document.getElementById('csrf_token');
+                        const tokens = document.querySelectorAll('[name="csrf_token"]');
 
-                        if (!csrf_token) return;
-
-                        csrf_token.textContent = token;
+                        tokens.forEach(csrf_token => csrf_token.value = token);
                     }
 
                     return response.text();

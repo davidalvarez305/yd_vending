@@ -39,7 +39,8 @@
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
-                    <label for="rent" class="font-medium">Rent details (profit sharing, no rent, commission, etc...)</label>
+                    <label for="rent" class="font-medium">Rent details (profit sharing, no rent, commission,
+                        etc...)</label>
                     <input type="tel" id="rent" name="rent"
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
@@ -76,7 +77,8 @@
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
                 <div class="space-y-1">
-                    <label for="foot_traffic_type" class="font-medium">Foot Traffic Type (shopping plaza, warehouse workers, etc...)</label>
+                    <label for="foot_traffic_type" class="font-medium">Foot Traffic Type (shopping plaza, warehouse
+                        workers, etc...)</label>
                     <input type="text" id="foot_traffic_type" name="foot_traffic_type"
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </div>
@@ -133,7 +135,7 @@
 
                         if (!csrf_token) return;
 
-                        csrf_token.textContent = token;
+                        csrf_token.value = token;
                     }
 
                     return response.text();
