@@ -167,8 +167,8 @@ func AuthRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		values, err := sessions.Get(r)
 		if err != nil {
-			fmt.Printf("USER ID PERMISSION DENIED: %+v\n", err)
-			http.Error(w, "Permission denied", http.StatusUnauthorized)
+			fmt.Printf("SESSION NOT FOUND, REDIRECTING TO LOGIN PAGE: %+v\n", err)
+			http.Redirect(w, r, "/login?redirect="+r.URL.Path, http.StatusSeeOther)
 			return
 		}
 

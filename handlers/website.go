@@ -666,6 +666,12 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 
 	sessions.SetCookie(w, time.Now().Add(24*time.Hour), session.CSRFSecret)
 
+	var redirect = r.URL.Query().Get("redirect")
+
+	if len(redirect) > 0 {
+		http.Redirect(w, r, redirect, http.StatusSeeOther)
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
