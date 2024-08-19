@@ -732,5 +732,5 @@ func PostLogout(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext
 
 	sessions.SetCookie(w, time.Now().Add(-1*time.Hour), "")
 
-	w.WriteHeader(http.StatusOK)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
