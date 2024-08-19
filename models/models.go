@@ -140,3 +140,54 @@ type Session struct {
 	DateCreated      int64  `json:"date_created" form:"date_created" schema:"date_created"`
 	DateExpires      int64  `json:"date_expires" form:"date_expires" schema:"date_expires"`
 }
+
+type Location struct {
+	LocationID          int    `json:"location_id" form:"location_id" schema:"location_id"`
+	LocationTypeID      int    `json:"location_type_id" form:"location_type_id" schema:"location_type_id"`
+	BusinessID          int    `json:"business_id" form:"business_id" schema:"business_id"`
+	Name                string `json:"name" form:"name" schema:"name"`
+	Longitude           string `json:"longitude" form:"longitude" schema:"longitude"`
+	Latitude            string `json:"latitude" form:"latitude" schema:"latitude"`
+	StreetAdressLineOne string `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAdressLineTwo string `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	CityID              int    `json:"city_id" form:"city_id" schema:"city_id"`
+	ZipCode             string `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State               string `json:"state" form:"state" schema:"state"`
+	Opening             int    `json:"opening" form:"opening" schema:"opening"`
+	Closing             int    `json:"closing" form:"closing" schema:"closing"`
+}
+
+type MachineStatus struct {
+	MachineStatusID int    `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
+	Status          string `json:"status" form:"status" schema:"status"`
+}
+
+type Machine struct {
+	MachineID            int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	VendingTypeID        int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	Brand                string `json:"brand" form:"brand" schema:"brand"`
+	LocationID           int    `json:"location_id" form:"location_id" schema:"location_id"`
+	Nickname             string `json:"nickname" form:"nickname" schema:"nickname"`
+	Capacity             int    `json:"capacity" form:"capacity" schema:"capacity"`
+	DatePurchased        int64  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
+	MachineStatusID      int    `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
+	PowerConsumption     int    `json:"power_consumption" form:"power_consumption" schema:"power_consumption"`
+	PowerConsumptionType int    `json:"power_consumption_type" form:"power_consumption_type" schema:"power_consumption_type"`
+}
+
+type Business struct {
+	BusinessID int    `json:"business_id" form:"business_id" schema:"business_id"`
+	Name       string `json:"name" form:"name" schema:"name"`
+}
+
+type BusinessContact struct {
+	BusinessContactID      int    `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
+	FirstName              string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName               string `json:"last_name" form:"last_name" schema:"last_name"`
+	Phone                  string `json:"phone" form:"phone" schema:"phone"`
+	Email                  string `json:"email" form:"email" schema:"email"`
+	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
+	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
+	BusinessID             int    `json:"business_id" form:"business_id" schema:"business_id"`
+	BusinessPosition       string `json:"business_position" form:"business_position" schema:"business_position"`
+}
