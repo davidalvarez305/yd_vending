@@ -74,17 +74,15 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 		var csrfURLs = []string{"/contact", "/quote", "/login", "/crm"}
 
 		if r.Method == http.MethodGet && csrf.IsCSRFURL(csrfURLs, r.URL.Path) {
-			token, err := helpers.GetTokenFromSession(r)
-
-			if err != nil {
-				fmt.Printf("%+v\n", err)
-				http.Error(w, "Error getting user token from session.", http.StatusBadRequest)
+			csrfSecret, ok := r.Context().Value("csrf_secret").(string)
+			if !ok {
+				http.Error(w, "Error retrieving user secret token in middleware.", http.StatusInternalServerError)
 				return
 			}
 
-			var unixTime = time.Now().Unix() + 300 // 5 minutes
+			var unixTime = time.Now().Unix() + 300
 
-			encryptedToken, err := csrf.EncryptToken(unixTime, token)
+			encryptedToken, err := csrf.EncryptToken(unixTime, []byte(csrfSecret))
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error encrypting CSRF token.", http.StatusInternalServerError)

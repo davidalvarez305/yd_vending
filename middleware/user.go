@@ -22,7 +22,7 @@ func UserTracking(next http.Handler) http.Handler {
 			return
 		}
 
-		var externalId string
+		var externalId, csrfSecret string
 
 		if isNew {
 			session, err := sessions.Create(r, w)
@@ -35,7 +35,8 @@ func UserTracking(next http.Handler) http.Handler {
 
 			sessions.SetCookie(w, expirationTime, session.CSRFSecret)
 
-			externalId = session.CSRFSecret
+			externalId = session.ExternalID
+			csrfSecret = session.CSRFSecret
 		}
 
 		if !isNew {
@@ -46,9 +47,11 @@ func UserTracking(next http.Handler) http.Handler {
 			}
 
 			externalId = session.CSRFSecret
+			csrfSecret = session.CSRFSecret
 		}
 
 		r = r.WithContext(context.WithValue(r.Context(), "external_id", externalId))
+		r = r.WithContext(context.WithValue(r.Context(), "csrf_secret", csrfSecret))
 		next.ServeHTTP(w, r)
 	})
 }
