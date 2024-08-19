@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,6 +37,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		path := r.URL.Path
+
+		// Get messages by lead
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains("/messages", path) {
+			GetLeadMessagesPartial(w, r)
+			return
+		}
 
 		// Handle lead details
 		if strings.HasPrefix(path, "/crm/lead/") {
@@ -455,6 +462,49 @@ func PutLeadMarketing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("X-Csrf-Token", token)
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetLeadMessagesPartial(w http.ResponseWriter, r *http.Request) {
+	trimmedPath := strings.TrimPrefix(r.URL.Path, "/crm/lead/")
+
+	// Split the remaining path to get leadId and ignore the rest
+	parts := strings.SplitN(trimmedPath, "/", 2)
+	if len(parts) < 2 {
+		http.Error(w, "Invalid path format", http.StatusBadRequest)
+		return
+	}
+
+	leadIdStr := parts[0]
+	leadId, err := strconv.Atoi(leadIdStr)
+	if err != nil {
+		http.Error(w, "Invalid lead ID", http.StatusBadRequest)
+		return
+	}
+
+	messages, err := database.GetMessagesByLeadID(leadId)
+	if err != nil {
+		fmt.Printf("Error getting messages: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get new messages.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "messages.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "messages.html",
+		Data: map[string]any{
+			"Messages": messages,
+		},
+	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
