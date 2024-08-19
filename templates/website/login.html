@@ -67,12 +67,19 @@
         })
         .then(html => {
             if (html.length === 0) {
-                window.location.replace("/crm/dashboard");
+                const redirect = new URLSearchParams(window.location.search).get('redirect');
+
+                if (!redirect) return;
+
+                const path = new URL(redirect, window.location.origin);
+                if (path.origin === window.location.origin) {
+                    window.location.replace(path);
+                }
+
                 return;
             }
 
             alertModal.outerHTML = html;
-            const modal = document.getElementById("alertModal");
             handleCloseAlertModal();
 
             form.reset();
