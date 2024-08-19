@@ -39,19 +39,18 @@ function getHost(urlString) {
 
 function getClickId() {
   for (const key of clickIdKeys) {
-    if (qs.has(key)) return qs.get(key);
+    if (qs.has(key)) return [key, qs.get(key)];
   }
 }
 
-function checkClickId() {
+function isPaid() {
   for (const key of clickIdKeys) {
     if (qs.has(key)) {
-      qs.delete(key);
-      break;
+      return true;
     }
   }
 
-  return qs.has("click_id");
+  return false;
 }
 
 function getMedium(referrer) {
@@ -62,7 +61,7 @@ function getMedium(referrer) {
   if (qs.size === 0) return "organic";
 
   // Paid ads
-  if (checkClickId()) return "paid";
+  if (isPaid()) return "paid";
 
   // Querystring + non-empty referrer and no click id === referral
   return "referral";
@@ -198,7 +197,12 @@ function handleCTAClick(e) {
   qs.set("longitude", longitude);
   qs.set("latitude", latitude);
   qs.set("language", language);
-  if (checkClickId()) qs.set("click_id", getClickId());
+
+  if (isPaid()) {
+    const [key, clickId] = getClickId();
+    qs.set("click_id", clickId)
+    qs.delete(key);
+  };
 
   const currentDomain = new URL(window.location.origin + "/quote");
 
