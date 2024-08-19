@@ -259,20 +259,42 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	}
 
 	var form types.QuoteForm
-	err = decoder.Decode(&form, r.PostForm)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error decoding form data.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
+	form.FirstName = helpers.GetStringPointerFromForm(r, "first_name")
+	form.LastName = helpers.GetStringPointerFromForm(r, "last_name")
+	form.PhoneNumber = helpers.GetStringPointerFromForm(r, "phone_number")
+	form.Rent = helpers.GetStringPointerFromForm(r, "rent")
+	form.City = helpers.GetIntPointerFromForm(r, "city")
+	form.LocationType = helpers.GetIntPointerFromForm(r, "location_type")
+	form.MachineType = helpers.GetIntPointerFromForm(r, "machine_type")
+	form.FootTraffic = helpers.GetStringPointerFromForm(r, "foot_traffic")
+	form.FootTrafficType = helpers.GetStringPointerFromForm(r, "foot_traffic_type")
+	form.Message = helpers.GetStringPointerFromForm(r, "message")
+	form.Source = helpers.GetStringPointerFromForm(r, "source")
+	form.Medium = helpers.GetStringPointerFromForm(r, "medium")
+	form.Channel = helpers.GetStringPointerFromForm(r, "channel")
+	form.LandingPage = helpers.GetStringPointerFromForm(r, "landing_page")
+	form.Keyword = helpers.GetStringPointerFromForm(r, "keyword")
+	form.Referrer = helpers.GetStringPointerFromForm(r, "referrer")
+	form.ClickID = helpers.GetStringPointerFromForm(r, "click_id")
+	form.CampaignID = helpers.GetIntPointerFromForm(r, "campaign_id")
+	form.AdCampaign = helpers.GetStringPointerFromForm(r, "ad_campaign")
+	form.AdGroupID = helpers.GetIntPointerFromForm(r, "ad_group_id")
+	form.AdGroupName = helpers.GetStringPointerFromForm(r, "ad_group_name")
+	form.AdSetID = helpers.GetIntPointerFromForm(r, "ad_set_id")
+	form.AdSetName = helpers.GetStringPointerFromForm(r, "ad_set_name")
+	form.AdID = helpers.GetIntPointerFromForm(r, "ad_id")
+	form.AdHeadline = helpers.GetIntPointerFromForm(r, "ad_headline")
+	form.Language = helpers.GetStringPointerFromForm(r, "language")
+	form.Longitude = helpers.GetStringPointerFromForm(r, "longitude")
+	form.Latitude = helpers.GetStringPointerFromForm(r, "latitude")
+	form.UserAgent = helpers.GetStringPointerFromForm(r, "user_agent")
+	form.ButtonClicked = helpers.GetStringPointerFromForm(r, "button_clicked")
+	form.IP = helpers.GetStringPointerFromForm(r, "ip")
+	form.CSRFToken = helpers.GetStringPointerFromForm(r, "csrf_token")
+	form.ExternalID = helpers.GetStringPointerFromForm(r, "external_id")
+	form.GoogleClientID = helpers.GetStringPointerFromForm(r, "google_client_id")
+	form.FacebookClickID = helpers.GetStringPointerFromForm(r, "facebook_click_id")
+	form.FacebookClientID = helpers.GetStringPointerFromForm(r, "facebook_client_id")
 
 	session, err := sessions.Get(r)
 	if err != nil {
