@@ -290,11 +290,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	form.UserAgent = helpers.GetStringPointerFromForm(r, "user_agent")
 	form.ButtonClicked = helpers.GetStringPointerFromForm(r, "button_clicked")
 	form.IP = helpers.GetStringPointerFromForm(r, "ip")
-	form.CSRFToken = helpers.GetStringPointerFromForm(r, "csrf_token")
-	form.ExternalID = helpers.GetStringPointerFromForm(r, "external_id")
-	form.GoogleClientID = helpers.GetStringPointerFromForm(r, "google_client_id")
-	form.FacebookClickID = helpers.GetStringPointerFromForm(r, "facebook_click_id")
-	form.FacebookClientID = helpers.GetStringPointerFromForm(r, "facebook_client_id")
 
 	session, err := sessions.Get(r)
 	if err != nil {
