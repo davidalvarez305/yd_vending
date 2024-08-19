@@ -181,7 +181,7 @@ func AuthRequired(next http.Handler) http.Handler {
 
 		if !user.IsAdmin {
 			fmt.Printf("IS NOT ADMIN PERMISSION DENIED: %+v\n", err)
-			http.Error(w, "Permission denied", http.StatusUnauthorized)
+			http.Error(w, "Admins only.", http.StatusUnauthorized)
 			return
 		}
 
