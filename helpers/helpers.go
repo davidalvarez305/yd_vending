@@ -149,14 +149,14 @@ func SafeStringToPointer(s string) *string {
 	return &s
 }
 
-func GetStringPointerFromForm(form types.QuoteForm, key string) *string {
+func GetStringPointerFromForm(r *http.Request, key string) *string {
 	if values, ok := r.Form[key]; ok && len(values) > 0 {
 	    return &values[0]
 	}
 	return nil
 }
 
-func GetIntPointerFromForm(form types.QuoteForm, key string) *int {
+func GetIntPointerFromForm(r *http.Request, key string) *int {
 	if values, ok := r.Form[key]; ok && len(values) > 0 {
 	    if i, err := strconv.Atoi(values[0]); err == nil {
 		return &i
