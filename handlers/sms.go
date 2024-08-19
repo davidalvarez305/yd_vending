@@ -334,6 +334,23 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	newWriter, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w = newWriter
+
 	w.WriteHeader(http.StatusOK)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

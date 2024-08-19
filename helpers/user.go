@@ -2,9 +2,14 @@ package helpers
 
 import (
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/davidalvarez305/yd_vending/csrf"
+	"github.com/davidalvarez305/yd_vending/database"
+	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -89,4 +94,41 @@ func UserAgentIsBot(userAgent string) bool {
 		}
 	}
 	return false
+}
+
+func GenerateTokenInHeader(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
+	csrfSecret, ok := r.Context().Value("csrf_secret").(string)
+	if !ok {
+		return w, fmt.Errorf("error retrieving user secret token in middleware")
+	}
+
+	decodedSecret, err := hex.DecodeString(csrfSecret)
+	if err != nil {
+		fmt.Printf("Error decoding user secret token in middleware: %+v\n", err)
+		return w, err
+	}
+
+	var unixTime = time.Now().Unix() + 300
+
+	encryptedToken, err := csrf.EncryptToken(unixTime, decodedSecret)
+	if err != nil {
+		fmt.Printf("Error encrypting new CSRF token: %+v\n", err)
+		return w, err
+	}
+
+	csrfToken := models.CSRFToken{
+		ExpiryTime: unixTime,
+		Token:      encryptedToken,
+		IsUsed:     false,
+	}
+
+	err = database.InsertCSRFToken(csrfToken)
+	if err != nil {
+		fmt.Printf("Error inserting CSRF token: %+v\n", err)
+		return w, err
+	}
+
+	w.Header().Set("X-Csrf-Token", csrfToken.Token)
+
+	return w, nil
 }

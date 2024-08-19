@@ -252,6 +252,12 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 				"Message": "Invalid request.",
 			},
 		}
+
+		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w = newWriter
+		}
+
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -300,6 +306,12 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 				"Message": "Failed to retrieve session.",
 			},
 		}
+
+		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w = newWriter
+		}
+
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -347,6 +359,12 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 				"Message": "Server error while creating quote request.",
 			},
 		}
+
+		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w = newWriter
+		}
+
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -501,6 +519,12 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 				"Message": "Failed to parse form data.",
 			},
 		}
+
+		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w = newWriter
+		}
+
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -518,6 +542,11 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 				"Message": "Error decoding form data.",
 			},
 		}
+		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w = newWriter
+		}
+
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -537,6 +566,11 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 				"Message": "Error building e-mail template.",
 			},
 		}
+		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w = newWriter
+		}
+
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -553,6 +587,11 @@ func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCo
 				"Message": "Failed to send message.",
 			},
 		}
+		newWriter, err := helpers.GenerateTokenInHeader(w, r)
+		if err == nil {
+			w = newWriter
+		}
+
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
