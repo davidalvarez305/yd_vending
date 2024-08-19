@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strings"
@@ -80,9 +81,15 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
+			decodedSecret, err := hex.DecodeString(csrfSecret)
+			if err != nil {
+				http.Error(w, "Error decoding user secret token in middleware.", http.StatusInternalServerError)
+				return
+			}
+
 			var unixTime = time.Now().Unix() + 300
 
-			encryptedToken, err := csrf.EncryptToken(unixTime, []byte(csrfSecret))
+			encryptedToken, err := csrf.EncryptToken(unixTime, decodedSecret)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error encrypting CSRF token.", http.StatusInternalServerError)
