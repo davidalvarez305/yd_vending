@@ -46,6 +46,25 @@ type QuoteForm struct {
 	CSRFSecret       *string `json:"csrf_secret" form:"csrf_secret"`
 }
 
+type LeadFormWebhook struct {
+	LeadID         string           `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	APIVersion     string           `json:"api_version" form:"api_version" schema:"api_version"`
+	FormID         int64            `json:"form_id" form:"form_id" schema:"form_id"`
+	CampaignID     int64            `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
+	AdGroupID      *int64           `json:"adgroup_id,omitempty" form:"adgroup_id,omitempty" schema:"adgroup_id,omitempty"`
+	CreativeID     *int64           `json:"creative_id,omitempty" form:"creative_id,omitempty" schema:"creative_id,omitempty"`
+	GCLID          string           `json:"gcl_id" form:"gcl_id" schema:"gcl_id"`
+	GoogleKey      string           `json:"google_key" form:"google_key" schema:"google_key"`
+	IsTest         *bool            `json:"is_test,omitempty" form:"is_test,omitempty" schema:"is_test,omitempty"`
+	UserColumnData []UserColumnData `json:"user_column_data" form:"user_column_data" schema:"user_column_data"`
+}
+
+type UserColumnData struct {
+	ColumnID    string `json:"column_id" form:"column_id" schema:"column_id"`
+	ColumnValue string `json:"column_value" form:"column_value" schema:"column_value"`
+	ColumnName  string `json:"column_name,omitempty" form:"column_name,omitempty" schema:"column_name,omitempty"`
+}
+
 type ContactForm struct {
 	CSRFToken string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	FirstName string `json:"first_name" form:"first_name" schema:"first_name"`

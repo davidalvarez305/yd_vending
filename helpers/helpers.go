@@ -5,8 +5,8 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/davidalvarez305/yd_vending/types"
 )
@@ -152,16 +152,24 @@ func SafeStringToPointer(s string) *string {
 
 func GetStringPointerFromForm(r *http.Request, key string) *string {
 	if values, ok := r.Form[key]; ok && len(values) > 0 {
-	    return &values[0]
+		return &values[0]
 	}
 	return nil
 }
 
 func GetIntPointerFromForm(r *http.Request, key string) *int {
 	if values, ok := r.Form[key]; ok && len(values) > 0 {
-	    if i, err := strconv.Atoi(values[0]); err == nil {
-		return &i
-	    }
+		if i, err := strconv.Atoi(values[0]); err == nil {
+			return &i
+		}
 	}
 	return nil
+}
+
+func ParseInt64(value string) int64 {
+	parsedValue, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return parsedValue
 }
