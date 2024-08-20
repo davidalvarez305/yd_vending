@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/types"
 )
 
@@ -23,47 +24,21 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
 		return
 	}
 
 	var leadForm types.LeadFormWebhook
-
-	leadForm.LeadID = r.FormValue("lead_id")
-	leadForm.APIVersion = r.FormValue("api_version")
-	leadForm.FormID = helpers.ParseInt64(r.FormValue("form_id"))
-	leadForm.CampaignID = helpers.ParseInt64(r.FormValue("campaign_id"))
-	leadForm.GCLID = r.FormValue("gcl_id")
-	leadForm.GoogleKey = r.FormValue("google_key")
-
-	if adGroupIDStr := r.FormValue("adgroup_id"); adGroupIDStr != "" {
-		adGroupID := helpers.ParseInt64(adGroupIDStr)
-		leadForm.AdGroupID = &adGroupID
+	if err := json.NewDecoder(r.Body).Decode(&leadForm); err != nil {
+		http.Error(w, "Failed to decode JSON data", http.StatusBadRequest)
+		return
 	}
 
-	if creativeIDStr := r.FormValue("creative_id"); creativeIDStr != "" {
-		creativeID := helpers.ParseInt64(creativeIDStr)
-		leadForm.CreativeID = &creativeID
+	if leadForm.GoogleKey != constants.GoogleWebhookKey {
+		http.Error(w, "Permission denied. Not valid key.", http.StatusForbidden)
+		return
 	}
-
-	if isTestStr := r.FormValue("is_test"); isTestStr != "" {
-		isTest := isTestStr == "true"
-		leadForm.IsTest = &isTest
-	}
-
-	userColumnData := []types.UserColumnData{}
-	for key, values := range r.Form {
-		if key == "user_column_data" {
-			for _, value := range values {
-				userColumnData = append(userColumnData, types.UserColumnData{
-					ColumnID:    value,
-					ColumnValue: value,
-				})
-			}
-		}
-	}
-	leadForm.UserColumnData = userColumnData
 
 	fmt.Printf("LEAD FORM: %+v\n", leadForm)
 }

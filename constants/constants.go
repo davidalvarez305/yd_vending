@@ -43,6 +43,7 @@ var (
 	MaxIdleConnections          string
 	MaxConnectionLifetime       string
 	CompanyEmail                string
+	GoogleWebhookKey            string
 )
 
 func Init() {
@@ -50,6 +51,7 @@ func Init() {
 	FacebookDatasetID = os.Getenv("FACEBOOK_DATASET_ID")
 	GoogleAnalyticsID = os.Getenv("GOOGLE_ANALYTICS_ID")
 	GoogleAnalyticsAPISecretKey = os.Getenv("GOOGLE_ANALYTICS_API_KEY")
+	GoogleWebhookKey = os.Getenv("GOOGLE_WEBHOOK_KEY")
 	PostgresHost = os.Getenv("POSTGRES_HOST")
 	PostgresPort = os.Getenv("POSTGRES_PORT")
 	PostgresUser = os.Getenv("PGUSER")

@@ -61,7 +61,7 @@ type LeadFormWebhook struct {
 
 type UserColumnData struct {
 	ColumnID    string `json:"column_id" form:"column_id" schema:"column_id"`
-	ColumnValue string `json:"column_value" form:"column_value" schema:"column_value"`
+	StringValue string `json:"string_value" form:"string_value" schema:"string_value"`
 	ColumnName  string `json:"column_name,omitempty" form:"column_name,omitempty" schema:"column_name,omitempty"`
 }
 
