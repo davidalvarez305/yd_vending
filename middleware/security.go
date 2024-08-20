@@ -79,7 +79,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 		var csrfURLs = []string{"/contact", "/quote", "/login", "/crm"}
 
-		if r.Method == http.MethodGet && csrf.IsCSRFURL(csrfURLs, r.URL.Path) {
+		if r.Method == http.MethodGet && csrf.UrlsListHasCurrentPath(csrfURLs, r.URL.Path) {
 			csrfSecret, ok := r.Context().Value("csrf_secret").(string)
 			if !ok {
 				http.Error(w, "Error retrieving user secret token in middleware.", http.StatusInternalServerError)

@@ -3,15 +3,17 @@ package middleware
 import (
 	"context"
 	"net/http"
-	"strings"
 	"time"
 
+	"github.com/davidalvarez305/yd_vending/csrf"
 	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
+var urlsToSkip = []string{"/static/", "/partials/", "/sms/", "/call/", "/webhooks/"}
+
 func UserTracking(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.Contains(r.URL.Path, "/static/") || strings.Contains(r.URL.Path, "/partials/") {
+		if csrf.UrlsListHasCurrentPath(urlsToSkip, r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}
