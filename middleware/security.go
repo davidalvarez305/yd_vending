@@ -57,7 +57,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if strings.Contains(r.URL.Path, "/static/") || strings.Contains(r.URL.Path, "/partials/") {
+		if csrf.UrlsListHasCurrentPath([]string{"/static/", "/partials/", "/webhooks/"}, r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -67,12 +67,6 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				http.Error(w, "Error validating Twilio webhook.", http.StatusInternalServerError)
 				return
 			}
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		if strings.Contains(r.URL.Path, "/webhooks/lead-form") {
-			// Validate Google webhook
 			next.ServeHTTP(w, r)
 			return
 		}
