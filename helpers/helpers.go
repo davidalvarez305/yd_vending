@@ -157,6 +157,13 @@ func GetStringPointerFromForm(r *http.Request, key string) *string {
 	return nil
 }
 
+func SafeStringToIntPointer(value string) *int {
+	if val, err := strconv.Atoi(value); err == nil {
+		return &val
+	}
+	return nil
+}
+
 func GetIntPointerFromForm(r *http.Request, key string) *int {
 	if values, ok := r.Form[key]; ok && len(values) > 0 {
 		if i, err := strconv.Atoi(values[0]); err == nil {
