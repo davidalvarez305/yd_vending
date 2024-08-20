@@ -613,9 +613,15 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) 
 	fileName := "login.html"
 	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
 
-	session, err := sessions.Get(r)
+	csrfSecret, ok := r.Context().Value("csrf_secret").(string)
+	if !ok {
+		http.Error(w, "Error retrieving external id in login page.", http.StatusInternalServerError)
+		return
+	}
+
+	session, err := database.GetSession(csrfSecret)
 	if err != nil {
-		http.Error(w, "Error trying to retrieve session.", http.StatusInternalServerError)
+		http.Error(w, "Error trying to get session in login page.", http.StatusInternalServerError)
 		return
 	}
 
