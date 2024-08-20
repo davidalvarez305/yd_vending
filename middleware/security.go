@@ -64,10 +64,15 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 		if strings.Contains(r.URL.Path, "/call/inbound") || strings.Contains(r.URL.Path, "/sms/inbound") {
 			if err := validateTwilioWebhook(r); err != nil {
-				fmt.Printf("%+v\n", err)
 				http.Error(w, "Error validating Twilio webhook.", http.StatusInternalServerError)
 				return
 			}
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		if strings.Contains(r.URL.Path, "/webhooks/lead-form") {
+			// Validate Google webhook
 			next.ServeHTTP(w, r)
 			return
 		}
