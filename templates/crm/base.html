@@ -56,8 +56,8 @@
 
                 <!-- Close Sidebar on Mobile -->
                 <div class="lg:hidden">
-                    <button type="button" id="toggleSidebar"
-                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm font-semibold leading-5 text-gray-300 hover:border-gray-600 hover:text-gray-200 hover:shadow-sm focus:ring focus:ring-gray-600/40 active:border-gray-700 active:shadow-none">
+                    <button type="button"
+                        class="toggleMobileSidebar inline-flex items-center justify-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm font-semibold leading-5 text-gray-300 hover:border-gray-600 hover:text-gray-200 hover:shadow-sm focus:ring focus:ring-gray-600/40 active:border-gray-700 active:shadow-none">
                         <svg class="hi-mini hi-x-mark -mx-0.5 inline-block size-5" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path
@@ -186,8 +186,8 @@
                 <div class="flex items-center gap-2">
                     <!-- Toggle Sidebar on Mobile -->
                     <div class="lg:hidden">
-                        <button type="button" id="toggleMobileSidebar"
-                            class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                        <button type="button"
+                            class="toggleMobileSidebar inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                             <svg class="hi-solid hi-menu-alt-1 inline-block size-5" fill="currentColor" viewBox="0 0 20 20"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
@@ -271,25 +271,26 @@
         button.className = normalPageClass;
     });
 
-    const toggleMobileSidebar = document.getElementById('toggleSidebar');
-    let isOpen = true;
+    const toggleMobileSidebar = document.querySelectorAll('.toggleMobileSidebar');
+    let isOpen = false;
     const mobileClosed = '-translate-x-full';
     const mobileOpened = 'translate-x-0';
 
-    toggleMobileSidebar.addEventListener('click', () => {
-        // Toggle
-        isOpen = !isOpen;
+    toggleMobileSidebar.forEach(el => {
+        el.addEventListener('click', () => {
+            isOpen = !isOpen;
+            const sidebar = document.getElementById('page-sidebar');
 
-        const sidebar = document.getElementById('page-sidebar');
-
-        if (isOpen) {
-            sidebar.classList.remove(mobileClosed);
-            sidebar.classList.add(mobileOpened);
-        } else {
-            sidebar.classList.remove(mobileOpened);
-            sidebar.classList.add(mobileClosed);
-        }
-    });
+            if (isOpen) {
+                sidebar.classList.remove(mobileClosed);
+                sidebar.classList.add(mobileOpened);
+            } else {
+                sidebar.classList.remove(mobileOpened);
+                sidebar.classList.add(mobileClosed);
+            }
+        });
+    })
+    
 </script>
 <script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>
 
