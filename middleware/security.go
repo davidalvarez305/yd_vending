@@ -38,10 +38,11 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		cspDirective := fmt.Sprintf(`default-src 'self';
 		script-src 'self' https://www.googletagmanager.com %s 'nonce-%s';
 		font-src 'self' https://fonts.bunny.net;
+		frame-src 'self' https://td.doubleclick.net/;
 		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net;
 		style-src 'self' %s;
-		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com https://www.facebook.com %s;
-		connect-src 'self' https://www.google-analytics.com;
+		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com https://www.facebook.com https://www.google.com %s;
+		connect-src 'self' https://www.google-analytics.com https://www.googleadservices.com;
 		style-src-elem 'self' https://fonts.bunny.net %s;
 		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64, constants.AWSStorageBucket, constants.AWSStorageBucket, constants.AWSStorageBucket)
 
