@@ -145,6 +145,7 @@ type Location struct {
 	LocationID          int    `json:"location_id" form:"location_id" schema:"location_id"`
 	LocationTypeID      int    `json:"location_type_id" form:"location_type_id" schema:"location_type_id"`
 	BusinessID          int    `json:"business_id" form:"business_id" schema:"business_id"`
+	BusinessContactID   int    `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
 	Name                string `json:"name" form:"name" schema:"name"`
 	Longitude           string `json:"longitude" form:"longitude" schema:"longitude"`
 	Latitude            string `json:"latitude" form:"latitude" schema:"latitude"`
@@ -155,6 +156,29 @@ type Location struct {
 	State               string `json:"state" form:"state" schema:"state"`
 	Opening             int    `json:"opening" form:"opening" schema:"opening"`
 	Closing             int    `json:"closing" form:"closing" schema:"closing"`
+}
+
+type Business struct {
+	BusinessID  int    `json:"business_id" form:"business_id" schema:"business_id"`
+	Name        string `json:"name" form:"name" schema:"name"`
+	IsActive    bool   `json:"is_active" form:"is_active" schema:"is_active"`
+	DateCreated int64  `json:"date_created" form:"date_created" schema:"date_created"`
+	Website     string `json:"website" form:"website" schema:"website"`
+	Industry    string `json:"industry" form:"industry" schema:"industry"`
+	TaxID       string `json:"tax_id" form:"tax_id" schema:"tax_id"`
+}
+
+type BusinessContact struct {
+	BusinessContactID      int    `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
+	FirstName              string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName               string `json:"last_name" form:"last_name" schema:"last_name"`
+	Phone                  string `json:"phone" form:"phone" schema:"phone"`
+	Email                  string `json:"email" form:"email" schema:"email"`
+	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
+	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
+	BusinessID             int    `json:"business_id" form:"business_id" schema:"business_id"`
+	BusinessPosition       string `json:"business_position" form:"business_position" schema:"business_position"`
+	IsPrimaryContact       bool   `json:"is_primary_contact" form:"is_primary_contact" schema:"is_primary_contact"`
 }
 
 type MachineStatus struct {
@@ -175,19 +199,35 @@ type Machine struct {
 	PowerConsumptionType int    `json:"power_consumption_type" form:"power_consumption_type" schema:"power_consumption_type"`
 }
 
-type Business struct {
-	BusinessID int    `json:"business_id" form:"business_id" schema:"business_id"`
-	Name       string `json:"name" form:"name" schema:"name"`
+type TicketType struct {
+	TicketTypeID int    `json:"ticket_type_id" form:"ticket_type_id" schema:"ticket_type_id"`
+	Type         string `json:"type" form:"type" schema:"type"`
+	UrgencyLevel int    `json:"urgency_level" form:"urgency_level" schema:"urgency_level"`
+	Description  string `json:"description" form:"description" schema:"description"`
 }
 
-type BusinessContact struct {
-	BusinessContactID      int    `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
-	FirstName              string `json:"first_name" form:"first_name" schema:"first_name"`
-	LastName               string `json:"last_name" form:"last_name" schema:"last_name"`
-	Phone                  string `json:"phone" form:"phone" schema:"phone"`
-	Email                  string `json:"email" form:"email" schema:"email"`
-	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
-	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
-	BusinessID             int    `json:"business_id" form:"business_id" schema:"business_id"`
-	BusinessPosition       string `json:"business_position" form:"business_position" schema:"business_position"`
+type TicketStatus struct {
+	TicketStatusID int    `json:"ticket_status_id" form:"ticket_status_id" schema:"ticket_status_id"`
+	Status         string `json:"status" form:"status" schema:"status"`
+	Description    string `json:"description" form:"description" schema:"description"`
+}
+
+type Ticket struct {
+	TicketID       int    `json:"ticket_id" form:"ticket_id" schema:"ticket_id"`
+	MachineID      int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	TicketTypeID   int    `json:"ticket_type_id" form:"ticket_type_id" schema:"ticket_type_id"`
+	Content        string `json:"content" form:"content" schema:"content"`
+	CreatedAt      int64  `json:"created_at" form:"created_at" schema:"created_at"`
+	UpdatedAt      int64  `json:"updated_at" form:"updated_at" schema:"updated_at"`
+	TicketStatusID int    `json:"ticket_status_id" form:"ticket_status_id" schema:"ticket_status_id"`
+	AssignedTo     int    `json:"assigned_to" form:"assigned_to" schema:"assigned_to"`
+	Priority       int    `json:"priority" form:"priority" schema:"priority"`
+	Summary        string `json:"summary" form:"summary" schema:"summary"`
+}
+
+type TicketImage struct {
+	TicketImageID int    `json:"ticket_image_id" form:"ticket_image_id" schema:"ticket_image_id"`
+	TicketID      int    `json:"ticket_id" form:"ticket_id" schema:"ticket_id"`
+	URL           string `json:"url" form:"url" schema:"url"`
+	Caption       string `json:"caption" form:"caption" schema:"caption"`
 }
