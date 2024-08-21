@@ -24,14 +24,14 @@ type QuoteForm struct {
 	Keyword          *string `json:"keyword" form:"keyword" schema:"keyword"`
 	Referrer         *string `json:"referrer" form:"referrer" schema:"referrer"`
 	ClickID          *string `json:"click_id" form:"click_id" schema:"click_id"`
-	CampaignID       *int    `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
+	CampaignID       *int64  `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
 	AdCampaign       *string `json:"ad_campaign" form:"ad_campaign" schema:"ad_campaign"`
-	AdGroupID        *int    `json:"ad_group_id" form:"ad_group_id" schema:"ad_group_id"`
+	AdGroupID        *int64  `json:"ad_group_id" form:"ad_group_id" schema:"ad_group_id"`
 	AdGroupName      *string `json:"ad_group_name" form:"ad_group_name" schema:"ad_group_name"`
-	AdSetID          *int    `json:"ad_set_id" form:"ad_set_id" schema:"ad_set_id"`
+	AdSetID          *int64  `json:"ad_set_id" form:"ad_set_id" schema:"ad_set_id"`
 	AdSetName        *string `json:"ad_set_name" form:"ad_set_name" schema:"ad_set_name"`
-	AdID             *int    `json:"ad_id" form:"ad_id" schema:"ad_id"`
-	AdHeadline       *int    `json:"ad_headline" form:"ad_headline" schema:"ad_headline"`
+	AdID             *int64  `json:"ad_id" form:"ad_id" schema:"ad_id"`
+	AdHeadline       *int64  `json:"ad_headline" form:"ad_headline" schema:"ad_headline"`
 	Language         *string `json:"language" form:"language" schema:"language"`
 	Longitude        *string `json:"longitude" form:"longitude" schema:"longitude"`
 	Latitude         *string `json:"latitude" form:"latitude" schema:"latitude"`

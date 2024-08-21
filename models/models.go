@@ -63,8 +63,8 @@ type LeadNote struct {
 }
 
 type LeadMarketing struct {
-	LeadMarketingID  int    `json:"lead_marketing_id"`
-	LeadID           int    `json:"lead_id"`
+	LeadMarketingID  int64  `json:"lead_marketing_id"`
+	LeadID           int64  `json:"lead_id"`
 	Source           string `json:"source"`
 	Medium           string `json:"medium"`
 	Channel          string `json:"channel"`
@@ -74,14 +74,14 @@ type LeadMarketing struct {
 	Keyword          string `json:"keyword"`
 	Referrer         string `json:"referrer"`
 	GCLID            string `json:"gclid"`
-	CampaignID       int    `json:"campaign_id"`
+	CampaignID       int64  `json:"campaign_id"`
 	AdCampaign       string `json:"ad_campaign"`
-	AdGroupID        int    `json:"ad_group_id"`
+	AdGroupID        int64  `json:"ad_group_id"`
 	AdGroupName      string `json:"ad_group_name"`
-	AdSetID          int    `json:"ad_set_id"`
+	AdSetID          int64  `json:"ad_set_id"`
 	AdSetName        string `json:"ad_set_name"`
-	AdID             int    `json:"ad_id"`
-	AdHeadline       int    `json:"ad_headline"`
+	AdID             int64  `json:"ad_id"`
+	AdHeadline       int64  `json:"ad_headline"`
 	Language         string `json:"language"`
 	OS               string `json:"os"`
 	UserAgent        string `json:"user_agent"`

@@ -164,9 +164,25 @@ func SafeStringToIntPointer(value string) *int {
 	return nil
 }
 
+func SafeStringToInt64Pointer(value string) *int64 {
+	if val, err := strconv.ParseInt(value, 10, 64); err == nil {
+		return &val
+	}
+	return nil
+}
+
 func GetIntPointerFromForm(r *http.Request, key string) *int {
 	if values, ok := r.Form[key]; ok && len(values) > 0 {
 		if i, err := strconv.Atoi(values[0]); err == nil {
+			return &i
+		}
+	}
+	return nil
+}
+
+func GetInt64PointerFromForm(r *http.Request, key string) *int64 {
+	if values, ok := r.Form[key]; ok && len(values) > 0 {
+		if i, err := strconv.ParseInt(values[0], 10, 64); err == nil {
 			return &i
 		}
 	}

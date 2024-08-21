@@ -87,21 +87,21 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 		case "CLICK_ID":
 			form.ClickID = helpers.SafeStringToPointer(item.StringValue)
 		case "CAMPAIGN_ID":
-			form.CampaignID = helpers.SafeStringToIntPointer(item.StringValue)
+			form.CampaignID = helpers.SafeStringToInt64Pointer(item.StringValue)
 		case "AD_CAMPAIGN":
 			form.AdCampaign = helpers.SafeStringToPointer(item.StringValue)
 		case "AD_GROUP_ID":
-			form.AdGroupID = helpers.SafeStringToIntPointer(item.StringValue)
+			form.AdGroupID = helpers.SafeStringToInt64Pointer(item.StringValue)
 		case "AD_GROUP_NAME":
 			form.AdGroupName = helpers.SafeStringToPointer(item.StringValue)
 		case "AD_SET_ID":
-			form.AdSetID = helpers.SafeStringToIntPointer(item.StringValue)
+			form.AdSetID = helpers.SafeStringToInt64Pointer(item.StringValue)
 		case "AD_SET_NAME":
 			form.AdSetName = helpers.SafeStringToPointer(item.StringValue)
 		case "AD_ID":
-			form.AdID = helpers.SafeStringToIntPointer(item.StringValue)
+			form.AdID = helpers.SafeStringToInt64Pointer(item.StringValue)
 		case "AD_HEADLINE":
-			form.AdHeadline = helpers.SafeStringToIntPointer(item.StringValue)
+			form.AdHeadline = helpers.SafeStringToInt64Pointer(item.StringValue)
 		case "LANGUAGE":
 			form.Language = helpers.SafeStringToPointer(item.StringValue)
 		case "LONGITUDE":
