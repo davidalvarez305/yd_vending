@@ -141,6 +141,7 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 
 	phoneCall.CallDuration = dialStatus.DialCallDuration
 	phoneCall.RecordingURL = dialStatus.RecordingURL
+	phoneCall.Status = dialStatus.DialCallStatus
 
 	if err := database.UpdatePhoneCall(phoneCall); err != nil {
 		http.Error(w, "Failed to save phone call.", http.StatusInternalServerError)
