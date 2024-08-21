@@ -56,13 +56,19 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 
 func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
 
-		if csrf.UrlsListHasCurrentPath([]string{"/static/", "/partials/", "/webhooks/"}, r.URL.Path) {
+		if csrf.UrlsListHasCurrentPath([]string{"/static/", "/partials/", "/webhooks/"}, path) {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		if strings.Contains(r.URL.Path, "/call/inbound") || strings.Contains(r.URL.Path, "/sms/inbound") {
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		if strings.Contains(path, "/call/inbound") || strings.Contains(path, "/sms/inbound") {
 			if err := validateTwilioWebhook(r); err != nil {
 				http.Error(w, "Error validating Twilio webhook.", http.StatusInternalServerError)
 				return
@@ -73,7 +79,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 		var csrfURLs = []string{"/contact", "/quote", "/login", "/crm"}
 
-		if r.Method == http.MethodGet && csrf.UrlsListHasCurrentPath(csrfURLs, r.URL.Path) {
+		if r.Method == http.MethodGet && csrf.UrlsListHasCurrentPath(csrfURLs, path) {
 			csrfSecret, ok := r.Context().Value("csrf_secret").(string)
 			if !ok {
 				http.Error(w, "Error retrieving user secret token in middleware.", http.StatusInternalServerError)

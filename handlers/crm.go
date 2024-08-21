@@ -39,7 +39,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 
 		// Get messages by lead
-		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains("/messages", path) {
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
 			GetLeadMessagesPartial(w, r)
 			return
 		}
