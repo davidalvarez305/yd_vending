@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
+	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/models"
@@ -147,7 +148,7 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* if phoneCall.CallDuration > 60 && dialStatus.DialCallStatus == "completed" {
+	if phoneCall.CallDuration > 60 && dialStatus.DialCallStatus == "completed" {
 		payload := types.GooglePayload{
 			ClientID: "",
 			UserId:   "",
@@ -159,7 +160,7 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 		}
 
 		conversions.SendGoogleConversion(payload)
-	} */
+	}
 
 	w.Header().Set("Content-Type", "application/xml")
 	w.WriteHeader(http.StatusOK)
