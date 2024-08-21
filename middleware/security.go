@@ -172,7 +172,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 func AuthRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		values, err := sessions.Get(r)
-		if err != nil {
+		if err != nil || values.UserID == 0 {
 			fmt.Printf("SESSION NOT FOUND, REDIRECTING TO LOGIN PAGE: %+v\n", err)
 			http.Redirect(w, r, "/login?redirect="+r.URL.Path, http.StatusSeeOther)
 			return
