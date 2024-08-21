@@ -228,15 +228,6 @@
             citySelect.classList.remove("border-red-500");
         }
 
-        // Validate message
-        const messageInput = document.getElementById("message");
-        if (!messageInput.value.trim()) {
-            isValid = false;
-            messageInput.classList.add("border-red-500");
-        } else {
-            messageInput.classList.remove("border-red-500");
-        }
-
         if (!isValid) {
             alert("Please fill in all required fields.");
         }
