@@ -10,8 +10,16 @@
     gtag("js", new Date());
 
     gtag("config", "{{ .GoogleAnalyticsID }}");
+    gtag('config', 'AW-16675469424');
     gtag("set", "user_id", "{{ .ExternalID }}");
   </script>
+
+  <script>
+    gtag('config', 'AW-16675469424/Jy0aCLLkr8wZEPDwvY8-', {
+      'phone_conversion_number': '{{ .PhoneNumber }}'
+    });
+  </script>
+
   <!-- End Google tag -->
 
   <!-- Facebook Pixel Code -->
