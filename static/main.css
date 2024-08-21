@@ -1123,6 +1123,10 @@ select{
   width: 1px;
 }
 
+.w-16{
+  width: 4rem;
+}
+
 .min-w-\[320px\]{
   min-width: 320px;
 }
