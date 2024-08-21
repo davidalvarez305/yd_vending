@@ -81,7 +81,7 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request) {
 	twiML := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 	<Response>
 		<Dial action="%s">%s</Dial>
-	</Response>`, constants.TwilioCallbackWebhook, forwardNumber.ForwardPhoneNumber)
+	</Response>`, constants.RootDomain+constants.TwilioCallbackWebhook, forwardNumber.ForwardPhoneNumber)
 
 	phoneCall := models.PhoneCall{
 		ExternalID:   incomingPhoneCall.CallSid,
