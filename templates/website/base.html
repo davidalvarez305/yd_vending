@@ -14,7 +14,7 @@
     gtag("set", "user_id", "{{ .ExternalID }}");
   </script>
 
-  <script>
+  <script nonce="{{ .Nonce }}">
     gtag('config', 'AW-16675469424/Jy0aCLLkr8wZEPDwvY8-', {
       'phone_conversion_number': '{{ .PhoneNumber }}'
     });
