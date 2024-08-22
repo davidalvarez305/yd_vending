@@ -1,5 +1,5 @@
 const SCROLL_THRESHOLD = 50;
-const TRIGGER_THRESHOLD = 30000;
+const TRIGGER_THRESHOLD = 60000;
 let hasScrolledPast75 = false;
 let hasScrolledUpAbove50 = false;
 let alreadyPoppedUp = false;
