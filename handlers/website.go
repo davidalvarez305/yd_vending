@@ -289,7 +289,7 @@ func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteConte
 	}
 
 	data := ctx
-	data.PageTitle = "Request A Quote — " + constants.CompanyName
+	data.PageTitle = "Talk to us — " + constants.CompanyName
 	data.Nonce = nonce
 	data.CSRFToken = csrfToken
 	data.VendingTypes = vendingTypes
