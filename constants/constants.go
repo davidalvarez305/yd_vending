@@ -5,45 +5,47 @@ import (
 )
 
 var (
-	FacebookAccessToken         string
-	FacebookDatasetID           string
-	GoogleAnalyticsID           string
-	GoogleAnalyticsAPISecretKey string
-	GoogleRefreshToken          string
-	GoogleJSONPath              string
-	PostgresHost                string
-	PostgresPort                string
-	PostgresUser                string
-	PostgresPassword            string
-	PostgresDBName              string
-	DavidPhoneNumber            string
-	DavidEmail                  string
-	YovaEmail                   string
-	YovaPhoneNumber             string
-	ServerPort                  string
-	RootDomain                  string
-	AWSStorageBucket            string
-	CookieName                  string
-	DomainHost                  string
-	SecretAESKey                string
-	AuthSecretKey               string
-	EncSecretKey                string
-	TwilioAccountSID            string
-	TwilioAuthToken             string
-	TwilioCallbackWebhook       string
-	CompanyName                 string
-	SiteName                    string
-	SessionName                 string
-	LeadsPerPage                int
-	CompanyPhoneNumber          string
-	SessionLength               int64
-	StaticPath                  string
-	MediaPath                   string
-	MaxOpenConnections          string
-	MaxIdleConnections          string
-	MaxConnectionLifetime       string
-	CompanyEmail                string
-	GoogleWebhookKey            string
+	FacebookAccessToken          string
+	FacebookDatasetID            string
+	GoogleAnalyticsID            string
+	GoogleAdsID                  string
+	GoogleAdsCallConversionLabel string
+	GoogleAnalyticsAPISecretKey  string
+	GoogleRefreshToken           string
+	GoogleJSONPath               string
+	PostgresHost                 string
+	PostgresPort                 string
+	PostgresUser                 string
+	PostgresPassword             string
+	PostgresDBName               string
+	DavidPhoneNumber             string
+	DavidEmail                   string
+	YovaEmail                    string
+	YovaPhoneNumber              string
+	ServerPort                   string
+	RootDomain                   string
+	AWSStorageBucket             string
+	CookieName                   string
+	DomainHost                   string
+	SecretAESKey                 string
+	AuthSecretKey                string
+	EncSecretKey                 string
+	TwilioAccountSID             string
+	TwilioAuthToken              string
+	TwilioCallbackWebhook        string
+	CompanyName                  string
+	SiteName                     string
+	SessionName                  string
+	LeadsPerPage                 int
+	CompanyPhoneNumber           string
+	SessionLength                int64
+	StaticPath                   string
+	MediaPath                    string
+	MaxOpenConnections           string
+	MaxIdleConnections           string
+	MaxConnectionLifetime        string
+	CompanyEmail                 string
+	GoogleWebhookKey             string
 )
 
 func Init() {
@@ -86,6 +88,8 @@ func Init() {
 	MaxConnectionLifetime = os.Getenv("MAX_CONN_LIFETIME")
 	DomainHost = os.Getenv("DOMAIN_HOST")
 	CompanyEmail = os.Getenv("COMPANY_EMAIL")
+	GoogleAdsID = os.Getenv("GOOGLE_ADS_ID")
+	GoogleAdsCallConversionLabel = os.Getenv("GOOGLE_ADS_CALL_CONVERSION_LABEL")
 }
 
 var TEMPLATES_DIR = "./templates/"

@@ -244,24 +244,26 @@ type IncomingPhoneCallDialStatus struct {
 }
 
 type WebsiteContext struct {
-	PageTitle         string                   `json:"page_title" form:"page_title"`
-	MetaDescription   string                   `json:"meta_description" form:"meta_description"`
-	SiteName          string                   `json:"site_name" form:"site_name"`
-	StaticPath        string                   `json:"static_path" form:"static_path"`
-	MediaPath         string                   `json:"media_path" form:"media_path"`
-	PhoneNumber       string                   `json:"phone_number" form:"phone_number"`
-	CurrentYear       int                      `json:"current_year" form:"current_year"`
-	GoogleAnalyticsID string                   `json:"google_analytics_id" form:"google_analytics_id"`
-	FacebookDataSetID string                   `json:"facebook_data_set_id" form:"facebook_data_set_id"`
-	CompanyName       string                   `json:"company_name" form:"company_name"`
-	PagePath          string                   `json:"page_path" form:"page_path"`
-	Nonce             string                   `json:"nonce" form:"nonce"`
-	Features          []string                 `json:"features" form:"features"`
-	CSRFToken         string                   `json:"csrf_token" form:"csrf_token"`
-	VendingTypes      []models.VendingType     `json:"vending_types" form:"vending_types"`
-	VendingLocations  []models.VendingLocation `json:"vending_locations" form:"vending_location"`
-	Cities            []models.City            `json:"cities" form:"cities"`
-	ExternalID        string                   `json:"external_id" form:"external_id"`
+	PageTitle                    string                   `json:"page_title" form:"page_title"`
+	MetaDescription              string                   `json:"meta_description" form:"meta_description"`
+	SiteName                     string                   `json:"site_name" form:"site_name"`
+	StaticPath                   string                   `json:"static_path" form:"static_path"`
+	MediaPath                    string                   `json:"media_path" form:"media_path"`
+	PhoneNumber                  string                   `json:"phone_number" form:"phone_number"`
+	CurrentYear                  int                      `json:"current_year" form:"current_year"`
+	GoogleAnalyticsID            string                   `json:"google_analytics_id" form:"google_analytics_id"`
+	FacebookDataSetID            string                   `json:"facebook_data_set_id" form:"facebook_data_set_id"`
+	CompanyName                  string                   `json:"company_name" form:"company_name"`
+	PagePath                     string                   `json:"page_path" form:"page_path"`
+	Nonce                        string                   `json:"nonce" form:"nonce"`
+	Features                     []string                 `json:"features" form:"features"`
+	CSRFToken                    string                   `json:"csrf_token" form:"csrf_token"`
+	VendingTypes                 []models.VendingType     `json:"vending_types" form:"vending_types"`
+	VendingLocations             []models.VendingLocation `json:"vending_locations" form:"vending_location"`
+	Cities                       []models.City            `json:"cities" form:"cities"`
+	ExternalID                   string                   `json:"external_id" form:"external_id"`
+	GoogleAdsID                  string                   `json:"google_ads_id"`
+	GoogleAdsCallConversionLabel string                   `json:"google_ads_call_conversion_label`
 }
 
 type FacebookUserData struct {

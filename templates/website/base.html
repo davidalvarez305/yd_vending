@@ -12,11 +12,11 @@
     gtag("config", "{{ .GoogleAnalyticsID }}");
     gtag("set", "user_id", "{{ .ExternalID }}");
 
-    gtag('config', 'AW-16675469424');
+    gtag('config', '{{ .GoogleAdsID }}');
   </script>
 
   <script nonce="{{ .Nonce }}">
-    gtag('config', 'AW-16675469424/Jy0aCLLkr8wZEPDwvY8-', {
+    gtag('config', '{{ .GoogleAdsID }}/{{ .GoogleAdsCallConversionLabel }}', {
       'phone_conversion_number': '{{ .PhoneNumber }}',
       'phone_conversion_css_class':'phoneNumber'
     });

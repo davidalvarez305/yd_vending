@@ -22,16 +22,18 @@ var websiteFooterFilePath = constants.WEBSITE_TEMPLATES_DIR + "footer.html"
 
 func createWebsiteContext() types.WebsiteContext {
 	return types.WebsiteContext{
-		PageTitle:         constants.CompanyName,
-		MetaDescription:   "Get a quote for vending machine services.",
-		SiteName:          constants.SiteName,
-		StaticPath:        constants.StaticPath,
-		MediaPath:         constants.MediaPath,
-		PhoneNumber:       constants.CompanyPhoneNumber,
-		CurrentYear:       time.Now().Year(),
-		GoogleAnalyticsID: constants.GoogleAnalyticsID,
-		FacebookDataSetID: constants.FacebookDatasetID,
-		CompanyName:       constants.CompanyName,
+		PageTitle:                    constants.CompanyName,
+		MetaDescription:              "Get a quote for vending machine services.",
+		SiteName:                     constants.SiteName,
+		StaticPath:                   constants.StaticPath,
+		MediaPath:                    constants.MediaPath,
+		PhoneNumber:                  constants.CompanyPhoneNumber,
+		CurrentYear:                  time.Now().Year(),
+		GoogleAnalyticsID:            constants.GoogleAnalyticsID,
+		GoogleAdsID:                  constants.GoogleAdsID,
+		GoogleAdsCallConversionLabel: constants.GoogleAdsCallConversionLabel,
+		FacebookDataSetID:            constants.FacebookDatasetID,
+		CompanyName:                  constants.CompanyName,
 	}
 }
 
