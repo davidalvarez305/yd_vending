@@ -1,6 +1,7 @@
 const SCROLL_THRESHOLD = 50;
 const TRIGGER_THRESHOLD = 30000;
-
+let hasScrolledPast75 = false;
+let hasScrolledUpAbove50 = false;
 let alreadyPoppedUp = false;
 
 function showModal() {
@@ -45,13 +46,19 @@ window.addEventListener("load", () => {
 });
 
 // Trigger after scroll
-window.addEventListener("scroll", () => {
-  const scrollY = window.scrollY || window.pageYOffset;
-  const windowHeight = window.innerHeight;
-  const totalHeight = document.body.clientHeight;
-  const scrolledPercentage = (scrollY / (totalHeight - windowHeight)) * 100;
+window.addEventListener("scroll", function () {
+  const pageHeight = document.documentElement.scrollHeight;
+  const scrollPercent = window.scrollY / (pageHeight - window.innerHeight);
 
-  if (scrolledPercentage >= SCROLL_THRESHOLD && !alreadyPoppedUp) {
-    showModal();
+  if (scrollPercent >= 0.75) {
+      hasScrolledPast75 = true;
+  }
+
+  // Check if scrolled back above 50% and conditions are met
+  if (hasScrolledPast75 && scrollPercent < 0.50) {
+      if (!hasScrolledUpAbove50 && !alreadyPoppedUp) {
+          showModal();
+          hasScrolledUpAbove50 = true; // Ensure the alert only fires once
+      }
   }
 });
