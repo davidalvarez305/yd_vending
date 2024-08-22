@@ -1,5 +1,5 @@
 const SCROLL_THRESHOLD = 50;
-const TRIGGER_THRESHOLD = 3000;
+const TRIGGER_THRESHOLD = 30000;
 
 let alreadyPoppedUp = false;
 
