@@ -3287,6 +3287,11 @@ select{
   background-color: transparent;
 }
 
+.dark\:bg-gray-600:is(.dark *){
+  --tw-bg-opacity: 1;
+  background-color: rgb(75 85 99 / var(--tw-bg-opacity));
+}
+
 .dark\:from-indigo-800:is(.dark *){
   --tw-gradient-from: #3730a3 var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(55 48 163 / 0) var(--tw-gradient-to-position);
