@@ -11,7 +11,6 @@ type QuoteForm struct {
 	LastName         *string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber      *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
 	Rent             *string `json:"rent" form:"rent" schema:"rent"`
-	City             *int    `json:"city" form:"city" schema:"city"`
 	LocationType     *int    `json:"location_type" form:"location_type" schema:"location_type"`
 	MachineType      *int    `json:"machine_type" form:"machine_type" schema:"machine_type"`
 	FootTraffic      *string `json:"foot_traffic" form:"foot_traffic" schema:"foot_traffic"`
@@ -111,7 +110,6 @@ type LeadList struct {
 	MachineType       string `json:"machine_type" form:"machine_type" schema:"machine_type"`
 	LocationType      string `json:"location_type" form:"location_type" schema:"location_type"`
 	Language          string `json:"language" form:"language" schema:"language"`
-	CityID            int    `json:"city_id" form:"city_id" schema:"city_id"`
 	VendingTypeID     int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
 	VendingLocationID int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
 	TotalRows         int    `json:"total_rows" form:"total_rows" schema:"total_rows"`
@@ -158,7 +156,6 @@ type UpdateLeadForm struct {
 	FirstName       *string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName        *string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber     *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	City            *int    `json:"city" form:"city" schema:"city"`
 	VendingType     *int    `json:"vending_type" form:"vending_type" schema:"vending_type"`
 	VendingLocation *int    `json:"vending_location" form:"vending_location" schema:"vending_location"`
 }
@@ -257,7 +254,6 @@ type WebsiteContext struct {
 	CSRFToken                    string                   `json:"csrf_token" form:"csrf_token"`
 	VendingTypes                 []models.VendingType     `json:"vending_types" form:"vending_types"`
 	VendingLocations             []models.VendingLocation `json:"vending_locations" form:"vending_location"`
-	Cities                       []models.City            `json:"cities" form:"cities"`
 	ExternalID                   string                   `json:"external_id" form:"external_id"`
 	GoogleAdsID                  string                   `json:"google_ads_id"`
 	GoogleAdsCallConversionLabel string                   `json:"google_ads_call_conversion_label`

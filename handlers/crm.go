@@ -98,7 +98,6 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	}
 
 	var params types.GetLeadsParams
-	params.City = helpers.SafeStringToPointer(r.URL.Query().Get("city"))
 	params.LocationType = helpers.SafeStringToPointer(r.URL.Query().Get("location_type"))
 	params.VendingType = helpers.SafeStringToPointer(r.URL.Query().Get("vending_type"))
 	params.PageNum = helpers.SafeStringToPointer(r.URL.Query().Get("page_num"))
@@ -124,13 +123,6 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 		return
 	}
 
-	cities, err := database.GetCities()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
-		return
-	}
-
 	data := ctx
 	data["PageTitle"] = "Leads — " + constants.CompanyName
 
@@ -140,7 +132,6 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
-	data["Cities"] = cities
 
 	data["CurrentPage"] = 1
 	if params.PageNum != nil {
@@ -287,13 +278,6 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	cities, err := database.GetCities()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
-		return
-	}
-
 	data := ctx
 	data["PageTitle"] = "Lead Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -303,7 +287,6 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["CRMUserPhoneNumber"] = phoneNumber
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
-	data["Cities"] = cities
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

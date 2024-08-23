@@ -55,8 +55,8 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	}
 	defer tx.Rollback()
 	leadStmt, err := tx.Prepare(`
-		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, city_id, message)
-		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10, $11)
+		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, message)
+		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10)
 		RETURNING lead_id
 	`)
 	if err != nil {
@@ -64,7 +64,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	}
 	defer leadStmt.Close()
 
-	err = leadStmt.QueryRow(quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, time.Now().Unix(), quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.City, quoteForm.Message).Scan(&leadID)
+	err = leadStmt.QueryRow(quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, time.Now().Unix(), quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.Message).Scan(&leadID)
 	if err != nil {
 		return leadID, fmt.Errorf("error inserting lead: %w", err)
 	}
@@ -328,31 +328,6 @@ func GetVendingLocations() ([]models.VendingLocation, error) {
 	return vendingLocations, nil
 }
 
-func GetCities() ([]models.City, error) {
-	var cities []models.City
-
-	rows, err := DB.Query(`SELECT "city_id", "name" FROM "city"`)
-	if err != nil {
-		return cities, fmt.Errorf("error executing query: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var city models.City
-		err := rows.Scan(&city.CityID, &city.Name)
-		if err != nil {
-			return cities, fmt.Errorf("error scanning row: %w", err)
-		}
-		cities = append(cities, city)
-	}
-
-	if err := rows.Err(); err != nil {
-		return cities, fmt.Errorf("error iterating rows: %w", err)
-	}
-
-	return cities, nil
-}
-
 func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	var leads []types.LeadList
 
@@ -404,7 +379,6 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 			&lead.MachineType,
 			&lead.LocationType,
 			&lead.Language,
-			&lead.CityID,
 			&lead.VendingTypeID,
 			&lead.VendingLocationID,
 			&totalRows)
@@ -600,7 +574,6 @@ func UpdateLead(form types.UpdateLeadForm) error {
 		SET first_name = COALESCE($2, first_name), 
 		    last_name = COALESCE($3, last_name), 
 		    phone_number = COALESCE($4, phone_number), 
-		    city_id = COALESCE($5, city_id), 
 		    vending_type_id = COALESCE($6, vending_type_id), 
 		    vending_location_id = COALESCE($7, vending_location_id)
 		WHERE lead_id = $1
@@ -625,11 +598,6 @@ func UpdateLead(form types.UpdateLeadForm) error {
 	}
 	if form.PhoneNumber != nil {
 		args = append(args, *form.PhoneNumber)
-	} else {
-		args = append(args, nil)
-	}
-	if form.City != nil {
-		args = append(args, *form.City)
 	} else {
 		args = append(args, nil)
 	}
