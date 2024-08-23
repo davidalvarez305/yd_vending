@@ -274,7 +274,6 @@ type FacebookUserData struct {
 	ClientUserAgent string `json:"client_user_agent"`
 	FBC             string `json:"fbc"`
 	FBP             string `json:"fbp"`
-	City            string `json:"ct"`
 	State           string `json:"st"`
 	ExternalID      string `json:"external_id"`
 }
@@ -308,7 +307,6 @@ type GooglePayload struct {
 
 type ConversionLeadInfo struct {
 	LeadID       int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	City         string `json:"city" form:"city" schema:"city"`
 	MachineType  string `json:"machine_type" form:"machine_type" schema:"machine_type"`
 	LocationType string `json:"location_type" form:"location_type" schema:"location_type"`
 	CreatedAt    int64  `json:"created_at" form:"created_at" schema:"created_at"`

@@ -52,8 +52,6 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		switch r.URL.Path {
-		case "/quote":
-			GetQuoteForm(w, r, ctx)
 		case "/contact":
 			GetContactForm(w, r, ctx)
 		case "/login":
@@ -317,60 +315,6 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx types.Web
 	helpers.ServeContent(w, files, data)
 }
 
-func GetQuoteForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
-	fileName := "quote.html"
-	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
-
-	vendingTypes, err := database.GetVendingTypes()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
-	}
-
-	vendingLocations, err := database.GetVendingLocations()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
-		return
-	}
-
-	cities, err := database.GetCities()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
-		return
-	}
-
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	data := ctx
-	data.PageTitle = "Talk to us — " + constants.CompanyName
-	data.Nonce = nonce
-	data.CSRFToken = csrfToken
-	data.VendingTypes = vendingTypes
-	data.VendingLocations = vendingLocations
-	data.Cities = cities
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	err = helpers.ServeContent(w, files, data)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-	}
-}
-
 func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	err := r.ParseForm()
 	if err != nil {
@@ -529,7 +473,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 			Phone:           helpers.HashString(helpers.SafeString(form.PhoneNumber)),
 			FBC:             helpers.SafeString(form.FacebookClickID),
 			FBP:             helpers.SafeString(form.FacebookClientID),
-			City:            helpers.HashString(lead.City),
 			State:           helpers.HashString("Florida"),
 			ExternalID:      helpers.HashString(helpers.SafeString(form.ExternalID)),
 			ClientIPAddress: helpers.SafeString(form.IP),
@@ -578,7 +521,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 		"DateCreated":    time.Unix(lead.CreatedAt, 0).Format("01/02/2006 3 PM"),
 		"MachineType":    lead.MachineType,
 		"LocationType":   lead.LocationType,
-		"City":           lead.City,
 		"Message":        helpers.SafeString(form.Message),
 		"LeadDetailsURL": fmt.Sprintf("%s/crm/lead/%d", constants.RootDomain, leadID),
 		"Location":       "",

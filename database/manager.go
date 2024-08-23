@@ -193,11 +193,10 @@ func GetUserIDFromPhoneNumber(from string) (int, error) {
 func GetConversionLeadInfo(leadId int) (types.ConversionLeadInfo, error) {
 	var leadConversionInfo types.ConversionLeadInfo
 
-	stmt, err := DB.Prepare(`SELECT l.lead_id, l.created_at, c."name" , vt.machine_type, vl.location_type
+	stmt, err := DB.Prepare(`SELECT l.lead_id, l.created_at, vt.machine_type, vl.location_type
 		FROM "lead" AS l
 	JOIN vending_type  AS vt ON vt.vending_type_id = l.vending_type_id
 	JOIN vending_location AS vl ON vl.vending_location_id  = l.vending_location_id 
-	join city as c on c.city_id = l.city_id
 	WHERE l.lead_id = $1;`)
 
 	if err != nil {
@@ -210,7 +209,6 @@ func GetConversionLeadInfo(leadId int) (types.ConversionLeadInfo, error) {
 	var createdAt time.Time
 	err = row.Scan(&leadConversionInfo.LeadID,
 		&createdAt,
-		&leadConversionInfo.City,
 		&leadConversionInfo.MachineType,
 		&leadConversionInfo.LocationType,
 	)

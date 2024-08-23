@@ -1,41 +1,46 @@
 const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
 const form = document.getElementById("get-a-quote-form");
-const alertModal = document.getElementById("alertModal");
 let latitude = 0.0;
 let longitude = 0.0;
 
 document.addEventListener("DOMContentLoaded", getUserLocation());
 
 function getHost(urlString) {
-    let url;
-    try {
-        url = new URL(urlString);
-    } catch (error) {
-        return '';
+  let url;
+  try {
+    url = new URL(urlString);
+  } catch (error) {
+    return "";
+  }
+
+  let host = url.hostname.toLowerCase();
+
+  if (host.startsWith("www.")) {
+    host = host.slice(4);
+  }
+
+  const parts = host.split(".");
+
+  // Handle cases like ftp.google.com or ads.google.com
+  if (
+    parts.length > 2 &&
+    !["com", "net", "org", "edu", "gov", "mil", "int"].includes(
+      parts[parts.length - 2]
+    )
+  ) {
+    host = parts.slice(-3).join(".");
+  } else if (parts.length > 1) {
+    // Check if the last part is a two-letter country code
+    const lastPart = parts[parts.length - 1];
+    if (lastPart.length === 2 && lastPart !== "co") {
+      // 'co' is a special case like .co.uk, .co.in, etc.
+      host = parts.slice(-3).join(".");
+    } else {
+      host = parts.slice(-2).join(".");
     }
+  }
 
-    let host = url.hostname.toLowerCase();
-
-    if (host.startsWith('www.')) {
-        host = host.slice(4);
-    }
-
-    const parts = host.split('.');
-
-    // Handle cases like ftp.google.com or ads.google.com
-    if (parts.length > 2 && !['com', 'net', 'org', 'edu', 'gov', 'mil', 'int'].includes(parts[parts.length - 2])) {
-        host = parts.slice(-3).join('.');
-    } else if (parts.length > 1) {
-        // Check if the last part is a two-letter country code
-        const lastPart = parts[parts.length - 1];
-        if (lastPart.length === 2 && lastPart !== 'co') { // 'co' is a special case like .co.uk, .co.in, etc.
-            host = parts.slice(-3).join('.');
-        } else {
-            host = parts.slice(-2).join('.');
-        }
-    }
-
-    return host;
+  return host;
 }
 
 function getClickId(qs) {
@@ -92,93 +97,93 @@ function getUserLocation() {
 }
 
 function getChannel(referrerUrl) {
-    const searchEngines = [
-        { domain: "google" },
-        { domain: "bing" },
-        { domain: "yahoo" },
-        { domain: "ecosia" },
-        { domain: "duckduckgo"},
-        { domain: "yandex" },
-        { domain: "baidu" },
-        { domain: "naver" },
-        { domain: "ask.com" },
-        { domain: "adsensecustomsearchads" },
-        { domain: "aol" },
-        { domain: "brave" }
-    ];
+  const searchEngines = [
+    { domain: "google" },
+    { domain: "bing" },
+    { domain: "yahoo" },
+    { domain: "ecosia" },
+    { domain: "duckduckgo" },
+    { domain: "yandex" },
+    { domain: "baidu" },
+    { domain: "naver" },
+    { domain: "ask.com" },
+    { domain: "adsensecustomsearchads" },
+    { domain: "aol" },
+    { domain: "brave" },
+  ];
 
-    const majorSocialNetworks = [
-        "facebook",
-        "instagram",
-        "twitter",
-        "linkedin",
-        "pinterest",
-        "snapchat",
-        "reddit",
-        "whatsapp",
-        "wechat",
-        "telegram",
-        "discord",
-        "vkontakte",
-        "weibo",
-        "line",
-        "kakaotalk",
-        "qq",
-        "viber",
-        "telegram",
-        "tumblr",
-        "flickr",
-        "meetup",
-        "tagged",
-        "badoo",
-        "myspace"
-    ];
+  const majorSocialNetworks = [
+    "facebook",
+    "instagram",
+    "twitter",
+    "linkedin",
+    "pinterest",
+    "snapchat",
+    "reddit",
+    "whatsapp",
+    "wechat",
+    "telegram",
+    "discord",
+    "vkontakte",
+    "weibo",
+    "line",
+    "kakaotalk",
+    "qq",
+    "viber",
+    "telegram",
+    "tumblr",
+    "flickr",
+    "meetup",
+    "tagged",
+    "badoo",
+    "myspace",
+  ];
 
-    const majorVideoPlatforms = [
-        "youtube",
-        "tiktok",
-        "vimeo",
-        "dailymotion",
-        "twitch",
-        "bilibili",
-        "youku",
-        "rutube",
-        "vine",
-        "peertube",
-        "ig tv",
-        "veoh",
-        "metacafe",
-        "vudu",
-        "vidyard",
-        "rumble",
-        "bit chute",
-        "brightcove",
-        "viddler",
-        "vzaar"
-    ];
+  const majorVideoPlatforms = [
+    "youtube",
+    "tiktok",
+    "vimeo",
+    "dailymotion",
+    "twitch",
+    "bilibili",
+    "youku",
+    "rutube",
+    "vine",
+    "peertube",
+    "ig tv",
+    "veoh",
+    "metacafe",
+    "vudu",
+    "vidyard",
+    "rumble",
+    "bit chute",
+    "brightcove",
+    "viddler",
+    "vzaar",
+  ];
 
-    // Check search engines
-    for (let engine of searchEngines) {
-        if (referrerUrl.includes(engine.domain)) {
-            return "search";
-        }
+  // Check search engines
+  for (let engine of searchEngines) {
+    if (referrerUrl.includes(engine.domain)) {
+      return "search";
     }
+  }
 
-    // Check social networks
-    for (let network of majorSocialNetworks) {
-        if (referrerUrl.includes(network)) {
-            return "social";
-        }
+  // Check social networks
+  for (let network of majorSocialNetworks) {
+    if (referrerUrl.includes(network)) {
+      return "social";
     }
+  }
 
-    // Check video platforms
-    for (let platform of majorVideoPlatforms) {
-        if (referrerUrl.includes(platform)) {
-            return "video";
-        }
+  // Check video platforms
+  for (let platform of majorVideoPlatforms) {
+    if (referrerUrl.includes(platform)) {
+      return "video";
     }
+  }
 
-    return "other";
+  return "other";
 }
 
 function applyButtonlogic() {
@@ -190,157 +195,156 @@ function applyButtonlogic() {
       child.setAttribute("name", button.name);
     });
 
-    button.addEventListener("click", function() {
+    button.addEventListener("click", function () {
       // Bring form into focus
-      form.scrollIntoView({ behavior: 'smooth' });
-      form.querySelector('input, textarea, select').focus();
-    
+      form.scrollIntoView({ behavior: "smooth" });
+      form.querySelector("input, textarea, select").focus();
+
       // Hide modal
-      const modal = document.getElementById('modalOverlay');
-      modal.style.display = 'none';
+      const modal = document.getElementById("modalOverlay");
+      modal.style.display = "none";
     });
   });
-};
+}
 
 applyButtonlogic();
 
-form.addEventListener("submit", e => {
-    e.preventDefault();
-    const isValid = validateForm();
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const isValid = validateForm();
 
-    if (!isValid) return;
-    const qs = new URLSearchParams(window.location.search);
+  if (!isValid) return;
+  const qs = new URLSearchParams(window.location.search);
 
-    const language = navigator.language || navigator.userLanguage;
+  const language = navigator.language || navigator.userLanguage;
 
-    const buttonName = e.target.getAttribute("name");
+  const buttonName = e.target.getAttribute("name");
 
-    // Get user variables from browser
-    var user = JSON.parse(localStorage.getItem("user")) || {};
+  // Get user variables from browser
+  var user = JSON.parse(localStorage.getItem("user")) || {};
 
-    const marketing = Object.fromEntries(qs);
-    const data = new FormData(e.target);
+  const marketing = Object.fromEntries(qs);
+  const data = new FormData(e.target);
 
-    if (isPaid(qs)) {
-      data.append("click_id", getClickId(qs))
-    };
+  if (isPaid(qs)) {
+    data.append("click_id", getClickId(qs));
+  }
 
-    data.append("landing_page", user.landingPage);
-    data.append("referrer", user.referrer);
-    data.append("source", qs.get('source') ?? getHost(user.referrer)); // google.com || facebook.com || youtube.com
-    data.append("medium", qs.get('medium') ?? getMedium(user.referrer, qs)); // organic || paid || direct
-    data.append("channel", qs.get('channel') ?? getChannel(user.referrer)); // search || social || video
-    data.append("button_clicked", buttonName);
-    data.append("longitude", longitude);
-    data.append("latitude", latitude);
-    data.append("language", language);
+  data.append("landing_page", user.landingPage);
+  data.append("referrer", user.referrer);
+  data.append("source", qs.get("source") ?? getHost(user.referrer)); // google.com || facebook.com || youtube.com
+  data.append("medium", qs.get("medium") ?? getMedium(user.referrer, qs)); // organic || paid || direct
+  data.append("channel", qs.get("channel") ?? getChannel(user.referrer)); // search || social || video
+  data.append("button_clicked", buttonName);
+  data.append("longitude", longitude);
+  data.append("latitude", latitude);
+  data.append("language", language);
 
-    for (const [key, value] of Object.entries(marketing)) {
-        data.append(key, value);
-    }
+  for (const [key, value] of Object.entries(marketing)) {
+    data.append(key, value);
+  }
 
-    return;
-    fetch("/quote", {
-        method: "POST",
-        credentials: "include",
-        body: data
-    })
-        .then((response) => {
-            if (response.ok) {
-                const token = response.headers.get('X-Csrf-Token');
+  const alertModal = document.getElementById("alertModal");
+  fetch("/quote", {
+    method: "POST",
+    credentials: "include",
+    body: data,
+  })
+    .then((response) => {
+      if (response.ok) {
+        const token = response.headers.get("X-Csrf-Token");
 
-                if (token) {
-                    const csrf_token = document.getElementById('csrf_token');
+        if (token) {
+          const csrf_token = document.getElementById("csrf_token");
 
-                    if (!csrf_token) return;
+          if (!csrf_token) return;
 
-                    csrf_token.value = token;
-                }
+          csrf_token.value = token;
+        }
 
-                return response.text();
-            } else {
-                return response.text().then((err) => {
-                    throw new Error(err);
-                });
-            }
-        })
-        .then(html => {
-            alertModal.outerHTML = html;
-            const modal = document.getElementById("alertModal");
-            handleCloseAlertModal();
-
-            form.reset();
-        })
-        .catch(errorHTML => {
-            alertModal.outerHTML = errorHTML
-            handleCloseAlertModal();
+        return response.text();
+      } else {
+        return response.text().then((err) => {
+          throw new Error(err);
         });
+      }
+    })
+    .then((html) => {
+      alertModal.outerHTML = html;
+      handleCloseAlertModal();
+
+      form.reset();
+    })
+    .catch((errorHTML) => {
+      alertModal.outerHTML = errorHTML;
+      handleCloseAlertModal();
+    });
 });
 
 function validatePhoneNumber(phoneNumberInput) {
-    let isValid = true;
-    const phoneNumber = phoneNumberInput.trim();
+  let isValid = true;
+  const phoneNumber = phoneNumberInput.trim();
 
-    const phonePattern = /^[0-9]{10}$/;
+  const phonePattern = /^[0-9]{10}$/;
 
-    if (!phonePattern.test(phoneNumber)) {
-        isValid = false;
-    }
+  if (!phonePattern.test(phoneNumber)) {
+    isValid = false;
+  }
 
-    return isValid;
+  return isValid;
 }
 
 function validateForm() {
-    let isValid = true;
+  let isValid = true;
 
-    // Validate first name
-    const firstNameInput = document.getElementById("first_name");
-    if (!firstNameInput.value.trim()) {
-        isValid = false;
-        firstNameInput.classList.add("border-red-500");
-    } else {
-        firstNameInput.classList.remove("border-red-500");
-    }
+  // Validate first name
+  const firstNameInput = document.getElementById("first_name");
+  if (!firstNameInput.value.trim()) {
+    isValid = false;
+    firstNameInput.classList.add("border-red-500");
+  } else {
+    firstNameInput.classList.remove("border-red-500");
+  }
 
-    // Validate last name
-    const lastNameInput = document.getElementById("last_name");
-    if (!lastNameInput.value.trim()) {
-        isValid = false;
-        lastNameInput.classList.add("border-red-500");
-    } else {
-        lastNameInput.classList.remove("border-red-500");
-    }
+  // Validate last name
+  const lastNameInput = document.getElementById("last_name");
+  if (!lastNameInput.value.trim()) {
+    isValid = false;
+    lastNameInput.classList.add("border-red-500");
+  } else {
+    lastNameInput.classList.remove("border-red-500");
+  }
 
-    // Validate phone number
-    const phoneNumberInput = document.getElementById("phone_number");
-    if (!validatePhoneNumber(phoneNumberInput.value)) {
-        isValid = false;
-        phoneNumberInput.classList.add("border-red-500");
-    } else {
-        phoneNumberInput.classList.remove("border-red-500");
-    }
+  // Validate phone number
+  const phoneNumberInput = document.getElementById("phone_number");
+  if (!validatePhoneNumber(phoneNumberInput.value)) {
+    isValid = false;
+    phoneNumberInput.classList.add("border-red-500");
+  } else {
+    phoneNumberInput.classList.remove("border-red-500");
+  }
 
-    // Validate machine type
-    const machineTypeSelect = document.getElementById("machine_type");
-    if (machineTypeSelect.value === "") {
-        isValid = false;
-        machineTypeSelect.classList.add("border-red-500");
-    } else {
-        machineTypeSelect.classList.remove("border-red-500");
-    }
+  // Validate machine type
+  const machineTypeSelect = document.getElementById("machine_type");
+  if (machineTypeSelect.value === "") {
+    isValid = false;
+    machineTypeSelect.classList.add("border-red-500");
+  } else {
+    machineTypeSelect.classList.remove("border-red-500");
+  }
 
-    // Validate location type
-    const locationTypeSelect = document.getElementById("location_type");
-    if (locationTypeSelect.value === "") {
-        isValid = false;
-        locationTypeSelect.classList.add("border-red-500");
-    } else {
-        locationTypeSelect.classList.remove("border-red-500");
-    }
+  // Validate location type
+  const locationTypeSelect = document.getElementById("location_type");
+  if (locationTypeSelect.value === "") {
+    isValid = false;
+    locationTypeSelect.classList.add("border-red-500");
+  } else {
+    locationTypeSelect.classList.remove("border-red-500");
+  }
 
-    if (!isValid) {
-        alert("Please fill in all required fields.");
-    }
+  if (!isValid) {
+    alert("Please fill in all required fields.");
+  }
 
-    return isValid;
+  return isValid;
 }

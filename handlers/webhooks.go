@@ -152,7 +152,6 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 			FirstName: helpers.HashString(helpers.SafeString(form.FirstName)),
 			LastName:  helpers.HashString(helpers.SafeString(form.LastName)),
 			Phone:     helpers.HashString(helpers.SafeString(form.PhoneNumber)),
-			City:      lead.City,
 			State:     state,
 		},
 	}
@@ -178,7 +177,6 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 		"DateCreated":    time.Unix(lead.CreatedAt, 0).Format("01/02/2006 3 PM"),
 		"MachineType":    lead.MachineType,
 		"LocationType":   lead.LocationType,
-		"City":           lead.City,
 		"Message":        helpers.SafeString(form.Message),
 		"LeadDetailsURL": fmt.Sprintf("%s/crm/lead/%d", constants.RootDomain, leadID),
 		"Location":       "",
