@@ -32,7 +32,7 @@ function showModal() {
         alreadyPoppedUp = true;
       });
 
-      // Clicks redirect
+      // Bring form to focus
       applyButtonlogic();
     })
     .catch(console.error);

@@ -204,11 +204,14 @@ function handleCTAClick(e) {
     qs.delete(key);
   };
 
-  const currentDomain = new URL(window.location.origin + "/quote");
+  // Bring form into focus
+  const form = document.getElementById('get-a-quote-form');
+  form.scrollIntoView({ behavior: 'smooth' });
+  form.querySelector('input, textarea, select').focus();
 
-  currentDomain.search = qs.toString();
-
-  window.location.replace(currentDomain.href);
+  // Hide modal
+  const modal = document.getElementById('modalOverlay');
+  modal.style.display = 'none';
 }
 
 function applyButtonlogic() {
