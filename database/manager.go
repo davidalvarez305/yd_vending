@@ -341,8 +341,8 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id
 		WHERE (vt.vending_type_id = $1 OR $1 IS NULL) 
 		AND (vl.vending_location_id = $2 OR $2 IS NULL)
-		LIMIT $4
-		OFFSET $5`
+		LIMIT $3
+		OFFSET $4`
 
 	var offset int
 
@@ -574,8 +574,8 @@ func UpdateLead(form types.UpdateLeadForm) error {
 		SET first_name = COALESCE($2, first_name), 
 		    last_name = COALESCE($3, last_name), 
 		    phone_number = COALESCE($4, phone_number), 
-		    vending_type_id = COALESCE($6, vending_type_id), 
-		    vending_location_id = COALESCE($7, vending_location_id)
+		    vending_type_id = COALESCE($5, vending_type_id), 
+		    vending_location_id = COALESCE($6, vending_location_id)
 		WHERE lead_id = $1
 	`
 
