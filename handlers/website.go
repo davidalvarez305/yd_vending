@@ -101,6 +101,25 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
 		return
 	}
+	vendingTypes, err := database.GetVendingTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingLocations, err := database.GetVendingLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
 
 	data := ctx
 	data.PageTitle = "Miami Vending Services — " + constants.CompanyName
@@ -116,6 +135,9 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 		"Local Sourcing Partnerships",
 		"Flexible Contract Terms",
 	}
+	data.CSRFToken = csrfToken
+	data.VendingTypes = vendingTypes
+	data.VendingLocations = vendingLocations
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
