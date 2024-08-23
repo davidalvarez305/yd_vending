@@ -96,7 +96,6 @@ type LeadDetails struct {
 	Keyword         string `json:"keyword" form:"keyword" schema:"keyword"`
 	Channel         string `json:"channel" form:"channel" schema:"channel"`
 	Language        string `json:"language" form:"language" schema:"language"`
-	City            string `json:"city" form:"city" schema:"city"`
 	Message         string `json:"message" form:"message" schema:"message"`
 }
 
@@ -111,7 +110,6 @@ type LeadList struct {
 	FootTrafficType   string `json:"foot_traffic_type" form:"foot_traffic_type" schema:"foot_traffic_type"`
 	MachineType       string `json:"machine_type" form:"machine_type" schema:"machine_type"`
 	LocationType      string `json:"location_type" form:"location_type" schema:"location_type"`
-	City              string `json:"city" form:"city" schema:"city"`
 	Language          string `json:"language" form:"language" schema:"language"`
 	CityID            int    `json:"city_id" form:"city_id" schema:"city_id"`
 	VendingTypeID     int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
@@ -122,7 +120,6 @@ type LeadList struct {
 type GetLeadsParams struct {
 	VendingType  *string `json:"vending_type" form:"vending_type" schema:"vending_type"`
 	LocationType *string `json:"location_type" form:"location_type" schema:"location_type"`
-	City         *string `json:"city" form:"city" schema:"city"`
 	PageNum      *string `json:"page_num" form:"page_num" schema:"page_num"`
 }
 

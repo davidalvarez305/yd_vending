@@ -358,17 +358,14 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 
 	query := `SELECT l.lead_id, l.first_name, l.last_name, l.phone_number, 
 		l.created_at, l.rent, l.foot_traffic, l.foot_traffic_type, 
-		vt.machine_type, vl.location_type, c.name as city, lm.language,
-		l.city_id, l.vending_type_id, l.vending_location_id,
+		vt.machine_type, vl.location_type, lm.language, l.vending_type_id, l.vending_location_id,
 		COUNT(*) OVER() AS total_rows
 		FROM lead AS l
-		JOIN city AS c ON c.city_id = l.city_id
 		JOIN vending_type AS vt ON vt.vending_type_id = l.vending_type_id
 		JOIN vending_location AS vl ON vl.vending_location_id = l.vending_location_id
 		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id
 		WHERE (vt.vending_type_id = $1 OR $1 IS NULL) 
 		AND (vl.vending_location_id = $2 OR $2 IS NULL)
-		AND (c.city_id = $3 OR $3 IS NULL)
 		LIMIT $4
 		OFFSET $5`
 
@@ -383,7 +380,7 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		offset = (pageNum - 1) * int(constants.LeadsPerPage)
 	}
 
-	rows, err := DB.Query(query, params.VendingType, params.LocationType, params.City, constants.LeadsPerPage, offset)
+	rows, err := DB.Query(query, params.VendingType, params.LocationType, constants.LeadsPerPage, offset)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error executing query: %w", err)
 	}
@@ -406,7 +403,6 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 			&footTrafficType,
 			&lead.MachineType,
 			&lead.LocationType,
-			&lead.City,
 			&lead.Language,
 			&lead.CityID,
 			&lead.VendingTypeID,
@@ -453,13 +449,11 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	lm.keyword,
 	lm.channel,
 	lm.language,
-	c."name",
 	l.message
 	FROM lead l
 	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
 	JOIN lead_marketing lm ON l.lead_id = lm.lead_id
-	JOIN city c ON c.city_id = l.city_id
 	WHERE l.lead_id = $1`
 
 	var leadDetails types.LeadDetails
@@ -467,7 +461,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	row := DB.QueryRow(query, leadID)
 
 	var adCampaign, medium, source, referrer, landingPage, ip, keyword, channel, language sql.NullString
-	var vendingType, vendingLocation, city, message sql.NullString
+	var vendingType, vendingLocation, message sql.NullString
 
 	err := row.Scan(
 		&leadDetails.LeadID,
@@ -485,7 +479,6 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		&keyword,
 		&channel,
 		&language,
-		&city,
 		&message,
 	)
 	if err != nil {
@@ -506,7 +499,6 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	leadDetails.Keyword = keyword.String
 	leadDetails.Channel = channel.String
 	leadDetails.Language = language.String
-	leadDetails.City = city.String
 	leadDetails.Message = message.String
 
 	return leadDetails, nil
