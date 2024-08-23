@@ -1,5 +1,6 @@
-const qs = new URLSearchParams(window.location.search);
 const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
+const form = document.getElementById("get-a-quote-form");
+const alertModal = document.getElementById("alertModal");
 let latitude = 0.0;
 let longitude = 0.0;
 
@@ -37,13 +38,13 @@ function getHost(urlString) {
     return host;
 }
 
-function getClickId() {
+function getClickId(qs) {
   for (const key of clickIdKeys) {
-    if (qs.has(key)) return [key, qs.get(key)];
+    if (qs.has(key)) return qs.get(key);
   }
 }
 
-function isPaid() {
+function isPaid(qs) {
   for (const key of clickIdKeys) {
     if (qs.has(key)) {
       return true;
@@ -53,7 +54,7 @@ function isPaid() {
   return false;
 }
 
-function getMedium(referrer) {
+function getMedium(referrer, qs) {
   // No referrer means the user accessed the website directly
   if (referrer.length === 0) return "direct";
 
@@ -61,7 +62,7 @@ function getMedium(referrer) {
   if (qs.size === 0) return "organic";
 
   // Paid ads
-  if (isPaid()) return "paid";
+  if (isPaid(qs)) return "paid";
 
   // Querystring + non-empty referrer and no click id === referral
   return "referral";
@@ -180,40 +181,6 @@ function getChannel(referrerUrl) {
     return "other";
 }
 
-function handleCTAClick(e) {
-  const language = navigator.language || navigator.userLanguage;
-
-  const buttonName = e.target.getAttribute("name");
-
-  // Get user variables from browser
-  var user = JSON.parse(localStorage.getItem("user")) || {};
-
-  qs.set("landing_page", user.landingPage);
-  qs.set("referrer", user.referrer);
-  qs.set("source", qs.get('source') ?? getHost(user.referrer)); // google.com || facebook.com || youtube.com
-  qs.set("medium", qs.get('medium') ?? getMedium(user.referrer)); // organic || paid || direct
-  qs.set("channel", qs.get('channel') ?? getChannel(user.referrer)); // search || social || video
-  qs.set("button_clicked", buttonName);
-  qs.set("longitude", longitude);
-  qs.set("latitude", latitude);
-  qs.set("language", language);
-
-  if (isPaid()) {
-    const [key, clickId] = getClickId();
-    qs.set("click_id", clickId)
-    qs.delete(key);
-  };
-
-  // Bring form into focus
-  const form = document.getElementById('get-a-quote-form');
-  form.scrollIntoView({ behavior: 'smooth' });
-  form.querySelector('input, textarea, select').focus();
-
-  // Hide modal
-  const modal = document.getElementById('modalOverlay');
-  modal.style.display = 'none';
-}
-
 function applyButtonlogic() {
   let quoteButtons = document.querySelectorAll(".quoteButton");
 
@@ -223,8 +190,157 @@ function applyButtonlogic() {
       child.setAttribute("name", button.name);
     });
 
-    button.addEventListener("click", handleCTAClick);
+    button.addEventListener("click", function() {
+      // Bring form into focus
+      form.scrollIntoView({ behavior: 'smooth' });
+      form.querySelector('input, textarea, select').focus();
+    
+      // Hide modal
+      const modal = document.getElementById('modalOverlay');
+      modal.style.display = 'none';
+    });
   });
 };
 
 applyButtonlogic();
+
+form.addEventListener("submit", e => {
+    e.preventDefault();
+    const isValid = validateForm();
+
+    if (!isValid) return;
+    const qs = new URLSearchParams(window.location.search);
+
+    const language = navigator.language || navigator.userLanguage;
+
+    const buttonName = e.target.getAttribute("name");
+
+    // Get user variables from browser
+    var user = JSON.parse(localStorage.getItem("user")) || {};
+
+    const marketing = Object.fromEntries(qs);
+    const data = new FormData(e.target);
+
+    if (isPaid(qs)) {
+      data.append("click_id", getClickId(qs))
+    };
+
+    data.append("landing_page", user.landingPage);
+    data.append("referrer", user.referrer);
+    data.append("source", qs.get('source') ?? getHost(user.referrer)); // google.com || facebook.com || youtube.com
+    data.append("medium", qs.get('medium') ?? getMedium(user.referrer, qs)); // organic || paid || direct
+    data.append("channel", qs.get('channel') ?? getChannel(user.referrer)); // search || social || video
+    data.append("button_clicked", buttonName);
+    data.append("longitude", longitude);
+    data.append("latitude", latitude);
+    data.append("language", language);
+
+    for (const [key, value] of Object.entries(marketing)) {
+        data.append(key, value);
+    }
+
+    return;
+    fetch("/quote", {
+        method: "POST",
+        credentials: "include",
+        body: data
+    })
+        .then((response) => {
+            if (response.ok) {
+                const token = response.headers.get('X-Csrf-Token');
+
+                if (token) {
+                    const csrf_token = document.getElementById('csrf_token');
+
+                    if (!csrf_token) return;
+
+                    csrf_token.value = token;
+                }
+
+                return response.text();
+            } else {
+                return response.text().then((err) => {
+                    throw new Error(err);
+                });
+            }
+        })
+        .then(html => {
+            alertModal.outerHTML = html;
+            const modal = document.getElementById("alertModal");
+            handleCloseAlertModal();
+
+            form.reset();
+        })
+        .catch(errorHTML => {
+            alertModal.outerHTML = errorHTML
+            handleCloseAlertModal();
+        });
+});
+
+function validatePhoneNumber(phoneNumberInput) {
+    let isValid = true;
+    const phoneNumber = phoneNumberInput.trim();
+
+    const phonePattern = /^[0-9]{10}$/;
+
+    if (!phonePattern.test(phoneNumber)) {
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+function validateForm() {
+    let isValid = true;
+
+    // Validate first name
+    const firstNameInput = document.getElementById("first_name");
+    if (!firstNameInput.value.trim()) {
+        isValid = false;
+        firstNameInput.classList.add("border-red-500");
+    } else {
+        firstNameInput.classList.remove("border-red-500");
+    }
+
+    // Validate last name
+    const lastNameInput = document.getElementById("last_name");
+    if (!lastNameInput.value.trim()) {
+        isValid = false;
+        lastNameInput.classList.add("border-red-500");
+    } else {
+        lastNameInput.classList.remove("border-red-500");
+    }
+
+    // Validate phone number
+    const phoneNumberInput = document.getElementById("phone_number");
+    if (!validatePhoneNumber(phoneNumberInput.value)) {
+        isValid = false;
+        phoneNumberInput.classList.add("border-red-500");
+    } else {
+        phoneNumberInput.classList.remove("border-red-500");
+    }
+
+    // Validate machine type
+    const machineTypeSelect = document.getElementById("machine_type");
+    if (machineTypeSelect.value === "") {
+        isValid = false;
+        machineTypeSelect.classList.add("border-red-500");
+    } else {
+        machineTypeSelect.classList.remove("border-red-500");
+    }
+
+    // Validate location type
+    const locationTypeSelect = document.getElementById("location_type");
+    if (locationTypeSelect.value === "") {
+        isValid = false;
+        locationTypeSelect.classList.add("border-red-500");
+    } else {
+        locationTypeSelect.classList.remove("border-red-500");
+    }
+
+    if (!isValid) {
+        alert("Please fill in all required fields.");
+    }
+
+    return isValid;
+}
