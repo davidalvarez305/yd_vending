@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -10,8 +11,11 @@ import (
 	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/models"
+	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/google/uuid"
 )
 
 var crmBaseFilePath = constants.CRM_TEMPLATES_DIR + "base.html"
@@ -33,11 +37,10 @@ func createCrmContext() map[string]any {
 func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := createCrmContext()
 	ctx["PagePath"] = constants.RootDomain + r.URL.Path
+	path := r.URL.Path
 
 	switch r.Method {
 	case http.MethodGet:
-		path := r.URL.Path
-
 		// Get messages by lead
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
 			GetLeadMessagesPartial(w, r)
@@ -63,15 +66,18 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPut:
-		path := r.URL.Path
-
 		if strings.HasPrefix(path, "/crm/lead/") {
 			PutLead(w, r)
 			return
 		}
 
-		if strings.HasPrefix(path, "/crm/lead-marketing/") {
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/marketing") {
 			PutLeadMarketing(w, r)
+			return
+		}
+	case http.MethodPost:
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/images") {
+			PostLeadImages(w, r)
 			return
 		}
 	default:
@@ -489,5 +495,156 @@ func GetLeadMessagesPartial(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostLeadImages(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(50 << 20) // 50 MB limit
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to parse form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	leadIDStr := r.FormValue("lead_id")
+	leadID, err := strconv.Atoi(leadIDStr)
+	if err != nil {
+		fmt.Printf("Error converting lead_id to int: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid lead ID.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	values, err := sessions.Get(r)
+	if err != nil || values.UserID == 0 {
+		fmt.Printf("COULD NOT GET SESSION WHILE UPLOADING IMAGES: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Could not get session while uploading images.",
+			},
+		}
+		w.WriteHeader(http.StatusForbidden)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	user, err := database.GetUserById(values.UserID)
+	if err != nil || values.UserID == 0 {
+		fmt.Printf("Could not get user from database: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Could not get user from database.",
+			},
+		}
+		w.WriteHeader(http.StatusForbidden)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	files := r.MultipartForm.File["upload_images"]
+
+	for _, fileHeader := range files {
+		file, err := fileHeader.Open()
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to open uploaded file.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+		defer file.Close()
+
+		fileExtension := filepath.Ext(fileHeader.Filename)
+		src := uuid.New().String() + fileExtension
+		filePath := "images/" + src
+
+		err = services.UploadImageToS3(file, fileHeader, filePath)
+		if err != nil {
+			fmt.Printf("Failed to upload image to S3: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to upload image to S3.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+
+		form := models.LeadImage{
+			Src:           src,
+			LeadID:        leadID,
+			DateAdded:     time.Now().Unix(),
+			AddedByUserID: user.UserID,
+		}
+
+		err = database.CreateLeadImage(form)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Error saving image metadata.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Images have been successfully uploaded.",
+		},
+	}
+
+	token, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

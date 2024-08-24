@@ -970,3 +970,26 @@ func DeleteSession(secret string) error {
 
 	return nil
 }
+
+func CreateLeadImage(img models.LeadImage) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO lead_image (src, lead_id, date_added, added_by_user_id)
+		VALUES ($1, $2, to_timestamp($3), $4)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	var leadID sql.NullInt64
+	if img.LeadID != 0 {
+		leadID = sql.NullInt64{Int64: int64(img.LeadID), Valid: true}
+	}
+
+	_, err = stmt.Exec(img.Src, leadID, img.DateAdded, img.AddedByUserID)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
