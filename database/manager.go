@@ -993,3 +993,69 @@ func CreateLeadImage(img models.LeadImage) error {
 
 	return nil
 }
+
+func CreateLeadNote(note models.LeadNote) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO lead_note (note, lead_id, date_added, added_by_user_id)
+		VALUES ($1, $2, to_timestamp($3), $4)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	var leadID sql.NullInt64
+	if note.LeadID != 0 {
+		leadID = sql.NullInt64{Int64: int64(note.LeadID), Valid: true}
+	}
+
+	_, err = stmt.Exec(note.Note, leadID, note.DateAdded, note.AddedByUserID)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func GetLeadNotesByLeadID(leadId int) ([]types.FrontendNote, error) {
+	var notes []types.FrontendNote
+
+	query := `SELECT CONCAT(u.first_name, ' ', u.last_name) as user_name,
+	n.note,
+	n.date_created
+	FROM "note" AS n
+	JOIN "user" AS u ON u.user_id = n.user_id
+	WHERE n.lead_id = $1
+	ORDER BY n.date_created DESC`
+
+	rows, err := DB.Query(query, leadId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return notes, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var dateCreated time.Time
+
+		var note types.FrontendNote
+		err := rows.Scan(
+			&note.UserName,
+			&note.Note,
+			&dateCreated,
+		)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			return notes, err
+		}
+
+		note.DateCreated = dateCreated.Unix()
+		notes = append(notes, note)
+	}
+
+	if err = rows.Err(); err != nil {
+		return notes, err
+	}
+
+	return notes, nil
+}

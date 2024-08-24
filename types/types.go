@@ -304,3 +304,9 @@ type ConversionLeadInfo struct {
 	LocationType string `json:"location_type" form:"location_type" schema:"location_type"`
 	CreatedAt    int64  `json:"created_at" form:"created_at" schema:"created_at"`
 }
+
+type FrontendNote struct {
+	UserName    string `json:"user_name"`
+	DateCreated int64  `json:"date_created"`
+	Note        string `json:"note"`
+}
