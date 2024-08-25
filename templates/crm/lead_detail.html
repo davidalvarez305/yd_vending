@@ -496,16 +496,16 @@
                 if (endpoint.includes("messages")) {
                     const el = document.getElementById("messages");
                     el.innerHTML = html;
+                    e.target.closest('form').reset();
                 } else if (endpoint.includes("notes")) {
                     const el = document.getElementById("notes");
                     el.innerHTML = html;
+                    e.target.closest('form').reset();
                 } else {
                     const el = document.getElementById("alertModal");
                     el.outerHTML = html;
                     handleCloseAlertModal();
                 }
-
-                form.reset();
             })
             .catch(console.error);
     }
