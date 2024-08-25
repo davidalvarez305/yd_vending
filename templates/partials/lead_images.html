@@ -1,0 +1,7 @@
+{{ define "lead_images.html" }}
+    {{ range .LeadImages }}
+    <div>
+        <img src="{{ .Src }}" />
+    </div>
+    {{ end }}
+{{ end }}

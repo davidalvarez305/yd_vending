@@ -39,7 +39,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		script-src 'self' https://www.googletagmanager.com %s 'nonce-%s';
 		font-src 'self' https://fonts.bunny.net;
 		frame-src 'self' https://td.doubleclick.net https://www.facebook.com;
-		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net;
+		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net https://cdn.jsdelivr.net;
 		style-src 'self' %s;
 		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com https://www.facebook.com https://www.google.com https://adservice.google.com https://www.googletagmanager.com %s;
 		connect-src 'self' https://www.google-analytics.com https://www.googleadservices.com https://www.google.com https://adservice.google.com https://www.facebook.com;

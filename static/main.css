@@ -871,6 +871,11 @@ select{
   margin-bottom: 2rem;
 }
 
+.-my-4{
+  margin-top: -1rem;
+  margin-bottom: -1rem;
+}
+
 .-mb-6{
   margin-bottom: -1.5rem;
 }
@@ -1040,6 +1045,10 @@ select{
   height: 100%;
 }
 
+.h-4{
+  height: 1rem;
+}
+
 .min-h-dvh{
   min-height: 100dvh;
 }
@@ -1076,6 +1085,10 @@ select{
   width: 1px;
 }
 
+.w-4{
+  width: 1rem;
+}
+
 .min-w-\[320px\]{
   min-width: 320px;
 }
@@ -1098,6 +1111,10 @@ select{
 
 .max-w-xl{
   max-width: 36rem;
+}
+
+.max-w-md{
+  max-width: 28rem;
 }
 
 .flex-auto{
@@ -1285,6 +1302,12 @@ select{
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 
+.space-x-1 > :not([hidden]) ~ :not([hidden]){
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .divide-y > :not([hidden]) ~ :not([hidden]){
   --tw-divide-y-reverse: 0;
   border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
@@ -1338,6 +1361,10 @@ select{
 
 .border{
   border-width: 1px;
+}
+
+.border-2{
+  border-width: 2px;
 }
 
 .border-b{
@@ -1403,6 +1430,11 @@ select{
 
 .border-transparent{
   border-color: transparent;
+}
+
+.border-gray-300{
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
 .bg-black\/75{
@@ -1678,6 +1710,11 @@ select{
   padding-bottom: 1.5rem;
 }
 
+.py-48{
+  padding-top: 12rem;
+  padding-bottom: 12rem;
+}
+
 .pb-1{
   padding-bottom: 0.25rem;
 }
@@ -1720,6 +1757,10 @@ select{
 
 .text-center{
   text-align: center;
+}
+
+.text-right{
+  text-align: right;
 }
 
 .align-middle{

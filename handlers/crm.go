@@ -47,6 +47,11 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/images") {
+			GetLeadImagesPartial(w, r)
+			return
+		}
+
 		// Handle lead details
 		if strings.HasPrefix(path, "/crm/lead/") {
 			GetLeadDetail(w, r, ctx)
@@ -267,6 +272,13 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	leadImages, err := database.GetLeadImagesByLeadID(leadDetails.LeadID)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting lead images from DB.", http.StatusInternalServerError)
+		return
+	}
+
 	values, err := sessions.Get(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -305,6 +317,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
 	data["LeadNotes"] = leadNotes
+	data["LeadImagesCount"] = len(leadImages)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -756,5 +769,48 @@ func PostLeadNotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("X-Csrf-Token", token)
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetLeadImagesPartial(w http.ResponseWriter, r *http.Request) {
+	trimmedPath := strings.TrimPrefix(r.URL.Path, "/crm/lead/")
+
+	// Split the remaining path to get leadId and ignore the rest
+	parts := strings.SplitN(trimmedPath, "/", 2)
+	if len(parts) < 2 {
+		http.Error(w, "Invalid path format", http.StatusBadRequest)
+		return
+	}
+
+	leadIdStr := parts[0]
+	leadId, err := strconv.Atoi(leadIdStr)
+	if err != nil {
+		http.Error(w, "Invalid lead ID", http.StatusBadRequest)
+		return
+	}
+
+	images, err := database.GetLeadImagesByLeadID(leadId)
+	if err != nil {
+		fmt.Printf("Error getting images: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get images.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "lead_images.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "lead_images.html",
+		Data: map[string]any{
+			"LeadImages": images,
+		},
+	}
+
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

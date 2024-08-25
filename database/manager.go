@@ -1007,3 +1007,36 @@ func GetLeadNotesByLeadID(leadId int) ([]types.FrontendNote, error) {
 
 	return notes, nil
 }
+
+func GetLeadImagesByLeadID(leadId int) ([]models.LeadImage, error) {
+	var images []models.LeadImage
+
+	query := `SELECT i.src FROM "lead_image" AS i WHERE i.lead_id = $1;`
+
+	rows, err := DB.Query(query, leadId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return images, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var image models.LeadImage
+		err := rows.Scan(
+			&image.Src,
+		)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			return images, err
+		}
+
+		images = append(images, image)
+	}
+
+	if err = rows.Err(); err != nil {
+		return images, err
+	}
+
+	return images, nil
+}
