@@ -275,10 +275,7 @@ form.addEventListener("submit", (e) => {
 
       form.reset();
     })
-    .catch((errorHTML) => {
-      alertModal.outerHTML = errorHTML;
-      handleCloseAlertModal();
-    });
+    .catch(console.error);
 });
 
 function validatePhoneNumber(phoneNumberInput) {

@@ -345,13 +345,7 @@
                 const messages = document.getElementById("messages");
                 messages.innerHTML = html;
             })
-            .catch(errorHTML => {
-                const alertModal = document.getElementById("alertModal");
-                if (alertModal) {
-                    alertModal.outerHTML = errorHTML;
-                    handleCloseAlertModal();
-                }
-            });
+            .catch(console.error);
     }
 
     const interval = 1000;
@@ -400,13 +394,7 @@
 
                 form.reset();
             })
-            .catch(errorHTML => {
-                const alertModal = document.getElementById("alertModal");
-                if (alertModal) {
-                    alertModal.outerHTML = errorHTML;
-                    handleCloseAlertModal();
-                }
-            });
+            .catch(console.error);
     }
 
     const form = document.getElementById("sendMessage");

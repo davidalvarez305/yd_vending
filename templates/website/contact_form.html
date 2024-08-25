@@ -96,10 +96,7 @@
 
         contactForm.reset();
       })
-      .catch(errorHTML => {
-        alertModal.outerHTML = errorHTML
-        handleCloseAlertModal();
-      });
+      .catch(console.error);
   });
 </script>
 
