@@ -386,6 +386,9 @@
                 if (endpoint.includes("messages")) {
                     const el = document.getElementById("messages");
                     el.innerHTML = html;
+                } else if (endpoint.includes("notes")) {
+                    const el = document.getElementById("notes");
+                    el.innerHTML = html;
                 } else {
                     const el = document.getElementById("alertModal");
                     el.outerHTML = html;
