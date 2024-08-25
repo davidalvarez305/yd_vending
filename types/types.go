@@ -144,7 +144,7 @@ type TwilioMessage struct {
 type FrontendMessage struct {
 	ClientName  string `json:"client_name"`
 	UserName    string `json:"user_name"`
-	DateCreated int64  `json:"date_created"`
+	DateCreated string `json:"date_created"`
 	Message     string `json:"message"`
 	IsInbound   bool   `json:"is_inbound"`
 }
@@ -306,7 +306,7 @@ type ConversionLeadInfo struct {
 }
 
 type FrontendNote struct {
-	UserName    string `json:"user_name"`
-	DateCreated int64  `json:"date_created"`
-	Note        string `json:"note"`
+	UserName  string `json:"user_name"`
+	DateAdded string `json:"date_added"`
+	Note      string `json:"note"`
 }

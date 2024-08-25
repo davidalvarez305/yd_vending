@@ -25,6 +25,8 @@ var (
 	ServerPort                   string
 	RootDomain                   string
 	AWSStorageBucket             string
+	AWSS3BucketName              string
+	AWSRegion                    string
 	CookieName                   string
 	DomainHost                   string
 	SecretAESKey                 string
@@ -64,6 +66,8 @@ func Init() {
 	ServerPort = os.Getenv("SERVER_PORT")
 	RootDomain = os.Getenv("ROOT_DOMAIN")
 	AWSStorageBucket = os.Getenv("AWS_STORAGE_BUCKET")
+	AWSS3BucketName = os.Getenv("AWS_S3_BUCKET_NAME")
+	AWSRegion = os.Getenv("AWS_REGION")
 	CookieName = os.Getenv("COOKIE_NAME")
 	SecretAESKey = os.Getenv("SECRET_AES_KEY")
 	AuthSecretKey = os.Getenv("AUTH_SECRET_KEY")

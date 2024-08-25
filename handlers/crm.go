@@ -66,18 +66,22 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPut:
-		if strings.HasPrefix(path, "/crm/lead/") {
-			PutLead(w, r)
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/marketing") {
+			PutLeadMarketing(w, r)
 			return
 		}
 
-		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/marketing") {
-			PutLeadMarketing(w, r)
+		if strings.HasPrefix(path, "/crm/lead/") {
+			PutLead(w, r)
 			return
 		}
 	case http.MethodPost:
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/images") {
 			PostLeadImages(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/notes") {
+			PostLeadNotes(w, r)
 			return
 		}
 	default:
@@ -227,7 +231,7 @@ func GetDashboard(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "lead_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html"}
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html", constants.PARTIAL_TEMPLATES_DIR + "notes.html"}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -252,7 +256,14 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	messages, err := database.GetMessagesByLeadID(leadDetails.LeadID)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting quotes from DB.", http.StatusInternalServerError)
+		http.Error(w, "Error getting lead messages from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	leadNotes, err := database.GetLeadNotesByLeadID(leadDetails.LeadID)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting lead notes from DB.", http.StatusInternalServerError)
 		return
 	}
 
@@ -293,6 +304,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["CRMUserPhoneNumber"] = phoneNumber
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
+	data["LeadNotes"] = leadNotes
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -692,7 +704,7 @@ func PostLeadNotes(w http.ResponseWriter, r *http.Request) {
 
 	err = database.CreateLeadNote(leadNote)
 	if err != nil {
-		fmt.Printf("%+v\n", err)
+		fmt.Printf("Error creating note: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
@@ -724,7 +736,7 @@ func PostLeadNotes(w http.ResponseWriter, r *http.Request) {
 		TemplateName: "notes.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "notes.html",
 		Data: map[string]any{
-			"Notes": notes,
+			"LeadNotes": notes,
 		},
 	}
 
@@ -744,6 +756,5 @@ func PostLeadNotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("X-Csrf-Token", token)
-	w.WriteHeader(http.StatusOK)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

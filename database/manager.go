@@ -10,6 +10,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/davidalvarez305/yd_vending/utils"
 )
 
 func InsertCSRFToken(token models.CSRFToken) error {
@@ -557,7 +558,7 @@ func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 			return messages, err
 		}
 
-		message.DateCreated = dateCreated.Unix()
+		message.DateCreated = utils.FormatTimestamp(dateCreated.Unix())
 		messages = append(messages, message)
 	}
 
@@ -623,7 +624,7 @@ func UpdateLead(form types.UpdateLeadForm) error {
 func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 	query := `
 		UPDATE lead_marketing
-		SET campaign_name = COALESCE($2, campaign_name), 
+		SET ad_campaign = COALESCE($2, ad_campaign), 
 		    medium = COALESCE($3, medium), 
 		    source = COALESCE($4, source), 
 		    referrer = COALESCE($5, referrer), 
@@ -1020,13 +1021,13 @@ func CreateLeadNote(note models.LeadNote) error {
 func GetLeadNotesByLeadID(leadId int) ([]types.FrontendNote, error) {
 	var notes []types.FrontendNote
 
-	query := `SELECT CONCAT(u.first_name, ' ', u.last_name) as user_name,
+	query := `SELECT u.username,
 	n.note,
-	n.date_created
-	FROM "note" AS n
-	JOIN "user" AS u ON u.user_id = n.user_id
+	n.date_added
+	FROM "lead_note" AS n
+	JOIN "user" AS u ON u.user_id = n.added_by_user_id
 	WHERE n.lead_id = $1
-	ORDER BY n.date_created DESC`
+	ORDER BY n.date_added DESC`
 
 	rows, err := DB.Query(query, leadId)
 	if err != nil {
@@ -1036,20 +1037,20 @@ func GetLeadNotesByLeadID(leadId int) ([]types.FrontendNote, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var dateCreated time.Time
+		var dateAdded time.Time
 
 		var note types.FrontendNote
 		err := rows.Scan(
 			&note.UserName,
 			&note.Note,
-			&dateCreated,
+			&dateAdded,
 		)
 		if err != nil {
 			fmt.Printf("%+v\n", err)
 			return notes, err
 		}
 
-		note.DateCreated = dateCreated.Unix()
+		note.DateAdded = utils.FormatTimestamp(dateAdded.Unix())
 		notes = append(notes, note)
 	}
 

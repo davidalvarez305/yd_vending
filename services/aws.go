@@ -14,7 +14,7 @@ import (
 
 func UploadImageToS3(file multipart.File, fileHeader *multipart.FileHeader, s3FilePath string) error {
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2"), // Update to your region
+		Region: aws.String(constants.AWSRegion),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create session: %w", err)
@@ -28,7 +28,7 @@ func UploadImageToS3(file multipart.File, fileHeader *multipart.FileHeader, s3Fi
 	svc := s3.New(sess)
 
 	input := &s3.PutObjectInput{
-		Bucket:        aws.String(constants.AWSStorageBucket),
+		Bucket:        aws.String(constants.AWSS3BucketName),
 		Key:           aws.String(s3FilePath),
 		Body:          bytes.NewReader(buffer),
 		ContentLength: aws.Int64(fileSize),
