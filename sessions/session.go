@@ -1,7 +1,6 @@
 package sessions
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
@@ -57,25 +56,13 @@ func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
 		return session, err
 	}
 
-	googleClientID, _ := GetGoogleClientIDFromRequest(r)
-	fbClickID, _ := GetFacebookClickIDFromRequest(r)
-	fbClientID, _ := GetFacebookClientIDFromRequest(r)
-
-	// Convert strings to sql.NullString, setting Valid to false if empty.
-	googleClientIDNull := sql.NullString{String: googleClientID, Valid: googleClientID != ""}
-	fbClickIDNull := sql.NullString{String: fbClickID, Valid: fbClickID != ""}
-	fbClientIDNull := sql.NullString{String: fbClientID, Valid: fbClientID != ""}
-
 	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * time.Second)
 
 	session = models.Session{
-		CSRFSecret:       secret,
-		ExternalID:       uuid.New().String(),
-		GoogleClientID:   googleClientIDNull.String,
-		FacebookClickID:  fbClickIDNull.String,
-		FacebookClientID: fbClientIDNull.String,
-		DateCreated:      time.Now().Unix(),
-		DateExpires:      expirationTime.Unix(),
+		CSRFSecret:  secret,
+		ExternalID:  uuid.New().String(),
+		DateCreated: time.Now().Unix(),
+		DateExpires: expirationTime.Unix(),
 	}
 
 	err = database.CreateSession(session)

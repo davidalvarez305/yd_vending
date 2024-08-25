@@ -369,6 +369,22 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	form.ButtonClicked = helpers.GetStringPointerFromForm(r, "button_clicked")
 	form.IP = helpers.GetStringPointerFromForm(r, "ip")
 
+	facebookClientId, _ := helpers.GetFacebookClientIDFromRequest(r)
+	facebookClickId, _ := helpers.GetFacebookClientIDFromRequest(r)
+	googleClientId, _ := helpers.GetGoogleClientIDFromRequest(r)
+
+	if facebookClickId != "" {
+		form.FacebookClickID = &facebookClickId
+	}
+
+	if facebookClientId != "" {
+		form.FacebookClientID = &facebookClientId
+	}
+
+	if googleClientId != "" {
+		form.GoogleClientID = &googleClientId
+	}
+
 	session, err := sessions.Get(r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -400,18 +416,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 
 	if userAgent != "" {
 		form.UserAgent = &userAgent
-	}
-
-	if session.FacebookClickID != "" {
-		form.FacebookClickID = &session.FacebookClickID
-	}
-
-	if session.FacebookClientID != "" {
-		form.FacebookClientID = &session.FacebookClientID
-	}
-
-	if session.GoogleClientID != "" {
-		form.GoogleClientID = &session.GoogleClientID
 	}
 
 	if session.ExternalID != "" {

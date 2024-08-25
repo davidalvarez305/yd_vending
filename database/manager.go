@@ -835,7 +835,7 @@ func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 func GetSession(userKey string) (models.Session, error) {
 	var session models.Session
 	sqlStatement := `
-        SELECT session_id, user_id, csrf_secret, external_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires
+        SELECT session_id, user_id, csrf_secret, external_id, date_created, date_expires
         FROM sessions
         WHERE csrf_secret = $1
     `
@@ -843,16 +843,12 @@ func GetSession(userKey string) (models.Session, error) {
 
 	var dateCreated, dateExpires time.Time
 	var userID sql.NullInt32
-	var googleClientID, facebookClickID, facebookClientID sql.NullString
 
 	err := row.Scan(
 		&session.SessionID,
 		&userID,
 		&session.CSRFSecret,
 		&session.ExternalID,
-		&googleClientID,
-		&facebookClickID,
-		&facebookClientID,
 		&dateCreated,
 		&dateExpires,
 	)
@@ -864,18 +860,6 @@ func GetSession(userKey string) (models.Session, error) {
 		session.UserID = int(userID.Int32)
 	}
 
-	if googleClientID.Valid {
-		session.GoogleClientID = googleClientID.String
-	}
-
-	if facebookClickID.Valid {
-		session.FacebookClickID = facebookClickID.String
-	}
-
-	if facebookClientID.Valid {
-		session.FacebookClientID = facebookClientID.String
-	}
-
 	session.DateCreated = dateCreated.Unix()
 	session.DateExpires = dateExpires.Unix()
 
@@ -884,30 +868,13 @@ func GetSession(userKey string) (models.Session, error) {
 
 func CreateSession(session models.Session) error {
 	sqlStatement := `
-        INSERT INTO sessions (csrf_secret, external_id, google_client_id, facebook_click_id, facebook_client_id, date_created, date_expires)
-        VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))
+        INSERT INTO sessions (csrf_secret, external_id, date_created, date_expires)
+        VALUES ($1, $2, to_timestamp($3), to_timestamp($4))
     `
-
-	var googleClientID, facebookClickID, facebookClientID sql.NullString
-
-	if session.GoogleClientID != "" {
-		googleClientID = sql.NullString{String: session.GoogleClientID, Valid: true}
-	}
-
-	if session.FacebookClickID != "" {
-		facebookClickID = sql.NullString{String: session.FacebookClickID, Valid: true}
-	}
-
-	if session.FacebookClientID != "" {
-		facebookClientID = sql.NullString{String: session.FacebookClientID, Valid: true}
-	}
 
 	_, err := DB.Exec(sqlStatement,
 		session.CSRFSecret,
 		session.ExternalID,
-		googleClientID,
-		facebookClickID,
-		facebookClientID,
 		session.DateCreated,
 		session.DateExpires,
 	)
@@ -923,31 +890,12 @@ func UpdateSession(session models.Session) error {
 	sqlStatement := `
         UPDATE sessions
         SET external_id = $1,
-            google_client_id = $2,
-            facebook_click_id = $3,
-            facebook_client_id = $4,
-			user_id = $5
-        WHERE csrf_secret = $6
+			user_id = $2
+        WHERE csrf_secret = $3
     `
-	var googleClientID, facebookClickID, facebookClientID sql.NullString
-
-	if session.GoogleClientID != "" {
-		googleClientID = sql.NullString{String: session.GoogleClientID, Valid: true}
-	}
-
-	if session.FacebookClickID != "" {
-		facebookClickID = sql.NullString{String: session.FacebookClickID, Valid: true}
-	}
-
-	if session.FacebookClientID != "" {
-		facebookClientID = sql.NullString{String: session.FacebookClientID, Valid: true}
-	}
 
 	_, err := DB.Exec(sqlStatement,
 		session.ExternalID,
-		googleClientID,
-		facebookClickID,
-		facebookClientID,
 		session.UserID,
 		session.CSRFSecret,
 	)
