@@ -125,7 +125,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			csrfToken := r.FormValue("csrf_token")
 			if csrfToken == "" {
 				// If CSRF token is not in form values, check the request headers
-				csrfToken = r.Header.Get("X-CSRF-Token")
+				csrfToken = r.Header.Get("X-Csrf-Token")
 				if csrfToken == "" {
 					http.Error(w, "CSRF token is missing.", http.StatusForbidden)
 					return
