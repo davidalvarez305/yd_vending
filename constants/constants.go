@@ -26,6 +26,7 @@ var (
 	RootDomain                   string
 	AWSStorageBucket             string
 	AWSS3BucketName              string
+	AWSS3LiveImagesPath          string
 	AWSRegion                    string
 	CookieName                   string
 	DomainHost                   string
@@ -67,6 +68,7 @@ func Init() {
 	RootDomain = os.Getenv("ROOT_DOMAIN")
 	AWSStorageBucket = os.Getenv("AWS_STORAGE_BUCKET")
 	AWSS3BucketName = os.Getenv("AWS_S3_BUCKET_NAME")
+	AWSS3LiveImagesPath = os.Getenv("AWS_S3_IMAGES_PATH")
 	AWSRegion = os.Getenv("AWS_REGION")
 	CookieName = os.Getenv("COOKIE_NAME")
 	SecretAESKey = os.Getenv("SECRET_AES_KEY")

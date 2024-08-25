@@ -41,10 +41,10 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		frame-src 'self' https://td.doubleclick.net https://www.facebook.com;
 		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net https://cdn.jsdelivr.net;
 		style-src 'self' %s;
-		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com https://www.facebook.com https://www.google.com https://adservice.google.com https://www.googletagmanager.com %s;
+		img-src 'self' https://www.google-analytics.com data: https://cdn.tailkit.com https://www.facebook.com https://www.google.com https://adservice.google.com https://www.googletagmanager.com %s %s;
 		connect-src 'self' https://www.google-analytics.com https://www.googleadservices.com https://www.google.com https://adservice.google.com https://www.facebook.com;
 		style-src-elem 'self' https://fonts.bunny.net %s;
-		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64, constants.AWSStorageBucket, constants.AWSStorageBucket, constants.AWSStorageBucket)
+		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64, constants.AWSStorageBucket, constants.AWSS3LiveImagesPath, constants.AWSStorageBucket, constants.AWSStorageBucket)
 
 		w.Header().Set("Content-Security-Policy", cspDirective)
 

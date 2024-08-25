@@ -1011,7 +1011,7 @@ func GetLeadNotesByLeadID(leadId int) ([]types.FrontendNote, error) {
 func GetLeadImagesByLeadID(leadId int) ([]models.LeadImage, error) {
 	var images []models.LeadImage
 
-	query := `SELECT i.src FROM "lead_image" AS i WHERE i.lead_id = $1;`
+	query := fmt.Sprintf(`SELECT '%s' || i.src AS url FROM "lead_image" AS i WHERE i.lead_id = $1;`, constants.AWSS3LiveImagesPath)
 
 	rows, err := DB.Query(query, leadId)
 	if err != nil {
