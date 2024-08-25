@@ -25,7 +25,6 @@ func InsertCSRFToken(token models.CSRFToken) error {
 		return fmt.Errorf("error executing statement: %w", err)
 	}
 
-	fmt.Println("CSRFToken inserted successfully")
 	return nil
 }
 

@@ -48,7 +48,7 @@ func UserTracking(next http.Handler) http.Handler {
 				return
 			}
 
-			externalId = session.CSRFSecret
+			externalId = session.ExternalID
 			csrfSecret = session.CSRFSecret
 		}
 
