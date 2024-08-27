@@ -123,15 +123,14 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	data.PageTitle = "Miami Vending Services — " + constants.CompanyName
 	data.Nonce = nonce
 	data.Features = []string{
-		"Innovative Payment Options",
-		"24/7 Customer Support",
 		"Regular Product Rotation",
+		"Modern & Smart Machines",
 		"Health-Conscious Choices",
-		"Advanced Security Features",
-		"Energy Efficiency",
-		"Detailed Reporting and Analytics",
-		"Local Sourcing Partnerships",
-		"Flexible Contract Terms",
+		"Flexible Working Hours",
+		"Forward-Thinking Product Selection",
+		"Attentive Customer Care",
+		"Responsive Repair & Servicing Agents",
+		"High Upkeep & Maintanance",
 	}
 	data.CSRFToken = csrfToken
 	data.VendingTypes = vendingTypes
