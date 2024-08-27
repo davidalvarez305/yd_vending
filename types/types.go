@@ -310,3 +310,30 @@ type FrontendNote struct {
 	DateAdded string `json:"date_added"`
 	Note      string `json:"note"`
 }
+
+type CreateBusinessForm struct {
+	CSRFToken             *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Name                  *string `json:"name" form:"name" schema:"name"`
+	Website               *string `json:"website" form:"website" schema:"website"`
+	Industry              *string `json:"industry" form:"industry" schema:"industry"`
+	IsActive              *bool   `json:"is_active" form:"is_active" schema:"is_active"`
+	TaxID                 *string `json:"tax_id" form:"tax_id" schema:"tax_id"`
+	GoogleBusinessProfile *string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
+}
+
+type CreateLocationForm struct {
+	CSRFToken            *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	LocationTypeID       *int    `json:"location_type_id" form:"location_type_id" schema:"location_type_id"`
+	BusinessID           *int    `json:"business_id" form:"business_id" schema:"business_id"`
+	BusinessContactID    *int    `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
+	Name                 *string `json:"name" form:"name" schema:"name"`
+	Longitude            *string `json:"longitude" form:"longitude" schema:"longitude"`
+	Latitude             *string `json:"latitude" form:"latitude" schema:"latitude"`
+	StreetAddressLineOne *string `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAddressLineTwo *string `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	CityID               *int    `json:"city_id" form:"city_id" schema:"city_id"`
+	ZipCode              *string `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                *string `json:"state" form:"state" schema:"state"`
+	Opening              *string `json:"opening" form:"opening" schema:"opening"`
+	Closing              *string `json:"closing" form:"closing" schema:"closing"`
+}

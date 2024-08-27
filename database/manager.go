@@ -1040,3 +1040,109 @@ func GetLeadImagesByLeadID(leadId int) ([]models.LeadImage, error) {
 
 	return images, nil
 }
+
+func CreateBusiness(form types.CreateBusinessForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO business (name, is_active, date_created, website, industry, tax_id, google_business_profile)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	var dateCreated = time.Now().Unix()
+
+	// Handle NULL values for optional fields
+	var name sql.NullString
+	var website sql.NullString
+	var industry sql.NullString
+	var taxID sql.NullString
+	var googleBusinessProfile sql.NullString
+	var isActive sql.NullBool
+
+	if form.Name != nil {
+		name = sql.NullString{String: *form.Name, Valid: true}
+	}
+	if form.Website != nil {
+		website = sql.NullString{String: *form.Website, Valid: true}
+	}
+	if form.Industry != nil {
+		industry = sql.NullString{String: *form.Industry, Valid: true}
+	}
+	if form.TaxID != nil {
+		taxID = sql.NullString{String: *form.TaxID, Valid: true}
+	}
+	if form.GoogleBusinessProfile != nil {
+		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
+	}
+	if form.IsActive != nil {
+		isActive = sql.NullBool{Bool: *form.IsActive, Valid: true}
+	}
+
+	_, err = stmt.Exec(
+		name,
+		isActive,
+		dateCreated,
+		website,
+		industry,
+		taxID,
+		googleBusinessProfile,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func CreateLocation(form types.CreateLocationForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO location (location_type_id, business_id, business_contact_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, to_timestamp($12), to_timestamp($13))
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	// Handle NULL values for optional fields
+	var longitude, latitude, streetAddressLineTwo, opening, closing sql.NullString
+
+	if form.Longitude != nil {
+		longitude = sql.NullString{String: *form.Longitude, Valid: true}
+	}
+	if form.Latitude != nil {
+		latitude = sql.NullString{String: *form.Latitude, Valid: true}
+	}
+	if form.StreetAddressLineTwo != nil {
+		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
+	}
+	if form.Opening != nil {
+		opening = sql.NullString{String: *form.Opening, Valid: true}
+	}
+	if form.Closing != nil {
+		closing = sql.NullString{String: *form.Closing, Valid: true}
+	}
+
+	_, err = stmt.Exec(
+		form.LocationTypeID,
+		form.BusinessID,
+		form.BusinessContactID,
+		form.Name,
+		longitude,
+		latitude,
+		form.StreetAddressLineOne,
+		streetAddressLineTwo,
+		form.CityID,
+		form.ZipCode,
+		form.State,
+		opening,
+		closing,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}

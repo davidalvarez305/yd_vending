@@ -146,18 +146,19 @@ type Location struct {
 	CityID              int    `json:"city_id" form:"city_id" schema:"city_id"`
 	ZipCode             string `json:"zip_code" form:"zip_code" schema:"zip_code"`
 	State               string `json:"state" form:"state" schema:"state"`
-	Opening             int    `json:"opening" form:"opening" schema:"opening"`
-	Closing             int    `json:"closing" form:"closing" schema:"closing"`
+	Opening             string `json:"opening" form:"opening" schema:"opening"`
+	Closing             string `json:"closing" form:"closing" schema:"closing"`
 }
 
 type Business struct {
-	BusinessID  int    `json:"business_id" form:"business_id" schema:"business_id"`
-	Name        string `json:"name" form:"name" schema:"name"`
-	IsActive    bool   `json:"is_active" form:"is_active" schema:"is_active"`
-	DateCreated int64  `json:"date_created" form:"date_created" schema:"date_created"`
-	Website     string `json:"website" form:"website" schema:"website"`
-	Industry    string `json:"industry" form:"industry" schema:"industry"`
-	TaxID       string `json:"tax_id" form:"tax_id" schema:"tax_id"`
+	BusinessID            int    `json:"business_id" form:"business_id" schema:"business_id"`
+	Name                  string `json:"name" form:"name" schema:"name"`
+	IsActive              bool   `json:"is_active" form:"is_active" schema:"is_active"`
+	DateCreated           int64  `json:"date_created" form:"date_created" schema:"date_created"`
+	Website               string `json:"website" form:"website" schema:"website"`
+	Industry              string `json:"industry" form:"industry" schema:"industry"`
+	TaxID                 string `json:"tax_id" form:"tax_id" schema:"tax_id"`
+	GoogleBusinessProfile string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
 
 type BusinessContact struct {
