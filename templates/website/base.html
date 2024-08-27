@@ -107,7 +107,7 @@
             <span>{{ .CompanyName }}</span>
           </a>
         </div>
-        <div class="flex flex-col space-y-4 text-center md:flex-row md:items-center md:justify-between md:space-y-0">
+        <div class="hidden md:flex flex-col space-y-4 text-center md:flex-row md:items-center md:justify-between md:space-y-0">
           <nav class="space-x-3 md:space-x-6">
             <a href="/about"
               class="text-xl font-bold text-gray-900 hover:text-primary-600 dark:text-gray-100 dark:hover:text-primary-400">
@@ -118,9 +118,8 @@
             class="mx-6 hidden h-8 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent dark:via-gray-700 md:block">
           </div>
           <div class="flex items-center justify-center space-x-2">
-            <button type="button"
-              class="inline-flex items-center justify-center space-x-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-md font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300 focus:ring-opacity-25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600 dark:focus:ring-opacity-40 dark:active:border-gray-700">
-              <span class="phoneNumber">{{ .PhoneNumber }}</span>
+            <button type="button" class="inline-flex items-center justify-center space-x-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300 focus:ring-opacity-25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600 dark:focus:ring-opacity-40 dark:active:border-gray-700">
+              <span class="phoneNumber">{{ phone_number }}</span>
             </button>
           </div>
         </div>

@@ -103,11 +103,11 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		switch path {
 		case "/crm/business":
-			PutBusiness(w, r, ctx)
+			PutBusiness(w, r)
 		case "/crm/location":
-			PutLocation(w, r, ctx)
+			PutLocation(w, r)
 		case "/crm/machine":
-			PutMachine(w, r, ctx)
+			PutMachine(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -122,11 +122,11 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		switch path {
 		case "/crm/business":
-			PostBusiness(w, r, ctx)
+			PostBusiness(w, r)
 		case "/crm/location":
-			PostLocation(w, r, ctx)
+			PostLocation(w, r)
 		case "/crm/machine":
-			PostMachine(w, r, ctx)
+			PostMachine(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
