@@ -57,7 +57,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Handle business details
+		/* // Handle business details
 		if strings.HasPrefix(path, "/crm/business/") {
 			GetBusinessDetail(w, r, ctx)
 			return
@@ -73,7 +73,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(path, "/crm/location/") {
 			GetLocationDetail(w, r, ctx)
 			return
-		}
+		} */
 
 		switch path {
 		case "/crm/dashboard":
@@ -82,10 +82,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			GetLeads(w, r, ctx)
 		case "/crm/machine":
 			GetMachines(w, r, ctx)
-		case "/crm/business":
+		/* case "/crm/business":
 			GetBusiness(w, r, ctx)
 		case "/crm/location":
-			GetLocation(w, r, ctx)
+			GetLocation(w, r, ctx) */
 		case "/crm/ticket":
 			GetTickets(w, r, ctx)
 		default:
@@ -101,7 +101,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PutLead(w, r)
 			return
 		}
-		switch path {
+		/* switch path {
 		case "/crm/business":
 			PutBusiness(w, r)
 		case "/crm/location":
@@ -110,7 +110,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PutMachine(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
-		}
+		} */
 	case http.MethodPost:
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/images") {
 			PostLeadImages(w, r)
@@ -120,7 +120,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostLeadNotes(w, r)
 			return
 		}
-		switch path {
+		/* switch path {
 		case "/crm/business":
 			PostBusiness(w, r)
 		case "/crm/location":
@@ -129,7 +129,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostMachine(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
-		}
+		} */
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
@@ -857,7 +857,7 @@ func GetLeadImagesPartial(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func PostBusiness(w http.ResponseWriter, r *http.Request) {
+/* func PostBusiness(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("Error parsing form: %+v\n", err)
@@ -1080,4 +1080,4 @@ func PostMachine(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
+} */

@@ -18,12 +18,30 @@ import (
 	"github.com/davidalvarez305/yd_vending/sessions"
 )
 
+var allowedOrigins = []string{
+	constants.RootDomain,
+	"https://www.googleadservices.com",
+}
+
+func isOriginAllowed(origin string) bool {
+	for _, allowedOrigin := range allowedOrigins {
+		if origin == allowedOrigin {
+			return true
+		}
+	}
+	return false
+}
+
 func SecurityMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		// CORS Settings
-		w.Header().Set("Access-Control-Allow-Origin", constants.RootDomain)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		origin := r.Header.Get("Origin")
+		if isOriginAllowed(origin) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			w.Header().Set("Access-Control-Allow-Origin", "none")
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		// Generate a random nonce
