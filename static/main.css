@@ -1747,6 +1747,21 @@ select{
   padding-bottom: 1.5rem;
 }
 
+.px-7{
+  padding-left: 1.75rem;
+  padding-right: 1.75rem;
+}
+
+.py-3\.5{
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+.py-8{
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
 .pb-1{
   padding-bottom: 0.25rem;
 }
@@ -1781,6 +1796,14 @@ select{
 
 .pt-5{
   padding-top: 1.25rem;
+}
+
+.pb-16{
+  padding-bottom: 4rem;
+}
+
+.pt-10{
+  padding-top: 2.5rem;
 }
 
 .text-left{
@@ -3385,6 +3408,10 @@ select{
   border-color: transparent;
 }
 
+.dark\:border-gray-600\/50:is(.dark *){
+  border-color: rgb(75 85 99 / 0.5);
+}
+
 .dark\:bg-emerald-700\/10:is(.dark *){
   background-color: rgb(4 120 87 / 0.1);
 }
@@ -3970,6 +3997,16 @@ select{
   .lg\:py-32{
     padding-top: 8rem;
     padding-bottom: 8rem;
+  }
+
+  .lg\:py-8{
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .lg\:py-4{
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   .lg\:pl-64{
