@@ -59,19 +59,19 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Handle business details
 		if strings.HasPrefix(path, "/crm/business/") {
-			// GetBusinessDetail(w, r, ctx)
+			GetBusinessDetail(w, r, ctx)
 			return
 		}
 
 		// Handle machine details
 		if strings.HasPrefix(path, "/crm/machine/") {
-			// GetMachineDetail(w, r, ctx)
+			GetMachineDetail(w, r, ctx)
 			return
 		}
 
 		// Handle location details
 		if strings.HasPrefix(path, "/crm/location/") {
-			// GetLocationDetail(w, r, ctx)
+			GetLocationDetail(w, r, ctx)
 			return
 		}
 
@@ -82,10 +82,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			GetLeads(w, r, ctx)
 		case "/crm/machine":
 			GetMachines(w, r, ctx)
-		/* case "/crm/business":
+		case "/crm/business":
 			GetBusiness(w, r, ctx)
 		case "/crm/location":
-			GetLocation(w, r, ctx) */
+			GetLocation(w, r, ctx)
 		case "/crm/ticket":
 			GetTickets(w, r, ctx)
 		default:
@@ -102,12 +102,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		switch path {
-		/* case "/crm/business":
+		case "/crm/business":
 			PutBusiness(w, r)
 		case "/crm/location":
 			PutLocation(w, r)
 		case "/crm/machine":
-			PutMachine(w, r) */
+			PutMachine(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -125,8 +125,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostBusiness(w, r)
 		case "/crm/location":
 			PostLocation(w, r)
-		/* case "/crm/machine":
-		PostMachine(w, r) */
+		case "/crm/machine":
+			PostMachine(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -1007,7 +1007,7 @@ func PostLocation(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-/* func PostMachine(w http.ResponseWriter, r *http.Request) {
+func PostMachine(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("Error parsing form: %+v\n", err)
@@ -1081,4 +1081,3 @@ func PostLocation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
-*/
