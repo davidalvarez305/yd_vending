@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -14,6 +15,14 @@ func HashString(input string) string {
 	hashBytes := hasher.Sum(nil)
 	hashedString := hex.EncodeToString(hashBytes)
 	return hashedString
+}
+
+func FormatPhoneNumber(phoneNumber string) string {
+	cleaned := regexp.MustCompile(`\D`).ReplaceAllString(phoneNumber, "")
+	if len(cleaned) == 10 {
+		return fmt.Sprintf("(%s) %s - %s", cleaned[:3], cleaned[3:6], cleaned[6:])
+	}
+	return ""
 }
 
 func GetGoogleClientIDFromRequest(r *http.Request) (string, error) {

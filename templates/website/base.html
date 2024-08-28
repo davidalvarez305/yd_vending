@@ -18,9 +18,18 @@
   <script nonce="{{ .Nonce }}">
     gtag('config', '{{ .GoogleAdsID }}/{{ .GoogleAdsCallConversionLabel }}', {
       'phone_conversion_number': '{{ .PhoneNumber }}',
-      'phone_conversion_css_class':'phoneNumber'
+      'phone_conversion_css_class':'phoneNumber',
+      'phone_conversion_callback': function (formattedPhoneNumber, phoneNumber) {
+            const phoneButtons = document.querySelectorAll(".phoneNumber");
+            phoneButtons.forEach((phone) => {
+                phone.addEventListener("click", () => {
+                    phone.textContent = formattedPhoneNumber;
+                    window.location.href = "tel:" + phoneNumber;
+                });
+            });
+        }
     });
-  </script>
+</script>
 
   <!-- End Google tag -->
 

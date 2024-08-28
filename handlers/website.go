@@ -27,7 +27,7 @@ func createWebsiteContext() types.WebsiteContext {
 		SiteName:                     constants.SiteName,
 		StaticPath:                   constants.StaticPath,
 		MediaPath:                    constants.MediaPath,
-		PhoneNumber:                  constants.CompanyPhoneNumber,
+		PhoneNumber:                  helpers.FormatPhoneNumber(constants.CompanyPhoneNumber),
 		CurrentYear:                  time.Now().Year(),
 		GoogleAnalyticsID:            constants.GoogleAnalyticsID,
 		GoogleAdsID:                  constants.GoogleAdsID,
