@@ -124,6 +124,8 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	fmt.Printf("INCOMING PHONE CALL: %+v\n", dialStatus)
+
 	phoneCall, err := database.GetPhoneCallBySID(dialStatus.CallSid)
 	if err != nil {
 		http.Error(w, "Failed to get phone call by SID.", http.StatusInternalServerError)
