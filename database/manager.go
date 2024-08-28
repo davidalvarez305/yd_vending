@@ -753,23 +753,38 @@ func GetPhoneCallBySID(sid string) (models.PhoneCall, error) {
 	}
 	defer stmt.Close()
 
+	var leadID, callDuration sql.NullInt64
+	var recordingUrl sql.NullString
+
 	row := stmt.QueryRow(sid)
 
 	err = row.Scan(
 		&phoneCall.PhoneCallID,
 		&phoneCall.ExternalID,
 		&phoneCall.UserID,
-		&phoneCall.LeadID,
-		&phoneCall.CallDuration,
+		&leadID,
+		&callDuration,
 		&phoneCall.DateCreated,
 		&phoneCall.CallFrom,
 		&phoneCall.CallTo,
 		&phoneCall.IsInbound,
-		&phoneCall.RecordingURL,
+		&recordingUrl,
 		&phoneCall.Status,
 	)
 	if err != nil {
 		return phoneCall, err
+	}
+
+	if leadID.Valid {
+		phoneCall.LeadID = int(leadID.Int64)
+	}
+
+	if callDuration.Valid {
+		phoneCall.CallDuration = int(callDuration.Int64)
+	}
+
+	if recordingUrl.Valid {
+		phoneCall.RecordingURL = recordingUrl.String
 	}
 
 	return phoneCall, nil
