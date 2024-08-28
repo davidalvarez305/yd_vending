@@ -116,24 +116,16 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 
 	var dialStatus types.IncomingPhoneCallDialStatus
 
-	dialStatus.DialCallStatus = r.FormValue("dial_call_status")
-	dialStatus.DialCallSid = r.FormValue("dial_call_sid")
+	dialStatus.DialCallStatus = r.FormValue("DialCallStatus")
+	dialStatus.CallSid = r.FormValue("CallSid")
 
-	if durationStr := r.FormValue("dial_call_duration"); durationStr != "" {
+	if durationStr := r.FormValue("DialCallDuration"); durationStr != "" {
 		if duration, err := strconv.Atoi(durationStr); err == nil {
 			dialStatus.DialCallDuration = duration
 		}
 	}
 
-	if bridgedStr := r.FormValue("dial_bridged"); bridgedStr != "" {
-		if bridged, err := strconv.ParseBool(bridgedStr); err == nil {
-			dialStatus.DialBridged = bridged
-		}
-	}
-
-	dialStatus.RecordingURL = r.FormValue("recording_url")
-
-	phoneCall, err := database.GetPhoneCallBySID(dialStatus.DialCallSid)
+	phoneCall, err := database.GetPhoneCallBySID(dialStatus.CallSid)
 	if err != nil {
 		http.Error(w, "Failed to get phone call by SID.", http.StatusInternalServerError)
 		return

@@ -230,11 +230,36 @@ type IncomingPhoneCallForwarding struct {
 }
 
 type IncomingPhoneCallDialStatus struct {
+	Called           string `json:"called" form:"called" schema:"called"`
+	ToState          string `json:"to_state" form:"to_state" schema:"to_state"`
 	DialCallStatus   string `json:"dial_call_status" form:"dial_call_status" schema:"dial_call_status"`
+	CallerCountry    string `json:"caller_country" form:"caller_country" schema:"caller_country"`
+	Direction        string `json:"direction" form:"direction" schema:"direction"`
+	CallerState      string `json:"caller_state" form:"caller_state" schema:"caller_state"`
+	ToZip            string `json:"to_zip" form:"to_zip" schema:"to_zip"`
 	DialCallSid      string `json:"dial_call_sid" form:"dial_call_sid" schema:"dial_call_sid"`
-	DialCallDuration int    `json:"dial_call_duration" form:"dial_call_duration" schema:"dial_call_duration"`
+	CallSid          string `json:"call_sid" form:"call_sid" schema:"call_sid"`
+	To               string `json:"to" form:"to" schema:"to"`
+	CallerZip        string `json:"caller_zip" form:"caller_zip" schema:"caller_zip"`
+	ToCountry        string `json:"to_country" form:"to_country" schema:"to_country"`
+	CalledZip        string `json:"called_zip" form:"called_zip" schema:"called_zip"`
+	ApiVersion       string `json:"api_version" form:"api_version" schema:"api_version"`
+	CalledCity       string `json:"called_city" form:"called_city" schema:"called_city"`
+	CallStatus       string `json:"call_status" form:"call_status" schema:"call_status"`
+	From             string `json:"from" form:"from" schema:"from"`
 	DialBridged      bool   `json:"dial_bridged" form:"dial_bridged" schema:"dial_bridged"`
-	RecordingURL     string `json:"recording_url" form:"recording_url" schema:"recording_url"`
+	AccountSid       string `json:"account_sid" form:"account_sid" schema:"account_sid"`
+	DialCallDuration int    `json:"dial_call_duration" form:"dial_call_duration" schema:"dial_call_duration"`
+	CalledCountry    string `json:"called_country" form:"called_country" schema:"called_country"`
+	CallerCity       string `json:"caller_city" form:"caller_city" schema:"caller_city"`
+	ToCity           string `json:"to_city" form:"to_city" schema:"to_city"`
+	FromCountry      string `json:"from_country" form:"from_country" schema:"from_country"`
+	Caller           string `json:"caller" form:"caller" schema:"caller"`
+	FromCity         string `json:"from_city" form:"from_city" schema:"from_city"`
+	CalledState      string `json:"called_state" form:"called_state" schema:"called_state"`
+	FromZip          string `json:"from_zip" form:"from_zip" schema:"from_zip"`
+	FromState        string `json:"from_state" form:"from_state" schema:"from_state"`
+	RecordingURL     string `json:"recording_url,omitempty" form:"recording_url,omitempty" schema:"recording_url,omitempty"`
 }
 
 type WebsiteContext struct {
