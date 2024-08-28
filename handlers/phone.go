@@ -124,10 +124,9 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Printf("INCOMING PHONE CALL: %+v\n", dialStatus)
-
 	phoneCall, err := database.GetPhoneCallBySID(dialStatus.CallSid)
 	if err != nil {
+		fmt.Printf("FAILED TO GET PREVIOUS PHONE CALL: %+v\n", dialStatus)
 		http.Error(w, "Failed to get phone call by SID.", http.StatusInternalServerError)
 		return
 	}
@@ -137,6 +136,7 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 	phoneCall.Status = dialStatus.DialCallStatus
 
 	if err := database.UpdatePhoneCall(phoneCall); err != nil {
+		fmt.Printf("FAILED TO UPDATE PREVIOUS PHONE CALL: %+v\n", dialStatus)
 		http.Error(w, "Failed to save phone call.", http.StatusInternalServerError)
 		return
 	}
