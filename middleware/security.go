@@ -111,7 +111,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			var unixTime = time.Now().Unix() + 300
+			var unixTime = time.Now().Unix() + constants.TokenExpiryLength
 
 			encryptedToken, err := csrf.EncryptToken(unixTime, decodedSecret)
 			if err != nil {
