@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -20,6 +21,7 @@ func UserTracking(next http.Handler) http.Handler {
 
 		isNew, err := sessions.IsNew(r)
 		if err != nil {
+			fmt.Printf("FAILED TO CHECK SESSION AT USER TRACKING: %+v\n", err)
 			http.Error(w, "Unable to check if session is new.", http.StatusInternalServerError)
 			return
 		}
@@ -29,6 +31,7 @@ func UserTracking(next http.Handler) http.Handler {
 		if isNew {
 			session, err := sessions.Create(r, w)
 			if err != nil {
+				fmt.Printf("FAILED TO CREATE SESSION AT USER TRACKING: %+v\n", err)
 				http.Error(w, "Failed to create session.", http.StatusInternalServerError)
 				return
 			}
@@ -44,6 +47,7 @@ func UserTracking(next http.Handler) http.Handler {
 		if !isNew {
 			session, err := sessions.Get(r)
 			if err != nil {
+				fmt.Printf("FAILED TO RETRIEVE SESSION AT USER TRACKING: %+v\n", err)
 				http.Error(w, "Failed to retrieve session in user middleware.", http.StatusInternalServerError)
 				return
 			}

@@ -47,6 +47,7 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		// Generate a random nonce
 		nonce := make([]byte, 16)
 		if _, err := rand.Read(nonce); err != nil {
+			fmt.Printf("ERROR CREATIONG NONCE SECURITY MIDDLEWARE: %+v\n", err)
 			http.Error(w, "Error creating nonce.", http.StatusInternalServerError)
 			return
 		}
@@ -89,6 +90,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 		if strings.Contains(path, "/call/inbound") || strings.Contains(path, "/sms/inbound") {
 			if err := validateTwilioWebhook(r); err != nil {
+				fmt.Printf("ERROR VALIDATING TWILIO SECURITY MIDDLEWARE: %+v\n", err)
 				http.Error(w, "Error validating Twilio webhook.", http.StatusInternalServerError)
 				return
 			}
@@ -101,12 +103,14 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 		if r.Method == http.MethodGet && (csrf.UrlsListHasCurrentPath(csrfURLs, path) || path == "/") {
 			csrfSecret, ok := r.Context().Value("csrf_secret").(string)
 			if !ok {
+				fmt.Printf("ERROR GETTING CSRF SECRET IN SECURITY MIDDLEWARE")
 				http.Error(w, "Error retrieving user secret token in middleware.", http.StatusInternalServerError)
 				return
 			}
 
 			decodedSecret, err := hex.DecodeString(csrfSecret)
 			if err != nil {
+				fmt.Printf("ERROR GETTING DECODED STRING FROM CSRF SECRET SECURITY MIDDLEWARE")
 				http.Error(w, "Error decoding user secret token in middleware.", http.StatusInternalServerError)
 				return
 			}
@@ -115,7 +119,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 			encryptedToken, err := csrf.EncryptToken(unixTime, decodedSecret)
 			if err != nil {
-				fmt.Printf("%+v\n", err)
+				fmt.Printf("ERROR ENCRYPTING TOKEN SECURITY MIDDLEWARE: %+v\n", err)
 				http.Error(w, "Error encrypting CSRF token.", http.StatusInternalServerError)
 				return
 			}
@@ -128,7 +132,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 
 			err = database.InsertCSRFToken(csrfToken)
 			if err != nil {
-				fmt.Printf("%+v\n", err)
+				fmt.Printf("ERROR INSERTING TOKEN SECURITY MIDDLEWARE: %+v\n", err)
 				http.Error(w, "Error inserting CSRF token.", http.StatusBadRequest)
 				return
 			}
@@ -145,6 +149,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				// If CSRF token is not in form values, check the request headers
 				csrfToken = r.Header.Get("X-Csrf-Token")
 				if csrfToken == "" {
+					fmt.Printf("MISSING CSRF TOKEN")
 					http.Error(w, "CSRF token is missing.", http.StatusForbidden)
 					return
 				}
