@@ -68,6 +68,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetIceLandingPage(w, r, ctx)
 		case "/atm-services":
 			GetATMLandingPage(w, r, ctx)
+		case "/cdd-proposal":
+			GetCDDProposal(w, r, ctx)
 		case "/":
 			GetHome(w, r, ctx)
 		default:
@@ -89,6 +91,24 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+func GetCDDProposal(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+	fileName := "proposal.html"
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data.PageTitle = "Coral Bay Community Dev District — Proposal by " + constants.CompanyName
+	data.Nonce = nonce
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
 }
 
 func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
