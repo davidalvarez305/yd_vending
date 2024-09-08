@@ -68,6 +68,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetIceLandingPage(w, r, ctx)
 		case "/atm-services":
 			GetATMLandingPage(w, r, ctx)
+		case "/servicio-de-maquinas-expendedoras":
+			GetVendingESP(w, r, ctx)
 		case "/cdd-proposal":
 			GetCDDProposal(w, r, ctx)
 		case "/":
@@ -151,6 +153,49 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 		"Attentive Customer Care",
 		"Responsive Repair & Servicing Agents",
 		"High Upkeep & Maintanance",
+	}
+	data.CSRFToken = csrfToken
+	data.VendingTypes = vendingTypes
+	data.VendingLocations = vendingLocations
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func GetVendingESP(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+	fileName := "vending_esp.html"
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+	vendingTypes, err := database.GetVendingTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingLocations, err := database.GetVendingLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data.PageTitle = "Servicios de Máquinas Expendedoras en Miami — " + constants.CompanyName
+	data.Nonce = nonce
+	data.Features = []string{
+		"Rotación Regular de Productos", "Máquinas Modernas e Inteligentes", "Opciones Saludables", "Horarios de Trabajo Flexibles", "Selección de Productos Innovadora", "Atención al Cliente Cuidadosa", "Agentes de Reparación y Servicio Receptivos", "Mantenimiento y Cuidado de Alta Calidad",
 	}
 	data.CSRFToken = csrfToken
 	data.VendingTypes = vendingTypes
