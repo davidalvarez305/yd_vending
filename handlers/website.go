@@ -68,7 +68,7 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetIceLandingPage(w, r, ctx)
 		case "/atm-services":
 			GetATMLandingPage(w, r, ctx)
-		case "/servicio-de-maquinas-expendedoras":
+		case "/servicios-de-maquinas-expendedoras":
 			GetVendingESP(w, r, ctx)
 		case "/cdd-proposal":
 			GetCDDProposal(w, r, ctx)
