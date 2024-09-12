@@ -1522,3 +1522,36 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 
 	return nil
 }
+
+func GetBusinessList() ([]models.Business, int, error) {
+	var businesses []models.Business
+
+	rows, err := DB.Query(`SELECT business_id, name, is_active, date_created, website, industry, google_business_profile FROM "business"`)
+	if err != nil {
+		return businesses, 0, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var business models.Business
+		err := rows.Scan(
+			&business.BusinessID,
+			&business.Name,
+			&business.IsActive,
+			&business.DateCreated,
+			&business.Website,
+			&business.Industry,
+			&business.GoogleBusinessProfile,
+		)
+		if err != nil {
+			return businesses, 0, fmt.Errorf("error scanning row: %w", err)
+		}
+		businesses = append(businesses, business)
+	}
+
+	if err := rows.Err(); err != nil {
+		return businesses, 0, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return businesses, len(businesses), nil
+}

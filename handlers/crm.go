@@ -242,8 +242,9 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 }
 
 func GetBusiness(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	fileName := "machines.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	baseFile := constants.CRM_TEMPLATES_DIR + "businesses.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -256,11 +257,21 @@ func GetBusiness(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	leads, totalRows, err := database.GetBusinessList()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting leads from DB.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
-	data["PageTitle"] = "Machines — " + constants.CompanyName
+	data["PageTitle"] = "Leads — " + constants.CompanyName
 
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
+	data["Leads"] = leads
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
+	data["CurrentPage"] = 1
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
