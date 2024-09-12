@@ -257,19 +257,19 @@ func GetBusiness(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	leads, totalRows, err := database.GetBusinessList()
+	businesses, totalRows, err := database.GetBusinessList()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting leads from DB.", http.StatusInternalServerError)
+		http.Error(w, "Error getting businesses from DB.", http.StatusInternalServerError)
 		return
 	}
 
 	data := ctx
-	data["PageTitle"] = "Leads — " + constants.CompanyName
+	data["PageTitle"] = "Businesses — " + constants.CompanyName
 
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
-	data["Leads"] = leads
+	data["Businesses"] = businesses
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["CurrentPage"] = 1
 
