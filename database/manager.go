@@ -1534,11 +1534,13 @@ func GetBusinessList() ([]models.Business, int, error) {
 
 	for rows.Next() {
 		var business models.Business
+		var dateCreated time.Time
+
 		err := rows.Scan(
 			&business.BusinessID,
 			&business.Name,
 			&business.IsActive,
-			&business.DateCreated,
+			&dateCreated,
 			&business.Website,
 			&business.Industry,
 			&business.GoogleBusinessProfile,
@@ -1546,6 +1548,8 @@ func GetBusinessList() ([]models.Business, int, error) {
 		if err != nil {
 			return businesses, 0, fmt.Errorf("error scanning row: %w", err)
 		}
+
+		business.DateCreated = dateCreated.Unix()
 		businesses = append(businesses, business)
 	}
 

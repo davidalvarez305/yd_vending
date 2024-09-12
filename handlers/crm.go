@@ -41,6 +41,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
+		// Lead resources
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
 			GetLeadMessagesPartial(w, r)
 			return
@@ -51,27 +52,30 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Handle lead details
 		if strings.HasPrefix(path, "/crm/lead/") {
 			GetLeadDetail(w, r, ctx)
 			return
 		}
 
-		// Handle business details
+		// Business resources
+		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/create-business-form") {
+			GetCreateBusinessForm(w, r, ctx)
+			return
+		}
+
 		/* if strings.HasPrefix(path, "/crm/business/") {
 			GetBusinessDetail(w, r, ctx)
 			return
 		}
 
-		// Handle machine details
-		if strings.HasPrefix(path, "/crm/machine/") {
-			GetMachineDetail(w, r, ctx)
+		if strings.HasPrefix(path, "/crm/location/") {
+			GetLocationDetail(w, r, ctx)
 			return
 		}
 
-		// Handle location details
-		if strings.HasPrefix(path, "/crm/location/") {
-			GetLocationDetail(w, r, ctx)
+		// Machine resources
+		if strings.HasPrefix(path, "/crm/machine/") {
+			GetMachineDetail(w, r, ctx)
 			return
 		} */
 
@@ -964,17 +968,32 @@ func PostBusiness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	businesses, _, err := database.GetBusinessList()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting businesses from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplateName: "businesses_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "businesses_table.html",
 		Data: map[string]any{
-			"Message": "Business created successfully.",
+			"Businesses": businesses,
 		},
 	}
 
 	token, err := helpers.GenerateTokenInHeader(w, r)
 	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
+		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
@@ -1561,5 +1580,30 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("X-Csrf-Token", token)
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetCreateBusinessForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "create_business_form.html",
+		TemplatePath: constants.CRM_TEMPLATES_DIR + "create_business_form.html",
+		Data: map[string]any{
+			"CSRFToken": csrfToken,
+			"Nonce":     nonce,
+		},
+	}
+
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
