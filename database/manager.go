@@ -1575,3 +1575,56 @@ func GetBusinessList(pageNum int) ([]models.Business, int, error) {
 
 	return businesses, len(businesses), nil
 }
+
+func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
+	var machines []types.MachineList
+	var totalRows int
+
+	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.year, ' ', m.model) AS machine_name,
+	m.card_reader_serial_number, s.status, l.name, m.purchase_date, COUNT(*) OVER() AS total_rows
+	FROM "machine" AS m
+	JOIN machine_status AS s ON s.MachineStatusID = m.MachineStatusID
+	JOIN location AS l ON l.LocationID = m.LocationID
+	ORDER BY m.purchase_date DESC
+	LIMIT $1
+	OFFSET $2;`, constants.LeadsPerPage, pageNum)
+	if err != nil {
+		return machines, totalRows, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var machine types.MachineList
+		var dateCreated time.Time
+		var location, cardReaderSerialNumber sql.NullString
+
+		err := rows.Scan(
+			&machine.MachineName,
+			&cardReaderSerialNumber,
+			&machine.MachineStatus,
+			&location,
+			&dateCreated,
+			&totalRows,
+		)
+		if err != nil {
+			return machines, totalRows, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Handle nullable fields
+		if location.Valid {
+			machine.Location = location.String
+		}
+		if cardReaderSerialNumber.Valid {
+			machine.CardReaderSerialNumber = cardReaderSerialNumber.String
+		}
+
+		machine.PurchaseDate = dateCreated.Unix()
+		machines = append(machines, machine)
+	}
+
+	if err := rows.Err(); err != nil {
+		return machines, 0, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return machines, totalRows, nil
+}

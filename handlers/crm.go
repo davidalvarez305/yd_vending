@@ -220,8 +220,9 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 }
 
 func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	fileName := "machines.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	baseFile := constants.CRM_TEMPLATES_DIR + "machines.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -234,11 +235,31 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("pageNum")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("pageNum"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	machines, totalRows, err := database.GetMachineList(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machines from DB.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Machines — " + constants.CompanyName
 
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
+	data["Machines"] = machines
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
+	data["CurrentPage"] = pageNum
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

@@ -388,3 +388,12 @@ type MachineForm struct {
 	MachineStatusID        *int     `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
 	VendorID               *int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
 }
+
+type MachineList struct {
+	MachineID              int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	MachineName            string `json:"machine_name" form:"machine_name" schema:"machine_name"`
+	CardReaderSerialNumber string `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
+	MachineStatus          string `json:"machine_status" form:"machine_status" schema:"machine_status"`
+	Location               string `json:"location" form:"location" schema:"location"`
+	PurchaseDate           int64  `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+}
