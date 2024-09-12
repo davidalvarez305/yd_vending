@@ -137,7 +137,6 @@ type Location struct {
 	LocationID          int    `json:"location_id" form:"location_id" schema:"location_id"`
 	LocationTypeID      int    `json:"location_type_id" form:"location_type_id" schema:"location_type_id"`
 	BusinessID          int    `json:"business_id" form:"business_id" schema:"business_id"`
-	BusinessContactID   int    `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
 	Name                string `json:"name" form:"name" schema:"name"`
 	Longitude           string `json:"longitude" form:"longitude" schema:"longitude"`
 	Latitude            string `json:"latitude" form:"latitude" schema:"latitude"`
@@ -157,7 +156,6 @@ type Business struct {
 	DateCreated           int64  `json:"date_created" form:"date_created" schema:"date_created"`
 	Website               string `json:"website" form:"website" schema:"website"`
 	Industry              string `json:"industry" form:"industry" schema:"industry"`
-	TaxID                 string `json:"tax_id" form:"tax_id" schema:"tax_id"`
 	GoogleBusinessProfile string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
 
@@ -180,16 +178,37 @@ type MachineStatus struct {
 }
 
 type Machine struct {
-	MachineID            int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
-	VendingTypeID        int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
-	Brand                string `json:"brand" form:"brand" schema:"brand"`
-	LocationID           int    `json:"location_id" form:"location_id" schema:"location_id"`
-	Nickname             string `json:"nickname" form:"nickname" schema:"nickname"`
-	Capacity             int    `json:"capacity" form:"capacity" schema:"capacity"`
-	DatePurchased        int64  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
-	MachineStatusID      int    `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
-	PowerConsumption     int    `json:"power_consumption" form:"power_consumption" schema:"power_consumption"`
-	PowerConsumptionType int    `json:"power_consumption_type" form:"power_consumption_type" schema:"power_consumption_type"`
+	MachineID              int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	VendingTypeID          int     `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	MachineStatusID        int     `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
+	LocationID             int     `json:"location_id" form:"location_id" schema:"location_id"`
+	VendorID               int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
+	Year                   int     `json:"year" form:"year" schema:"year"`
+	Make                   string  `json:"make" form:"make" schema:"make"`
+	Model                  string  `json:"model" form:"model" schema:"model"`
+	PurchasePrice          float64 `json:"purchase_price" form:"purchase_price" schema:"purchase_price"`
+	CardReaderSerialNumber string  `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
+	ColumnsQty             int     `json:"columns_qty" form:"columns_qty" schema:"columns_qty"`
+	RowsQty                int     `json:"rows_qty" form:"rows_qty" schema:"rows_qty"`
+	TotalSlots             int     `json:"total_slots" form:"total_slots" schema:"total_slots"`
+	PurchaseDate           int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+}
+
+type Vendor struct {
+	VendorID               int    `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
+	Name                   string `json:"name" form:"name" schema:"name"`
+	FirstName              string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName               string `json:"last_name" form:"last_name" schema:"last_name"`
+	Phone                  string `json:"phone" form:"phone" schema:"phone"`
+	Email                  string `json:"email" form:"email" schema:"email"`
+	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
+	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
+	StreetAdressLineOne    string `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAdressLineTwo    string `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	CityID                 int    `json:"city_id" form:"city_id" schema:"city_id"`
+	ZipCode                string `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                  string `json:"state" form:"state" schema:"state"`
+	GoogleBusinessProfile  string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
 
 type TicketType struct {

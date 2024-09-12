@@ -196,3 +196,36 @@ func ParseInt64(value string) int64 {
 	}
 	return parsedValue
 }
+
+func GetFirstIDAfterPrefix(r *http.Request, prefix string) (int, error) {
+	trimmedPath := strings.TrimPrefix(r.URL.Path, prefix)
+
+	parts := strings.SplitN(trimmedPath, "/", 2)
+	if len(parts) < 1 {
+		return 0, fmt.Errorf("invalid path format")
+	}
+
+	idStr := parts[0]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return 0, fmt.Errorf("invalid ID: %w", err)
+	}
+
+	return id, nil
+}
+
+func GetSecondIDFromPath(r *http.Request, prefix string) (int, error) {
+	trimmedPath := strings.TrimPrefix(r.URL.Path, prefix)
+	parts := strings.Split(trimmedPath, "/")
+	if len(parts) < 4 {
+		return 0, fmt.Errorf("invalid path format")
+	}
+
+	idStr := parts[3]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return 0, fmt.Errorf("invalid  id: %w", err)
+	}
+
+	return id, nil
+}

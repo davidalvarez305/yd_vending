@@ -336,21 +336,30 @@ type FrontendNote struct {
 	Note      string `json:"note"`
 }
 
-type CreateBusinessForm struct {
+type BusinessForm struct {
 	CSRFToken             *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	Name                  *string `json:"name" form:"name" schema:"name"`
 	Website               *string `json:"website" form:"website" schema:"website"`
 	Industry              *string `json:"industry" form:"industry" schema:"industry"`
 	IsActive              *bool   `json:"is_active" form:"is_active" schema:"is_active"`
-	TaxID                 *string `json:"tax_id" form:"tax_id" schema:"tax_id"`
 	GoogleBusinessProfile *string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
 
-type CreateLocationForm struct {
+type BusinessContactForm struct {
+	CSRFToken              *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	FirstName              *string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName               *string `json:"last_name" form:"last_name" schema:"last_name"`
+	Phone                  *string `json:"phone" form:"phone" schema:"phone"`
+	Email                  *string `json:"email" form:"email" schema:"email"`
+	PreferredContactMethod *string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
+	PreferredContactTime   *string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
+	BusinessPosition       *string `json:"business_position" form:"business_position" schema:"business_position"`
+	IsPrimaryContact       *bool   `json:"is_primary_contact" form:"is_primary_contact" schema:"is_primary_contact"`
+}
+
+type LocationForm struct {
 	CSRFToken            *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	LocationTypeID       *int    `json:"location_type_id" form:"location_type_id" schema:"location_type_id"`
-	BusinessID           *int    `json:"business_id" form:"business_id" schema:"business_id"`
-	BusinessContactID    *int    `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
 	Name                 *string `json:"name" form:"name" schema:"name"`
 	Longitude            *string `json:"longitude" form:"longitude" schema:"longitude"`
 	Latitude             *string `json:"latitude" form:"latitude" schema:"latitude"`
@@ -361,4 +370,21 @@ type CreateLocationForm struct {
 	State                *string `json:"state" form:"state" schema:"state"`
 	Opening              *string `json:"opening" form:"opening" schema:"opening"`
 	Closing              *string `json:"closing" form:"closing" schema:"closing"`
+}
+
+type MachineForm struct {
+	CSRFToken              *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Year                   *int     `json:"year" form:"year" schema:"year"`
+	Make                   *string  `json:"make" form:"make" schema:"make"`
+	Model                  *string  `json:"model" form:"model" schema:"model"`
+	VendingTypeID          *int     `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	PurchasePrice          *float64 `json:"purchase_price" form:"purchase_price" schema:"purchase_price"`
+	PurchaseDate           *int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+	CardReaderSerialNumber *string  `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
+	LocationID             *int     `json:"location_id" form:"location_id" schema:"location_id"`
+	ColumnsQty             *int     `json:"columns_qty" form:"columns_qty" schema:"columns_qty"`
+	RowsQty                *int     `json:"rows_qty" form:"rows_qty" schema:"rows_qty"`
+	TotalSlots             *int     `json:"total_slots" form:"total_slots" schema:"total_slots"`
+	MachineStatusID        *int     `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
+	VendorID               *int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
 }
