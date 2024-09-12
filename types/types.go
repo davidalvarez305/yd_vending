@@ -377,14 +377,14 @@ type MachineForm struct {
 	Year                   *int     `json:"year" form:"year" schema:"year"`
 	Make                   *string  `json:"make" form:"make" schema:"make"`
 	Model                  *string  `json:"model" form:"model" schema:"model"`
-	VendingTypeID          *int     `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
 	PurchasePrice          *float64 `json:"purchase_price" form:"purchase_price" schema:"purchase_price"`
 	PurchaseDate           *int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
 	CardReaderSerialNumber *string  `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
-	LocationID             *int     `json:"location_id" form:"location_id" schema:"location_id"`
 	ColumnsQty             *int     `json:"columns_qty" form:"columns_qty" schema:"columns_qty"`
 	RowsQty                *int     `json:"rows_qty" form:"rows_qty" schema:"rows_qty"`
 	TotalSlots             *int     `json:"total_slots" form:"total_slots" schema:"total_slots"`
+	VendingTypeID          *int     `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	LocationID             *int     `json:"location_id" form:"location_id" schema:"location_id"`
 	MachineStatusID        *int     `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
 	VendorID               *int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
 }
