@@ -261,7 +261,17 @@ func GetBusiness(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	businesses, totalRows, err := database.GetBusinessList()
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("pageNum")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("pageNum"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	businesses, totalRows, err := database.GetBusinessList(pageNum)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting businesses from DB.", http.StatusInternalServerError)
@@ -275,7 +285,7 @@ func GetBusiness(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["CSRFToken"] = csrfToken
 	data["Businesses"] = businesses
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
-	data["CurrentPage"] = 1
+	data["CurrentPage"] = pageNum
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -968,7 +978,8 @@ func PostBusiness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	businesses, _, err := database.GetBusinessList()
+	pageNum := 1 // Always default to one after new business is created
+	businesses, totalRows, err := database.GetBusinessList(pageNum)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -987,7 +998,9 @@ func PostBusiness(w http.ResponseWriter, r *http.Request) {
 		TemplateName: "businesses_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "businesses_table.html",
 		Data: map[string]any{
-			"Businesses": businesses,
+			"Businesses":  businesses,
+			"CurrentPage": pageNum,
+			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
 		},
 	}
 

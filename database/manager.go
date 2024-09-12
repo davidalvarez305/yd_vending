@@ -1523,10 +1523,14 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 	return nil
 }
 
-func GetBusinessList() ([]models.Business, int, error) {
+func GetBusinessList(pageNum int) ([]models.Business, int, error) {
 	var businesses []models.Business
 
-	rows, err := DB.Query(`SELECT business_id, name, is_active, date_created, website, industry, google_business_profile FROM "business"`)
+	rows, err := DB.Query(`SELECT business_id, name, is_active, date_created, website, industry, google_business_profile
+	FROM "business"
+	ORDER BY date_created DESC
+	LIMIT $1
+	OFFSET $2;`, constants.LeadsPerPage, pageNum)
 	if err != nil {
 		return businesses, 0, fmt.Errorf("error executing query: %w", err)
 	}
@@ -1535,18 +1539,30 @@ func GetBusinessList() ([]models.Business, int, error) {
 	for rows.Next() {
 		var business models.Business
 		var dateCreated time.Time
+		var website, industry, googleBusinessProfile sql.NullString
 
 		err := rows.Scan(
 			&business.BusinessID,
 			&business.Name,
 			&business.IsActive,
 			&dateCreated,
-			&business.Website,
-			&business.Industry,
-			&business.GoogleBusinessProfile,
+			&website,
+			&industry,
+			&googleBusinessProfile,
 		)
 		if err != nil {
 			return businesses, 0, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Handle nullable fields
+		if website.Valid {
+			business.Website = website.String
+		}
+		if industry.Valid {
+			business.Industry = industry.String
+		}
+		if googleBusinessProfile.Valid {
+			business.GoogleBusinessProfile = googleBusinessProfile.String
 		}
 
 		business.DateCreated = dateCreated.Unix()

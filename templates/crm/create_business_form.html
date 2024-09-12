@@ -114,6 +114,7 @@
 				.then(html => {
 					const table = document.getElementById('businessesTable');
 					table.outerHTML = html;
+					handleBindPagination();
 
 					const modal = document.getElementById('formModalContainer');
 					modal.outerHTML = '<div id="formModalContainer"></div>';
