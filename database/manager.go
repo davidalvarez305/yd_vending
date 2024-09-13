@@ -1908,3 +1908,117 @@ func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
 
 	return vendors, totalRows, nil
 }
+
+func GetCities() ([]models.City, error) {
+	var cities []models.City
+
+	rows, err := DB.Query(`SELECT "city_id", "name" FROM "city"`)
+	if err != nil {
+		return cities, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var city models.City
+		err := rows.Scan(&city.CityID, &city.Name)
+		if err != nil {
+			return cities, fmt.Errorf("error scanning row: %w", err)
+		}
+		cities = append(cities, city)
+	}
+
+	if err := rows.Err(); err != nil {
+		return cities, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return cities, nil
+}
+
+func CreateVendor(form types.VendorForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO vendors (
+			name,
+			first_name,
+			last_name,
+			phone,
+			email,
+			preferred_contact_method,
+			preferred_contact_time,
+			street_address_line_one,
+			street_address_line_two,
+			city_id,
+			zip_code,
+			state,
+			google_business_profile
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	// Handle NULL values for optional fields
+	var name, firstName, lastName, phone, email, preferredContactMethod, preferredContactTime, streetAddressLineOne, streetAddressLineTwo, zipCode, state, googleBusinessProfile sql.NullString
+	var cityID sql.NullInt64
+
+	if form.Name != nil {
+		name = sql.NullString{String: *form.Name, Valid: true}
+	}
+	if form.FirstName != nil {
+		firstName = sql.NullString{String: *form.FirstName, Valid: true}
+	}
+	if form.LastName != nil {
+		lastName = sql.NullString{String: *form.LastName, Valid: true}
+	}
+	if form.Phone != nil {
+		phone = sql.NullString{String: *form.Phone, Valid: true}
+	}
+	if form.Email != nil {
+		email = sql.NullString{String: *form.Email, Valid: true}
+	}
+	if form.PreferredContactMethod != nil {
+		preferredContactMethod = sql.NullString{String: *form.PreferredContactMethod, Valid: true}
+	}
+	if form.PreferredContactTime != nil {
+		preferredContactTime = sql.NullString{String: *form.PreferredContactTime, Valid: true}
+	}
+	if form.StreetAddressLineOne != nil {
+		streetAddressLineOne = sql.NullString{String: *form.StreetAddressLineOne, Valid: true}
+	}
+	if form.StreetAddressLineTwo != nil {
+		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
+	}
+	if form.ZipCode != nil {
+		zipCode = sql.NullString{String: *form.ZipCode, Valid: true}
+	}
+	if form.State != nil {
+		state = sql.NullString{String: *form.State, Valid: true}
+	}
+	if form.GoogleBusinessProfile != nil {
+		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
+	}
+	if form.CityID != nil {
+		cityID = sql.NullInt64{Int64: int64(*form.CityID), Valid: true}
+	}
+
+	_, err = stmt.Exec(
+		name,
+		firstName,
+		lastName,
+		phone,
+		email,
+		preferredContactMethod,
+		preferredContactTime,
+		streetAddressLineOne,
+		streetAddressLineTwo,
+		cityID,
+		zipCode,
+		state,
+		googleBusinessProfile,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
