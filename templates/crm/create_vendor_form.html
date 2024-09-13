@@ -6,7 +6,7 @@
         <div role="document"
             class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <div class="flex items-center justify-between bg-gray-50 px-5 py-4 dark:bg-gray-700/50">
-                <h3 class="font-medium">Create Machine</h3>
+                <h3 class="font-medium">Create Vendor</h3>
                 <div class="-my-4">
                     <button id="closeModal" type="button"
                         class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
@@ -22,7 +22,7 @@
             <div class="grow p-5">
                 <!-- Vendor Form -->
 				<div class="mx-auto flex w-3/4 max-w-xl flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
-					<form id="createMachineForm" class="space-y-6 p-2 md:p-2">
+					<form id="createVendorForm" class="space-y-6 p-2 md:p-2">
 						<input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                         <div class="space-y-1">
                             <label for="name" class="font-medium">Name*</label>
@@ -125,7 +125,7 @@
 
 <script nonce="{{ .Nonce }}">
 	document.addEventListener("DOMContentLoaded", () => {
-		const form = document.getElementById("create-business-form");
+		const form = document.getElementById("createVendorForm");
 		const alertModal = document.getElementById("alertModal");
 
 		form.addEventListener("submit", (e) => {

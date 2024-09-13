@@ -2253,8 +2253,8 @@ func CreateSupplier(form types.SupplierForm) error {
 	// Handle NULL values for optional fields
 	var googleBusinessProfile sql.NullString
 
-	if form.GoogleBusinessProfile != "" {
-		googleBusinessProfile = sql.NullString{String: form.GoogleBusinessProfile, Valid: true}
+	if form.GoogleBusinessProfile != nil {
+		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
 	} else {
 		googleBusinessProfile = sql.NullString{Valid: false}
 	}
@@ -2301,8 +2301,8 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 	// Define SQL nullable types for optional fields
 	var googleBusinessProfile sql.NullString
 
-	if form.GoogleBusinessProfile != "" {
-		googleBusinessProfile = sql.NullString{String: form.GoogleBusinessProfile, Valid: true}
+	if form.GoogleBusinessProfile != nil {
+		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
 	} else {
 		googleBusinessProfile = sql.NullString{Valid: false}
 	}
