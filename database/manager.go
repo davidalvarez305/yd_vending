@@ -2022,3 +2022,79 @@ func CreateVendor(form types.VendorForm) error {
 
 	return nil
 }
+
+func UpdateVendor(vendorId int, form types.VendorForm) error {
+	stmt, err := DB.Prepare(`
+		UPDATE vendors
+		SET name = COALESCE($2, name),
+		    first_name = COALESCE($3, first_name),
+		    last_name = COALESCE($4, last_name),
+		    phone = COALESCE($5, phone),
+		    email = COALESCE($6, email),
+		    preferred_contact_method = COALESCE($7, preferred_contact_method),
+		    preferred_contact_time = COALESCE($8, preferred_contact_time),
+		    street_address_line_one = COALESCE($9, street_address_line_one),
+		    street_address_line_two = COALESCE($10, street_address_line_two),
+		    city_id = COALESCE($11, city_id),
+		    zip_code = COALESCE($12, zip_code),
+		    state = COALESCE($13, state),
+		    google_business_profile = COALESCE($14, google_business_profile)
+		WHERE vendor_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	// Define SQL nullable types for optional fields
+	var preferredContactMethod, preferredContactTime, streetAddressLineOne, streetAddressLineTwo, zipCode, state, googleBusinessProfile sql.NullString
+	var cityID sql.NullInt64
+
+	// Populate SQL nullable types with values from the form
+	if form.PreferredContactMethod != nil {
+		preferredContactMethod = sql.NullString{String: *form.PreferredContactMethod, Valid: true}
+	}
+	if form.PreferredContactTime != nil {
+		preferredContactTime = sql.NullString{String: *form.PreferredContactTime, Valid: true}
+	}
+	if form.StreetAddressLineOne != nil {
+		streetAddressLineOne = sql.NullString{String: *form.StreetAddressLineOne, Valid: true}
+	}
+	if form.StreetAddressLineTwo != nil {
+		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
+	}
+	if form.ZipCode != nil {
+		zipCode = sql.NullString{String: *form.ZipCode, Valid: true}
+	}
+	if form.State != nil {
+		state = sql.NullString{String: *form.State, Valid: true}
+	}
+	if form.GoogleBusinessProfile != nil {
+		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
+	}
+	if form.CityID != nil {
+		cityID = sql.NullInt64{Int64: int64(*form.CityID), Valid: true}
+	}
+
+	_, err = stmt.Exec(
+		vendorId,
+		form.Name,
+		form.FirstName,
+		form.LastName,
+		form.Phone,
+		form.Email,
+		preferredContactMethod,
+		preferredContactTime,
+		streetAddressLineOne,
+		streetAddressLineTwo,
+		cityID,
+		zipCode,
+		state,
+		googleBusinessProfile,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}

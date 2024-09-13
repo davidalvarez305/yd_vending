@@ -1641,7 +1641,7 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 		TemplateName: "success.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
 		Data: map[string]any{
-			"Message": "Business updated successfully.",
+			"Message": "Machine updated successfully.",
 		},
 	}
 
@@ -1943,6 +1943,87 @@ func PostVendor(w http.ResponseWriter, r *http.Request) {
 	token, err := helpers.GenerateTokenInHeader(w, r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w.Header().Set("X-Csrf-Token", token)
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutVendor(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.VendorForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	vendorId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/vendor/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.UpdateVendor(vendorId, form)
+	if err != nil {
+		fmt.Printf("Error updating vendor: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update vendor.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		Data: map[string]any{
+			"Message": "Vendor updated successfully.",
+		},
+	}
+
+	token, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("Error generating token: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
