@@ -90,6 +90,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Supplier resources
+		if strings.HasPrefix(path, "/crm/supplier/") && strings.Contains(path, "/create-supplier-form") {
+			GetCreateSupplierForm(w, r, ctx)
+			return
+		}
+
 		switch path {
 		case "/crm/dashboard":
 			GetDashboard(w, r, ctx)
@@ -99,9 +105,11 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			GetMachines(w, r, ctx)
 		case "/crm/business":
 			GetBusiness(w, r, ctx)
-		case "/crm/location":
-			GetVendors(w, r, ctx)
 		case "/crm/vendor":
+			GetVendors(w, r, ctx)
+		case "/crm/supplier":
+			GetSuppliers(w, r, ctx)
+		case "/crm/location":
 			GetLocation(w, r, ctx)
 		case "/crm/ticket":
 			GetTickets(w, r, ctx)
@@ -133,6 +141,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PutBusiness(w, r)
 		case "/crm/machine":
 			PutMachine(w, r)
+		case "/crm/vendor":
+			PutVendor(w, r)
+		case "/crm/supplier":
+			PutSupplier(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -162,6 +174,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostMachine(w, r)
 		case "/crm/vendor":
 			PostVendor(w, r)
+		case "/crm/supplier":
+			PostSupplier(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
