@@ -94,6 +94,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		case "/crm/business":
 			GetBusiness(w, r, ctx)
 		case "/crm/location":
+			GetVendors(w, r, ctx)
+		case "/crm/vendor":
 			GetLocation(w, r, ctx)
 		case "/crm/ticket":
 			GetTickets(w, r, ctx)
@@ -1752,4 +1754,51 @@ func GetCreateMachineForm(w http.ResponseWriter, r *http.Request, ctx map[string
 	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetVendors(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.CRM_TEMPLATES_DIR + "vendors.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("pageNum")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("pageNum"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	vendors, totalRows, err := database.GetVendorList(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vendors from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Vendors — " + constants.CompanyName
+
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Vendors"] = vendors
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
+	data["CurrentPage"] = pageNum
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
 }

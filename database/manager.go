@@ -1799,10 +1799,10 @@ func GetVendors() ([]models.Vendor, error) {
 			vendor.PreferredContactTime = preferredContactTime.String
 		}
 		if streetAddressLineOne.Valid {
-			vendor.StreetAdressLineOne = streetAddressLineOne.String
+			vendor.StreetAddressLineOne = streetAddressLineOne.String
 		}
 		if streetAddressLineTwo.Valid {
-			vendor.StreetAdressLineTwo = streetAddressLineTwo.String
+			vendor.StreetAddressLineTwo = streetAddressLineTwo.String
 		}
 		if zipCode.Valid {
 			vendor.ZipCode = zipCode.String
@@ -1822,4 +1822,89 @@ func GetVendors() ([]models.Vendor, error) {
 	}
 
 	return vendors, nil
+}
+
+func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
+	var vendors []types.VendorList
+	var totalRows int
+
+	rows, err := DB.Query(`
+		SELECT 
+			v.vendor_id,
+			v.name,
+			v.first_name,
+			v.last_name,
+			v.phone,
+			v.email,
+			v.preferred_contact_method,
+			v.preferred_contact_time,
+			v.street_address_line_one,
+			v.street_address_line_two,
+			v.city_id,
+			v.zip_code,
+			v.state,
+			v.google_business_profile,
+			c.name AS city_name,
+			COUNT(*) OVER() AS total_rows
+		FROM "vendor" AS v
+		JOIN city AS c ON c.city_id = v.city_id
+		ORDER BY v.vendor_id DESC
+		LIMIT $1
+		OFFSET $2;
+	`, constants.LeadsPerPage, pageNum)
+	if err != nil {
+		return vendors, totalRows, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var vendor types.VendorList
+		var googleBusinessProfile sql.NullString
+		var streetAddressLineOne, streetAddressLineTwo sql.NullString
+		var cityName sql.NullString
+
+		err := rows.Scan(
+			&vendor.VendorID,
+			&vendor.Name,
+			&vendor.FirstName,
+			&vendor.LastName,
+			&vendor.Phone,
+			&vendor.Email,
+			&vendor.PreferredContactMethod,
+			&vendor.PreferredContactTime,
+			&streetAddressLineOne,
+			&streetAddressLineTwo,
+			&vendor.CityID,
+			&vendor.ZipCode,
+			&vendor.State,
+			&googleBusinessProfile,
+			&cityName,
+			&totalRows,
+		)
+		if err != nil {
+			return vendors, totalRows, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Handle nullable fields
+		if streetAddressLineOne.Valid {
+			vendor.StreetAddressLineOne = streetAddressLineOne.String
+		}
+		if streetAddressLineTwo.Valid {
+			vendor.StreetAddressLineTwo = streetAddressLineTwo.String
+		}
+		if cityName.Valid {
+			vendor.CityName = cityName.String
+		}
+		if googleBusinessProfile.Valid {
+			vendor.GoogleBusinessProfile = googleBusinessProfile.String
+		}
+
+		vendors = append(vendors, vendor)
+	}
+
+	if err := rows.Err(); err != nil {
+		return vendors, totalRows, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return vendors, totalRows, nil
 }

@@ -397,3 +397,21 @@ type MachineList struct {
 	Location               string `json:"location" form:"location" schema:"location"`
 	PurchaseDate           int64  `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
 }
+
+type VendorList struct {
+	VendorID               int    `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
+	Name                   string `json:"name" form:"name" schema:"name"`
+	FirstName              string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName               string `json:"last_name" form:"last_name" schema:"last_name"`
+	Phone                  string `json:"phone" form:"phone" schema:"phone"`
+	Email                  string `json:"email" form:"email" schema:"email"`
+	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
+	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
+	StreetAddressLineOne   string `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAddressLineTwo   string `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	CityID                 int    `json:"city_id" form:"city_id" schema:"city_id"`
+	CityName               string `json:"city_name" form:"city_name" schema:"city_name"`
+	ZipCode                string `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                  string `json:"state" form:"state" schema:"state"`
+	GoogleBusinessProfile  string `json:"google_business_profile,omitempty" form:"google_business_profile" schema:"google_business_profile"`
+}
