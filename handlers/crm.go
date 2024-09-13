@@ -2039,3 +2039,265 @@ func PutVendor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
+
+func GetSuppliers(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.CRM_TEMPLATES_DIR + "suppliers.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("pageNum")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("pageNum"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	suppliers, totalRows, err := database.GetSupplierList(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting suppliers from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Suppliers — " + constants.CompanyName
+
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Suppliers"] = suppliers
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
+	data["CurrentPage"] = pageNum
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func GetCreateSupplierForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	cities, err := database.GetCities()
+	if err != nil {
+		fmt.Printf("Error getting locations: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting cities.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "create_supplier_form.html",
+		TemplatePath: constants.CRM_TEMPLATES_DIR + "create_supplier_form.html",
+		Data: map[string]any{
+			"CSRFToken": csrfToken,
+			"Nonce":     nonce,
+			"Cities":    cities,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostSupplier(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.SupplierForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateSupplier(form)
+	if err != nil {
+		fmt.Printf("Error creating supplier: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create supplier.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	pageNum := 1 // Always default to one after new entity is created
+	suppliers, totalRows, err := database.GetSupplierList(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting suppliers from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "suppliers_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "suppliers_table.html",
+		Data: map[string]any{
+			"Supplier":    suppliers,
+			"CurrentPage": pageNum,
+			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	token, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w.Header().Set("X-Csrf-Token", token)
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutSupplier(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.SupplierForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	supplierId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/supplier/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.UpdateSupplier(supplierId, form)
+	if err != nil {
+		fmt.Printf("Error updating supplier: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update supplier.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		Data: map[string]any{
+			"Message": "Supplier updated successfully.",
+		},
+	}
+
+	token, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("Error generating token: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w.Header().Set("X-Csrf-Token", token)
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}

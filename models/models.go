@@ -211,6 +211,20 @@ type Vendor struct {
 	GoogleBusinessProfile  string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
 
+type Supplier struct {
+	SupplierID            int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
+	Name                  string  `json:"name" form:"name" schema:"name"`
+	MembershipID          string  `json:"membership_id" form:"membership_id" schema:"membership_id"`
+	MembershipCost        float64 `json:"membership_cost" form:"membership_cost" schema:"membership_cost"`          // Use float64 for MONEY
+	MembershipRenewal     int64   `json:"membership_renewal" form:"membership_renewal" schema:"membership_renewal"` // Represented as Unix timestamp
+	StreetAddressLineOne  string  `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAddressLineTwo  string  `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	CityID                int     `json:"city_id" form:"city_id" schema:"city_id"`
+	ZipCode               string  `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                 string  `json:"state" form:"state" schema:"state"`
+	GoogleBusinessProfile string  `json:"google_business_profile,omitempty" form:"google_business_profile" schema:"google_business_profile"`
+}
+
 type TicketType struct {
 	TicketTypeID int    `json:"ticket_type_id" form:"ticket_type_id" schema:"ticket_type_id"`
 	Type         string `json:"type" form:"type" schema:"type"`

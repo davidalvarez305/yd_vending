@@ -1059,7 +1059,7 @@ func GetLeadImagesByLeadID(leadId int) ([]models.LeadImage, error) {
 func CreateBusiness(form types.BusinessForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO business (name, is_active, date_created, website, industry, google_business_profile)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		VALUES ($1, $2, to_timestamp($3), $4, $5, $6, $7)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -1417,7 +1417,7 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 		    make = COALESCE($4, make),
 		    model = COALESCE($5, model),
 		    purchase_price = COALESCE($6, purchase_price),
-		    purchase_date = COALESCE($7, purchase_date),
+		    purchase_date = COALESCE(to_timestamp($7), purchase_date),
 		    card_reader_serial_number = COALESCE($8, card_reader_serial_number),
 		    location_id = COALESCE($9, location_id),
 		    columns_qty = COALESCE($10, columns_qty),
@@ -1741,6 +1741,31 @@ func GetMachineStatuses() ([]models.MachineStatus, error) {
 	return statuses, nil
 }
 
+func GetCities() ([]models.City, error) {
+	var cities []models.City
+
+	rows, err := DB.Query(`SELECT "city_id", "name" FROM "city"`)
+	if err != nil {
+		return cities, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var city models.City
+		err := rows.Scan(&city.CityID, &city.Name)
+		if err != nil {
+			return cities, fmt.Errorf("error scanning row: %w", err)
+		}
+		cities = append(cities, city)
+	}
+
+	if err := rows.Err(); err != nil {
+		return cities, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return cities, nil
+}
+
 func GetVendors() ([]models.Vendor, error) {
 	var vendors []models.Vendor
 
@@ -1909,34 +1934,9 @@ func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
 	return vendors, totalRows, nil
 }
 
-func GetCities() ([]models.City, error) {
-	var cities []models.City
-
-	rows, err := DB.Query(`SELECT "city_id", "name" FROM "city"`)
-	if err != nil {
-		return cities, fmt.Errorf("error executing query: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var city models.City
-		err := rows.Scan(&city.CityID, &city.Name)
-		if err != nil {
-			return cities, fmt.Errorf("error scanning row: %w", err)
-		}
-		cities = append(cities, city)
-	}
-
-	if err := rows.Err(); err != nil {
-		return cities, fmt.Errorf("error iterating rows: %w", err)
-	}
-
-	return cities, nil
-}
-
 func CreateVendor(form types.VendorForm) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO vendors (
+		INSERT INTO vendor (
 			name,
 			first_name,
 			last_name,
@@ -2025,7 +2025,7 @@ func CreateVendor(form types.VendorForm) error {
 
 func UpdateVendor(vendorId int, form types.VendorForm) error {
 	stmt, err := DB.Prepare(`
-		UPDATE vendors
+		UPDATE vendor
 		SET name = COALESCE($2, name),
 		    first_name = COALESCE($3, first_name),
 		    last_name = COALESCE($4, last_name),
@@ -2090,6 +2090,234 @@ func UpdateVendor(vendorId int, form types.VendorForm) error {
 		cityID,
 		zipCode,
 		state,
+		googleBusinessProfile,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func GetSuppliers() ([]models.Supplier, error) {
+	var suppliers []models.Supplier
+
+	rows, err := DB.Query(`
+		SELECT supplier_id, name, membership_id, membership_cost, membership_renewal, street_address_line_one, street_address_line_two, city_id, zip_code, state, google_business_profile 
+		FROM "supplier"
+	`)
+	if err != nil {
+		return suppliers, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var supplier models.Supplier
+		var dateCreated time.Time
+		var googleBusinessProfile sql.NullString
+
+		err := rows.Scan(
+			&supplier.SupplierID,
+			&supplier.Name,
+			&supplier.MembershipID,
+			&supplier.MembershipCost,
+			&dateCreated,
+			&supplier.StreetAddressLineOne,
+			&supplier.StreetAddressLineTwo,
+			&supplier.CityID,
+			&supplier.ZipCode,
+			&supplier.State,
+			&googleBusinessProfile,
+		)
+		if err != nil {
+			return suppliers, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Only check googleBusinessProfile for nil
+		if googleBusinessProfile.Valid {
+			supplier.GoogleBusinessProfile = googleBusinessProfile.String
+		}
+
+		supplier.MembershipRenewal = dateCreated.Unix()
+		suppliers = append(suppliers, supplier)
+	}
+
+	if err := rows.Err(); err != nil {
+		return suppliers, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return suppliers, nil
+}
+
+func GetSupplierList(pageNum int) ([]types.SupplierList, int, error) {
+	var suppliers []types.SupplierList
+	var totalRows int
+
+	rows, err := DB.Query(`
+		SELECT 
+			s.supplier_id,
+			s.name,
+			s.membership_id,
+			s.membership_cost,
+			s.membership_renewal,
+			s.street_address_line_one,
+			s.street_address_line_two,
+			s.zip_code,
+			s.state,
+			s.google_business_profile,
+			c.name AS city_name,
+			COUNT(*) OVER() AS total_rows
+		FROM "supplier" AS s
+		JOIN city AS c ON c.city_id = s.city_id
+		ORDER BY s.supplier_id DESC
+		LIMIT $1
+		OFFSET $2;
+	`, constants.LeadsPerPage, pageNum)
+	if err != nil {
+		return suppliers, totalRows, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var supplier types.SupplierList
+		var googleBusinessProfile sql.NullString
+		var streetAddressLineOne, streetAddressLineTwo sql.NullString
+		var cityName sql.NullString
+		var membershipRenewal time.Time
+
+		err := rows.Scan(
+			&supplier.SupplierID,
+			&supplier.Name,
+			&supplier.MembershipID,
+			&supplier.MembershipCost,
+			&membershipRenewal,
+			&streetAddressLineOne,
+			&streetAddressLineTwo,
+			&supplier.ZipCode,
+			&supplier.State,
+			&googleBusinessProfile,
+			&cityName,
+			&totalRows,
+		)
+		if err != nil {
+			return suppliers, totalRows, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Handle nullable fields
+		if streetAddressLineOne.Valid {
+			supplier.StreetAddressLineOne = streetAddressLineOne.String
+		}
+		if streetAddressLineTwo.Valid {
+			supplier.StreetAddressLineTwo = streetAddressLineTwo.String
+		}
+		if cityName.Valid {
+			supplier.City = cityName.String
+		}
+		if googleBusinessProfile.Valid {
+			supplier.GoogleBusinessProfile = googleBusinessProfile.String
+		}
+
+		// Set membership renewal as Unix timestamp
+		supplier.MembershipRenewal = membershipRenewal.Unix()
+
+		suppliers = append(suppliers, supplier)
+	}
+
+	if err := rows.Err(); err != nil {
+		return suppliers, totalRows, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return suppliers, totalRows, nil
+}
+
+func CreateSupplier(form types.SupplierForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO supplier (
+			name,
+			membership_id,
+			membership_cost,
+			membership_renewal,
+			street_address_line_one,
+			street_address_line_two,
+			city_id,
+			zip_code,
+			state,
+			google_business_profile
+		) VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	// Handle NULL values for optional fields
+	var googleBusinessProfile sql.NullString
+
+	if form.GoogleBusinessProfile != "" {
+		googleBusinessProfile = sql.NullString{String: form.GoogleBusinessProfile, Valid: true}
+	} else {
+		googleBusinessProfile = sql.NullString{Valid: false}
+	}
+
+	_, err = stmt.Exec(
+		form.Name,
+		form.MembershipID,
+		form.MembershipCost,
+		form.MembershipRenewal,
+		form.StreetAddressLineOne,
+		form.StreetAddressLineTwo,
+		form.CityID,
+		form.ZipCode,
+		form.State,
+		googleBusinessProfile,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateSupplier(supplierId int, form types.SupplierForm) error {
+	stmt, err := DB.Prepare(`
+		UPDATE supplier
+		SET name = COALESCE($2, name),
+		    membership_id = COALESCE($3, membership_id),
+		    membership_cost = COALESCE($4, membership_cost),
+		    membership_renewal = COALESCE(to_timestamp($5), membership_renewal),
+		    street_address_line_one = COALESCE($6, street_address_line_one),
+		    street_address_line_two = COALESCE($7, street_address_line_two),
+		    city_id = COALESCE($8, city_id),
+		    zip_code = COALESCE($9, zip_code),
+		    state = COALESCE($10, state),
+		    google_business_profile = COALESCE($11, google_business_profile)
+		WHERE supplier_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	// Define SQL nullable types for optional fields
+	var googleBusinessProfile sql.NullString
+
+	if form.GoogleBusinessProfile != "" {
+		googleBusinessProfile = sql.NullString{String: form.GoogleBusinessProfile, Valid: true}
+	} else {
+		googleBusinessProfile = sql.NullString{Valid: false}
+	}
+
+	_, err = stmt.Exec(
+		supplierId,
+		form.Name,
+		form.MembershipID,
+		form.MembershipCost,
+		form.MembershipRenewal,
+		form.StreetAddressLineOne,
+		form.StreetAddressLineTwo,
+		form.CityID,
+		form.ZipCode,
+		form.State,
 		googleBusinessProfile,
 	)
 	if err != nil {
