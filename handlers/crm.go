@@ -84,6 +84,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Vendor resources
+		if strings.HasPrefix(path, "/crm/vendor/") && strings.Contains(path, "/create-vendor-form") {
+			GetCreateVendorForm(w, r, ctx)
+			return
+		}
+
 		switch path {
 		case "/crm/dashboard":
 			GetDashboard(w, r, ctx)
@@ -154,6 +160,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostBusiness(w, r)
 		case "/crm/machine":
 			PostMachine(w, r)
+		case "/crm/vendor":
+			PostVendor(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
