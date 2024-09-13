@@ -1628,3 +1628,198 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 
 	return machines, totalRows, nil
 }
+
+func GetLocations() ([]models.Location, error) {
+	var locations []models.Location
+
+	rows, err := DB.Query(`
+		SELECT location_id, location_type_id, business_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing 
+		FROM "location"
+	`)
+	if err != nil {
+		return locations, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var loc models.Location
+		var longitude, latitude, streetAddressLineOne, streetAddressLineTwo, zipCode, state, opening, closing sql.NullString
+		var cityID sql.NullInt64
+
+		err := rows.Scan(
+			&loc.LocationID,
+			&loc.LocationTypeID,
+			&loc.BusinessID,
+			&loc.Name,
+			&longitude,
+			&latitude,
+			&streetAddressLineOne,
+			&streetAddressLineTwo,
+			&cityID,
+			&zipCode,
+			&state,
+			&opening,
+			&closing,
+		)
+		if err != nil {
+			return locations, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if longitude.Valid {
+			loc.Longitude = longitude.String
+		}
+		if latitude.Valid {
+			loc.Latitude = latitude.String
+		}
+		if streetAddressLineOne.Valid {
+			loc.StreetAdressLineOne = streetAddressLineOne.String
+		}
+		if streetAddressLineTwo.Valid {
+			loc.StreetAdressLineTwo = streetAddressLineTwo.String
+		}
+		if cityID.Valid {
+			loc.CityID = int(cityID.Int64)
+		}
+		if zipCode.Valid {
+			loc.ZipCode = zipCode.String
+		}
+		if state.Valid {
+			loc.State = state.String
+		}
+		if opening.Valid {
+			loc.Opening = opening.String
+		}
+		if closing.Valid {
+			loc.Closing = closing.String
+		}
+
+		locations = append(locations, loc)
+	}
+
+	if err := rows.Err(); err != nil {
+		return locations, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return locations, nil
+}
+
+func GetMachineStatuses() ([]models.MachineStatus, error) {
+	var statuses []models.MachineStatus
+
+	rows, err := DB.Query(`
+		SELECT machine_status_id, status 
+		FROM "machine_status"
+	`)
+	if err != nil {
+		return statuses, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var status models.MachineStatus
+		var statusText sql.NullString
+
+		err := rows.Scan(
+			&status.MachineStatusID,
+			&statusText,
+		)
+		if err != nil {
+			return statuses, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if statusText.Valid {
+			status.Status = statusText.String
+		}
+
+		statuses = append(statuses, status)
+	}
+
+	if err := rows.Err(); err != nil {
+		return statuses, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return statuses, nil
+}
+
+func GetVendors() ([]models.Vendor, error) {
+	var vendors []models.Vendor
+
+	rows, err := DB.Query(`
+		SELECT vendor_id, name, first_name, last_name, phone, email, preferred_contact_method, preferred_contact_time, street_address_line_one, street_address_line_two, city_id, zip_code, state, google_business_profile 
+		FROM "vendor"
+	`)
+	if err != nil {
+		return vendors, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var vendor models.Vendor
+		var name, firstName, lastName, phone, email, preferredContactMethod, preferredContactTime, streetAddressLineOne, streetAddressLineTwo, zipCode, state, googleBusinessProfile sql.NullString
+
+		err := rows.Scan(
+			&vendor.VendorID,
+			&name,
+			&firstName,
+			&lastName,
+			&phone,
+			&email,
+			&preferredContactMethod,
+			&preferredContactTime,
+			&streetAddressLineOne,
+			&streetAddressLineTwo,
+			&vendor.CityID,
+			&zipCode,
+			&state,
+			&googleBusinessProfile,
+		)
+		if err != nil {
+			return vendors, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if name.Valid {
+			vendor.Name = name.String
+		}
+		if firstName.Valid {
+			vendor.FirstName = firstName.String
+		}
+		if lastName.Valid {
+			vendor.LastName = lastName.String
+		}
+		if phone.Valid {
+			vendor.Phone = phone.String
+		}
+		if email.Valid {
+			vendor.Email = email.String
+		}
+		if preferredContactMethod.Valid {
+			vendor.PreferredContactMethod = preferredContactMethod.String
+		}
+		if preferredContactTime.Valid {
+			vendor.PreferredContactTime = preferredContactTime.String
+		}
+		if streetAddressLineOne.Valid {
+			vendor.StreetAdressLineOne = streetAddressLineOne.String
+		}
+		if streetAddressLineTwo.Valid {
+			vendor.StreetAdressLineTwo = streetAddressLineTwo.String
+		}
+		if zipCode.Valid {
+			vendor.ZipCode = zipCode.String
+		}
+		if state.Valid {
+			vendor.State = state.String
+		}
+		if googleBusinessProfile.Valid {
+			vendor.GoogleBusinessProfile = googleBusinessProfile.String
+		}
+
+		vendors = append(vendors, vendor)
+	}
+
+	if err := rows.Err(); err != nil {
+		return vendors, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return vendors, nil
+}
