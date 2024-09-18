@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
+	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/models"
@@ -134,6 +135,29 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 	phoneCall.CallDuration = dialStatus.DialCallDuration
 	phoneCall.RecordingURL = dialStatus.RecordingURL
 	phoneCall.Status = dialStatus.DialCallStatus
+
+	if phoneCall.CallDuration > 60 {
+		fbEvent := types.FacebookEventData{
+			EventName:      "phone_call",
+			EventTime:      phoneCall.DateCreated,
+			ActionSource:   "website",
+			EventSourceURL: "https://ydvending.com/",
+			UserData: types.FacebookUserData{
+				Phone: helpers.HashString(phoneCall.CallFrom),
+				State: helpers.HashString("Florida"),
+			},
+		}
+
+		metaPayload := types.FacebookPayload{
+			Data: []types.FacebookEventData{fbEvent},
+		}
+
+		err = conversions.SendFacebookConversion(metaPayload)
+
+		if err != nil {
+			fmt.Printf("Error sending Facebook conversion: %+v\n", err)
+		}
+	}
 
 	if err := database.UpdatePhoneCall(phoneCall); err != nil {
 		fmt.Printf("FAILED TO UPDATE PREVIOUS PHONE CALL: %+v\n", dialStatus)
