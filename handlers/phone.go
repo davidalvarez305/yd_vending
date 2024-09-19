@@ -138,7 +138,7 @@ func handleInboundCallEnd(w http.ResponseWriter, r *http.Request) {
 
 	if phoneCall.CallDuration > 60 {
 		fbEvent := types.FacebookEventData{
-			EventName:      "phone_call",
+			EventName:      "Lead",
 			EventTime:      phoneCall.DateCreated,
 			ActionSource:   "website",
 			EventSourceURL: "https://ydvending.com/",
