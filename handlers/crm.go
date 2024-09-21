@@ -1106,13 +1106,13 @@ func PostBusinessContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
+	/* businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	}
+	} */
 
-	err = database.CreateBusinessContact(businessId, form)
+	err = database.CreateBusinessContact(form)
 	if err != nil {
 		fmt.Printf("Error creating business contact: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

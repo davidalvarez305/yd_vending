@@ -134,20 +134,19 @@ type Session struct {
 }
 
 type Location struct {
-	LocationID          int    `json:"location_id" form:"location_id" schema:"location_id"`
-	VendingLocationID   int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
-	BusinessID          int    `json:"business_id" form:"business_id" schema:"business_id"`
-	CityID              int    `json:"city_id" form:"city_id" schema:"city_id"`
-	DateStarted         int64  `json:"date_started" form:"date_started" schema:"date_started"`
-	Name                string `json:"name" form:"name" schema:"name"`
-	Longitude           string `json:"longitude" form:"longitude" schema:"longitude"`
-	Latitude            string `json:"latitude" form:"latitude" schema:"latitude"`
-	StreetAdressLineOne string `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
-	StreetAdressLineTwo string `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
-	ZipCode             string `json:"zip_code" form:"zip_code" schema:"zip_code"`
-	State               string `json:"state" form:"state" schema:"state"`
-	Opening             string `json:"opening" form:"opening" schema:"opening"`
-	Closing             string `json:"closing" form:"closing" schema:"closing"`
+	LocationID          int     `json:"location_id" form:"location_id" schema:"location_id"`
+	VendingLocationID   int     `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
+	CityID              int     `json:"city_id" form:"city_id" schema:"city_id"`
+	DateStarted         int64   `json:"date_started" form:"date_started" schema:"date_started"`
+	Name                string  `json:"name" form:"name" schema:"name"`
+	Longitude           float64 `json:"longitude" form:"longitude" schema:"longitude"`
+	Latitude            float64 `json:"latitude" form:"latitude" schema:"latitude"`
+	StreetAdressLineOne string  `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAdressLineTwo string  `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	ZipCode             string  `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State               string  `json:"state" form:"state" schema:"state"`
+	Opening             string  `json:"opening" form:"opening" schema:"opening"`
+	Closing             string  `json:"closing" form:"closing" schema:"closing"`
 }
 
 type Business struct {
@@ -168,9 +167,14 @@ type BusinessContact struct {
 	Email                  string `json:"email" form:"email" schema:"email"`
 	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
 	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
-	BusinessID             int    `json:"business_id" form:"business_id" schema:"business_id"`
 	BusinessPosition       string `json:"business_position" form:"business_position" schema:"business_position"`
-	IsPrimaryContact       bool   `json:"is_primary_contact" form:"is_primary_contact" schema:"is_primary_contact"`
+}
+
+type BusinessLocationContact struct {
+	BusinessContactID int  `json:"business_contact_id" form:"business_contact_id" schema:"business_contact_id"`
+	LocationID        int  `json:"location_id" form:"location_id" schema:"location_id"`
+	BusinessID        int  `json:"business_id" form:"business_id" schema:"business_id"`
+	IsPrimaryContact  bool `json:"is_primary_contact" form:"is_primary_contact" schema:"is_primary_contact"`
 }
 
 type MachineStatus struct {
@@ -188,11 +192,8 @@ type Machine struct {
 	Make                   string  `json:"make" form:"make" schema:"make"`
 	Model                  string  `json:"model" form:"model" schema:"model"`
 	PurchasePrice          float64 `json:"purchase_price" form:"purchase_price" schema:"purchase_price"`
-	CardReaderSerialNumber string  `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
-	ColumnsQty             int     `json:"columns_qty" form:"columns_qty" schema:"columns_qty"`
-	RowsQty                int     `json:"rows_qty" form:"rows_qty" schema:"rows_qty"`
-	TotalSlots             int     `json:"total_slots" form:"total_slots" schema:"total_slots"`
 	PurchaseDate           int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+	CardReaderSerialNumber string  `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
 }
 
 type Vendor struct {

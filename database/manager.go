@@ -1106,7 +1106,7 @@ func CreateBusiness(form types.BusinessForm) error {
 	return nil
 }
 
-func CreateBusinessContact(businessId int, form types.BusinessContactForm) error {
+func CreateBusinessContact(form types.BusinessContactForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO business_contact (
 			first_name, 
@@ -1115,10 +1115,8 @@ func CreateBusinessContact(businessId int, form types.BusinessContactForm) error
 			email, 
 			preferred_contact_method, 
 			preferred_contact_time, 
-			business_id, 
-			business_position, 
-			is_primary_contact
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			business_position
+		) VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -1144,9 +1142,7 @@ func CreateBusinessContact(businessId int, form types.BusinessContactForm) error
 		form.Email,
 		preferredContactMethod,
 		preferredContactTime,
-		businessId,
 		businessPosition,
-		form.IsPrimaryContact,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -1166,13 +1162,14 @@ func CreateLocation(businessId int, form types.LocationForm) error {
 	defer stmt.Close()
 
 	// Handle NULL values for optional fields
-	var longitude, latitude, streetAddressLineTwo, opening, closing sql.NullString
+	var streetAddressLineTwo, opening, closing sql.NullString
+	var longitude, latitude sql.NullFloat64
 
 	if form.Longitude != nil {
-		longitude = sql.NullString{String: *form.Longitude, Valid: true}
+		longitude = sql.NullFloat64{Float64: *form.Longitude, Valid: true}
 	}
 	if form.Latitude != nil {
-		latitude = sql.NullString{String: *form.Latitude, Valid: true}
+		latitude = sql.NullFloat64{Float64: *form.Latitude, Valid: true}
 	}
 	if form.StreetAddressLineTwo != nil {
 		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
@@ -1218,11 +1215,8 @@ func CreateMachine(form types.MachineForm) error {
 			model, 
 			purchase_price, 
 			purchase_date, 
-			card_reader_serial_number, 
-			columns_qty, 
-			rows_qty, 
-			total_slots
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, to_timestamp($9), $10, $11, $12, $13)
+			card_reader_serial_number
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, to_timestamp($9), $10)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -1232,7 +1226,7 @@ func CreateMachine(form types.MachineForm) error {
 	// Handle NULL values for optional fields
 	var make, model, cardReaderSerialNumber sql.NullString
 	var purchasePrice sql.NullFloat64
-	var year, vendingTypeID, locationID, columnsQty, rowsQty, totalSlots, machineStatusID, vendorID sql.NullInt64
+	var year, vendingTypeID, locationID, machineStatusID, vendorID sql.NullInt64
 	var purchaseDate sql.NullInt64
 
 	if form.Make != nil {
@@ -1256,15 +1250,6 @@ func CreateMachine(form types.MachineForm) error {
 	if form.LocationID != nil {
 		locationID = sql.NullInt64{Int64: int64(*form.LocationID), Valid: true}
 	}
-	if form.ColumnsQty != nil {
-		columnsQty = sql.NullInt64{Int64: int64(*form.ColumnsQty), Valid: true}
-	}
-	if form.RowsQty != nil {
-		rowsQty = sql.NullInt64{Int64: int64(*form.RowsQty), Valid: true}
-	}
-	if form.TotalSlots != nil {
-		totalSlots = sql.NullInt64{Int64: int64(*form.TotalSlots), Valid: true}
-	}
 	if form.MachineStatusID != nil {
 		machineStatusID = sql.NullInt64{Int64: int64(*form.MachineStatusID), Valid: true}
 	}
@@ -1286,9 +1271,6 @@ func CreateMachine(form types.MachineForm) error {
 		purchasePrice,
 		purchaseDate,
 		cardReaderSerialNumber,
-		columnsQty,
-		rowsQty,
-		totalSlots,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -1307,8 +1289,7 @@ func UpdateBusinessContact(businessId int, businessContactId int, form types.Bus
 		    preferred_contact_method = COALESCE($6, preferred_contact_method),
 		    preferred_contact_time = COALESCE($7, preferred_contact_time),
 		    business_id = COALESCE($8, business_id),
-		    business_position = COALESCE($9, business_position),
-		    is_primary_contact = COALESCE($10, is_primary_contact)
+		    business_position = COALESCE($9, business_position)
 		WHERE business_contact_id = $1
 	`)
 	if err != nil {
@@ -1317,7 +1298,6 @@ func UpdateBusinessContact(businessId int, businessContactId int, form types.Bus
 	defer stmt.Close()
 
 	var firstName, lastName, phone, email, preferredContactMethod, preferredContactTime, businessPosition sql.NullString
-	var isPrimaryContact sql.NullBool
 
 	if form.FirstName != nil {
 		firstName = sql.NullString{String: *form.FirstName, Valid: true}
@@ -1340,7 +1320,6 @@ func UpdateBusinessContact(businessId int, businessContactId int, form types.Bus
 	if form.BusinessPosition != nil {
 		businessPosition = sql.NullString{String: *form.BusinessPosition, Valid: true}
 	}
-	isPrimaryContact = sql.NullBool{Bool: *form.IsPrimaryContact, Valid: true}
 
 	_, err = stmt.Exec(
 		businessContactId,
@@ -1352,7 +1331,6 @@ func UpdateBusinessContact(businessId int, businessContactId int, form types.Bus
 		preferredContactTime,
 		businessId,
 		businessPosition,
-		isPrimaryContact,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -1421,11 +1399,8 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 		    purchase_date = COALESCE(to_timestamp($7), purchase_date),
 		    card_reader_serial_number = COALESCE($8, card_reader_serial_number),
 		    location_id = COALESCE($9, location_id),
-		    columns_qty = COALESCE($10, columns_qty),
-		    rows_qty = COALESCE($11, rows_qty),
-		    total_slots = COALESCE($12, total_slots),
-		    machine_status_id = COALESCE($13, machine_status_id),
-		    vendor_id = COALESCE($14, vendor_id)
+		    machine_status_id = COALESCE($10, machine_status_id),
+		    vendor_id = COALESCE($11, vendor_id)
 		WHERE machine_id = $1
 	`)
 	if err != nil {
@@ -1449,9 +1424,6 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 		purchaseDate,
 		form.CardReaderSerialNumber,
 		form.LocationID,
-		form.ColumnsQty,
-		form.RowsQty,
-		form.TotalSlots,
 		form.MachineStatusID,
 		form.VendorID,
 	)
@@ -1485,13 +1457,14 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 	}
 	defer stmt.Close()
 
-	var longitude, latitude, streetAddressLineTwo, opening, closing sql.NullString
+	var streetAddressLineTwo, opening, closing sql.NullString
+	var longitude, latitude sql.NullFloat64
 
 	if form.Longitude != nil {
-		longitude = sql.NullString{String: *form.Longitude, Valid: true}
+		longitude = sql.NullFloat64{Float64: *form.Longitude, Valid: true}
 	}
 	if form.Latitude != nil {
-		latitude = sql.NullString{String: *form.Latitude, Valid: true}
+		latitude = sql.NullFloat64{Float64: *form.Latitude, Valid: true}
 	}
 	if form.StreetAddressLineTwo != nil {
 		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
@@ -1636,7 +1609,7 @@ func GetLocations() ([]models.Location, error) {
 	var locations []models.Location
 
 	rows, err := DB.Query(`
-		SELECT location_id, vending_location_id, business_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing, date_started 
+		SELECT location_id, vending_location_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing, date_started 
 		FROM "location"
 	`)
 	if err != nil {
@@ -1646,14 +1619,14 @@ func GetLocations() ([]models.Location, error) {
 
 	for rows.Next() {
 		var loc models.Location
-		var longitude, latitude, streetAddressLineOne, streetAddressLineTwo, zipCode, state, opening, closing sql.NullString
+		var streetAddressLineOne, streetAddressLineTwo, zipCode, state, opening, closing sql.NullString
 		var cityID sql.NullInt64
+		var longitude, latitude sql.NullFloat64
 		var dateStarted time.Time
 
 		err := rows.Scan(
 			&loc.LocationID,
 			&loc.VendingLocationID,
-			&loc.BusinessID,
 			&loc.Name,
 			&longitude,
 			&latitude,
@@ -1671,10 +1644,10 @@ func GetLocations() ([]models.Location, error) {
 		}
 
 		if longitude.Valid {
-			loc.Longitude = longitude.String
+			loc.Longitude = longitude.Float64
 		}
 		if latitude.Valid {
-			loc.Latitude = latitude.String
+			loc.Latitude = latitude.Float64
 		}
 		if streetAddressLineOne.Valid {
 			loc.StreetAdressLineOne = streetAddressLineOne.String
