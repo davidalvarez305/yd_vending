@@ -135,14 +135,15 @@ type Session struct {
 
 type Location struct {
 	LocationID          int    `json:"location_id" form:"location_id" schema:"location_id"`
-	LocationTypeID      int    `json:"location_type_id" form:"location_type_id" schema:"location_type_id"`
+	VendingLocationID   int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
 	BusinessID          int    `json:"business_id" form:"business_id" schema:"business_id"`
+	CityID              int    `json:"city_id" form:"city_id" schema:"city_id"`
+	DateStarted         int64  `json:"date_started" form:"date_started" schema:"date_started"`
 	Name                string `json:"name" form:"name" schema:"name"`
 	Longitude           string `json:"longitude" form:"longitude" schema:"longitude"`
 	Latitude            string `json:"latitude" form:"latitude" schema:"latitude"`
 	StreetAdressLineOne string `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
 	StreetAdressLineTwo string `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
-	CityID              int    `json:"city_id" form:"city_id" schema:"city_id"`
 	ZipCode             string `json:"zip_code" form:"zip_code" schema:"zip_code"`
 	State               string `json:"state" form:"state" schema:"state"`
 	Opening             string `json:"opening" form:"opening" schema:"opening"`

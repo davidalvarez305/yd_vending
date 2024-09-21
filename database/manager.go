@@ -1157,8 +1157,8 @@ func CreateBusinessContact(businessId int, form types.BusinessContactForm) error
 
 func CreateLocation(businessId int, form types.LocationForm) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO location (location_type_id, business_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, to_timestamp($12), to_timestamp($13))
+		INSERT INTO location (vending_location_id, business_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing, date_started)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, to_timestamp($13))
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -1185,7 +1185,7 @@ func CreateLocation(businessId int, form types.LocationForm) error {
 	}
 
 	_, err = stmt.Exec(
-		form.LocationTypeID,
+		form.VendingLocationID,
 		businessId,
 		form.Name,
 		longitude,
@@ -1197,6 +1197,7 @@ func CreateLocation(businessId int, form types.LocationForm) error {
 		form.State,
 		opening,
 		closing,
+		form.DateStarted,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -1464,7 +1465,7 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 func UpdateLocation(businessId int, locationId int, form types.LocationForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE location
-		SET location_type_id = COALESCE($2, location_type_id),
+		SET vending_location_id = COALESCE($2, vending_location_id),
 		    business_id = COALESCE($3, business_id),
 		    name = COALESCE($4, name),
 		    longitude = COALESCE($5, longitude),
@@ -1475,7 +1476,8 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 		    zip_code = COALESCE($10, zip_code),
 		    state = COALESCE($11, state),
 		    opening = COALESCE($12, opening),
-		    closing = COALESCE($13, closing)
+		    closing = COALESCE($13, closing),
+			date_started = COALESCE(to_timestamp($14), date_started)
 		WHERE location_id = $1
 	`)
 	if err != nil {
@@ -1503,7 +1505,7 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 
 	_, err = stmt.Exec(
 		locationId,
-		form.LocationTypeID,
+		form.VendingLocationID,
 		businessId,
 		form.Name,
 		longitude,
@@ -1515,6 +1517,7 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 		form.State,
 		opening,
 		closing,
+		form.DateStarted,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -1583,8 +1586,8 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.year, ' ', m.model) AS machine_name,
 	m.card_reader_serial_number, s.status, l.name, m.purchase_date, COUNT(*) OVER() AS total_rows
 	FROM "machine" AS m
-	JOIN machine_status AS s ON s.MachineStatusID = m.MachineStatusID
-	JOIN location AS l ON l.LocationID = m.LocationID
+	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
+	JOIN location AS l ON l.location_id = m.location_id
 	ORDER BY m.purchase_date DESC
 	LIMIT $1
 	OFFSET $2;`, constants.LeadsPerPage, pageNum)
@@ -1633,7 +1636,7 @@ func GetLocations() ([]models.Location, error) {
 	var locations []models.Location
 
 	rows, err := DB.Query(`
-		SELECT location_id, location_type_id, business_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing 
+		SELECT location_id, vending_location_id, business_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing, date_started 
 		FROM "location"
 	`)
 	if err != nil {
@@ -1645,10 +1648,11 @@ func GetLocations() ([]models.Location, error) {
 		var loc models.Location
 		var longitude, latitude, streetAddressLineOne, streetAddressLineTwo, zipCode, state, opening, closing sql.NullString
 		var cityID sql.NullInt64
+		var dateStarted time.Time
 
 		err := rows.Scan(
 			&loc.LocationID,
-			&loc.LocationTypeID,
+			&loc.VendingLocationID,
 			&loc.BusinessID,
 			&loc.Name,
 			&longitude,
@@ -1660,6 +1664,7 @@ func GetLocations() ([]models.Location, error) {
 			&state,
 			&opening,
 			&closing,
+			&dateStarted,
 		)
 		if err != nil {
 			return locations, fmt.Errorf("error scanning row: %w", err)
@@ -1692,6 +1697,8 @@ func GetLocations() ([]models.Location, error) {
 		if closing.Valid {
 			loc.Closing = closing.String
 		}
+
+		loc.DateStarted = dateStarted.Unix()
 
 		locations = append(locations, loc)
 	}
