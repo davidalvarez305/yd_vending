@@ -1739,16 +1739,6 @@ select{
   padding-bottom: 2rem;
 }
 
-.py-6{
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-}
-
-.py-56{
-  padding-top: 14rem;
-  padding-bottom: 14rem;
-}
-
 .pb-1{
   padding-bottom: 0.25rem;
 }
@@ -3405,15 +3395,6 @@ select{
   background-color: rgb(17 24 39 / var(--tw-bg-opacity));
 }
 
-.dark\:bg-gray-900\/50:is(.dark *){
-  background-color: rgb(17 24 39 / 0.5);
-}
-
-.dark\:bg-primary-200:is(.dark *){
-  --tw-bg-opacity: 1;
-  background-color: rgb(220 90 165 / var(--tw-bg-opacity));
-}
-
 .dark\:bg-primary-700:is(.dark *){
   --tw-bg-opacity: 1;
   background-color: rgb(62 13 41 / var(--tw-bg-opacity));
@@ -3517,11 +3498,6 @@ select{
 .dark\:text-primary-500:is(.dark *){
   --tw-text-opacity: 1;
   color: rgb(154 33 103 / var(--tw-text-opacity));
-}
-
-.dark\:text-primary-900:is(.dark *){
-  --tw-text-opacity: 1;
-  color: rgb(0 0 0 / var(--tw-text-opacity));
 }
 
 .dark\:text-secondary-400:is(.dark *){
@@ -3686,14 +3662,6 @@ select{
 
   .sm\:flex{
     display: flex;
-  }
-
-  .sm\:inline-flex{
-    display: inline-flex;
-  }
-
-  .sm\:hidden{
-    display: none;
   }
 
   .sm\:w-1\/3{
@@ -4015,10 +3983,6 @@ select{
 }
 
 @media print{
-  .print\:hidden{
-    display: none;
-  }
-
   .print\:w-full{
     width: 100%;
   }
