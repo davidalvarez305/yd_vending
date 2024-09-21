@@ -85,7 +85,19 @@
 <script nonce="{{ .Nonce }}">
 	document.addEventListener("DOMContentLoaded", () => {
 		const form = document.getElementById("createBusinessForm");
+		const submitForm = document.getElementById("submitForm");
+		const cancelForm = document.getElementById("cancelForm");
+		const closeForm = document.getElementById("closeForm");
 		const alertModal = document.getElementById("alertModal");
+
+		function handleCloseForm() {
+			const modal = document.getElementById('formModalContainer');
+			modal.outerHTML = '<div id="formModalContainer"></div>';
+		}
+
+		submitForm.addEventListener('click', () => form.submit());
+		cancelForm.addEventListener('click', () => handleCloseForm());
+		closeForm.addEventListener("click", () => handleCloseForm());
 
 		form.addEventListener("submit", (e) => {
 			e.preventDefault();
