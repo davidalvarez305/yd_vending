@@ -250,7 +250,8 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 
 func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "machines.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+	createMachineForm := constants.CRM_TEMPLATES_DIR + "create_machine_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createMachineForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
@@ -281,6 +282,66 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	locations, err := database.GetLocations()
+	if err != nil {
+		fmt.Printf("Error getting locations: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting locations.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	vendingTypes, err := database.GetVendingTypes()
+	if err != nil {
+		fmt.Printf("Error getting vending types: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting vending types.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	machineStatuses, err := database.GetMachineStatuses()
+	if err != nil {
+		fmt.Printf("Error getting machine statuses: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting machine statuses.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	vendors, err := database.GetVendors()
+	if err != nil {
+		fmt.Printf("Error getting vendors: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting vendors.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Machines — " + constants.CompanyName
 
@@ -289,6 +350,10 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["Machines"] = machines
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["CurrentPage"] = pageNum
+	data["Locations"] = locations
+	data["VendingTypes"] = vendingTypes
+	data["MachineStatuses"] = machineStatuses
+	data["Vendors"] = vendors
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -1690,9 +1755,9 @@ func GetCreateBusinessForm(w http.ResponseWriter, r *http.Request, ctx map[strin
 }
 
 func GetCreateMachineForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+	nonce := r.URL.Query().Get("nonce")
+	if len(nonce) == 0 {
+		http.Error(w, "Nonce not found in URL.", http.StatusInternalServerError)
 		return
 	}
 

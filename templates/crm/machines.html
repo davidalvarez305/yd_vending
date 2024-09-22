@@ -94,30 +94,15 @@
     <!-- END Pagination -->
 </div>
 
-<div id="formModalContainer"></div>
+{{ template "create_machine_form.html" . }}
 
 <script nonce="{{ .Nonce }}">
     const addMachineButton = document.getElementById('addMachine');
 
-    function handleGetCreateMachineForm() {
-        fetch('/crm/machine/create-machine-form')
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    return response.text().then((err) => {
-                        throw new Error(err);
-                    });
-                }
-            })
-            .then(html => {
-                const formModalContainer = document.getElementById('formModalContainer');
-                formModalContainer.outerHTML = html;
-            })
-            .catch(console.error);
-    }
-
-    addMachineButton.addEventListener('click', () => handleGetCreateMachineForm());
+    addMachineButton.addEventListener('click', () => {
+        const formModalContainer = document.getElementById('formModalContainer');
+        formModalContainer.style.display = '';
+    });
 </script>
 
 <script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>

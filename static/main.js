@@ -24,6 +24,8 @@ function setUser() {
 document.addEventListener("DOMContentLoaded", () => localStorage.getItem("user") ?? setUser());
 
 function preserveQuerystring() {
+	if (window.location.pathname.includes("crm")) return;
+
 	const links = document.querySelectorAll('a');
 
 	links.forEach(link => {
