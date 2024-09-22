@@ -135,9 +135,8 @@
         cancelForm.addEventListener('click', () => handleCloseForm());
         closeForm.addEventListener("click", () => handleCloseForm());
 
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const data = new FormData(e.target);
+        function handleSubmitForm() {
+            const data = new FormData(form);
 
             let membershipRenewal = data.get('membership_renewal');
 
@@ -148,7 +147,6 @@
                     data.set('membership_renewal', membershipRenewal);
                 }
             }
-
             fetch("/crm/supplier", {
                 method: "POST",
                 credentials: "include",
@@ -184,7 +182,7 @@
                 .catch(err => {
                     alertModal.outerHTML = err;
                 });
-        });
+        }
     });
 </script>
 {{ end }}

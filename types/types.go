@@ -392,7 +392,7 @@ type MachineList struct {
 	CardReaderSerialNumber string `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
 	MachineStatus          string `json:"machine_status" form:"machine_status" schema:"machine_status"`
 	Location               string `json:"location" form:"location" schema:"location"`
-	PurchaseDate           int64  `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+	PurchaseDate           string `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
 }
 
 type VendorList struct {

@@ -68,8 +68,8 @@
 								</div>
 								<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 									<div class="space-y-1">
-										<label for="vending_type" class="font-medium">Machine Type*</label>
-										<select id="vending_type" name="vending_type" required
+										<label for="vending_type_id" class="font-medium">Machine Type*</label>
+										<select id="vending_type_id" name="vending_type_id" required
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
 											{{ range .VendingTypes }}
 											<option value="{{ .VendingTypeID }}">{{ .MachineType }}</option>
@@ -77,8 +77,8 @@
 										</select>
 									</div>
 									<div class="space-y-1">
-										<label for="location_id" class="font-medium">Location*</label>
-										<select id="location_id" name="location_id" required
+										<label for="location_id" class="font-medium">Location</label>
+										<select id="location_id" name="location_id"
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
 											{{ range .Locations }}
 											<option value="{{ .LocationID }}">{{ .Name }}</option>
@@ -97,23 +97,14 @@
 										</select>
 									</div>
 									<div class="space-y-1">
-										<label for="vendor_id" class="font-medium">Vendor*</label>
-										<select id="vendor_id" name="vendor_id" required
+										<label for="vendor_id" class="font-medium">Vendor</label>
+										<select id="vendor_id" name="vendor_id"
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
 											{{ range .Vendors }}
 											<option value="{{ .VendorID }}">{{ .Name }}</option>
 											{{ end }}
 										</select>
 									</div>
-								</div>
-								<div class="space-y-1">
-									<label class="group relative inline-flex items-center gap-3">
-										<input type="checkbox" class="peer sr-only" id="is_active" name="is_active"
-											checked />
-										<span
-											class="relative h-7 w-12 flex-none rounded-full bg-gray-300 transition-all duration-150 ease-out before:absolute before:left-1 before:top-1 before:size-5 before:rounded-full before:bg-white before:transition-transform before:duration-150 before:ease-out before:content-[''] peer-checked:bg-primary-500 peer-checked:before:translate-x-full peer-focus:ring peer-focus:ring-primary-500/50 peer-focus:ring-offset-2 peer-focus:ring-offset-white peer-disabled:cursor-not-allowed peer-disabled:opacity-75 dark:bg-gray-700 dark:peer-checked:bg-primary-500 dark:peer-focus:ring-offset-gray-900"></span>
-										<span class="font-medium">Is Active</span>
-									</label>
 								</div>
 							</form>
 						</div>
@@ -155,7 +146,13 @@
 	closeForm.addEventListener("click", () => handleCloseForm());
 
 	function handleSubmitForm() {
-		const data = new FormData(e.target);
+		const data = new FormData(form);
+
+		// Handle timestamp
+		const purchaseDate = data.get('purchase_date');
+		const timestamp = new Date(purchaseDate).getTime() / 1000;
+		data.delete('purchase_date');
+		data.append('purchase_date', timestamp);
 
 		fetch("/crm/machine", {
 			method: "POST",

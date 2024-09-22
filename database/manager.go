@@ -1553,11 +1553,11 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 
 	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
 
-	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.year, ' ', m.model) AS machine_name,
+	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
 	m.card_reader_serial_number, s.status, l.name, m.purchase_date, COUNT(*) OVER() AS total_rows
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
-	JOIN location AS l ON l.location_id = m.location_id
+	LEFT JOIN location AS l ON l.location_id = m.location_id
 	ORDER BY m.purchase_date DESC
 	LIMIT $1
 	OFFSET $2;`, constants.LeadsPerPage, offset)
@@ -1591,7 +1591,7 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 			machine.CardReaderSerialNumber = cardReaderSerialNumber.String
 		}
 
-		machine.PurchaseDate = dateCreated.Unix()
+		machine.PurchaseDate = utils.FormatDateMMDDYYYY(dateCreated.Unix())
 		machines = append(machines, machine)
 	}
 

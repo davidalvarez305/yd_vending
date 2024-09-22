@@ -1958,7 +1958,8 @@ func PutVendor(w http.ResponseWriter, r *http.Request) {
 func GetSuppliers(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "suppliers.html"
 	createSupplierForm := constants.CRM_TEMPLATES_DIR + "create_supplier_form.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createSupplierForm}
+	table := constants.PARTIAL_TEMPLATES_DIR + "suppliers_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table, createSupplierForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
