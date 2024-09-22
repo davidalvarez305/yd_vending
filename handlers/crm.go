@@ -1683,7 +1683,8 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 
 func GetVendors(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "vendors.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+	createVendorForm := constants.CRM_TEMPLATES_DIR + "create_vendor_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createVendorForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
@@ -1707,6 +1708,13 @@ func GetVendors(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		}
 	}
 
+	cities, err := database.GetCities()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities from DB.", http.StatusInternalServerError)
+		return
+	}
+
 	vendors, totalRows, err := database.GetVendorList(pageNum)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -1722,6 +1730,7 @@ func GetVendors(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["Vendors"] = vendors
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["CurrentPage"] = pageNum
+	data["Cities"] = cities
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
