@@ -57,12 +57,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Business resources
-		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/create-business-form") {
-			GetCreateBusinessForm(w, r, ctx)
-			return
-		}
-
 		/* if strings.HasPrefix(path, "/crm/business/") {
 			GetBusinessDetail(w, r, ctx)
 			return
@@ -79,20 +73,9 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		} */
 
-		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/create-machine-form") {
-			GetCreateMachineForm(w, r, ctx)
-			return
-		}
-
 		// Vendor resources
 		if strings.HasPrefix(path, "/crm/vendor/") && strings.Contains(path, "/create-vendor-form") {
 			GetCreateVendorForm(w, r, ctx)
-			return
-		}
-
-		// Supplier resources
-		if strings.HasPrefix(path, "/crm/supplier/") && strings.Contains(path, "/create-supplier-form") {
-			GetCreateSupplierForm(w, r, ctx)
 			return
 		}
 
@@ -104,7 +87,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		case "/crm/machine":
 			GetMachines(w, r, ctx)
 		case "/crm/business":
-			GetBusiness(w, r, ctx)
+			GetBusinesses(w, r, ctx)
 		case "/crm/vendor":
 			GetVendors(w, r, ctx)
 		case "/crm/supplier":
@@ -284,61 +267,29 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 	locations, err := database.GetLocations()
 	if err != nil {
-		fmt.Printf("Error getting locations: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting locations.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting locations from DB.", http.StatusInternalServerError)
 		return
 	}
 
 	vendingTypes, err := database.GetVendingTypes()
 	if err != nil {
-		fmt.Printf("Error getting vending types: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting vending types.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types from DB.", http.StatusInternalServerError)
 		return
 	}
 
 	machineStatuses, err := database.GetMachineStatuses()
 	if err != nil {
-		fmt.Printf("Error getting machine statuses: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting machine statuses.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machine statuses from DB.", http.StatusInternalServerError)
 		return
 	}
 
 	vendors, err := database.GetVendors()
 	if err != nil {
-		fmt.Printf("Error getting vendors: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting vendors.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vendors from DB.", http.StatusInternalServerError)
 		return
 	}
 
@@ -360,9 +311,10 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	helpers.ServeContent(w, files, data)
 }
 
-func GetBusiness(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetBusinesses(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "businesses.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+	createBusinessForm := constants.CRM_TEMPLATES_DIR + "create_business_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createBusinessForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
@@ -1729,120 +1681,6 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func GetCreateBusinessForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "create_business_form.html",
-		TemplatePath: constants.CRM_TEMPLATES_DIR + "create_business_form.html",
-		Data: map[string]any{
-			"CSRFToken": csrfToken,
-			"Nonce":     nonce,
-		},
-	}
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
-func GetCreateMachineForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	nonce := r.URL.Query().Get("nonce")
-	if len(nonce) == 0 {
-		http.Error(w, "Nonce not found in URL.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	locations, err := database.GetLocations()
-	if err != nil {
-		fmt.Printf("Error getting locations: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting locations.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	vendingTypes, err := database.GetVendingTypes()
-	if err != nil {
-		fmt.Printf("Error getting vending types: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting vending types.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	machineStatuses, err := database.GetMachineStatuses()
-	if err != nil {
-		fmt.Printf("Error getting machine statuses: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting machine statuses.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	vendors, err := database.GetVendors()
-	if err != nil {
-		fmt.Printf("Error getting vendors: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting vendors.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "create_machine_form.html",
-		TemplatePath: constants.CRM_TEMPLATES_DIR + "create_machine_form.html",
-		Data: map[string]any{
-			"CSRFToken":       csrfToken,
-			"Nonce":           nonce,
-			"Locations":       locations,
-			"VendingTypes":    vendingTypes,
-			"MachineStatuses": machineStatuses,
-			"Vendors":         vendors,
-		},
-	}
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
 func GetVendors(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "vendors.html"
 	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
@@ -2107,7 +1945,8 @@ func PutVendor(w http.ResponseWriter, r *http.Request) {
 
 func GetSuppliers(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "suppliers.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+	createSupplierForm := constants.CRM_TEMPLATES_DIR + "create_supplier_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createSupplierForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
@@ -2138,6 +1977,13 @@ func GetSuppliers(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	cities, err := database.GetCities()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities from DB.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Suppliers — " + constants.CompanyName
 
@@ -2146,51 +1992,11 @@ func GetSuppliers(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["Suppliers"] = suppliers
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["CurrentPage"] = pageNum
+	data["Cities"] = cities
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	helpers.ServeContent(w, files, data)
-}
-
-func GetCreateSupplierForm(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	cities, err := database.GetCities()
-	if err != nil {
-		fmt.Printf("Error getting locations: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting cities.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "create_supplier_form.html",
-		TemplatePath: constants.CRM_TEMPLATES_DIR + "create_supplier_form.html",
-		Data: map[string]any{
-			"CSRFToken": csrfToken,
-			"Nonce":     nonce,
-			"Cities":    cities,
-		},
-	}
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
 func PostSupplier(w http.ResponseWriter, r *http.Request) {

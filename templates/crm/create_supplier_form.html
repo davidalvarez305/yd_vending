@@ -1,6 +1,6 @@
 {{ define "create_supplier_form.html" }}
 <!-- Modal Container -->
-<div id="formModalContainer">
+<div id="formModalContainer" style="display: none;">
     <div>
         <div tabindex="-1" role="dialog"
             class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
@@ -126,7 +126,7 @@
 
         function handleCloseForm() {
             const modal = document.getElementById('formModalContainer');
-            modal.outerHTML = '<div id="formModalContainer"></div>';
+            modal.style.display = 'none';
         }
 
         submitForm.addEventListener('click', () => form.submit());
@@ -176,8 +176,8 @@
                     table.outerHTML = html;
                     handleBindPagination();
 
-                    const modal = document.getElementById('formModalContainer');
-                    modal.outerHTML = '<div id="formModalContainer"></div>';
+                    form.reset();
+                    handleCloseForm();
                 })
                 .catch(console.error);
         });
