@@ -2080,7 +2080,7 @@ func PostSupplier(w http.ResponseWriter, r *http.Request) {
 		TemplateName: "suppliers_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "suppliers_table.html",
 		Data: map[string]any{
-			"Supplier":    suppliers,
+			"Suppliers":   suppliers,
 			"CurrentPage": pageNum,
 			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
 		},
