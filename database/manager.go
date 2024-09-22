@@ -2082,7 +2082,7 @@ func GetSuppliers() ([]models.Supplier, error) {
 	var suppliers []models.Supplier
 
 	rows, err := DB.Query(`
-		SELECT supplier_id, name, membership_id, membership_cost, membership_renewal, street_address_line_one, street_address_line_two, city_id, zip_code, state, google_business_profile 
+		SELECT supplier_id, name, membership_id, membership_cost::NUMERIC, membership_renewal, street_address_line_one, street_address_line_two, city_id, zip_code, state, google_business_profile 
 		FROM "supplier"
 	`)
 	if err != nil {
@@ -2092,15 +2092,15 @@ func GetSuppliers() ([]models.Supplier, error) {
 
 	for rows.Next() {
 		var supplier models.Supplier
-		var dateCreated time.Time
-		var googleBusinessProfile sql.NullString
+		var googleBusinessProfile, membershipRenewal, membershipID sql.NullString
+		var membershipCost sql.NullFloat64
 
 		err := rows.Scan(
 			&supplier.SupplierID,
 			&supplier.Name,
-			&supplier.MembershipID,
-			&supplier.MembershipCost,
-			&dateCreated,
+			&membershipID,
+			&membershipCost,
+			&membershipRenewal,
 			&supplier.StreetAddressLineOne,
 			&supplier.StreetAddressLineTwo,
 			&supplier.CityID,
@@ -2112,12 +2112,19 @@ func GetSuppliers() ([]models.Supplier, error) {
 			return suppliers, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		// Only check googleBusinessProfile for nil
 		if googleBusinessProfile.Valid {
 			supplier.GoogleBusinessProfile = googleBusinessProfile.String
 		}
+		if membershipRenewal.Valid {
+			supplier.MembershipRenewal = membershipRenewal.String
+		}
+		if membershipID.Valid {
+			supplier.MembershipID = membershipID.String
+		}
+		if membershipCost.Valid {
+			supplier.MembershipCost = membershipCost.Float64
+		}
 
-		supplier.MembershipRenewal = dateCreated.Unix()
 		suppliers = append(suppliers, supplier)
 	}
 
@@ -2139,14 +2146,14 @@ func GetSupplierList(pageNum int) ([]types.SupplierList, int, error) {
 			s.supplier_id,
 			s.name,
 			s.membership_id,
-			s.membership_cost,
+			s.membership_cost::NUMERIC,
 			s.membership_renewal,
 			s.street_address_line_one,
 			s.street_address_line_two,
 			s.zip_code,
 			s.state,
 			s.google_business_profile,
-			c.name AS city_name,
+			c.name,
 			COUNT(*) OVER() AS total_rows
 		FROM "supplier" AS s
 		JOIN city AS c ON c.city_id = s.city_id
@@ -2162,15 +2169,15 @@ func GetSupplierList(pageNum int) ([]types.SupplierList, int, error) {
 	for rows.Next() {
 		var supplier types.SupplierList
 		var googleBusinessProfile sql.NullString
-		var streetAddressLineOne, streetAddressLineTwo sql.NullString
+		var streetAddressLineOne, streetAddressLineTwo, membershipRenewal, membershipID sql.NullString
 		var cityName sql.NullString
-		var membershipRenewal time.Time
+		var membershipCost sql.NullFloat64
 
 		err := rows.Scan(
 			&supplier.SupplierID,
 			&supplier.Name,
-			&supplier.MembershipID,
-			&supplier.MembershipCost,
+			&membershipID,
+			&membershipCost,
 			&membershipRenewal,
 			&streetAddressLineOne,
 			&streetAddressLineTwo,
@@ -2197,9 +2204,15 @@ func GetSupplierList(pageNum int) ([]types.SupplierList, int, error) {
 		if googleBusinessProfile.Valid {
 			supplier.GoogleBusinessProfile = googleBusinessProfile.String
 		}
-
-		// Set membership renewal as Unix timestamp
-		supplier.MembershipRenewal = membershipRenewal.Unix()
+		if membershipRenewal.Valid {
+			supplier.MembershipRenewal = membershipRenewal.String
+		}
+		if membershipID.Valid {
+			supplier.MembershipID = membershipID.String
+		}
+		if membershipCost.Valid {
+			supplier.MembershipCost = membershipCost.Float64
+		}
 
 		suppliers = append(suppliers, supplier)
 	}
@@ -2224,7 +2237,7 @@ func CreateSupplier(form types.SupplierForm) error {
 			zip_code,
 			state,
 			google_business_profile
-		) VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10)
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -2232,7 +2245,8 @@ func CreateSupplier(form types.SupplierForm) error {
 	defer stmt.Close()
 
 	// Handle NULL values for optional fields
-	var googleBusinessProfile sql.NullString
+	var googleBusinessProfile, membershipRenewal, membershipID sql.NullString
+	var membershipCost sql.NullFloat64
 
 	if form.GoogleBusinessProfile != nil {
 		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
@@ -2240,11 +2254,29 @@ func CreateSupplier(form types.SupplierForm) error {
 		googleBusinessProfile = sql.NullString{Valid: false}
 	}
 
+	if form.MembershipRenewal != nil {
+		membershipRenewal = sql.NullString{String: *form.MembershipRenewal, Valid: true}
+	} else {
+		membershipRenewal = sql.NullString{Valid: false}
+	}
+
+	if form.MembershipCost != nil {
+		membershipCost = sql.NullFloat64{Float64: *form.MembershipCost, Valid: true}
+	} else {
+		membershipCost = sql.NullFloat64{Valid: false}
+	}
+
+	if form.MembershipID != nil {
+		membershipID = sql.NullString{String: *form.MembershipID, Valid: true}
+	} else {
+		membershipID = sql.NullString{Valid: false}
+	}
+
 	_, err = stmt.Exec(
 		form.Name,
-		form.MembershipID,
-		form.MembershipCost,
-		form.MembershipRenewal,
+		membershipID,
+		membershipCost,
+		membershipRenewal,
 		form.StreetAddressLineOne,
 		form.StreetAddressLineTwo,
 		form.CityID,
@@ -2265,7 +2297,7 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 		SET name = COALESCE($2, name),
 		    membership_id = COALESCE($3, membership_id),
 		    membership_cost = COALESCE($4, membership_cost),
-		    membership_renewal = COALESCE(to_timestamp($5), membership_renewal),
+		    membership_renewal = COALESCE($5, membership_renewal),
 		    street_address_line_one = COALESCE($6, street_address_line_one),
 		    street_address_line_two = COALESCE($7, street_address_line_two),
 		    city_id = COALESCE($8, city_id),
@@ -2279,8 +2311,27 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 	}
 	defer stmt.Close()
 
-	// Define SQL nullable types for optional fields
-	var googleBusinessProfile sql.NullString
+	// Handle NULL values for optional fields
+	var googleBusinessProfile, membershipRenewal, membershipID sql.NullString
+	var membershipCost sql.NullFloat64
+
+	if form.MembershipRenewal != nil {
+		membershipRenewal = sql.NullString{String: *form.MembershipRenewal, Valid: true}
+	} else {
+		membershipRenewal = sql.NullString{Valid: false}
+	}
+
+	if form.MembershipCost != nil {
+		membershipCost = sql.NullFloat64{Float64: *form.MembershipCost, Valid: true}
+	} else {
+		membershipCost = sql.NullFloat64{Valid: false}
+	}
+
+	if form.MembershipID != nil {
+		membershipID = sql.NullString{String: *form.MembershipID, Valid: true}
+	} else {
+		membershipID = sql.NullString{Valid: false}
+	}
 
 	if form.GoogleBusinessProfile != nil {
 		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
@@ -2291,9 +2342,9 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 	_, err = stmt.Exec(
 		supplierId,
 		form.Name,
-		form.MembershipID,
-		form.MembershipCost,
-		form.MembershipRenewal,
+		membershipID,
+		membershipCost,
+		membershipRenewal,
 		form.StreetAddressLineOne,
 		form.StreetAddressLineTwo,
 		form.CityID,

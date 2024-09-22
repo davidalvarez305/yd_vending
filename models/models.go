@@ -216,8 +216,8 @@ type Supplier struct {
 	SupplierID            int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
 	Name                  string  `json:"name" form:"name" schema:"name"`
 	MembershipID          string  `json:"membership_id" form:"membership_id" schema:"membership_id"`
-	MembershipCost        float64 `json:"membership_cost" form:"membership_cost" schema:"membership_cost"`          // Use float64 for MONEY
-	MembershipRenewal     int64   `json:"membership_renewal" form:"membership_renewal" schema:"membership_renewal"` // Represented as Unix timestamp
+	MembershipCost        float64 `json:"membership_cost" form:"membership_cost" schema:"membership_cost"` // Use float64 for MONEY
+	MembershipRenewal     string  `json:"membership_renewal" form:"membership_renewal" schema:"membership_renewal"`
 	StreetAddressLineOne  string  `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
 	StreetAddressLineTwo  string  `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
 	CityID                int     `json:"city_id" form:"city_id" schema:"city_id"`

@@ -84,62 +84,59 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-	document.addEventListener("DOMContentLoaded", () => {
-		const form = document.getElementById("createBusinessForm");
-		const submitForm = document.getElementById("submitForm");
-		const cancelForm = document.getElementById("cancelForm");
-		const closeForm = document.getElementById("closeForm");
-		const alertModal = document.getElementById("alertModal");
+	const form = document.getElementById("createBusinessForm");
+	const submitForm = document.getElementById("submitForm");
+	const cancelForm = document.getElementById("cancelForm");
+	const closeForm = document.getElementById("closeForm");
+	const alertModal = document.getElementById("alertModal");
 
-		function handleCloseForm() {
-			const modal = document.getElementById('formModalContainer');
-			modal.style.display = 'none';
-		}
+	function handleCloseForm() {
+		const modal = document.getElementById('formModalContainer');
+		modal.style.display = 'none';
+	}
 
-		submitForm.addEventListener('click', () => handleSubmitForm());
-		cancelForm.addEventListener('click', () => handleCloseForm());
-		closeForm.addEventListener("click", () => handleCloseForm());
+	submitForm.addEventListener('click', () => handleSubmitForm());
+	cancelForm.addEventListener('click', () => handleCloseForm());
+	closeForm.addEventListener("click", () => handleCloseForm());
 
-		function handleSubmitForm() {
-			const data = new FormData(form);
-			fetch("/crm/business", {
-				method: "POST",
-				credentials: "include",
-				body: data,
-			})
-				.then((response) => {
-					if (response.ok) {
-						const token = response.headers.get("X-Csrf-Token");
+	function handleSubmitForm() {
+		const data = new FormData(form);
+		fetch("/crm/business", {
+			method: "POST",
+			credentials: "include",
+			body: data,
+		})
+			.then((response) => {
+				if (response.ok) {
+					const token = response.headers.get("X-Csrf-Token");
 
-						if (token) {
-							const csrf_token = document.getElementById("csrf_token");
+					if (token) {
+						const csrf_token = document.getElementById("csrf_token");
 
-							if (!csrf_token) return;
+						if (!csrf_token) return;
 
-							csrf_token.value = token;
-						}
-
-						return response.text();
-					} else {
-						return response.text().then((err) => {
-							throw new Error(err);
-						});
+						csrf_token.value = token;
 					}
-				})
-				.then(html => {
-					const table = document.getElementById('businessesTable');
-					table.outerHTML = html;
-					handleBindPagination();
 
-					const modal = document.getElementById('formModalContainer');
+					return response.text();
+				} else {
+					return response.text().then((err) => {
+						throw new Error(err);
+					});
+				}
+			})
+			.then(html => {
+				const table = document.getElementById('businessesTable');
+				table.outerHTML = html;
+				handleBindPagination();
 
-					form.reset();
-					handleCloseForm();
-				})
-                .catch(err => {
-                    alertModal.outerHTML = err;
-                });
-		}
-	});
+                form.reset();
+            })
+            .catch(err => {
+                alertModal.outerHTML = err;
+                handleCloseAlertModal();
+            })
+            .finally(() => handleCloseForm());
+	}
 </script>
 {{ end }}

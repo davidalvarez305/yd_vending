@@ -183,12 +183,13 @@
 				table.outerHTML = html;
 				handleBindPagination();
 
-				form.reset();
-				handleCloseForm();
-			})
-			.catch(err => {
-				alertModal.outerHTML = err;
-			});
+                form.reset();
+            })
+            .catch(err => {
+                alertModal.outerHTML = err;
+                handleCloseAlertModal();
+            })
+            .finally(() => handleCloseForm());
 	}
 </script>
 {{ end }}
