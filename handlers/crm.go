@@ -314,7 +314,8 @@ func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 func GetBusinesses(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "businesses.html"
 	createBusinessForm := constants.CRM_TEMPLATES_DIR + "create_business_form.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createBusinessForm}
+	table := constants.PARTIAL_TEMPLATES_DIR + "businesses_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table, createBusinessForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {

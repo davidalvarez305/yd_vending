@@ -95,14 +95,12 @@
 			modal.style.display = 'none';
 		}
 
-		submitForm.addEventListener('click', () => form.submit());
+		submitForm.addEventListener('click', () => handleSubmitForm());
 		cancelForm.addEventListener('click', () => handleCloseForm());
 		closeForm.addEventListener("click", () => handleCloseForm());
 
-		form.addEventListener("submit", (e) => {
-			e.preventDefault();
-			const data = new FormData(e.target);
-
+		function handleSubmitForm() {
+			const data = new FormData(form);
 			fetch("/crm/business", {
 				method: "POST",
 				credentials: "include",
@@ -138,7 +136,7 @@
 					handleCloseForm();
 				})
 				.catch(console.error);
-		});
+		}
 	});
 </script>
 {{ end }}

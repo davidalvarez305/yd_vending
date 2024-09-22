@@ -1058,25 +1058,26 @@ func GetLeadImagesByLeadID(leadId int) ([]models.LeadImage, error) {
 
 func CreateBusiness(form types.BusinessForm) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO business (name, is_active, date_created, website, industry, google_business_profile)
-		VALUES ($1, $2, to_timestamp($3), $4, $5, $6, $7)
+		INSERT INTO business (name, is_active, website, industry, google_business_profile)
+		VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
-	var dateCreated = time.Now().Unix()
-
 	// Handle NULL values for optional fields
 	var name sql.NullString
+	var isActive sql.NullBool
 	var website sql.NullString
 	var industry sql.NullString
 	var googleBusinessProfile sql.NullString
-	var isActive sql.NullBool
 
 	if form.Name != nil {
 		name = sql.NullString{String: *form.Name, Valid: true}
+	}
+	if form.IsActive != nil {
+		isActive = sql.NullBool{Bool: *form.IsActive, Valid: true}
 	}
 	if form.Website != nil {
 		website = sql.NullString{String: *form.Website, Valid: true}
@@ -1087,14 +1088,10 @@ func CreateBusiness(form types.BusinessForm) error {
 	if form.GoogleBusinessProfile != nil {
 		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
 	}
-	if form.IsActive != nil {
-		isActive = sql.NullBool{Bool: *form.IsActive, Valid: true}
-	}
 
 	_, err = stmt.Exec(
 		name,
 		isActive,
-		dateCreated,
 		website,
 		industry,
 		googleBusinessProfile,
@@ -1502,9 +1499,8 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 func GetBusinessList(pageNum int) ([]models.Business, int, error) {
 	var businesses []models.Business
 
-	rows, err := DB.Query(`SELECT business_id, name, is_active, date_created, website, industry, google_business_profile
+	rows, err := DB.Query(`SELECT business_id, name, is_active, website, industry, google_business_profile
 	FROM "business"
-	ORDER BY date_created DESC
 	LIMIT $1
 	OFFSET $2;`, constants.LeadsPerPage, pageNum)
 	if err != nil {
@@ -1514,14 +1510,12 @@ func GetBusinessList(pageNum int) ([]models.Business, int, error) {
 
 	for rows.Next() {
 		var business models.Business
-		var dateCreated time.Time
 		var website, industry, googleBusinessProfile sql.NullString
 
 		err := rows.Scan(
 			&business.BusinessID,
 			&business.Name,
 			&business.IsActive,
-			&dateCreated,
 			&website,
 			&industry,
 			&googleBusinessProfile,
@@ -1541,7 +1535,6 @@ func GetBusinessList(pageNum int) ([]models.Business, int, error) {
 			business.GoogleBusinessProfile = googleBusinessProfile.String
 		}
 
-		business.DateCreated = dateCreated.Unix()
 		businesses = append(businesses, business)
 	}
 

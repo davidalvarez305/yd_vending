@@ -1,15 +1,16 @@
 {{ define "businesses_table.html" }}
-<div id="businessesTable" class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+<div id="businessesTable"
+    class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
     <table class="min-w-full whitespace-nowrap align-middle text-sm">
         <thead>
             <tr>
                 <th
                     class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Business Name
+                    View
                 </th>
                 <th
                     class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Phone Number
+                    Business Name
                 </th>
                 <th
                     class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
@@ -38,12 +39,6 @@
                 <td class="p-3">
                     <p class="font-medium">{{ .Name }}</p>
                 </td>
-                <td class="p-3 text-gray-500 dark:text-gray-400">
-                    <a href="tel:{{ .PhoneNumber }}"
-                        class="inline-flex items-center justify-center space-x-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300 focus:ring-opacity-25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600 dark:focus:ring-opacity-40 dark:active:border-gray-700">
-                        <span class="phoneNumber">{{ .PhoneNumber }}</span>
-                    </a>
-                </td>
                 <td class="p-3">
                     <a href="{{ .Website }}" target="_blank"
                         class="inline-flex rounded-full border border-transparent bg-emerald-100 px-2 py-1 text-xs font-semibold leading-4 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-700/10 dark:font-medium dark:text-emerald-200">
@@ -57,10 +52,10 @@
                     </div>
                 </td>
                 <td class="p-3 text-center">
-                    <div
+                    <a href="{{ .GoogleBusinessProfile }}" target="_blank"
                         class="inline-flex rounded-full border border-transparent bg-emerald-100 px-2 py-1 text-xs font-semibold leading-4 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-700/10 dark:font-medium dark:text-emerald-200">
-                        {{ .GoogleWebsiteProfile }}
-                    </div>
+                        Link
+                    </a>
                 </td>
             </tr>
             {{ end }}
@@ -80,7 +75,8 @@
                 </svg>
             </button>
             <div class="flex grow items-center justify-center px-2 sm:px-4">
-                <span>Page <span class="font-semibold">{{ .CurrentPage }}</span> of <span id="maxPages" class="font-semibold">{{ .MaxPages }}</span></span>
+                <span>Page <span class="font-semibold">{{ .CurrentPage }}</span> of <span id="maxPages"
+                        class="font-semibold">{{ .MaxPages }}</span></span>
             </div>
             <button name="right"
                 class="pagination-link inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
