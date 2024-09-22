@@ -200,7 +200,7 @@ type Vendor struct {
 	Name                   string `json:"name" form:"name" schema:"name"`
 	FirstName              string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName               string `json:"last_name" form:"last_name" schema:"last_name"`
-	Phone                  string `json:"phone" form:"phone" schema:"phone"`
+	PhoneNumber            string `json:"phone_number" form:"phone_number" schema:"phone_number"`
 	Email                  string `json:"email" form:"email" schema:"email"`
 	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
 	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`

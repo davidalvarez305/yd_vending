@@ -1499,10 +1499,12 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 func GetBusinessList(pageNum int) ([]models.Business, int, error) {
 	var businesses []models.Business
 
+	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
+
 	rows, err := DB.Query(`SELECT business_id, name, is_active, website, industry, google_business_profile
 	FROM "business"
 	LIMIT $1
-	OFFSET $2;`, constants.LeadsPerPage, pageNum)
+	OFFSET $2;`, constants.LeadsPerPage, offset)
 	if err != nil {
 		return businesses, 0, fmt.Errorf("error executing query: %w", err)
 	}
@@ -1549,6 +1551,8 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 	var machines []types.MachineList
 	var totalRows int
 
+	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
+
 	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.year, ' ', m.model) AS machine_name,
 	m.card_reader_serial_number, s.status, l.name, m.purchase_date, COUNT(*) OVER() AS total_rows
 	FROM "machine" AS m
@@ -1556,7 +1560,7 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 	JOIN location AS l ON l.location_id = m.location_id
 	ORDER BY m.purchase_date DESC
 	LIMIT $1
-	OFFSET $2;`, constants.LeadsPerPage, pageNum)
+	OFFSET $2;`, constants.LeadsPerPage, offset)
 	if err != nil {
 		return machines, totalRows, fmt.Errorf("error executing query: %w", err)
 	}
@@ -1743,7 +1747,7 @@ func GetVendors() ([]models.Vendor, error) {
 	var vendors []models.Vendor
 
 	rows, err := DB.Query(`
-		SELECT vendor_id, name, first_name, last_name, phone, email, preferred_contact_method, preferred_contact_time, street_address_line_one, street_address_line_two, city_id, zip_code, state, google_business_profile 
+		SELECT vendor_id, name, first_name, last_name, phone_number, email, preferred_contact_method, preferred_contact_time, street_address_line_one, street_address_line_two, city_id, zip_code, state, google_business_profile 
 		FROM "vendor"
 	`)
 	if err != nil {
@@ -1785,7 +1789,7 @@ func GetVendors() ([]models.Vendor, error) {
 			vendor.LastName = lastName.String
 		}
 		if phone.Valid {
-			vendor.Phone = phone.String
+			vendor.PhoneNumber = phone.String
 		}
 		if email.Valid {
 			vendor.Email = email.String
@@ -1826,13 +1830,15 @@ func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
 	var vendors []types.VendorList
 	var totalRows int
 
+	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
+
 	rows, err := DB.Query(`
 		SELECT 
 			v.vendor_id,
 			v.name,
 			v.first_name,
 			v.last_name,
-			v.phone,
+			v.phone_number,
 			v.email,
 			v.preferred_contact_method,
 			v.preferred_contact_time,
@@ -1849,7 +1855,7 @@ func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
 		ORDER BY v.vendor_id DESC
 		LIMIT $1
 		OFFSET $2;
-	`, constants.LeadsPerPage, pageNum)
+	`, constants.LeadsPerPage, offset)
 	if err != nil {
 		return vendors, totalRows, fmt.Errorf("error executing query: %w", err)
 	}
@@ -1866,7 +1872,7 @@ func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
 			&vendor.Name,
 			&vendor.FirstName,
 			&vendor.LastName,
-			&vendor.Phone,
+			&vendor.PhoneNumber,
 			&vendor.Email,
 			&vendor.PreferredContactMethod,
 			&vendor.PreferredContactTime,
@@ -1913,7 +1919,7 @@ func CreateVendor(form types.VendorForm) error {
 			name,
 			first_name,
 			last_name,
-			phone,
+			phone_number,
 			email,
 			preferred_contact_method,
 			preferred_contact_time,
@@ -1943,8 +1949,8 @@ func CreateVendor(form types.VendorForm) error {
 	if form.LastName != nil {
 		lastName = sql.NullString{String: *form.LastName, Valid: true}
 	}
-	if form.Phone != nil {
-		phone = sql.NullString{String: *form.Phone, Valid: true}
+	if form.PhoneNumber != nil {
+		phone = sql.NullString{String: *form.PhoneNumber, Valid: true}
 	}
 	if form.Email != nil {
 		email = sql.NullString{String: *form.Email, Valid: true}
@@ -2002,7 +2008,7 @@ func UpdateVendor(vendorId int, form types.VendorForm) error {
 		SET name = COALESCE($2, name),
 		    first_name = COALESCE($3, first_name),
 		    last_name = COALESCE($4, last_name),
-		    phone = COALESCE($5, phone),
+		    phone_number = COALESCE($5, phone_number),
 		    email = COALESCE($6, email),
 		    preferred_contact_method = COALESCE($7, preferred_contact_method),
 		    preferred_contact_time = COALESCE($8, preferred_contact_time),
@@ -2054,7 +2060,7 @@ func UpdateVendor(vendorId int, form types.VendorForm) error {
 		form.Name,
 		form.FirstName,
 		form.LastName,
-		form.Phone,
+		form.PhoneNumber,
 		form.Email,
 		preferredContactMethod,
 		preferredContactTime,
@@ -2126,6 +2132,8 @@ func GetSupplierList(pageNum int) ([]types.SupplierList, int, error) {
 	var suppliers []types.SupplierList
 	var totalRows int
 
+	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
+
 	rows, err := DB.Query(`
 		SELECT 
 			s.supplier_id,
@@ -2145,7 +2153,7 @@ func GetSupplierList(pageNum int) ([]types.SupplierList, int, error) {
 		ORDER BY s.supplier_id DESC
 		LIMIT $1
 		OFFSET $2;
-	`, constants.LeadsPerPage, pageNum)
+	`, constants.LeadsPerPage, offset)
 	if err != nil {
 		return suppliers, totalRows, fmt.Errorf("error executing query: %w", err)
 	}

@@ -116,6 +116,8 @@
 </div>
 <!-- END Modal Container -->
 
+<div id="alertModal"></div>
+
 <script nonce="{{ .Nonce }}">
     document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("createSupplierForm");
@@ -179,7 +181,9 @@
                     form.reset();
                     handleCloseForm();
                 })
-                .catch(console.error);
+                .catch(err => {
+                    alertModal.outerHTML = err;
+                });
         });
     });
 </script>

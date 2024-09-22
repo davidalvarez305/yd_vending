@@ -234,7 +234,8 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 func GetMachines(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "machines.html"
 	createMachineForm := constants.CRM_TEMPLATES_DIR + "create_machine_form.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createMachineForm}
+	table := constants.PARTIAL_TEMPLATES_DIR + "machines_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table, createMachineForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
@@ -1685,7 +1686,8 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 func GetVendors(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "vendors.html"
 	createVendorForm := constants.CRM_TEMPLATES_DIR + "create_vendor_form.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, createVendorForm}
+	table := constants.PARTIAL_TEMPLATES_DIR + "vendors_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table, createVendorForm}
 
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {

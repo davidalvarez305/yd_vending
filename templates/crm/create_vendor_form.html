@@ -47,8 +47,8 @@
 								</div>
 								<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 									<div class="space-y-1">
-										<label for="phone" class="font-medium">Phone*</label>
-										<input type="tel" id="phone" name="phone" required
+										<label for="phone_number" class="font-medium">Phone Number*</label>
+										<input type="tel" id="phone_number" name="phone_number" required
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 									</div>
 									<div class="space-y-1">
@@ -59,24 +59,30 @@
 								</div>
 								<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 									<div class="space-y-1">
-										<label for="preferred_contact_method" class="font-medium">Preferred Contact Method*</label>
-										<input type="text" id="preferred_contact_method" name="preferred_contact_method" required
+										<label for="preferred_contact_method" class="font-medium">Preferred Contact
+											Method*</label>
+										<input type="text" id="preferred_contact_method" name="preferred_contact_method"
+											required
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 									</div>
 									<div class="space-y-1">
-										<label for="preferred_contact_time" class="font-medium">Preferred Contact Time*</label>
-										<input type="text" id="preferred_contact_time" name="preferred_contact_time" required
+										<label for="preferred_contact_time" class="font-medium">Preferred Contact
+											Time*</label>
+										<input type="text" id="preferred_contact_time" name="preferred_contact_time"
+											required
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 									</div>
 								</div>
 								<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 									<div class="space-y-1">
-										<label for="street_address_line_one" class="font-medium">Street Address Line 1</label>
+										<label for="street_address_line_one" class="font-medium">Street Address Line
+											1</label>
 										<input type="text" id="street_address_line_one" name="street_address_line_one"
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 									</div>
 									<div class="space-y-1">
-										<label for="street_address_line_two" class="font-medium">Street Address Line 2</label>
+										<label for="street_address_line_two" class="font-medium">Street Address Line
+											2</label>
 										<input type="text" id="street_address_line_two" name="street_address_line_two"
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 									</div>
@@ -103,7 +109,8 @@
 										class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 								</div>
 								<div class="space-y-1">
-									<label for="google_business_profile" class="font-medium">Google Business Profile</label>
+									<label for="google_business_profile" class="font-medium">Google Business
+										Profile</label>
 									<input type="text" id="google_business_profile" name="google_business_profile"
 										class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 								</div>
@@ -128,6 +135,8 @@
 </div>
 <!-- END Modal Container -->
 
+<div id="alertModal"></div>
+
 <script nonce="{{ .Nonce }}">
 	document.addEventListener("DOMContentLoaded", () => {
 		const form = document.getElementById("createVendorForm");
@@ -141,13 +150,12 @@
 			modal.style.display = 'none';
 		}
 
-		submitForm.addEventListener('click', () => form.submit());
+		submitForm.addEventListener('click', () => handleSubmitForm());
 		cancelForm.addEventListener('click', () => handleCloseForm());
 		closeForm.addEventListener("click", () => handleCloseForm());
 
-		form.addEventListener("submit", (e) => {
-			e.preventDefault();
-			const data = new FormData(e.target);
+		function handleSubmitForm() {
+			const data = new FormData(form);
 
 			fetch("/crm/vendor", {
 				method: "POST",
@@ -181,8 +189,10 @@
 					form.reset();
 					handleCloseForm();
 				})
-				.catch(console.error);
-		});
+				.catch(err => {
+					alertModal.outerHTML = err;
+				});
+		}
 	});
 </script>
 {{ end }}
