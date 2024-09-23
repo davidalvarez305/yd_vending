@@ -2245,13 +2245,19 @@ func CreateSupplier(form types.SupplierForm) error {
 	defer stmt.Close()
 
 	// Handle NULL values for optional fields
-	var googleBusinessProfile, membershipRenewal, membershipID sql.NullString
+	var googleBusinessProfile, membershipRenewal, membershipID, streetAddressLineTwo sql.NullString
 	var membershipCost sql.NullFloat64
 
 	if form.GoogleBusinessProfile != nil {
 		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
 	} else {
 		googleBusinessProfile = sql.NullString{Valid: false}
+	}
+
+	if form.StreetAddressLineTwo != nil {
+		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
+	} else {
+		streetAddressLineTwo = sql.NullString{Valid: false}
 	}
 
 	if form.MembershipRenewal != nil {
@@ -2278,7 +2284,7 @@ func CreateSupplier(form types.SupplierForm) error {
 		membershipCost,
 		membershipRenewal,
 		form.StreetAddressLineOne,
-		form.StreetAddressLineTwo,
+		streetAddressLineTwo,
 		form.CityID,
 		form.ZipCode,
 		form.State,
@@ -2312,7 +2318,7 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 	defer stmt.Close()
 
 	// Handle NULL values for optional fields
-	var googleBusinessProfile, membershipRenewal, membershipID sql.NullString
+	var googleBusinessProfile, membershipRenewal, membershipID, streetAddressLineTwo sql.NullString
 	var membershipCost sql.NullFloat64
 
 	if form.MembershipRenewal != nil {
@@ -2339,6 +2345,12 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 		googleBusinessProfile = sql.NullString{Valid: false}
 	}
 
+	if form.StreetAddressLineTwo != nil {
+		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
+	} else {
+		streetAddressLineTwo = sql.NullString{Valid: false}
+	}
+
 	_, err = stmt.Exec(
 		supplierId,
 		form.Name,
@@ -2346,7 +2358,7 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 		membershipCost,
 		membershipRenewal,
 		form.StreetAddressLineOne,
-		form.StreetAddressLineTwo,
+		streetAddressLineTwo,
 		form.CityID,
 		form.ZipCode,
 		form.State,
