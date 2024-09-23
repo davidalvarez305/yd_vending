@@ -41,7 +41,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		// Lead resources
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
 			GetLeadMessagesPartial(w, r)
 			return
@@ -53,25 +52,37 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if strings.HasPrefix(path, "/crm/lead/") {
-			GetLeadDetail(w, r, ctx)
+			if len(path) > len("/crm/lead/") && helpers.IsNumeric(path[len("/crm/lead/"):]) {
+				GetLeadDetail(w, r, ctx)
+				return
+			}
 			return
 		}
 
-		/* if strings.HasPrefix(path, "/crm/business/") {
-			GetBusinessDetail(w, r, ctx)
-			return
+		if strings.HasPrefix(path, "/crm/business/") {
+			if len(path) > len("/crm/business/") && helpers.IsNumeric(path[len("/crm/business/"):]) {
+				GetBusinessDetail(w, r, ctx)
+				return
+			}
 		}
-
-		if strings.HasPrefix(path, "/crm/location/") {
-			GetLocationDetail(w, r, ctx)
-			return
-		}
-
-		// Machine resources
 		if strings.HasPrefix(path, "/crm/machine/") {
-			GetMachineDetail(w, r, ctx)
-			return
-		} */
+			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
+				GetMachineDetail(w, r, ctx)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/supplier/") {
+			if len(path) > len("/crm/supplier/") && helpers.IsNumeric(path[len("/crm/supplier/"):]) {
+				GetSupplierDetail(w, r, ctx)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/vendor/") {
+			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
+				GetVendorDetail(w, r, ctx)
+				return
+			}
+		}
 
 		switch path {
 		case "/crm/dashboard":
@@ -94,13 +105,16 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPut:
-		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/marketing") {
-			PutLeadMarketing(w, r)
-			return
-		}
-
 		if strings.HasPrefix(path, "/crm/lead/") {
-			PutLead(w, r)
+			parts := strings.Split(path, "/")
+			if len(parts) >= 5 && parts[3] == "marketing" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+				PutLeadMarketing(w, r)
+				return
+			}
+			if len(path) > len("/crm/lead/") && helpers.IsNumeric(path[len("/crm/lead/"):]) {
+				PutLead(w, r)
+				return
+			}
 			return
 		}
 
@@ -113,15 +127,32 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if strings.HasPrefix(path, "/crm/business/") {
+			if len(path) > len("/crm/business/") && helpers.IsNumeric(path[len("/crm/business/"):]) {
+				PutBusiness(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/machine/") {
+			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
+				PutMachine(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/supplier/") {
+			if len(path) > len("/crm/supplier/") && helpers.IsNumeric(path[len("/crm/supplier/"):]) {
+				PutSupplier(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/vendor/") {
+			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
+				PutVendor(w, r)
+				return
+			}
+		}
+
 		switch path {
-		case "/crm/business":
-			PutBusiness(w, r)
-		case "/crm/machine":
-			PutMachine(w, r)
-		case "/crm/vendor":
-			PutVendor(w, r)
-		case "/crm/supplier":
-			PutSupplier(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -155,6 +186,31 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostSupplier(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
+		}
+	case http.MethodDelete:
+		if strings.HasPrefix(path, "/crm/business/") {
+			if len(path) > len("/crm/business/") && helpers.IsNumeric(path[len("/crm/business/"):]) {
+				DeleteBusiness(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/machine/") {
+			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
+				DeleteMachine(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/supplier/") {
+			if len(path) > len("/crm/supplier/") && helpers.IsNumeric(path[len("/crm/supplier/"):]) {
+				DeleteSupplier(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/vendor/") {
+			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
+				DeleteVendor(w, r)
+				return
+			}
 		}
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)

@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/davidalvarez305/yd_vending/types"
 )
@@ -228,4 +229,13 @@ func GetSecondIDFromPath(r *http.Request, prefix string) (int, error) {
 	}
 
 	return id, nil
+}
+
+func IsNumeric(s string) bool {
+	for _, ch := range s {
+		if !unicode.IsDigit(ch) {
+			return false
+		}
+	}
+	return true
 }
