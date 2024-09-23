@@ -281,7 +281,7 @@ type WebsiteContext struct {
 	VendingLocations             []models.VendingLocation `json:"vending_locations" form:"vending_location"`
 	ExternalID                   string                   `json:"external_id" form:"external_id"`
 	GoogleAdsID                  string                   `json:"google_ads_id"`
-	GoogleAdsCallConversionLabel string                   `json:"google_ads_call_conversion_label`
+	GoogleAdsCallConversionLabel string                   `json:"google_ads_call_conversion_label"`
 }
 
 type FacebookUserData struct {
