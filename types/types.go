@@ -474,3 +474,17 @@ type VendorDetails struct {
 	State                  string `json:"state" form:"state" schema:"state"`
 	GoogleBusinessProfile  string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
+
+type SupplierDetails struct {
+	VendorID              int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
+	Name                  string  `json:"name" form:"name" schema:"name"`
+	MembershipID          string  `json:"membership_id" form:"membership_id" schema:"membership_id"`
+	MembershipCost        float64 `json:"membership_cost" form:"membership_cost" schema:"membership_cost"`
+	MembershipRenewal     string  `json:"membership_renewal" form:"membership_renewal" schema:"membership_renewal"`
+	StreetAddressLineOne  string  `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAddressLineTwo  string  `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	CityID                int     `json:"city_id" form:"city_id" schema:"city_id"`
+	ZipCode               string  `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                 string  `json:"state" form:"state" schema:"state"`
+	GoogleBusinessProfile string  `json:"google_business_profile,omitempty" form:"google_business_profile" schema:"google_business_profile"`
+}

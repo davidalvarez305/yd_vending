@@ -1,0 +1,141 @@
+{{ define "content.html" }}
+<div class="space-y-4 dark:text-gray-100 lg:space-y-8">
+    <!-- Supplier Details -->
+    <div class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+        <div class="grow p-5 md:flex lg:p-8">
+            <div class="mb-5 border-b border-gray-200 dark:border-gray-700 md:mb-0 md:w-1/3 md:flex-none md:border-0">
+                <h3 class="mb-1 flex items-center justify-start gap-2 font-semibold">
+                    <svg class="hi-mini hi-user-circle inline-block size-5 text-primary-500"
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.99 5.99 0 00-4.793 2.39A6.483 6.483 0 0010 16.5a6.483 6.483 0 004.793-2.11A5.99 5.99 0 0010 12z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span>Supplier Details</span>
+                </h3>
+                <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
+                    Information about this supplier.
+                </p>
+            </div>
+            <div class="md:w-2/3 md:pl-24">
+                <form id="supplierForm" class="space-y-6 xl:w-2/3" action="/crm/supplier/{{ .Supplier.SupplierID }}">
+                    <input type="hidden" name="_method" value="PUT" />
+                    <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
+                    <input type="hidden" id="supplier_id" name="supplier_id" value="{{ .Supplier.SupplierID }}" />
+                    <div class="space-y-1">
+                        <label for="name" class="font-medium">Supplier Name</label>
+                        <input type="tel" id="name" name="name" value="{{ .Supplier.Name }}"
+                            class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                    </div>
+                    <div class="grow space-y-1">
+                        <label for="membership_id" class="font-medium">Membership ID</label>
+                        <input type="text" id="membership_id" name="membership_id" value="{{ .Supplier.MembershipID }}"
+                            class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                    </div>
+                    <div class="space-y-6 sm:flex sm:gap-3 sm:space-y-0">
+                        <div class="grow space-y-1">
+                            <label for="membership_cost" class="font-medium">Membership Cost</label>
+                            <input type="number" id="membership_cost" name="membership_cost" value="{{ .Supplier.MembershipCost }}"
+                                class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                        </div>
+                        <div class="grow space-y-1">
+                            <label for="membership_renewal" class="font-medium">Membership Renewal</label>
+                            <input type="date" id="membership_renewal" name="membership_renewal" value="{{ .Supplier.MembershipRenewal }}"
+                                class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                        </div>
+                    </div>
+                    <div class="space-y-6 sm:flex sm:gap-3 sm:space-y-0">
+                        <div class="space-y-1">
+                            <label for="street_address_line_one" class="font-medium">Street Address Line One</label>
+                            <input type="text" id="street_address_line_one" name="street_address_line_one" value="{{ .Supplier.StreetAddressLineOne }}"
+                                class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                        </div>
+                        <div class="space-y-1">
+                            <label for="street_address_line_two" class="font-medium">Street Address Line Two</label>
+                            <input type="text" id="street_address_line_two" name="street_address_line_two" value="{{ .Supplier.StreetAddressLineTwo }}"
+                                class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                        </div>
+                    </div>
+                    <div class="space-y-6 sm:flex sm:gap-3 sm:space-y-0">
+                        <div class="space-y-1">
+                            <label for="city_id" class="font-medium">City</label>
+                            <select id="city_id" name="city_id" required
+                                class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                                {{ range .Cities }}
+                                <option value="{{ .CityID }}" {{ if eq .CityID $.Supplier.CityID }}selected{{ end }}>
+                                    {{ .Name }}
+                                </option>
+                                {{ end }}
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label for="zip_code" class="font-medium">Zip Code</label>
+                            <input type="text" id="zip_code" name="zip_code" value="{{ .Supplier.ZipCode }}"
+                                class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="state" class="font-medium">State</label>
+                        <input type="text" id="state" name="state" value="{{ .Supplier.State }}"
+                            class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                    </div>
+                    <div class="space-y-1">
+                        <label for="google_business_profile" class="font-medium">GoogleBusinessProfile</label>
+                        <input type="text" id="google_business_profile" name="google_business_profile" value="{{ .Supplier.GoogleBusinessProfile }}"
+                            class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-6 placeholder-gray-500 focus:border-primary-500 focus:ring focus:ring-primary-500/50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary-500" />
+                    </div>
+                    <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
+                        Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- END Supplier Details -->
+</div>
+
+<div id="alertModal"></div>
+
+<script nonce="{{ .Nonce }}">
+    function handleLeadSaveChanges(e) {
+        e.preventDefault();
+
+        var body = new FormData(e.target);
+        const endpoint = e.target.action;
+        const method = e.target.method === "get" ? body.get('_method') : e.target.method;
+
+        fetch(endpoint, {
+            method: method,
+            credentials: "include",
+            body: body,
+        })
+            .then((response) => {
+                if (response.ok) {
+                    const token = response.headers.get('X-Csrf-Token');
+
+                    if (token) {
+                        const tokens = document.querySelectorAll('[name="csrf_token"]');
+
+                        tokens.forEach(csrf_token => csrf_token.value = token);
+                    }
+
+                    return response.text();
+                } else {
+                    return response.text().then((err) => {
+                        throw new Error(err);
+                    });
+                }
+            })
+            .then(html => {
+                const el = document.getElementById("alertModal");
+                el.outerHTML = html;
+                handleCloseAlertModal();
+            })
+            .catch(console.error);
+    }
+
+    const supplierForm = document.getElementById("supplierForm");
+    supplierForm.onsubmit = handleLeadSaveChanges;
+</script>
+{{ end }}

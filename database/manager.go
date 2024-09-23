@@ -2558,3 +2558,75 @@ func GetVendorDetails(vendorID string) (types.VendorDetails, error) {
 
 	return vendorDetails, nil
 }
+
+func GetSupplierDetails(vendorID string) (types.SupplierDetails, error) {
+	query := `SELECT 
+		s.vendor_id,
+		s.name,
+		s.membership_id,
+		s.membership_cost::NUMERIC,
+		s.membership_renewal,
+		s.street_address_line_one,
+		s.street_address_line_two,
+		s.city_id,
+		s.zip_code,
+		s.state,
+		s.google_business_profile
+	FROM supplier AS s
+	WHERE s.vendor_id = $1`
+
+	var supplierDetails types.SupplierDetails
+
+	row := DB.QueryRow(query, vendorID)
+
+	var (
+		membershipID          sql.NullString
+		membershipCost        sql.NullFloat64
+		membershipRenewal     sql.NullString
+		streetAddressLineOne  sql.NullString
+		streetAddressLineTwo  sql.NullString
+		googleBusinessProfile sql.NullString
+	)
+
+	err := row.Scan(
+		&supplierDetails.VendorID,
+		&supplierDetails.Name,
+		&membershipID,
+		&membershipCost,
+		&membershipRenewal,
+		&streetAddressLineOne,
+		&streetAddressLineTwo,
+		&supplierDetails.CityID,
+		&supplierDetails.ZipCode,
+		&supplierDetails.State,
+		&googleBusinessProfile,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return supplierDetails, fmt.Errorf("no supplier found with ID %s", vendorID)
+		}
+		return supplierDetails, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	// Handle nullable fields
+	if membershipID.Valid {
+		supplierDetails.MembershipID = membershipID.String
+	}
+	if membershipCost.Valid {
+		supplierDetails.MembershipCost = membershipCost.Float64
+	}
+	if membershipRenewal.Valid {
+		supplierDetails.MembershipRenewal = membershipRenewal.String
+	}
+	if streetAddressLineOne.Valid {
+		supplierDetails.StreetAddressLineOne = streetAddressLineOne.String
+	}
+	if streetAddressLineTwo.Valid {
+		supplierDetails.StreetAddressLineTwo = streetAddressLineTwo.String
+	}
+	if googleBusinessProfile.Valid {
+		supplierDetails.GoogleBusinessProfile = googleBusinessProfile.String
+	}
+
+	return supplierDetails, nil
+}
