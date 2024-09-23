@@ -1223,9 +1223,20 @@ func CreateMachine(form types.MachineForm) error {
 	// Handle NULL values for optional fields
 	var make, model, cardReaderSerialNumber sql.NullString
 	var purchasePrice sql.NullFloat64
-	var year, vendingTypeID, locationID, machineStatusID, vendorID sql.NullInt64
+	var year, locationID, vendorID sql.NullInt64
 	var purchaseDate sql.NullInt64
 
+	// Explicitly set Valid to false for nil values
+	make = sql.NullString{Valid: false}
+	model = sql.NullString{Valid: false}
+	cardReaderSerialNumber = sql.NullString{Valid: false}
+	purchasePrice = sql.NullFloat64{Valid: false}
+	year = sql.NullInt64{Valid: false}
+	locationID = sql.NullInt64{Valid: false}
+	vendorID = sql.NullInt64{Valid: false}
+	purchaseDate = sql.NullInt64{Valid: false}
+
+	// Set values if they are not nil
 	if form.Make != nil {
 		make = sql.NullString{String: *form.Make, Valid: true}
 	}
@@ -1241,14 +1252,8 @@ func CreateMachine(form types.MachineForm) error {
 	if form.Year != nil {
 		year = sql.NullInt64{Int64: int64(*form.Year), Valid: true}
 	}
-	if form.VendingTypeID != nil {
-		vendingTypeID = sql.NullInt64{Int64: int64(*form.VendingTypeID), Valid: true}
-	}
 	if form.LocationID != nil {
 		locationID = sql.NullInt64{Int64: int64(*form.LocationID), Valid: true}
-	}
-	if form.MachineStatusID != nil {
-		machineStatusID = sql.NullInt64{Int64: int64(*form.MachineStatusID), Valid: true}
 	}
 	if form.VendorID != nil {
 		vendorID = sql.NullInt64{Int64: int64(*form.VendorID), Valid: true}
@@ -1258,8 +1263,8 @@ func CreateMachine(form types.MachineForm) error {
 	}
 
 	_, err = stmt.Exec(
-		vendingTypeID,
-		machineStatusID,
+		int64(*form.VendingTypeID),
+		int64(*form.MachineStatusID),
 		locationID,
 		vendorID,
 		year,
@@ -1405,24 +1410,85 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 	}
 	defer stmt.Close()
 
+	// Handle NULL values for optional fields
+	var vendingTypeID, year, locationID, machineStatusID, vendorID sql.NullInt64
+	var make, model, cardReaderSerialNumber sql.NullString
 	var purchaseDate sql.NullInt64
+	var purchasePrice sql.NullFloat64
+
+	// Set each field, initializing to NULL (Valid: false) if the form value is nil
+	if form.VendingTypeID != nil {
+		vendingTypeID = sql.NullInt64{Int64: int64(*form.VendingTypeID), Valid: true}
+	} else {
+		vendingTypeID = sql.NullInt64{Valid: false}
+	}
+
+	if form.Year != nil {
+		year = sql.NullInt64{Int64: int64(*form.Year), Valid: true}
+	} else {
+		year = sql.NullInt64{Valid: false}
+	}
+
+	if form.Make != nil {
+		make = sql.NullString{String: *form.Make, Valid: true}
+	} else {
+		make = sql.NullString{Valid: false}
+	}
+
+	if form.Model != nil {
+		model = sql.NullString{String: *form.Model, Valid: true}
+	} else {
+		model = sql.NullString{Valid: false}
+	}
+
+	if form.PurchasePrice != nil {
+		purchasePrice = sql.NullFloat64{Float64: *form.PurchasePrice, Valid: true}
+	} else {
+		purchasePrice = sql.NullFloat64{Valid: false}
+	}
 
 	if form.PurchaseDate != nil {
 		purchaseDate = sql.NullInt64{Int64: *form.PurchaseDate, Valid: true}
+	} else {
+		purchaseDate = sql.NullInt64{Valid: false}
+	}
+
+	if form.CardReaderSerialNumber != nil {
+		cardReaderSerialNumber = sql.NullString{String: *form.CardReaderSerialNumber, Valid: true}
+	} else {
+		cardReaderSerialNumber = sql.NullString{Valid: false}
+	}
+
+	if form.LocationID != nil {
+		locationID = sql.NullInt64{Int64: int64(*form.LocationID), Valid: true}
+	} else {
+		locationID = sql.NullInt64{Valid: false}
+	}
+
+	if form.MachineStatusID != nil {
+		machineStatusID = sql.NullInt64{Int64: int64(*form.MachineStatusID), Valid: true}
+	} else {
+		machineStatusID = sql.NullInt64{Valid: false}
+	}
+
+	if form.VendorID != nil {
+		vendorID = sql.NullInt64{Int64: int64(*form.VendorID), Valid: true}
+	} else {
+		vendorID = sql.NullInt64{Valid: false}
 	}
 
 	_, err = stmt.Exec(
 		machineId,
-		form.VendingTypeID,
-		form.Year,
-		form.Make,
-		form.Model,
-		form.PurchasePrice,
+		vendingTypeID,
+		year,
+		make,
+		model,
+		purchasePrice,
 		purchaseDate,
-		form.CardReaderSerialNumber,
-		form.LocationID,
-		form.MachineStatusID,
-		form.VendorID,
+		cardReaderSerialNumber,
+		locationID,
+		machineStatusID,
+		vendorID,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
