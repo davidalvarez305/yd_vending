@@ -2436,3 +2436,51 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 
 	return nil
 }
+
+func DeleteMachine(id int) error {
+	sqlStatement := `
+        DELETE FROM machine WHERE machine_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteBusiness(id int) error {
+	sqlStatement := `
+        DELETE FROM business WHERE business_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteSupplier(id int) error {
+	sqlStatement := `
+        DELETE FROM supplier WHERE supplier_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteVendor(id int) error {
+	sqlStatement := `
+        DELETE FROM vendor WHERE vendor_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
