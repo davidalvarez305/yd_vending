@@ -457,3 +457,20 @@ type SupplierList struct {
 	GoogleBusinessProfile string  `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 	City                  string  `json:"city" form:"city" schema:"city"`
 }
+
+type VendorDetails struct {
+	VendorID               int    `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
+	Name                   string `json:"name" form:"name" schema:"name"`
+	FirstName              string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName               string `json:"last_name" form:"last_name" schema:"last_name"`
+	PhoneNumber            string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email                  string `json:"email" form:"email" schema:"email"`
+	PreferredContactMethod string `json:"preferred_contact_method" form:"preferred_contact_method" schema:"preferred_contact_method"`
+	PreferredContactTime   string `json:"preferred_contact_time" form:"preferred_contact_time" schema:"preferred_contact_time"`
+	StreetAddressLineOne   string `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAddressLineTwo   string `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	CityID                 int    `json:"city_id" form:"city_id" schema:"city_id"`
+	ZipCode                string `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                  string `json:"state" form:"state" schema:"state"`
+	GoogleBusinessProfile  string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
+}

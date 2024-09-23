@@ -2563,3 +2563,46 @@ func DeleteSupplier(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
+
+func GetVendorDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "vendor_detail.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	vendorId := strings.TrimPrefix(r.URL.Path, "/crm/lead/")
+
+	vendorDetails, err := database.GetVendorDetails(vendorId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vendor details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	cities, err := database.GetCities()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Lead Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Vendor"] = vendorDetails
+	data["Cities"] = cities
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}

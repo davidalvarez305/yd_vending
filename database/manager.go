@@ -2484,3 +2484,77 @@ func DeleteVendor(id int) error {
 
 	return nil
 }
+
+func GetVendorDetails(vendorID string) (types.VendorDetails, error) {
+	query := `SELECT 
+		v.vendor_id,
+		v.name,
+		v.first_name,
+		v.last_name,
+		v.phone_number,
+		v.email,
+		v.preferred_contact_method,
+		v.preferred_contact_time,
+		v.street_address_line_one,
+		v.street_address_line_two,
+		v.city_id,
+		v.zip_code,
+		v.state,
+		v.google_business_profile
+	FROM vendor AS v
+	WHERE v.vendor_id = $1`
+
+	var vendorDetails types.VendorDetails
+
+	row := DB.QueryRow(query, vendorID)
+
+	var (
+		googleBusinessProfile  sql.NullString
+		streetAddressLineOne   sql.NullString
+		streetAddressLineTwo   sql.NullString
+		preferredContactMethod sql.NullString
+		preferredContactTime   sql.NullString
+	)
+
+	err := row.Scan(
+		&vendorDetails.VendorID,
+		&vendorDetails.Name,
+		&vendorDetails.FirstName,
+		&vendorDetails.LastName,
+		&vendorDetails.PhoneNumber,
+		&vendorDetails.Email,
+		&preferredContactMethod,
+		&preferredContactTime,
+		&streetAddressLineOne,
+		&streetAddressLineTwo,
+		&vendorDetails.CityID,
+		&vendorDetails.ZipCode,
+		&vendorDetails.State,
+		&googleBusinessProfile,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return vendorDetails, fmt.Errorf("no vendor found with ID %s", vendorID)
+		}
+		return vendorDetails, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	// Handle nullable fields
+	if preferredContactMethod.Valid {
+		vendorDetails.PreferredContactMethod = preferredContactMethod.String
+	}
+	if preferredContactTime.Valid {
+		vendorDetails.PreferredContactTime = preferredContactTime.String
+	}
+	if streetAddressLineOne.Valid {
+		vendorDetails.StreetAddressLineOne = streetAddressLineOne.String
+	}
+	if streetAddressLineTwo.Valid {
+		vendorDetails.StreetAddressLineTwo = streetAddressLineTwo.String
+	}
+	if googleBusinessProfile.Valid {
+		vendorDetails.GoogleBusinessProfile = googleBusinessProfile.String
+	}
+
+	return vendorDetails, nil
+}
