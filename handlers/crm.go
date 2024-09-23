@@ -2596,7 +2596,7 @@ func GetVendorDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	}
 
 	data := ctx
-	data["PageTitle"] = "Lead Detail — " + constants.CompanyName
+	data["PageTitle"] = "Vendor Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Vendor"] = vendorDetails
@@ -2639,7 +2639,7 @@ func GetSupplierDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	}
 
 	data := ctx
-	data["PageTitle"] = "Lead Detail — " + constants.CompanyName
+	data["PageTitle"] = "Supplier Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Supplier"] = supplierDetails
