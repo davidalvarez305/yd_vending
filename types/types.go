@@ -476,7 +476,7 @@ type VendorDetails struct {
 }
 
 type SupplierDetails struct {
-	VendorID              int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
+	SupplierID            int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
 	Name                  string  `json:"name" form:"name" schema:"name"`
 	MembershipID          string  `json:"membership_id" form:"membership_id" schema:"membership_id"`
 	MembershipCost        float64 `json:"membership_cost" form:"membership_cost" schema:"membership_cost"`
@@ -496,4 +496,20 @@ type BusinessDetails struct {
 	Website               string `json:"website" form:"website" schema:"website"`
 	Industry              string `json:"industry" form:"industry" schema:"industry"`
 	GoogleBusinessProfile string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
+}
+
+type LocationList struct {
+	LocationID           string  `json:"location_id" form:"location_id" schema:"location_id"`
+	BusinessID           string  `json:"business_id" form:"business_id" schema:"business_id"`
+	VendingLocationType  string  `json:"vending_location_type" form:"vending_location_type" schema:"vending_location_type"`
+	Name                 string  `json:"name" form:"name" schema:"name"`
+	Longitude            float64 `json:"longitude" form:"longitude" schema:"longitude"`
+	Latitude             float64 `json:"latitude" form:"latitude" schema:"latitude"`
+	StreetAddressLineOne string  `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAddressLineTwo string  `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	City                 string  `json:"city" form:"city" schema:"city"`
+	ZipCode              string  `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                string  `json:"state" form:"state" schema:"state"`
+	Opening              string  `json:"opening" form:"opening" schema:"opening"`
+	Closing              string  `json:"closing" form:"closing" schema:"closing"`
 }

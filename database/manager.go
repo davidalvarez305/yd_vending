@@ -2559,9 +2559,9 @@ func GetVendorDetails(vendorID string) (types.VendorDetails, error) {
 	return vendorDetails, nil
 }
 
-func GetSupplierDetails(vendorID string) (types.SupplierDetails, error) {
+func GetSupplierDetails(supplierId string) (types.SupplierDetails, error) {
 	query := `SELECT 
-		s.vendor_id,
+		s.supplier_id,
 		s.name,
 		s.membership_id,
 		s.membership_cost::NUMERIC,
@@ -2573,11 +2573,11 @@ func GetSupplierDetails(vendorID string) (types.SupplierDetails, error) {
 		s.state,
 		s.google_business_profile
 	FROM supplier AS s
-	WHERE s.vendor_id = $1`
+	WHERE s.supplier_id = $1`
 
 	var supplierDetails types.SupplierDetails
 
-	row := DB.QueryRow(query, vendorID)
+	row := DB.QueryRow(query, supplierId)
 
 	var (
 		membershipID          sql.NullString
@@ -2589,7 +2589,7 @@ func GetSupplierDetails(vendorID string) (types.SupplierDetails, error) {
 	)
 
 	err := row.Scan(
-		&supplierDetails.VendorID,
+		&supplierDetails.SupplierID,
 		&supplierDetails.Name,
 		&membershipID,
 		&membershipCost,
@@ -2603,7 +2603,7 @@ func GetSupplierDetails(vendorID string) (types.SupplierDetails, error) {
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return supplierDetails, fmt.Errorf("no supplier found with ID %s", vendorID)
+			return supplierDetails, fmt.Errorf("no supplier found with ID %s", supplierId)
 		}
 		return supplierDetails, fmt.Errorf("error scanning row: %w", err)
 	}
@@ -2629,4 +2629,111 @@ func GetSupplierDetails(vendorID string) (types.SupplierDetails, error) {
 	}
 
 	return supplierDetails, nil
+}
+
+func GetBusinessDetails(businessID string) (types.BusinessDetails, error) {
+	query := `SELECT 
+		b.business_id,
+		b.name,
+		b.is_active,
+		b.website,
+		b.industry,
+		b.google_business_profile
+	FROM business AS b
+	WHERE b.business_id = $1`
+
+	var businessDetails types.BusinessDetails
+
+	row := DB.QueryRow(query, businessID)
+
+	err := row.Scan(
+		&businessDetails.BusinessID,
+		&businessDetails.Name,
+		&businessDetails.IsActive,
+		&businessDetails.Website,
+		&businessDetails.Industry,
+		&businessDetails.GoogleBusinessProfile,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return businessDetails, fmt.Errorf("no business found with ID %s", businessID)
+		}
+		return businessDetails, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	return businessDetails, nil
+}
+
+func GetLocationsByBusiness(businessId string) ([]types.LocationList, error) {
+	var locations []types.LocationList
+
+	rows, err := DB.Query(`
+		SELECT location_id, business_id, v.location_type, name, longitude, latitude, street_address_line_one, street_address_line_two, c.name, zip_code, state, opening, closing 
+		FROM "location" AS l
+		JOIN "city" AS c ON c.city_id = l.city_id
+		JOIN "vending_location" AS vl ON vl.vending_location_id = l.vending_location_id
+		WHERE l.business_id = $1
+	`, businessId)
+	if err != nil {
+		return locations, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var loc types.LocationList
+		var streetAddressLineOne, streetAddressLineTwo, zipCode, state, opening, closing sql.NullString
+		var longitude, latitude sql.NullFloat64
+
+		err := rows.Scan(
+			&loc.LocationID,
+			&loc.BusinessID,
+			&loc.VendingLocationType,
+			&loc.Name,
+			&longitude,
+			&latitude,
+			&streetAddressLineOne,
+			&streetAddressLineTwo,
+			&loc.City,
+			&zipCode,
+			&state,
+			&opening,
+			&closing,
+		)
+		if err != nil {
+			return locations, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if longitude.Valid {
+			loc.Longitude = longitude.Float64
+		}
+		if latitude.Valid {
+			loc.Latitude = latitude.Float64
+		}
+		if streetAddressLineOne.Valid {
+			loc.StreetAddressLineOne = streetAddressLineOne.String
+		}
+		if streetAddressLineTwo.Valid {
+			loc.StreetAddressLineTwo = streetAddressLineTwo.String
+		}
+		if zipCode.Valid {
+			loc.ZipCode = zipCode.String
+		}
+		if state.Valid {
+			loc.State = state.String
+		}
+		if opening.Valid {
+			loc.Opening = opening.String
+		}
+		if closing.Valid {
+			loc.Closing = closing.String
+		}
+
+		locations = append(locations, loc)
+	}
+
+	if err := rows.Err(); err != nil {
+		return locations, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return locations, nil
 }

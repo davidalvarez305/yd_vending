@@ -2681,12 +2681,20 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 		return
 	}
 
+	businessLocations, err := database.GetLocationsByBusiness(businessId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting business locations.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Business Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Business"] = businessDetails
 	data["Cities"] = cities
+	data["BusinessLocations"] = businessLocations
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

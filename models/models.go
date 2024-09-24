@@ -135,6 +135,7 @@ type Session struct {
 
 type Location struct {
 	LocationID          int     `json:"location_id" form:"location_id" schema:"location_id"`
+	BusinessID          int     `json:"business_id" form:"business_id" schema:"business_id"`
 	VendingLocationID   int     `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
 	CityID              int     `json:"city_id" form:"city_id" schema:"city_id"`
 	DateStarted         int64   `json:"date_started" form:"date_started" schema:"date_started"`
