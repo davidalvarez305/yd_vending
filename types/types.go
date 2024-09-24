@@ -488,3 +488,12 @@ type SupplierDetails struct {
 	State                 string  `json:"state" form:"state" schema:"state"`
 	GoogleBusinessProfile string  `json:"google_business_profile,omitempty" form:"google_business_profile" schema:"google_business_profile"`
 }
+
+type BusinessDetails struct {
+	BusinessID            int    `json:"business_id" form:"business_id" schema:"business_id"`
+	Name                  string `json:"name" form:"name" schema:"name"`
+	IsActive              bool   `json:"is_active" form:"is_active" schema:"is_active"`
+	Website               string `json:"website" form:"website" schema:"website"`
+	Industry              string `json:"industry" form:"industry" schema:"industry"`
+	GoogleBusinessProfile string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
+}
