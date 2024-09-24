@@ -41,6 +41,15 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
+		if strings.HasPrefix(path, "/crm/business/") {
+			parts := strings.Split(path, "/")
+			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+				GetLocationDetail(w, r, ctx)
+				return
+			}
+			return
+		}
+
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
 			GetLeadMessagesPartial(w, r)
 			return
@@ -117,13 +126,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-
-		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/contact") {
-			PutBusinessContact(w, r)
-			return
-		}
-		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/location") {
-			PutLocation(w, r)
+		if strings.HasPrefix(path, "/crm/business/") {
+			parts := strings.Split(path, "/")
+			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+				PutLocation(w, r)
+				return
+			}
 			return
 		}
 
@@ -187,6 +195,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodDelete:
+		if strings.HasPrefix(path, "/crm/business/") {
+			parts := strings.Split(path, "/")
+			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+				DeleteLocation(w, r)
+				return
+			}
+			return
+		}
 		if strings.HasPrefix(path, "/crm/business/") {
 			if len(path) > len("/crm/business/") && helpers.IsNumeric(path[len("/crm/business/"):]) {
 				DeleteBusiness(w, r)
@@ -2698,4 +2714,73 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	helpers.ServeContent(w, files, data)
+}
+
+func DeleteLocation(w http.ResponseWriter, r *http.Request) {
+	businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	locationId, err := helpers.GetSecondIDFromPath(r, "/crm/business/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteLocation(locationId)
+	if err != nil {
+		fmt.Printf("Error deleting location: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete location.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	locations, err := database.GetLocationsByBusiness(string(businessId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting locations from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "locations_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "locations_table.html",
+		Data: map[string]any{
+			"Locations": locations,
+		},
+	}
+
+	token, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("Error generating token: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w.Header().Set("X-Csrf-Token", token)
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
