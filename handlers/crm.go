@@ -165,7 +165,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostLeadNotes(w, r)
 			return
 		}
-
 		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/contact") {
 			PostBusinessContact(w, r)
 			return
