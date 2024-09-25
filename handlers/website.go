@@ -135,6 +135,13 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 		return
 	}
 
+	images, err := database.GetMarketingImages()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting marketing images.", http.StatusInternalServerError)
+		return
+	}
+
 	csrfToken, ok := r.Context().Value("csrf_token").(string)
 	if !ok {
 		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
@@ -158,7 +165,7 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	data.CSRFToken = csrfToken
 	data.VendingTypes = vendingTypes
 	data.VendingLocations = vendingLocations
-	data.MachineImages = []string{}
+	data.MarketingImages = images
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

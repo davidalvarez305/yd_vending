@@ -282,7 +282,7 @@ type WebsiteContext struct {
 	ExternalID                   string                   `json:"external_id" form:"external_id"`
 	GoogleAdsID                  string                   `json:"google_ads_id"`
 	GoogleAdsCallConversionLabel string                   `json:"google_ads_call_conversion_label"`
-	MachineImages                []string                 `json:"machine_images"`
+	MarketingImages              []string                 `json:"marketing_images"`
 }
 
 type FacebookUserData struct {

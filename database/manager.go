@@ -2755,3 +2755,36 @@ func CreateMarketingImage(img models.Image) error {
 
 	return nil
 }
+
+func GetMarketingImages() ([]string, error) {
+	var images []string
+
+	query := fmt.Sprintf(`SELECT '%s' || i.src AS url FROM "image" AS i;`, constants.AWSS3LiveImagesPath)
+
+	rows, err := DB.Query(query)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return images, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var image string
+		err := rows.Scan(
+			&image,
+		)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			return images, err
+		}
+
+		images = append(images, image)
+	}
+
+	if err = rows.Err(); err != nil {
+		return images, err
+	}
+
+	return images, nil
+}
