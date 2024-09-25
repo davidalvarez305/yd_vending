@@ -145,18 +145,20 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	data.PageTitle = "Miami Vending Services — " + constants.CompanyName
 	data.Nonce = nonce
 	data.Features = []string{
-		"Regular Product Rotation",
-		"Modern & Smart Machines",
-		"Health-Conscious Choices",
-		"Flexible Working Hours",
-		"Forward-Thinking Product Selection",
-		"Attentive Customer Care",
-		"Responsive Repair & Servicing Agents",
-		"High Upkeep & Maintanance",
+		"Offering customizable selections that fits your wants & needs.",
+		"Being prompt with repairs and maintenance so the machines are always running.",
+		"Being able to replace and/or refill products on-request to meet the demands of your clients, employees, and/or customers.",
+		"Our working hours are flexible so that we can respond to requests at moment's notice.",
+		"We stay on tops of trends so that if your clients and/or employees want a drink or snack that's hot on socials, we're able to get it for them.",
+		"Tending to our machines is the most important thing for us. To ensure that they're always running and stocked with products.",
+		"Our machines are modern and accept cashless payment solutions such as debit/credit cards, apple pay, and touchless payments.",
+		"We stay on top of ADA compliance so that everyone has access and is able to use our machines.",
+		"By making our contact information easily accessible, people are able to report problems directly to use so that managers & business owners don't need to take time out of their busy schedules to speak to us.",
 	}
 	data.CSRFToken = csrfToken
 	data.VendingTypes = vendingTypes
 	data.VendingLocations = vendingLocations
+	data.MachineImages = []string{}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
