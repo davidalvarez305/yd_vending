@@ -1076,6 +1076,14 @@ select{
   height: 100%;
 }
 
+.max-h-\[75vh\]{
+  max-height: 75vh;
+}
+
+.max-h-\[50vh\]{
+  max-height: 50vh;
+}
+
 .min-h-dvh{
   min-height: 100dvh;
 }
@@ -1142,6 +1150,14 @@ select{
 
 .max-w-xl{
   max-width: 36rem;
+}
+
+.max-w-\[75vw\]{
+  max-width: 75vw;
+}
+
+.max-w-\[50vw\]{
+  max-width: 50vw;
 }
 
 .flex-auto{
@@ -3934,6 +3950,10 @@ select{
     height: 24rem;
   }
 
+  .lg\:max-h-\[50vh\]{
+    max-height: 50vh;
+  }
+
   .lg\:w-1\/2{
     width: 50%;
   }
@@ -3952,6 +3972,10 @@ select{
 
   .lg\:max-w-\[50\%\]{
     max-width: 50%;
+  }
+
+  .lg\:max-w-\[50vw\]{
+    max-width: 50vw;
   }
 
   .lg\:translate-x-0{

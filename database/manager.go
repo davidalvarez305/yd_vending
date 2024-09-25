@@ -2759,7 +2759,7 @@ func CreateMarketingImage(img models.Image) error {
 func GetMarketingImages() ([]string, error) {
 	var images []string
 
-	query := fmt.Sprintf(`SELECT '%s' || i.src AS url FROM "image" AS i;`, constants.AWSS3LiveImagesPath)
+	query := fmt.Sprintf(`SELECT '%s' || i.src AS url FROM "image" AS i;`, constants.AWSS3MarketingImagesPath)
 
 	rows, err := DB.Query(query)
 	if err != nil {
