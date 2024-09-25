@@ -240,7 +240,7 @@
             <div id="imagesSlider">
                 {{ range .MarketingImages }}
                 <div>
-                    <img src="{{ . }}" loading="lazy" class="max-w-[75vw] max-h-[75vh] mx-auto lg:max-w-[50vw] lg:max-h-[50vh]" />
+                    <img src="{{ . }}" />
                 </div>
                 {{ end }}
             </div>
@@ -248,18 +248,21 @@
     </div>
 </div>
 
-<script nonce="{{ .Nonce }}">
-    $('#imagesSlider').slick({
-        infinite: true,
-        speed: 300,
-        slidesToShow: 1,
-        adaptiveHeight: true,
-        arrows: true,
-    });
-</script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js" nonce="{{ .Nonce }}"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-migrate-1.2.1.min.js" nonce="{{ .Nonce }}"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" nonce="{{ .Nonce }}"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
+    nonce="{{ .Nonce }}"></script>
+
+<!-- Initialize slick after jQuery is loaded -->
+<script nonce="{{ .Nonce }}">
+    $(document).ready(function () {
+        $('#imagesSlider').slick({
+            lazyLoad: 'ondemand',
+            slidesToShow: 3,
+            slidesToScroll: 1
+        });
+    });
+</script>
 <!-- END Gallery -->
 
 <!-- Features -->
@@ -325,10 +328,13 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    At the moment we're primarily focused on snacks, drinks, and combo machines depending on the type of location and the amount of space available.
+                    At the moment we're primarily focused on snacks, drinks, and combo machines depending on the type of
+                    location and the amount of space available.
                 </p>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    During our visit to your location, we'll speak about which type of machine and which size of machine will best fit your needs depending on the context of who's going to be buying and the amount of space to work with we have.
+                    During our visit to your location, we'll speak about which type of machine and which size of machine
+                    will best fit your needs depending on the context of who's going to be buying and the amount of
+                    space to work with we have.
                 </p>
             </details>
             <details class="group">
@@ -346,10 +352,12 @@
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
                     Machines are stocked depending on the volume of the inventory.
-                    We have tracking software built so that we know exactly how many products are in each machine at any given time.
+                    We have tracking software built so that we know exactly how many products are in each machine at any
+                    given time.
                 </p>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    Additionally, we may come in times when re-stocking is not needed but if new drinks and/or snacks are requested, we'll be happy to swing by & switch them out.
+                    Additionally, we may come in times when re-stocking is not needed but if new drinks and/or snacks
+                    are requested, we'll be happy to swing by & switch them out.
                 </p>
             </details>
             <details class="group">
@@ -366,7 +374,8 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    Our vending machines can accept many payment methods such as cash, coins, credit & debit cards swipes and/or taps, and mobile
+                    Our vending machines can accept many payment methods such as cash, coins, credit & debit cards
+                    swipes and/or taps, and mobile
                     payments such as Apple Pay and Google Wallet.
                 </p>
             </details>
@@ -387,14 +396,17 @@
                     Yes, we select our products to fit the context of where the machine is located. For example...
                 </p>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    We work with fitness centers where we primarily stock products such as energy drinks, sports drinks, electrolyte-infused water, protein shakes, protein bars, and the likes.
+                    We work with fitness centers where we primarily stock products such as energy drinks, sports drinks,
+                    electrolyte-infused water, protein shakes, protein bars, and the likes.
                 </p>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    Additionally, we work with offices where we primarily stock teas, coffees, carbonated beverages, energy drinks, and the likes.
+                    Additionally, we work with offices where we primarily stock teas, coffees, carbonated beverages,
+                    energy drinks, and the likes.
                     We also work with warehouses where the workers primarily want sodas and energy drinks.
                 </p>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    In short, we customize our product selection to meet the demands of the people who will be using the machine.
+                    In short, we customize our product selection to meet the demands of the people who will be using the
+                    machine.
                 </p>
             </details>
             <details class="group">
@@ -411,11 +423,14 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    We select the very best machines in the market. Why? Because we want to ensure that we're delivering a premium service, in addition, great machines don't break as often.
+                    We select the very best machines in the market. Why? Because we want to ensure that we're delivering
+                    a premium service, in addition, great machines don't break as often.
                 </p>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    This means the customers are happy, and it makes our lifes easier by not having to repair the thing every other week.
-                    From a business perspective, a high quality asset is able to produce for a far longer time than a non-quality asset.
+                    This means the customers are happy, and it makes our lifes easier by not having to repair the thing
+                    every other week.
+                    From a business perspective, a high quality asset is able to produce for a far longer time than a
+                    non-quality asset.
                 </p>
             </details>
             <details class="group">
@@ -432,7 +447,9 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    We will always respond as fast as we humanly can. We want the machines running 24/7 or as close to that as possible, so if it ever comes up, we'll be at the location at moment's notice to resolve the issue.
+                    We will always respond as fast as we humanly can. We want the machines running 24/7 or as close to
+                    that as possible, so if it ever comes up, we'll be at the location at moment's notice to resolve the
+                    issue.
                 </p>
             </details>
         </div>
