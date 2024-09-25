@@ -259,3 +259,10 @@ type TicketImage struct {
 	URL           string `json:"url" form:"url" schema:"url"`
 	Caption       string `json:"caption" form:"caption" schema:"caption"`
 }
+
+type Image struct {
+	ImageID       int    `json:"image_id" form:"image_id" schema:"image_id"`
+	Src           string `json:"src" form:"src" schema:"src"`
+	DateAdded     int64  `json:"date_added" form:"date_added" schema:"date_added"`
+	AddedByUserID int    `json:"added_by_user_id" form:"added_by_user_id" schema:"added_by_user_id"`
+}

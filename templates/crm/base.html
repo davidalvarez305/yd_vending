@@ -189,7 +189,7 @@
                         <div class="px-3 pb-2 pt-5 text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Account
                         </div>
-                        <a href="/crm/settings"
+                        <a href="/crm/upload-images"
                             class="navButtons group flex items-center gap-2 rounded-lg border border-transparent px-2.5 text-sm font-medium text-gray-800 hover:bg-primary-50 hover:text-gray-900 active:border-primary-100 dark:text-gray-200 dark:hover:bg-gray-700/75 dark:hover:text-white dark:active:border-gray-600">
                             <span
                                 class="flex flex-none items-center text-gray-400 group-hover:text-primary-500 dark:text-gray-500 dark:group-hover:text-gray-300">
@@ -202,7 +202,7 @@
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </span>
-                            <span class="pageNameSpan grow py-2">Settings</span>
+                            <span class="pageNameSpan grow py-2">Upload Images</span>
                         </a>
                         <form action="/logout" method="POST">
                             <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
@@ -342,8 +342,5 @@
     
 </script>
 <script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js" nonce="{{ .Nonce }}"></script>
-<script type="text/javascript" src="https://code.jquery.com/jquery-migrate-1.2.1.min.js" nonce="{{ .Nonce }}"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" nonce="{{ .Nonce }}"></script>
 
 </html>

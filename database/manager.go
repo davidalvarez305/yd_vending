@@ -2737,3 +2737,54 @@ func GetLocationsByBusiness(businessId string) ([]types.LocationList, error) {
 
 	return locations, nil
 }
+
+func CreateMarketingImage(img models.Image) error {
+	stmt, err := DB.Prepare(`
+	INSERT INTO image (src, date_added, added_by_user_id)
+	VALUES ($1, to_timestamp($2), $3)
+`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(img.Src, img.DateAdded, img.AddedByUserID)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func GetMarketingImages() ([]string, error) {
+	var images []string
+
+	query := fmt.Sprintf(`SELECT '%s' || i.src AS url FROM "image" AS i;`, constants.AWSS3MarketingImagesPath)
+
+	rows, err := DB.Query(query)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return images, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var image string
+		err := rows.Scan(
+			&image,
+		)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			return images, err
+		}
+
+		images = append(images, image)
+	}
+
+	if err = rows.Err(); err != nil {
+		return images, err
+	}
+
+	return images, nil
+}

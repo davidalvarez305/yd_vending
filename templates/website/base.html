@@ -79,6 +79,10 @@
   <!-- Android Chrome -->
   <link rel="icon" type="image/png" sizes="192x192" href="{{ .MediaPath }}/android-chrome-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="{{ .MediaPath }}/android-chrome-512x512.png">
+
+  <!-- Slick -->
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" nonce="{{ .Nonce }}"/>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" nonce="{{ .Nonce }}"/>
 </head>
 
 
@@ -133,6 +137,9 @@
       </div>
 
       <script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>
+      <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js" nonce="{{ .Nonce }}"></script>
+      <script type="text/javascript" src="https://code.jquery.com/jquery-migrate-1.2.1.min.js" nonce="{{ .Nonce }}"></script>
+      <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" nonce="{{ .Nonce }}"></script>
     </main>
     <!-- Page Content -->
 

@@ -1,15 +1,52 @@
 {{ define "content.html" }}
 
 <!-- Hero Content -->
-<div class="container relative mx-auto px-4 py-8 lg:px-8 lg:py-8 xl:max-w-7xl">
+<div class="container relative mx-auto px-4 py-4 lg:px-4 lg:py-4 xl:max-w-7xl">
     <div class="text-center">
-        <h1 class="mb-4 text-4xl font-black text-black dark:text-white">
-            We are<br>
-            <span class="text-primary-600 dark:text-primary-500">{{ .CompanyName }}</span>
+        <h1 class="mb-4 font-black text-black dark:text-white" style="font-size: 30px;">
+            Vending Services<br>
+            <span class="text-primary-600 text-4xl dark:text-primary-500">for $0</span>
         </h1>
-        <h2 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 lg:w-2/3 dark:text-gray-300">
-            We provide stress-free vending machine services.
-        </h2>
+        <div class="flex justify-center p-6">
+            <ul class="space-y-4 text-sm lg:text-base">
+                <li class="flex items-center gap-2">
+                    <svg class="hi-outline hi-check-circle inline-block size-6 text-primary-600 dark:text-primary-500"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span><strong>FREE</strong> Moving & Installation</span>
+                </li>
+                <li class="flex items-center gap-2">
+                    <svg class="hi-outline hi-check-circle inline-block size-6 text-primary-600 dark:text-primary-500"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span><strong>Weekly</strong> & On-Demand Refills</span>
+                </li>
+                <li class="flex items-center gap-2">
+                    <svg class="hi-outline hi-check-circle inline-block size-6 text-primary-600 dark:text-primary-500"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span><strong>FREE</strong> Repairs & Maintenance</span>
+                </li>
+                <li class="flex items-center gap-2">
+                    <svg class="hi-outline hi-check-circle inline-block size-6 text-primary-600 dark:text-primary-500"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span><strong>Customized</strong> Product Selections</span>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class="flex flex-col gap-2 pb-16 pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-3">
         <a href="tel:{{ .PhoneNumber }}"
@@ -27,7 +64,6 @@
             <span>Contact Us</span>
         </button>
     </div>
-</div>
 </div>
 <!-- END Hero -->
 
@@ -109,6 +145,128 @@
 </div>
 <!-- END Quote Form -->
 
+<!-- How It Works -->
+<div class="bg-white dark:bg-gray-900 dark:text-gray-100">
+    <div class="mx-auto space-y-16 px-4 py-16 lg:px-8 lg:py-16 xl:max-w-7xl">
+        <div class="text-center">
+            <h2 class="mb-4 text-4xl font-black text-black dark:text-white">
+                How our process works
+            </h2>
+            <h3 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 dark:text-gray-300 lg:w-2/3">
+                From start to finish, we can have a machine installed in your business very quickly.<br>
+                It takes 3 simple steps that we can accomplish in just days.
+            </h3>
+        </div>
+
+        <nav>
+            <ol class="mx-auto grid grid-cols-1 gap-2 sm:gap-4 lg:max-w-[50%]" role="list">
+                <li>
+                    <a href="javascript:void(0)"
+                        class="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm leading-6 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                        <div class="grow">
+                            <div class="font-semibold text-primary-600 dark:text-primary-400">
+                                Step 1
+                            </div>
+                            <div>We have a chat about your vending needs.</div>
+                        </div>
+                        <div class="flex-none text-primary-600">
+                            <svg class="hi-mini hi-check-circle inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)"
+                        class="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm leading-6 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                        <div class="grow">
+                            <div class="font-semibold text-primary-600 dark:text-primary-400">
+                                Step 2
+                            </div>
+                            <div>We go take a look at your location in person.</div>
+                        </div>
+                        <div class="flex-none text-gray-200 dark:text-gray-700">
+                            <svg class="hi-mini hi-check-circle inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)"
+                        class="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm leading-6 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                        <div class="grow">
+                            <div class="font-semibold text-primary-600 dark:text-primary-400">
+                                Step 3
+                            </div>
+                            <div>We install the machine that best suits your current situation.</div>
+                        </div>
+                        <div class="flex-none text-gray-200 dark:text-gray-700">
+                            <svg class="hi-mini hi-check-circle inline-block size-5" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </a>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="text-center">
+            <h2 class="mb-4 text-4xl font-black text-black dark:text-white">
+                We get to work fast.
+            </h2>
+            <h3 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 dark:text-gray-300 lg:w-2/3">
+                The whole thing from start to finish is as seamless as possible.<br>
+                And the best part is...we handle everything at $0.
+            </h3>
+        </div>
+    </div>
+</div>
+<!-- END How It Works -->
+
+<!-- Gallery -->
+<div class="bg-white dark:bg-gray-900 dark:text-gray-100">
+    <div class="container mx-auto space-y-4 px-4 py-4 lg:px-4 lg:py-4 xl:max-w-7xl">
+        <div class="grow p-5">
+            <div id="imagesSlider">
+                {{ range .MarketingImages }}
+                <div>
+                    <img src="{{ . }}" />
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js" nonce="{{ .Nonce }}"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-migrate-1.2.1.min.js" nonce="{{ .Nonce }}"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
+    nonce="{{ .Nonce }}"></script>
+
+<!-- Initialize slick after jQuery is loaded -->
+<script nonce="{{ .Nonce }}">
+    $(document).ready(function () {
+        $('#imagesSlider').slick({
+            dots: true,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            cssEase: 'linear'
+        });
+    });
+</script>
+<!-- END Gallery -->
+
 <!-- Features -->
 <div class="bg-white dark:bg-gray-900 dark:text-gray-100">
     <div class="container mx-auto space-y-16 px-4 py-16 lg:px-8 lg:py-16 xl:max-w-7xl">
@@ -121,7 +279,7 @@
             </h2>
             <h3 class="mx-auto text-xl font-medium leading-relaxed text-gray-700 dark:text-gray-300 lg:w-2/3">
                 We strive to provide best-in-industry vending services.<br>
-                From food & snack machines to ice makers, and ATM's.
+                For us, it comes down to...<br>
             </h3>
         </div>
 
@@ -172,8 +330,13 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    We offer a wide range of vending machines including snack machines, beverage machines, combo
-                    machines, and healthy vending machines to meet all your needs.
+                    At the moment we're primarily focused on snacks, drinks, and combo machines depending on the type of
+                    location and the amount of space available.
+                </p>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    During our visit to your location, we'll speak about which type of machine and which size of machine
+                    will best fit your needs depending on the context of who's going to be buying and the amount of
+                    space to work with we have.
                 </p>
             </details>
             <details class="group">
@@ -190,8 +353,13 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    Our machines are restocked on a regular schedule to ensure they are always full and ready to serve
-                    your needs. Frequency depends on the machine's location and demand.
+                    Machines are stocked depending on the volume of the inventory.
+                    We have tracking software built so that we know exactly how many products are in each machine at any
+                    given time.
+                </p>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    Additionally, we may come in times when re-stocking is not needed but if new drinks and/or snacks
+                    are requested, we'll be happy to swing by & switch them out.
                 </p>
             </details>
             <details class="group">
@@ -208,7 +376,8 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    Our vending machines accept various payment methods including cash, credit/debit cards, and mobile
+                    Our vending machines can accept many payment methods such as cash, coins, credit & debit cards
+                    swipes and/or taps, and mobile
                     payments such as Apple Pay and Google Wallet.
                 </p>
             </details>
@@ -226,8 +395,20 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    We try to select products that your people will like, so we build our selection to meet your
-                    demands.
+                    Yes, we select our products to fit the context of where the machine is located. For example...
+                </p>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    We work with fitness centers where we primarily stock products such as energy drinks, sports drinks,
+                    electrolyte-infused water, protein shakes, protein bars, and the likes.
+                </p>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    Additionally, we work with offices where we primarily stock teas, coffees, carbonated beverages,
+                    energy drinks, and the likes.
+                    We also work with warehouses where the workers primarily want sodas and energy drinks.
+                </p>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    In short, we customize our product selection to meet the demands of the people who will be using the
+                    machine.
                 </p>
             </details>
             <details class="group">
@@ -244,8 +425,14 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    We partner with reputable suppliers and conduct regular quality checks to ensure that all of our
-                    machines are running and active.
+                    We select the very best machines in the market. Why? Because we want to ensure that we're delivering
+                    a premium service, in addition, great machines don't break as often.
+                </p>
+                <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
+                    This means the customers are happy, and it makes our lifes easier by not having to repair the thing
+                    every other week.
+                    From a business perspective, a high quality asset is able to produce for a far longer time than a
+                    non-quality asset.
                 </p>
             </details>
             <details class="group">
@@ -262,8 +449,9 @@
                     </div>
                 </summary>
                 <p class="px-3 pb-6 pt-3 leading-7 text-gray-600 dark:text-gray-400">
-                    We offer prompt maintenance services and have a dedicated team to quickly address any
-                    malfunctions or issues with our vending machines.
+                    We will always respond as fast as we humanly can. We want the machines running 24/7 or as close to
+                    that as possible, so if it ever comes up, we'll be at the location at moment's notice to resolve the
+                    issue.
                 </p>
             </details>
         </div>
