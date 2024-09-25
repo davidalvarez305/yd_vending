@@ -193,6 +193,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostVendor(w, r)
 		case "/crm/supplier":
 			PostSupplier(w, r)
+		case "/crm/upload-images":
+			PostImagesUpload(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
