@@ -2737,3 +2737,21 @@ func GetLocationsByBusiness(businessId string) ([]types.LocationList, error) {
 
 	return locations, nil
 }
+
+func CreateMarketingImage(img models.Image) error {
+	stmt, err := DB.Prepare(`
+	INSERT INTO image (src, date_added, added_by_user_id)
+	VALUES ($1, to_timestamp($2), $3)
+`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(img.Src, img.DateAdded, img.AddedByUserID)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}

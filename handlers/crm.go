@@ -110,6 +110,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			GetLocation(w, r, ctx)
 		case "/crm/ticket":
 			GetTickets(w, r, ctx)
+		case "/crm/upload-images":
+			GetImagesUpload(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -2784,3 +2786,145 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 } */
+
+func GetImagesUpload(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "images_upload.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	helpers.ServeContent(w, files, data)
+}
+
+func PostImagesUpload(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(50 << 20) // 50 MB limit
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to parse form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	values, err := sessions.Get(r)
+	if err != nil || values.UserID == 0 {
+		fmt.Printf("COULD NOT GET SESSION WHILE UPLOADING IMAGES: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Could not get session while uploading images.",
+			},
+		}
+		w.WriteHeader(http.StatusForbidden)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	files := r.MultipartForm.File["upload_images"]
+
+	for _, fileHeader := range files {
+		file, err := fileHeader.Open()
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to open uploaded file.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+		defer file.Close()
+
+		fileExtension := filepath.Ext(fileHeader.Filename)
+		src := uuid.New().String() + fileExtension
+		filePath := "marketing-images/" + src
+
+		err = services.UploadImageToS3(file, fileHeader, filePath)
+		if err != nil {
+			fmt.Printf("Failed to upload image to S3: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to upload image to S3.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+
+		form := models.Image{
+			Src:           src,
+			DateAdded:     time.Now().Unix(),
+			AddedByUserID: values.UserID,
+		}
+
+		err = database.CreateMarketingImage(form)
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Error saving image metadata.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Images have been successfully uploaded.",
+		},
+	}
+
+	token, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w.Header().Set("X-Csrf-Token", token)
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
