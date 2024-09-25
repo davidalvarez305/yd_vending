@@ -97,6 +97,8 @@ function getUserLocation() {
 }
 
 function getChannel(referrerUrl) {
+  const displayNetworks = ["googleads.g.doubleclick.net"];
+
   const searchEngines = [
     { domain: "google" },
     { domain: "bing" },
@@ -161,6 +163,13 @@ function getChannel(referrerUrl) {
     "viddler",
     "vzaar",
   ];
+
+  // Check display platforms
+  for (let platform of displayNetworks) {
+    if (referrerUrl.includes(platform)) {
+      return "display";
+    }
+  }
 
   // Check search engines
   for (let engine of searchEngines) {
@@ -228,8 +237,8 @@ form.addEventListener("submit", (e) => {
     data.append("click_id", getClickId(qs));
   }
 
-  data.append("landing_page", user.landingPage);
-  data.append("referrer", user.referrer);
+  data.append("landing_page", user.landingPage ?? null);
+  data.append("referrer", user.referrer ?? null);
   data.append("source", qs.get("source") ?? getHost(user.referrer)); // google.com || facebook.com || youtube.com
   data.append("medium", qs.get("medium") ?? getMedium(user.referrer, qs)); // organic || paid || direct
   data.append("channel", qs.get("channel") ?? getChannel(user.referrer)); // search || social || video
