@@ -40,6 +40,8 @@
 </div>
 <!-- END Images -->
 
+<div id="alertModal"></div>
+
 <script nonce="{{ .Nonce }}">
     function handleUploadImage(e) {
         e.preventDefault();
@@ -47,6 +49,11 @@
         var body = new FormData(e.target);
         const endpoint = e.target.action;
         const method = body.get('_method');
+
+        const files = document.getElementById('upload_images').files;
+        if (!files.length) return;
+
+        const alertModal = document.getElementById("alertModal");
 
         fetch(endpoint, {
             method: "POST",
@@ -71,11 +78,12 @@
                 }
             })
             .then(html => {
-                const el = document.getElementById("alertModal");
-                el.outerHTML = html;
-                handleCloseAlertModal();
+                alertModal.outerHTML = html;
             })
-            .catch(console.error);
+            .catch(err => {
+                alertModal.outerHTML = err;
+            })
+            .finally(() => handleCloseAlertModal());
     }
 
     const uploadImagesForm = document.getElementById("uploadImagesForm");
