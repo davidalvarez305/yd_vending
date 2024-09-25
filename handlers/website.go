@@ -141,6 +141,7 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 		http.Error(w, "Error getting marketing images.", http.StatusInternalServerError)
 		return
 	}
+	fmt.Printf("IMAGES:  %+v\n", images)
 
 	csrfToken, ok := r.Context().Value("csrf_token").(string)
 	if !ok {
