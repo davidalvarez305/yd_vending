@@ -257,9 +257,11 @@
 <script nonce="{{ .Nonce }}">
     $(document).ready(function () {
         $('#imagesSlider').slick({
-            lazyLoad: 'ondemand',
-            slidesToShow: 3,
-            slidesToScroll: 1
+            dots: true,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            cssEase: 'linear'
         });
     });
 </script>
