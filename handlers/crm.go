@@ -2704,6 +2704,69 @@ func DeleteLocation(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
+func GetLocationDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "location_detail.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting business ID from URL.", http.StatusInternalServerError)
+		return
+	}
+
+	locationId, err := helpers.GetSecondIDFromPath(r, "/crm/business/")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting location ID from URL.", http.StatusInternalServerError)
+		return
+	}
+
+	locationDetails, err := database.GetLocationDetails(businessId, locationId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting location details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	cities, err := database.GetCities()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
+	locationMachines, err := database.GetMachinesByLocation(locationId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting location locations.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Location Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Location"] = locationDetails
+	data["Cities"] = cities
+	data["LocationMachines"] = locationMachines
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
 func GetImagesUpload(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "images_upload.html"
 	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}

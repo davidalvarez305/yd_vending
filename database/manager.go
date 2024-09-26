@@ -2498,3 +2498,100 @@ func CreateMachine(form types.MachineForm) error {
 
 	return nil
 }
+
+func GetLocationDetails(businessID, locationID int) (types.LocationDetails, error) {
+	query := `SELECT 
+			l.location_id,
+			l.business_id,
+			l.vending_location_id,
+			l.city_id,
+			l.date_started,
+			l.name,
+			l.longitude,
+			l.latitude,
+			l.street_address_line_one,
+			l.street_address_line_two,
+			l.zip_code,
+			l.state,
+			l.opening,
+			l.closing
+		FROM location AS l
+		WHERE l.location_id = $1 AND l.business_id = $2`
+
+	var location types.LocationDetails
+
+	row := DB.QueryRow(query, locationID, businessID)
+
+	err := row.Scan(
+		&location.LocationID,
+		&location.BusinessID,
+		&location.VendingLocationID,
+		&location.CityID,
+		&location.DateStarted,
+		&location.Name,
+		&location.Longitude,
+		&location.Latitude,
+		&location.StreetAddressLineOne,
+		&location.StreetAddressLineTwo,
+		&location.ZipCode,
+		&location.State,
+		&location.Opening,
+		&location.Closing,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return location, fmt.Errorf("no location found with ID %s", locationID)
+		}
+		return location, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	return location, nil
+}
+
+func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
+	var machines []types.MachineList
+
+	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
+	m.card_reader_serial_number, s.status, l.name, m.purchase_date
+	FROM "machine" AS m
+	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
+	JOIN location AS l ON l.location_id = m.location_id AND (l.location_id = $1 OR $1 IS NULL)
+	ORDER BY m.purchase_date DESC;`, locationId)
+	if err != nil {
+		return machines, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var machine types.MachineList
+		var dateCreated time.Time
+		var location, cardReaderSerialNumber sql.NullString
+
+		err := rows.Scan(
+			&machine.MachineName,
+			&cardReaderSerialNumber,
+			&machine.MachineStatus,
+			&location,
+			&dateCreated,
+		)
+		if err != nil {
+			return machines, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if location.Valid {
+			machine.Location = location.String
+		}
+		if cardReaderSerialNumber.Valid {
+			machine.CardReaderSerialNumber = cardReaderSerialNumber.String
+		}
+
+		machine.PurchaseDate = utils.FormatDateMMDDYYYY(dateCreated.Unix())
+		machines = append(machines, machine)
+	}
+
+	if err := rows.Err(); err != nil {
+		return machines, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return machines, nil
+}
