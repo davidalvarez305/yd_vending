@@ -58,7 +58,7 @@ func GetFacebookClientIDFromRequest(r *http.Request) (string, error) {
 	fbpCookie, err := r.Cookie("_fbp")
 	if err != nil {
 		if err == http.ErrNoCookie {
-			return "", fmt.Errorf("no _fbc cookie found")
+			return "", fmt.Errorf("no _fbp cookie found")
 		}
 		return "", err
 	}

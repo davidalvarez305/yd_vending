@@ -443,7 +443,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	form.IP = helpers.GetStringPointerFromForm(r, "ip")
 
 	facebookClientId, _ := helpers.GetFacebookClientIDFromRequest(r)
-	facebookClickId, _ := helpers.GetFacebookClientIDFromRequest(r)
+	facebookClickId, _ := helpers.GetFacebookClickIDFromRequest(r)
 	googleClientId, _ := helpers.GetGoogleClientIDFromRequest(r)
 
 	if facebookClickId != "" {
