@@ -54,6 +54,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 		return leadID, fmt.Errorf("error starting transaction: %w", err)
 	}
 	defer tx.Rollback()
+
 	leadStmt, err := tx.Prepare(`
 		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, message)
 		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10)
@@ -64,7 +65,27 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	}
 	defer leadStmt.Close()
 
-	err = leadStmt.QueryRow(quoteForm.FirstName, quoteForm.LastName, quoteForm.PhoneNumber, time.Now().Unix(), quoteForm.Rent, quoteForm.FootTraffic, quoteForm.FootTrafficType, quoteForm.MachineType, quoteForm.LocationType, quoteForm.Message).Scan(&leadID)
+	// Convert fields using utility functions
+	createdAt := time.Now().Unix()
+	rent := utils.CreateNullString(quoteForm.Rent)
+	footTraffic := utils.CreateNullString(quoteForm.FootTraffic)
+	footTrafficType := utils.CreateNullString(quoteForm.FootTrafficType)
+	message := utils.CreateNullString(quoteForm.Message)
+	vendingTypeID := utils.CreateNullInt(quoteForm.MachineType)
+	vendingLocationID := utils.CreateNullInt(quoteForm.LocationType)
+
+	err = leadStmt.QueryRow(
+		utils.CreateNullString(quoteForm.FirstName),
+		utils.CreateNullString(quoteForm.LastName),
+		utils.CreateNullString(quoteForm.PhoneNumber),
+		createdAt,
+		rent,
+		footTraffic,
+		footTrafficType,
+		vendingTypeID,
+		vendingLocationID,
+		message,
+	).Scan(&leadID)
 	if err != nil {
 		return leadID, fmt.Errorf("error inserting lead: %w", err)
 	}
@@ -78,13 +99,40 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	}
 	defer marketingStmt.Close()
 
-	_, err = marketingStmt.Exec(leadID, quoteForm.Source, quoteForm.Medium, quoteForm.Channel, quoteForm.LandingPage, quoteForm.Keyword, quoteForm.Referrer, quoteForm.ClickID, quoteForm.CampaignID, quoteForm.AdCampaign, quoteForm.AdGroupID, quoteForm.AdGroupName, quoteForm.AdSetID, quoteForm.AdSetName, quoteForm.AdID, quoteForm.AdHeadline, quoteForm.Language, quoteForm.UserAgent, quoteForm.ButtonClicked, quoteForm.IP, quoteForm.ExternalID, quoteForm.GoogleClientID, quoteForm.CSRFSecret, quoteForm.FacebookClickID, quoteForm.FacebookClientID, quoteForm.Longitude, quoteForm.Latitude)
+	_, err = marketingStmt.Exec(
+		leadID,
+		utils.CreateNullString(quoteForm.Source),
+		utils.CreateNullString(quoteForm.Medium),
+		utils.CreateNullString(quoteForm.Channel),
+		utils.CreateNullString(quoteForm.LandingPage),
+		utils.CreateNullString(quoteForm.Keyword),
+		utils.CreateNullString(quoteForm.Referrer),
+		utils.CreateNullString(quoteForm.ClickID),
+		utils.CreateNullInt64(quoteForm.CampaignID),
+		utils.CreateNullString(quoteForm.AdCampaign),
+		utils.CreateNullInt64(quoteForm.AdGroupID),
+		utils.CreateNullString(quoteForm.AdGroupName),
+		utils.CreateNullInt64(quoteForm.AdSetID),
+		utils.CreateNullString(quoteForm.AdSetName),
+		utils.CreateNullInt64(quoteForm.AdID),
+		utils.CreateNullInt64(quoteForm.AdHeadline),
+		utils.CreateNullString(quoteForm.Language),
+		utils.CreateNullString(quoteForm.UserAgent),
+		utils.CreateNullString(quoteForm.ButtonClicked),
+		utils.CreateNullString(quoteForm.IP),
+		utils.CreateNullString(quoteForm.ExternalID),
+		utils.CreateNullString(quoteForm.GoogleClientID),
+		utils.CreateNullString(quoteForm.CSRFSecret),
+		utils.CreateNullString(quoteForm.FacebookClickID),
+		utils.CreateNullString(quoteForm.FacebookClientID),
+		utils.CreateNullString(quoteForm.Longitude),
+		utils.CreateNullString(quoteForm.Latitude),
+	)
 	if err != nil {
 		return leadID, fmt.Errorf("error inserting marketing data: %w", err)
 	}
 
 	err = tx.Commit()
-
 	if err != nil {
 		return leadID, fmt.Errorf("error committing transaction: %w", err)
 	}
@@ -569,6 +617,10 @@ func GetMessagesByLeadID(leadId int) ([]types.FrontendMessage, error) {
 }
 
 func UpdateLead(form types.UpdateLeadForm) error {
+	if form.LeadID == nil {
+		return fmt.Errorf("lead_id cannot be nil")
+	}
+
 	query := `
 		UPDATE lead
 		SET first_name = COALESCE($2, first_name), 
@@ -579,37 +631,13 @@ func UpdateLead(form types.UpdateLeadForm) error {
 		WHERE lead_id = $1
 	`
 
-	args := []interface{}{}
-	if form.LeadID != nil {
-		args = append(args, *form.LeadID)
-	} else {
-		return fmt.Errorf("lead_id cannot be nil")
-	}
-
-	if form.FirstName != nil {
-		args = append(args, *form.FirstName)
-	} else {
-		args = append(args, nil)
-	}
-	if form.LastName != nil {
-		args = append(args, *form.LastName)
-	} else {
-		args = append(args, nil)
-	}
-	if form.PhoneNumber != nil {
-		args = append(args, *form.PhoneNumber)
-	} else {
-		args = append(args, nil)
-	}
-	if form.VendingType != nil {
-		args = append(args, *form.VendingType)
-	} else {
-		args = append(args, nil)
-	}
-	if form.VendingLocation != nil {
-		args = append(args, *form.VendingLocation)
-	} else {
-		args = append(args, nil)
+	args := []interface{}{
+		*form.LeadID,
+		utils.CreateNullString(form.FirstName),
+		utils.CreateNullString(form.LastName),
+		utils.CreateNullString(form.PhoneNumber),
+		utils.CreateNullInt(form.VendingType),
+		utils.CreateNullInt(form.VendingLocation),
 	}
 
 	_, err := DB.Exec(query, args...)
@@ -621,6 +649,10 @@ func UpdateLead(form types.UpdateLeadForm) error {
 }
 
 func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
+	if form.LeadID == nil {
+		return fmt.Errorf("lead_id cannot be nil")
+	}
+
 	query := `
 		UPDATE lead_marketing
 		SET ad_campaign = COALESCE($2, ad_campaign), 
@@ -635,57 +667,17 @@ func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 		WHERE lead_id = $1
 	`
 
-	args := []interface{}{}
-	if form.LeadID != nil {
-		args = append(args, *form.LeadID)
-	} else {
-		return fmt.Errorf("lead_id cannot be nil")
-	}
-
-	if form.CampaignName != nil {
-		args = append(args, *form.CampaignName)
-	} else {
-		args = append(args, nil)
-	}
-	if form.Medium != nil {
-		args = append(args, *form.Medium)
-	} else {
-		args = append(args, nil)
-	}
-	if form.Source != nil {
-		args = append(args, *form.Source)
-	} else {
-		args = append(args, nil)
-	}
-	if form.Referrer != nil {
-		args = append(args, *form.Referrer)
-	} else {
-		args = append(args, nil)
-	}
-	if form.LandingPage != nil {
-		args = append(args, *form.LandingPage)
-	} else {
-		args = append(args, nil)
-	}
-	if form.IP != nil {
-		args = append(args, *form.IP)
-	} else {
-		args = append(args, nil)
-	}
-	if form.Keyword != nil {
-		args = append(args, *form.Keyword)
-	} else {
-		args = append(args, nil)
-	}
-	if form.Channel != nil {
-		args = append(args, *form.Channel)
-	} else {
-		args = append(args, nil)
-	}
-	if form.Language != nil {
-		args = append(args, *form.Language)
-	} else {
-		args = append(args, nil)
+	args := []interface{}{
+		*form.LeadID,
+		utils.CreateNullString(form.CampaignName),
+		utils.CreateNullString(form.Medium),
+		utils.CreateNullString(form.Source),
+		utils.CreateNullString(form.Referrer),
+		utils.CreateNullString(form.LandingPage),
+		utils.CreateNullString(form.IP),
+		utils.CreateNullString(form.Keyword),
+		utils.CreateNullString(form.Channel),
+		utils.CreateNullString(form.Language),
 	}
 
 	_, err := DB.Exec(query, args...)
@@ -795,51 +787,29 @@ func UpdatePhoneCall(phoneCall models.PhoneCall) error {
 		UPDATE phone_call SET
 			user_id = $1,
 			lead_id = $2,
-			call_duration = $3,
+			call_duration = COALESCE($3, call_duration),
 			date_created = $4,
 			call_from = $5,
 			call_to = $6,
 			is_inbound = $7,
-			recording_url = $8,
-			status = $9
+			recording_url = COALESCE($8, recording_url),
+			status = COALESCE($9, status)
 		WHERE external_id = $10`
 
-	var callDuration sql.NullInt32
-	var recordingURL sql.NullString
-	var status sql.NullString
-
-	if phoneCall.CallDuration != 0 {
-		callDuration = sql.NullInt32{Int32: int32(phoneCall.CallDuration), Valid: true}
-	} else {
-		callDuration = sql.NullInt32{Valid: false}
-	}
-
-	if phoneCall.RecordingURL != "" {
-		recordingURL = sql.NullString{String: phoneCall.RecordingURL, Valid: true}
-	} else {
-		recordingURL = sql.NullString{Valid: false}
-	}
-
-	if phoneCall.Status != "" {
-		status = sql.NullString{String: phoneCall.Status, Valid: true}
-	} else {
-		status = sql.NullString{Valid: false}
-	}
-
-	_, err := DB.Exec(
-		query,
+	args := []interface{}{
 		phoneCall.UserID,
 		phoneCall.LeadID,
-		callDuration,
+		utils.CreateNullInt(&phoneCall.CallDuration),
 		phoneCall.DateCreated,
 		phoneCall.CallFrom,
 		phoneCall.CallTo,
 		phoneCall.IsInbound,
-		recordingURL,
-		status,
+		utils.CreateNullString(&phoneCall.RecordingURL),
+		utils.CreateNullString(&phoneCall.Status),
 		phoneCall.ExternalID,
-	)
+	}
 
+	_, err := DB.Exec(query, args...)
 	if err != nil {
 		return fmt.Errorf("error updating phone call: %w", err)
 	}
@@ -904,19 +874,20 @@ func CreateSession(session models.Session) error {
 func UpdateSession(session models.Session) error {
 	sqlStatement := `
         UPDATE sessions
-        SET external_id = $1,
-			user_id = $2
+        SET external_id = COALESCE($1, external_id),
+            user_id = COALESCE($2, user_id)
         WHERE csrf_secret = $3
     `
 
-	_, err := DB.Exec(sqlStatement,
-		session.ExternalID,
-		session.UserID,
+	args := []interface{}{
+		utils.CreateNullString(&session.ExternalID),
+		utils.CreateNullInt(&session.UserID),
 		session.CSRFSecret,
-	)
+	}
 
+	_, err := DB.Exec(sqlStatement, args...)
 	if err != nil {
-		return err
+		return fmt.Errorf("error updating session: %w", err)
 	}
 
 	return nil
@@ -944,10 +915,7 @@ func CreateLeadImage(img models.LeadImage) error {
 	}
 	defer stmt.Close()
 
-	var leadID sql.NullInt64
-	if img.LeadID != 0 {
-		leadID = sql.NullInt64{Int64: int64(img.LeadID), Valid: true}
-	}
+	leadID := utils.CreateNullInt(&img.LeadID)
 
 	_, err = stmt.Exec(img.Src, leadID, img.DateAdded, img.AddedByUserID)
 	if err != nil {
@@ -967,10 +935,7 @@ func CreateLeadNote(note models.LeadNote) error {
 	}
 	defer stmt.Close()
 
-	var leadID sql.NullInt64
-	if note.LeadID != 0 {
-		leadID = sql.NullInt64{Int64: int64(note.LeadID), Valid: true}
-	}
+	leadID := utils.CreateNullInt(&note.LeadID)
 
 	_, err = stmt.Exec(note.Note, leadID, note.DateAdded, note.AddedByUserID)
 	if err != nil {
@@ -1066,28 +1031,11 @@ func CreateBusiness(form types.BusinessForm) error {
 	}
 	defer stmt.Close()
 
-	// Handle NULL values for optional fields
-	var name sql.NullString
-	var isActive sql.NullBool
-	var website sql.NullString
-	var industry sql.NullString
-	var googleBusinessProfile sql.NullString
-
-	if form.Name != nil {
-		name = sql.NullString{String: *form.Name, Valid: true}
-	}
-	if form.IsActive != nil {
-		isActive = sql.NullBool{Bool: *form.IsActive, Valid: true}
-	}
-	if form.Website != nil {
-		website = sql.NullString{String: *form.Website, Valid: true}
-	}
-	if form.Industry != nil {
-		industry = sql.NullString{String: *form.Industry, Valid: true}
-	}
-	if form.GoogleBusinessProfile != nil {
-		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
-	}
+	name := utils.CreateNullString(form.Name)
+	isActive := utils.CreateNullBool(form.IsActive)
+	website := utils.CreateNullString(form.Website)
+	industry := utils.CreateNullString(form.Industry)
+	googleBusinessProfile := utils.CreateNullString(form.GoogleBusinessProfile)
 
 	_, err = stmt.Exec(
 		name,
@@ -1120,17 +1068,9 @@ func CreateBusinessContact(form types.BusinessContactForm) error {
 	}
 	defer stmt.Close()
 
-	var preferredContactMethod, preferredContactTime, businessPosition sql.NullString
-
-	if form.PreferredContactMethod != nil {
-		preferredContactMethod = sql.NullString{String: *form.PreferredContactMethod, Valid: true}
-	}
-	if form.PreferredContactTime != nil {
-		preferredContactTime = sql.NullString{String: *form.PreferredContactTime, Valid: true}
-	}
-	if form.BusinessPosition != nil {
-		businessPosition = sql.NullString{String: *form.BusinessPosition, Valid: true}
-	}
+	preferredContactMethod := utils.CreateNullString(form.PreferredContactMethod)
+	preferredContactTime := utils.CreateNullString(form.PreferredContactTime)
+	businessPosition := utils.CreateNullString(form.BusinessPosition)
 
 	_, err = stmt.Exec(
 		form.FirstName,
@@ -1158,25 +1098,11 @@ func CreateLocation(businessId int, form types.LocationForm) error {
 	}
 	defer stmt.Close()
 
-	// Handle NULL values for optional fields
-	var streetAddressLineTwo, opening, closing sql.NullString
-	var longitude, latitude sql.NullFloat64
-
-	if form.Longitude != nil {
-		longitude = sql.NullFloat64{Float64: *form.Longitude, Valid: true}
-	}
-	if form.Latitude != nil {
-		latitude = sql.NullFloat64{Float64: *form.Latitude, Valid: true}
-	}
-	if form.StreetAddressLineTwo != nil {
-		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
-	}
-	if form.Opening != nil {
-		opening = sql.NullString{String: *form.Opening, Valid: true}
-	}
-	if form.Closing != nil {
-		closing = sql.NullString{String: *form.Closing, Valid: true}
-	}
+	longitude := utils.CreateNullFloat64(form.Longitude)
+	latitude := utils.CreateNullFloat64(form.Latitude)
+	streetAddressLineTwo := utils.CreateNullString(form.StreetAddressLineTwo)
+	opening := utils.CreateNullString(form.Opening)
+	closing := utils.CreateNullString(form.Closing)
 
 	_, err = stmt.Exec(
 		form.VendingLocationID,
@@ -1200,79 +1126,57 @@ func CreateLocation(businessId int, form types.LocationForm) error {
 	return nil
 }
 
-func CreateMachine(form types.MachineForm) error {
+func CreateVendor(form types.VendorForm) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO machine (
-			vending_type_id, 
-			machine_status_id, 
-			location_id, 
-			vendor_id,
-			year, 
-			make, 
-			model, 
-			purchase_price, 
-			purchase_date, 
-			card_reader_serial_number
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, to_timestamp($9), $10)
+		INSERT INTO vendor (
+			name,
+			first_name,
+			last_name,
+			phone_number,
+			email,
+			preferred_contact_method,
+			preferred_contact_time,
+			street_address_line_one,
+			street_address_line_two,
+			city_id,
+			zip_code,
+			state,
+			google_business_profile
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
-	// Handle NULL values for optional fields
-	var make, model, cardReaderSerialNumber sql.NullString
-	var purchasePrice sql.NullFloat64
-	var year, locationID, vendorID sql.NullInt64
-	var purchaseDate sql.NullInt64
-
-	// Explicitly set Valid to false for nil values
-	make = sql.NullString{Valid: false}
-	model = sql.NullString{Valid: false}
-	cardReaderSerialNumber = sql.NullString{Valid: false}
-	purchasePrice = sql.NullFloat64{Valid: false}
-	year = sql.NullInt64{Valid: false}
-	locationID = sql.NullInt64{Valid: false}
-	vendorID = sql.NullInt64{Valid: false}
-	purchaseDate = sql.NullInt64{Valid: false}
-
-	// Set values if they are not nil
-	if form.Make != nil {
-		make = sql.NullString{String: *form.Make, Valid: true}
-	}
-	if form.Model != nil {
-		model = sql.NullString{String: *form.Model, Valid: true}
-	}
-	if form.CardReaderSerialNumber != nil {
-		cardReaderSerialNumber = sql.NullString{String: *form.CardReaderSerialNumber, Valid: true}
-	}
-	if form.PurchasePrice != nil {
-		purchasePrice = sql.NullFloat64{Float64: *form.PurchasePrice, Valid: true}
-	}
-	if form.Year != nil {
-		year = sql.NullInt64{Int64: int64(*form.Year), Valid: true}
-	}
-	if form.LocationID != nil {
-		locationID = sql.NullInt64{Int64: int64(*form.LocationID), Valid: true}
-	}
-	if form.VendorID != nil {
-		vendorID = sql.NullInt64{Int64: int64(*form.VendorID), Valid: true}
-	}
-	if form.PurchaseDate != nil {
-		purchaseDate = sql.NullInt64{Int64: *form.PurchaseDate, Valid: true}
-	}
+	name := utils.CreateNullString(form.Name)
+	firstName := utils.CreateNullString(form.FirstName)
+	lastName := utils.CreateNullString(form.LastName)
+	phone := utils.CreateNullString(form.PhoneNumber)
+	email := utils.CreateNullString(form.Email)
+	preferredContactMethod := utils.CreateNullString(form.PreferredContactMethod)
+	preferredContactTime := utils.CreateNullString(form.PreferredContactTime)
+	streetAddressLineOne := utils.CreateNullString(form.StreetAddressLineOne)
+	streetAddressLineTwo := utils.CreateNullString(form.StreetAddressLineTwo)
+	zipCode := utils.CreateNullString(form.ZipCode)
+	state := utils.CreateNullString(form.State)
+	googleBusinessProfile := utils.CreateNullString(form.GoogleBusinessProfile)
+	cityID := utils.CreateNullInt(form.CityID)
 
 	_, err = stmt.Exec(
-		int64(*form.VendingTypeID),
-		int64(*form.MachineStatusID),
-		locationID,
-		vendorID,
-		year,
-		make,
-		model,
-		purchasePrice,
-		purchaseDate,
-		cardReaderSerialNumber,
+		name,
+		firstName,
+		lastName,
+		phone,
+		email,
+		preferredContactMethod,
+		preferredContactTime,
+		streetAddressLineOne,
+		streetAddressLineTwo,
+		cityID,
+		zipCode,
+		state,
+		googleBusinessProfile,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -1299,29 +1203,13 @@ func UpdateBusinessContact(businessId int, businessContactId int, form types.Bus
 	}
 	defer stmt.Close()
 
-	var firstName, lastName, phone, email, preferredContactMethod, preferredContactTime, businessPosition sql.NullString
-
-	if form.FirstName != nil {
-		firstName = sql.NullString{String: *form.FirstName, Valid: true}
-	}
-	if form.LastName != nil {
-		lastName = sql.NullString{String: *form.LastName, Valid: true}
-	}
-	if form.Phone != nil {
-		phone = sql.NullString{String: *form.Phone, Valid: true}
-	}
-	if form.Email != nil {
-		email = sql.NullString{String: *form.Email, Valid: true}
-	}
-	if form.PreferredContactMethod != nil {
-		preferredContactMethod = sql.NullString{String: *form.PreferredContactMethod, Valid: true}
-	}
-	if form.PreferredContactTime != nil {
-		preferredContactTime = sql.NullString{String: *form.PreferredContactTime, Valid: true}
-	}
-	if form.BusinessPosition != nil {
-		businessPosition = sql.NullString{String: *form.BusinessPosition, Valid: true}
-	}
+	firstName := utils.CreateNullString(form.FirstName)
+	lastName := utils.CreateNullString(form.LastName)
+	phone := utils.CreateNullString(form.Phone)
+	email := utils.CreateNullString(form.Email)
+	preferredContactMethod := utils.CreateNullString(form.PreferredContactMethod)
+	preferredContactTime := utils.CreateNullString(form.PreferredContactTime)
+	businessPosition := utils.CreateNullString(form.BusinessPosition)
 
 	_, err = stmt.Exec(
 		businessContactId,
@@ -1356,24 +1244,11 @@ func UpdateBusiness(businessId int, form types.BusinessForm) error {
 	}
 	defer stmt.Close()
 
-	var name, website, industry, googleBusinessProfile sql.NullString
-	var isActive sql.NullBool
-
-	if form.Name != nil {
-		name = sql.NullString{String: *form.Name, Valid: true}
-	}
-	if form.Website != nil {
-		website = sql.NullString{String: *form.Website, Valid: true}
-	}
-	if form.Industry != nil {
-		industry = sql.NullString{String: *form.Industry, Valid: true}
-	}
-	if form.GoogleBusinessProfile != nil {
-		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
-	}
-	if form.IsActive != nil {
-		isActive = sql.NullBool{Bool: *form.IsActive, Valid: true}
-	}
+	name := utils.CreateNullString(form.Name)
+	website := utils.CreateNullString(form.Website)
+	industry := utils.CreateNullString(form.Industry)
+	googleBusinessProfile := utils.CreateNullString(form.GoogleBusinessProfile)
+	isActive := utils.CreateNullBool(form.IsActive)
 
 	_, err = stmt.Exec(
 		businessId,
@@ -1410,72 +1285,16 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 	}
 	defer stmt.Close()
 
-	// Handle NULL values for optional fields
-	var vendingTypeID, year, locationID, machineStatusID, vendorID sql.NullInt64
-	var make, model, cardReaderSerialNumber sql.NullString
-	var purchaseDate sql.NullInt64
-	var purchasePrice sql.NullFloat64
-
-	// Set each field, initializing to NULL (Valid: false) if the form value is nil
-	if form.VendingTypeID != nil {
-		vendingTypeID = sql.NullInt64{Int64: int64(*form.VendingTypeID), Valid: true}
-	} else {
-		vendingTypeID = sql.NullInt64{Valid: false}
-	}
-
-	if form.Year != nil {
-		year = sql.NullInt64{Int64: int64(*form.Year), Valid: true}
-	} else {
-		year = sql.NullInt64{Valid: false}
-	}
-
-	if form.Make != nil {
-		make = sql.NullString{String: *form.Make, Valid: true}
-	} else {
-		make = sql.NullString{Valid: false}
-	}
-
-	if form.Model != nil {
-		model = sql.NullString{String: *form.Model, Valid: true}
-	} else {
-		model = sql.NullString{Valid: false}
-	}
-
-	if form.PurchasePrice != nil {
-		purchasePrice = sql.NullFloat64{Float64: *form.PurchasePrice, Valid: true}
-	} else {
-		purchasePrice = sql.NullFloat64{Valid: false}
-	}
-
-	if form.PurchaseDate != nil {
-		purchaseDate = sql.NullInt64{Int64: *form.PurchaseDate, Valid: true}
-	} else {
-		purchaseDate = sql.NullInt64{Valid: false}
-	}
-
-	if form.CardReaderSerialNumber != nil {
-		cardReaderSerialNumber = sql.NullString{String: *form.CardReaderSerialNumber, Valid: true}
-	} else {
-		cardReaderSerialNumber = sql.NullString{Valid: false}
-	}
-
-	if form.LocationID != nil {
-		locationID = sql.NullInt64{Int64: int64(*form.LocationID), Valid: true}
-	} else {
-		locationID = sql.NullInt64{Valid: false}
-	}
-
-	if form.MachineStatusID != nil {
-		machineStatusID = sql.NullInt64{Int64: int64(*form.MachineStatusID), Valid: true}
-	} else {
-		machineStatusID = sql.NullInt64{Valid: false}
-	}
-
-	if form.VendorID != nil {
-		vendorID = sql.NullInt64{Int64: int64(*form.VendorID), Valid: true}
-	} else {
-		vendorID = sql.NullInt64{Valid: false}
-	}
+	vendingTypeID := utils.CreateNullInt(form.VendingTypeID)
+	year := utils.CreateNullInt(form.Year)
+	make := utils.CreateNullString(form.Make)
+	model := utils.CreateNullString(form.Model)
+	purchasePrice := utils.CreateNullFloat64(form.PurchasePrice)
+	purchaseDate := utils.CreateNullInt64(form.PurchaseDate)
+	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
+	locationID := utils.CreateNullInt(form.LocationID)
+	machineStatusID := utils.CreateNullInt(form.MachineStatusID)
+	vendorID := utils.CreateNullInt(form.VendorID)
 
 	_, err = stmt.Exec(
 		machineId,
@@ -1512,7 +1331,7 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 		    state = COALESCE($11, state),
 		    opening = COALESCE($12, opening),
 		    closing = COALESCE($13, closing),
-			date_started = COALESCE(to_timestamp($14), date_started)
+		    date_started = COALESCE(to_timestamp($14), date_started)
 		WHERE location_id = $1
 	`)
 	if err != nil {
@@ -1520,24 +1339,11 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 	}
 	defer stmt.Close()
 
-	var streetAddressLineTwo, opening, closing sql.NullString
-	var longitude, latitude sql.NullFloat64
-
-	if form.Longitude != nil {
-		longitude = sql.NullFloat64{Float64: *form.Longitude, Valid: true}
-	}
-	if form.Latitude != nil {
-		latitude = sql.NullFloat64{Float64: *form.Latitude, Valid: true}
-	}
-	if form.StreetAddressLineTwo != nil {
-		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
-	}
-	if form.Opening != nil {
-		opening = sql.NullString{String: *form.Opening, Valid: true}
-	}
-	if form.Closing != nil {
-		closing = sql.NullString{String: *form.Closing, Valid: true}
-	}
+	longitude := utils.CreateNullFloat64(form.Longitude)
+	latitude := utils.CreateNullFloat64(form.Latitude)
+	streetAddressLineTwo := utils.CreateNullString(form.StreetAddressLineTwo)
+	opening := utils.CreateNullString(form.Opening)
+	closing := utils.CreateNullString(form.Closing)
 
 	_, err = stmt.Exec(
 		locationId,
@@ -1979,111 +1785,22 @@ func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
 	return vendors, totalRows, nil
 }
 
-func CreateVendor(form types.VendorForm) error {
-	stmt, err := DB.Prepare(`
-		INSERT INTO vendor (
-			name,
-			first_name,
-			last_name,
-			phone_number,
-			email,
-			preferred_contact_method,
-			preferred_contact_time,
-			street_address_line_one,
-			street_address_line_two,
-			city_id,
-			zip_code,
-			state,
-			google_business_profile
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-	`)
-	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
-	}
-	defer stmt.Close()
-
-	// Handle NULL values for optional fields
-	var name, firstName, lastName, phone, email, preferredContactMethod, preferredContactTime, streetAddressLineOne, streetAddressLineTwo, zipCode, state, googleBusinessProfile sql.NullString
-	var cityID sql.NullInt64
-
-	if form.Name != nil {
-		name = sql.NullString{String: *form.Name, Valid: true}
-	}
-	if form.FirstName != nil {
-		firstName = sql.NullString{String: *form.FirstName, Valid: true}
-	}
-	if form.LastName != nil {
-		lastName = sql.NullString{String: *form.LastName, Valid: true}
-	}
-	if form.PhoneNumber != nil {
-		phone = sql.NullString{String: *form.PhoneNumber, Valid: true}
-	}
-	if form.Email != nil {
-		email = sql.NullString{String: *form.Email, Valid: true}
-	}
-	if form.PreferredContactMethod != nil {
-		preferredContactMethod = sql.NullString{String: *form.PreferredContactMethod, Valid: true}
-	}
-	if form.PreferredContactTime != nil {
-		preferredContactTime = sql.NullString{String: *form.PreferredContactTime, Valid: true}
-	}
-	if form.StreetAddressLineOne != nil {
-		streetAddressLineOne = sql.NullString{String: *form.StreetAddressLineOne, Valid: true}
-	}
-	if form.StreetAddressLineTwo != nil {
-		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
-	}
-	if form.ZipCode != nil {
-		zipCode = sql.NullString{String: *form.ZipCode, Valid: true}
-	}
-	if form.State != nil {
-		state = sql.NullString{String: *form.State, Valid: true}
-	}
-	if form.GoogleBusinessProfile != nil {
-		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
-	}
-	if form.CityID != nil {
-		cityID = sql.NullInt64{Int64: int64(*form.CityID), Valid: true}
-	}
-
-	_, err = stmt.Exec(
-		name,
-		firstName,
-		lastName,
-		phone,
-		email,
-		preferredContactMethod,
-		preferredContactTime,
-		streetAddressLineOne,
-		streetAddressLineTwo,
-		cityID,
-		zipCode,
-		state,
-		googleBusinessProfile,
-	)
-	if err != nil {
-		return fmt.Errorf("error executing statement: %w", err)
-	}
-
-	return nil
-}
-
 func UpdateVendor(vendorId int, form types.VendorForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE vendor
-		SET name = COALESCE($2, name),
-		    first_name = COALESCE($3, first_name),
-		    last_name = COALESCE($4, last_name),
-		    phone_number = COALESCE($5, phone_number),
-		    email = COALESCE($6, email),
-		    preferred_contact_method = COALESCE($7, preferred_contact_method),
-		    preferred_contact_time = COALESCE($8, preferred_contact_time),
-		    street_address_line_one = COALESCE($9, street_address_line_one),
-		    street_address_line_two = COALESCE($10, street_address_line_two),
-		    city_id = COALESCE($11, city_id),
-		    zip_code = COALESCE($12, zip_code),
-		    state = COALESCE($13, state),
-		    google_business_profile = COALESCE($14, google_business_profile)
+		SET name = $2,
+		    first_name = $3,
+		    last_name = $4,
+		    phone_number = $5,
+		    email = $6,
+		    preferred_contact_method = $7,
+		    preferred_contact_time = $8,
+		    street_address_line_one = $9,
+		    street_address_line_two = $10,
+		    city_id = $11,
+		    zip_code = $12,
+		    state = $13,
+		    google_business_profile = $14
 		WHERE vendor_id = $1
 	`)
 	if err != nil {
@@ -2091,43 +1808,27 @@ func UpdateVendor(vendorId int, form types.VendorForm) error {
 	}
 	defer stmt.Close()
 
-	// Define SQL nullable types for optional fields
-	var preferredContactMethod, preferredContactTime, streetAddressLineOne, streetAddressLineTwo, zipCode, state, googleBusinessProfile sql.NullString
-	var cityID sql.NullInt64
-
-	// Populate SQL nullable types with values from the form
-	if form.PreferredContactMethod != nil {
-		preferredContactMethod = sql.NullString{String: *form.PreferredContactMethod, Valid: true}
-	}
-	if form.PreferredContactTime != nil {
-		preferredContactTime = sql.NullString{String: *form.PreferredContactTime, Valid: true}
-	}
-	if form.StreetAddressLineOne != nil {
-		streetAddressLineOne = sql.NullString{String: *form.StreetAddressLineOne, Valid: true}
-	}
-	if form.StreetAddressLineTwo != nil {
-		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
-	}
-	if form.ZipCode != nil {
-		zipCode = sql.NullString{String: *form.ZipCode, Valid: true}
-	}
-	if form.State != nil {
-		state = sql.NullString{String: *form.State, Valid: true}
-	}
-	if form.GoogleBusinessProfile != nil {
-		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
-	}
-	if form.CityID != nil {
-		cityID = sql.NullInt64{Int64: int64(*form.CityID), Valid: true}
-	}
+	name := utils.CreateNullString(form.Name)
+	firstName := utils.CreateNullString(form.FirstName)
+	lastName := utils.CreateNullString(form.LastName)
+	phone := utils.CreateNullString(form.PhoneNumber)
+	email := utils.CreateNullString(form.Email)
+	preferredContactMethod := utils.CreateNullString(form.PreferredContactMethod)
+	preferredContactTime := utils.CreateNullString(form.PreferredContactTime)
+	streetAddressLineOne := utils.CreateNullString(form.StreetAddressLineOne)
+	streetAddressLineTwo := utils.CreateNullString(form.StreetAddressLineTwo)
+	zipCode := utils.CreateNullString(form.ZipCode)
+	state := utils.CreateNullString(form.State)
+	googleBusinessProfile := utils.CreateNullString(form.GoogleBusinessProfile)
+	cityID := utils.CreateNullInt(form.CityID)
 
 	_, err = stmt.Exec(
 		vendorId,
-		form.Name,
-		form.FirstName,
-		form.LastName,
-		form.PhoneNumber,
-		form.Email,
+		name,
+		firstName,
+		lastName,
+		phone,
+		email,
 		preferredContactMethod,
 		preferredContactTime,
 		streetAddressLineOne,
@@ -2310,39 +2011,11 @@ func CreateSupplier(form types.SupplierForm) error {
 	}
 	defer stmt.Close()
 
-	// Handle NULL values for optional fields
-	var googleBusinessProfile, membershipRenewal, membershipID, streetAddressLineTwo sql.NullString
-	var membershipCost sql.NullFloat64
-
-	if form.GoogleBusinessProfile != nil {
-		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
-	} else {
-		googleBusinessProfile = sql.NullString{Valid: false}
-	}
-
-	if form.StreetAddressLineTwo != nil {
-		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
-	} else {
-		streetAddressLineTwo = sql.NullString{Valid: false}
-	}
-
-	if form.MembershipRenewal != nil {
-		membershipRenewal = sql.NullString{String: *form.MembershipRenewal, Valid: true}
-	} else {
-		membershipRenewal = sql.NullString{Valid: false}
-	}
-
-	if form.MembershipCost != nil {
-		membershipCost = sql.NullFloat64{Float64: *form.MembershipCost, Valid: true}
-	} else {
-		membershipCost = sql.NullFloat64{Valid: false}
-	}
-
-	if form.MembershipID != nil {
-		membershipID = sql.NullString{String: *form.MembershipID, Valid: true}
-	} else {
-		membershipID = sql.NullString{Valid: false}
-	}
+	membershipID := utils.CreateNullString(form.MembershipID)
+	membershipCost := utils.CreateNullFloat64(form.MembershipCost)
+	membershipRenewal := utils.CreateNullString(form.MembershipRenewal)
+	streetAddressLineTwo := utils.CreateNullString(form.StreetAddressLineTwo)
+	googleBusinessProfile := utils.CreateNullString(form.GoogleBusinessProfile)
 
 	_, err = stmt.Exec(
 		form.Name,
@@ -2366,16 +2039,16 @@ func CreateSupplier(form types.SupplierForm) error {
 func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE supplier
-		SET name = COALESCE($2, name),
-		    membership_id = COALESCE($3, membership_id),
-		    membership_cost = COALESCE($4, membership_cost),
-		    membership_renewal = COALESCE($5, membership_renewal),
-		    street_address_line_one = COALESCE($6, street_address_line_one),
-		    street_address_line_two = COALESCE($7, street_address_line_two),
-		    city_id = COALESCE($8, city_id),
-		    zip_code = COALESCE($9, zip_code),
-		    state = COALESCE($10, state),
-		    google_business_profile = COALESCE($11, google_business_profile)
+		SET name = $2,
+		    membership_id = $3,
+		    membership_cost = $4,
+		    membership_renewal = $5,
+		    street_address_line_one = $6,
+		    street_address_line_two = $7,
+		    city_id = $8,
+		    zip_code = $9,
+		    state = $10,
+		    google_business_profile = $11
 		WHERE supplier_id = $1
 	`)
 	if err != nil {
@@ -2383,51 +2056,28 @@ func UpdateSupplier(supplierId int, form types.SupplierForm) error {
 	}
 	defer stmt.Close()
 
-	// Handle NULL values for optional fields
-	var googleBusinessProfile, membershipRenewal, membershipID, streetAddressLineTwo sql.NullString
-	var membershipCost sql.NullFloat64
-
-	if form.MembershipRenewal != nil {
-		membershipRenewal = sql.NullString{String: *form.MembershipRenewal, Valid: true}
-	} else {
-		membershipRenewal = sql.NullString{Valid: false}
-	}
-
-	if form.MembershipCost != nil {
-		membershipCost = sql.NullFloat64{Float64: *form.MembershipCost, Valid: true}
-	} else {
-		membershipCost = sql.NullFloat64{Valid: false}
-	}
-
-	if form.MembershipID != nil {
-		membershipID = sql.NullString{String: *form.MembershipID, Valid: true}
-	} else {
-		membershipID = sql.NullString{Valid: false}
-	}
-
-	if form.GoogleBusinessProfile != nil {
-		googleBusinessProfile = sql.NullString{String: *form.GoogleBusinessProfile, Valid: true}
-	} else {
-		googleBusinessProfile = sql.NullString{Valid: false}
-	}
-
-	if form.StreetAddressLineTwo != nil {
-		streetAddressLineTwo = sql.NullString{String: *form.StreetAddressLineTwo, Valid: true}
-	} else {
-		streetAddressLineTwo = sql.NullString{Valid: false}
-	}
+	name := utils.CreateNullString(form.Name)
+	membershipID := utils.CreateNullString(form.MembershipID)
+	membershipCost := utils.CreateNullFloat64(form.MembershipCost)
+	membershipRenewal := utils.CreateNullString(form.MembershipRenewal)
+	streetAddressLineOne := utils.CreateNullString(form.StreetAddressLineOne)
+	streetAddressLineTwo := utils.CreateNullString(form.StreetAddressLineTwo)
+	cityID := utils.CreateNullInt(form.CityID)
+	zipCode := utils.CreateNullString(form.ZipCode)
+	state := utils.CreateNullString(form.State)
+	googleBusinessProfile := utils.CreateNullString(form.GoogleBusinessProfile)
 
 	_, err = stmt.Exec(
 		supplierId,
-		form.Name,
+		name,
 		membershipID,
 		membershipCost,
 		membershipRenewal,
-		form.StreetAddressLineOne,
+		streetAddressLineOne,
 		streetAddressLineTwo,
-		form.CityID,
-		form.ZipCode,
-		form.State,
+		cityID,
+		zipCode,
+		state,
 		googleBusinessProfile,
 	)
 	if err != nil {
@@ -2787,4 +2437,52 @@ func GetMarketingImages() ([]string, error) {
 	}
 
 	return images, nil
+}
+
+func CreateMachine(form types.MachineForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO machine (
+			vending_type_id, 
+			machine_status_id, 
+			location_id, 
+			vendor_id,
+			year, 
+			make, 
+			model, 
+			purchase_price, 
+			purchase_date, 
+			card_reader_serial_number
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, to_timestamp($9), $10)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	make := utils.CreateNullString(form.Make)
+	model := utils.CreateNullString(form.Model)
+	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
+	purchasePrice := utils.CreateNullFloat64(form.PurchasePrice)
+	year := utils.CreateNullInt(form.Year)
+	locationID := utils.CreateNullInt(form.LocationID)
+	vendorID := utils.CreateNullInt(form.VendorID)
+	purchaseDate := utils.CreateNullInt64(form.PurchaseDate)
+
+	_, err = stmt.Exec(
+		int64(*form.VendingTypeID),
+		int64(*form.MachineStatusID),
+		locationID,
+		vendorID,
+		year,
+		make,
+		model,
+		purchasePrice,
+		purchaseDate,
+		cardReaderSerialNumber,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
 }
