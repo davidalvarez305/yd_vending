@@ -2099,6 +2099,18 @@ func DeleteMachine(id int) error {
 	return nil
 }
 
+func DeleteLocation(id int) error {
+	sqlStatement := `
+        DELETE FROM location WHERE location_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DeleteBusiness(id int) error {
 	sqlStatement := `
         DELETE FROM business WHERE business_id = $1

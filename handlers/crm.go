@@ -175,10 +175,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostLeadNotes(w, r)
 			return
 		}
-		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/contact") {
-			PostBusinessContact(w, r)
-			return
-		}
 		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/location") {
 			PostLocation(w, r)
 			return
@@ -1145,87 +1141,6 @@ func PostBusiness(w http.ResponseWriter, r *http.Request) {
 	token, err := helpers.GenerateTokenInHeader(w, r)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
-func PostBusinessContact(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Printf("Error parsing form: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Invalid request.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	var form types.BusinessContactForm
-	err = decoder.Decode(&form, r.PostForm)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error decoding form data.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = database.CreateBusinessContact(form)
-	if err != nil {
-		fmt.Printf("Error creating business contact: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to create business contact.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
-		Data: map[string]any{
-			"Message": "Business contact created successfully.",
-		},
-	}
-
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
