@@ -41,14 +41,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		/* if strings.HasPrefix(path, "/crm/business/") {
+		if strings.HasPrefix(path, "/crm/business/") {
 			parts := strings.Split(path, "/")
 			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
 				GetLocationDetail(w, r, ctx)
 				return
 			}
 			return
-		} */
+		}
 
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
 			GetLeadMessagesPartial(w, r)
@@ -74,12 +74,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		/* if strings.HasPrefix(path, "/crm/machine/") {
+		if strings.HasPrefix(path, "/crm/machine/") {
 			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
 				GetMachineDetail(w, r, ctx)
 				return
 			}
-		} */
+		}
 		if strings.HasPrefix(path, "/crm/supplier/") {
 			if len(path) > len("/crm/supplier/") && helpers.IsNumeric(path[len("/crm/supplier/"):]) {
 				GetSupplierDetail(w, r, ctx)
@@ -199,14 +199,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodDelete:
-		/* if strings.HasPrefix(path, "/crm/business/") {
+		if strings.HasPrefix(path, "/crm/business/") {
 			parts := strings.Split(path, "/")
 			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
 				DeleteLocation(w, r)
 				return
 			}
 			return
-		} */
+		}
 		if strings.HasPrefix(path, "/crm/business/") {
 			if len(path) > len("/crm/business/") && helpers.IsNumeric(path[len("/crm/business/"):]) {
 				DeleteBusiness(w, r)
@@ -1194,11 +1194,11 @@ func PostBusinessContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
+	businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	} */
+	}
 
 	err = database.CreateBusinessContact(form)
 	if err != nil {
@@ -2720,7 +2720,7 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	helpers.ServeContent(w, files, data)
 }
 
-/* func DeleteLocation(w http.ResponseWriter, r *http.Request) {
+func DeleteLocation(w http.ResponseWriter, r *http.Request) {
 	businessId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/business/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -2787,7 +2787,7 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-} */
+}
 
 func GetImagesUpload(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "images_upload.html"
