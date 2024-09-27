@@ -211,9 +211,9 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
 	}
-	log.Printf("MultipartForm: ", r.MultipartForm)
-	log.Printf("Body: ", r.Body)
-	log.Printf("Header: ", r.Header)
+	log.Printf("MultipartForm: %+v\n", r.MultipartForm)
+	log.Printf("Body: %+v\n", r.Body)
+	log.Printf("Header: %+v\n", r.Header)
 
 	file, _, err := r.FormFile("file")
 	if err != nil {
