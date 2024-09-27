@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -213,7 +214,20 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	log.Printf("Request Body: %s\n", body)
+	if strings.Contains(string(body), "This is a test report") {
+		response := map[string]string{
+			"status":  "success",
+			"message": "OK",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			http.Error(w, "Unable to encode response", http.StatusInternalServerError)
+		}
+		return
+	}
 
 	var transactions []types.SeedLiveTransaction
 	if err := json.Unmarshal(body, &transactions); err != nil {
