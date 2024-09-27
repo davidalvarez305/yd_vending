@@ -22,7 +22,7 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/webhooks/lead-form":
 			handleGoogleLeadFormWebhook(w, r)
-		case "/webhooks/seed-live-hourly":
+		case "/webhooks/seed-live-hourly/testTransportFileName":
 			handleSeedLiveHourly(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
@@ -206,30 +206,15 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(10 << 20) // Limit upload size to 10 MB
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		http.Error(w, "Unable to read request body", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("MultipartForm: %+v\n", r.MultipartForm)
-	log.Printf("Body: %+v\n", r.Body)
-	log.Printf("Header: %+v\n", r.Header)
-
-	file, _, err := r.FormFile("file")
-	if err != nil {
-		http.Error(w, "File not found", http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
-
-	fileContent, err := io.ReadAll(file)
-	if err != nil {
-		http.Error(w, "Unable to read file", http.StatusInternalServerError)
-		return
-	}
+	defer r.Body.Close()
 
 	var transactions []types.SeedLiveTransaction
-	if err := json.Unmarshal(fileContent, &transactions); err != nil {
+	if err := json.Unmarshal(body, &transactions); err != nil {
 		http.Error(w, "Bad request: Invalid JSON", http.StatusBadRequest)
 		return
 	}
