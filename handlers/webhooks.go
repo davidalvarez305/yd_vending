@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -23,7 +22,7 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/webhooks/lead-form":
 			handleGoogleLeadFormWebhook(w, r)
-		case "/webhooks/seed-live-hourly":
+		case "/webhooks/seed-live-hourly/Seed+Live+Hourly+Summary+Report+JSON.json":
 			handleSeedLiveHourly(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
@@ -213,21 +212,6 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-
-	if strings.Contains(strings.ToLower(string(body)), "test") {
-		response := map[string]string{
-			"status":  "success",
-			"message": "OK",
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			http.Error(w, "Unable to encode response", http.StatusInternalServerError)
-		}
-		return
-	}
 
 	var transactions []types.SeedLiveTransaction
 	if err := json.Unmarshal(body, &transactions); err != nil {
