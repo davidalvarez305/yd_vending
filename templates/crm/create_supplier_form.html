@@ -136,6 +136,7 @@
 
     function handleSubmitForm() {
         const data = new FormData(form);
+        const body = new FormData();
 
         let membershipRenewal = data.get('membership_renewal');
 
@@ -147,10 +148,14 @@
             }
         }
 
+        for (const [key, value] of data.entries()) {
+			if (value) body.append(key, value);
+		}
+
         fetch("/crm/supplier", {
             method: "POST",
             credentials: "include",
-            body: data,
+            body: body,
         })
             .then((response) => {
                 if (response.ok) {

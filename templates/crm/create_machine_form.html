@@ -146,17 +146,21 @@
 
 	function handleSubmitForm() {
 		const data = new FormData(form);
+		const body = new FormData();
 
-		// Handle timestamp
-		const purchaseDate = data.get('purchase_date');
-		const timestamp = new Date(purchaseDate).getTime() / 1000;
-		data.delete('purchase_date');
-		data.append('purchase_date', timestamp);
+        const purchaseDate = data.get('purchase_date');
+        const timestamp = new Date(purchaseDate).getTime() / 1000;
+        body.append('purchase_date', timestamp);
+        data.delete('purchase_date');
+
+		for (const [key, value] of data.entries()) {
+			if (value) body.append(key, value);
+		}
 
 		fetch("/crm/machine", {
 			method: "POST",
 			credentials: "include",
-			body: data,
+			body: body,
 		})
 			.then((response) => {
 				if (response.ok) {

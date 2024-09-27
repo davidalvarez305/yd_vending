@@ -153,11 +153,16 @@
 
 	function handleSubmitForm() {
 		const data = new FormData(form);
+		const body = new FormData();
+
+		for (const [key, value] of data.entries()) {
+			if (value) body.append(key, value);
+		}
 
 		fetch("/crm/vendor", {
 			method: "POST",
 			credentials: "include",
-			body: data,
+			body: body,
 		})
 			.then((response) => {
 				if (response.ok) {
@@ -183,13 +188,13 @@
 				table.outerHTML = html;
 				handleBindPagination();
 
-                form.reset();
-            })
-            .catch(err => {
-                alertModal.outerHTML = err;
-                handleCloseAlertModal();
-            })
-            .finally(() => handleCloseForm());
+				form.reset();
+			})
+			.catch(err => {
+				alertModal.outerHTML = err;
+				handleCloseAlertModal();
+			})
+			.finally(() => handleCloseForm());
 	}
 </script>
 {{ end }}

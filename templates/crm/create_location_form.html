@@ -204,18 +204,22 @@
     closeForm.addEventListener("click", () => handleCloseForm());
 
     function handleSubmitForm() {
-        const data = new FormData(form);
+		const data = new FormData(form);
+		const body = new FormData();
 
-        // Handle timestamp
-        const purchaseDate = data.get('date_started');
-        const timestamp = new Date(purchaseDate).getTime() / 1000;
+        const dateStarted = data.get('date_started');
+        const timestamp = new Date(dateStarted).getTime() / 1000;
+        body.append('date_started', timestamp);
         data.delete('date_started');
-        data.append('date_started', timestamp);
+
+		for (const [key, value] of data.entries()) {
+			if (value) body.append(key, value);
+		}
 
         fetch("/crm/location", {
             method: "POST",
             credentials: "include",
-            body: data,
+            body: body,
         })
             .then((response) => {
                 if (response.ok) {
