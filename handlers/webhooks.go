@@ -214,7 +214,7 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if strings.Contains(string(body), "This is a test report") {
+	if strings.Contains(strings.ToLower(string(body)), "test") {
 		response := map[string]string{
 			"status":  "success",
 			"message": "OK",
