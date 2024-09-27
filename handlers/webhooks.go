@@ -23,7 +23,7 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/webhooks/lead-form":
 			handleGoogleLeadFormWebhook(w, r)
-		case "/webhooks/seed-live-hourly/testTransportFileName":
+		case "/webhooks/seed-live-hourly":
 			handleSeedLiveHourly(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
