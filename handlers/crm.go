@@ -2908,3 +2908,85 @@ func PostImagesUpload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
+
+func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "machine_detail.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machine ID from URL.", http.StatusInternalServerError)
+		return
+	}
+
+	machineDetails, err := database.GetMachineDetails(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting location details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	cities, err := database.GetCities()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingTypes, err := database.GetVendingTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
+	vendors, err := database.GetVendors()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
+	machineStatuses, err := database.GetMachineStatuses()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
+	locations, err := database.GetLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		return
+	}
+
+	// Get machine slots....
+
+	data := ctx
+	data["PageTitle"] = "Machine Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Machine"] = machineDetails
+	data["Cities"] = cities
+	data["VendingTypes"] = vendingTypes
+	data["Vendors"] = vendors
+	data["MachineStatuses"] = machineStatuses
+	data["Locations"] = locations
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}

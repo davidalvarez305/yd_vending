@@ -2540,7 +2540,7 @@ func GetLocationDetails(businessID, locationID int) (types.LocationDetails, erro
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return location, fmt.Errorf("no location found with ID %s", locationID)
+			return location, fmt.Errorf("no location found with ID %d", locationID)
 		}
 		return location, fmt.Errorf("error scanning row: %w", err)
 	}
@@ -2594,4 +2594,57 @@ func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 	}
 
 	return machines, nil
+}
+
+func GetMachineDetails(machineID int) (types.MachineDetails, error) {
+	query := `SELECT
+				m.machine_id,
+				m.vending_type_id,
+				m.machine_status_id,
+				m.location_id,
+				m.vendor_id,
+				m.year,
+				m.make,
+				m.model,
+				m.purchase_price,
+				m.purchase_date,
+				m.card_reader_serial_number
+			FROM machine AS m
+			WHERE m.machine_id = $1`
+
+	var machine types.MachineDetails
+	var purchaseDate sql.NullTime
+	var cardReaderSerialNumber sql.NullString
+
+	row := DB.QueryRow(query, machineID)
+
+	err := row.Scan(
+		&machine.MachineID,
+		&machine.VendingTypeID,
+		&machine.MachineStatusID,
+		&machine.LocationID,
+		&machine.VendorID,
+		&machine.Year,
+		&machine.Make,
+		&machine.Model,
+		&machine.PurchasePrice,
+		&purchaseDate,
+		&cardReaderSerialNumber,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return machine, fmt.Errorf("no machine found with ID %d", machineID)
+		}
+		return machine, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	// Check nullable fields
+	if purchaseDate.Valid {
+		machine.PurchaseDate = purchaseDate.Time.Unix()
+	}
+	if cardReaderSerialNumber.Valid {
+		machine.CardReaderSerialNumber = cardReaderSerialNumber.String
+	}
+
+	return machine, nil
 }
