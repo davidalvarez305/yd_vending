@@ -209,19 +209,13 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload map[string]interface{}
+	var payload []types.SeedLiveTransaction
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
-	payloadString, err := json.Marshal(payload)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Println(string(payloadString))
+	fmt.Printf("%+v\n", payload)
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Received successfully"))

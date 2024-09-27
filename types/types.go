@@ -545,3 +545,14 @@ type MachineDetails struct {
 	PurchaseDate           int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
 	CardReaderSerialNumber string  `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
 }
+
+type SeedLiveTransaction struct {
+	Device        string `json:"Device"`
+	Location      string `json:"Location"`
+	Item          string `json:"Item"`
+	HourOfDay     string `json:"Hour of Day"`
+	Day           string `json:"Day"`
+	TransType     string `json:"Trans Type"`
+	NumberOfTrans string `json:"# of Trans"`
+	ItemQuantity  string `json:"Item Quantity"`
+}
