@@ -208,6 +208,7 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		fmt.Printf("UNABLE TO READ BODY: %+v\n", err)
 		http.Error(w, "Unable to read request body", http.StatusInternalServerError)
 		return
 	}
@@ -215,6 +216,7 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 
 	var transactions []types.SeedLiveTransaction
 	if err := json.Unmarshal(body, &transactions); err != nil {
+		fmt.Printf("JSON UNMARSHALING ERROR: %+v\n", err)
 		http.Error(w, "Bad request: Invalid JSON", http.StatusBadRequest)
 		return
 	}
