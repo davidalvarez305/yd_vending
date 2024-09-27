@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -204,18 +206,34 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") != "application/json" {
-		http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
+	err := r.ParseMultipartForm(10 << 20) // Limit upload size to 10 MB
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
 	}
 
-	var payload []types.SeedLiveTransaction
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "File not found", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	fileContent, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Unable to read file", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Printf("%+v\n", payload)
+	var transactions []types.SeedLiveTransaction
+	if err := json.Unmarshal(fileContent, &transactions); err != nil {
+		http.Error(w, "Bad request: Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	for _, t := range transactions {
+		log.Printf("%+v\n", t)
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Received successfully"))
