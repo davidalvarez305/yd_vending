@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -19,11 +20,18 @@ import (
 func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
+		path := r.URL.Path
+
+		if strings.HasPrefix(path, "/webhooks/seed-live-hourly") {
+			if len(path) > len("/webhooks/seed-live-hourly") {
+				handleSeedLiveHourly(w, r)
+				return
+			}
+		}
+
 		switch r.URL.Path {
 		case "/webhooks/lead-form":
 			handleGoogleLeadFormWebhook(w, r)
-		case "/webhooks/seed-live-hourly/Seed+Live+Hourly+Summary+Report+JSON":
-			handleSeedLiveHourly(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
