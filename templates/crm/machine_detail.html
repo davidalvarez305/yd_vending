@@ -125,6 +125,12 @@
 
         const data = new FormData(e.target);
 		const body = new FormData();
+
+        const purchaseDate = data.get('purchase_date');
+        const timestamp = new Date(purchaseDate).getTime() / 1000;
+        body.append('purchase_date', timestamp);
+        data.delete('purchase_date');
+
 		for (const [key, value] of data.entries()) {
 			if (value) body.append(key, value);
 		}

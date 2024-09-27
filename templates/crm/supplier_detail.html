@@ -102,8 +102,19 @@
         e.preventDefault();
 
         const data = new FormData(e.target);
-		const body = new FormData();
-		for (const [key, value] of data.entries()) {
+        const body = new FormData();
+
+        let membershipRenewal = data.get('membership_renewal');
+
+        if (membershipRenewal) {
+            membershipRenewal = membershipRenewal.replace(/\D/g, '');
+            if (membershipRenewal.length === 8) {
+                membershipRenewal = membershipRenewal.slice(4, 6) + '-' + membershipRenewal.slice(6); // Format as mm-dd
+                data.set('membership_renewal', membershipRenewal);
+            }
+        }
+
+        for (const [key, value] of data.entries()) {
 			if (value) body.append(key, value);
 		}
 
