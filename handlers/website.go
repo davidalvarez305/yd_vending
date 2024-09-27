@@ -80,13 +80,13 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		switch r.URL.Path {
 		case "/quote":
-			PostQuote(w, r, ctx)
+			PostQuote(w, r)
 		case "/contact":
-			PostContactForm(w, r, ctx)
+			PostContactForm(w, r)
 		case "/login":
-			PostLogin(w, r, ctx)
+			PostLogin(w, r)
 		case "/logout":
-			PostLogout(w, r, ctx)
+			PostLogout(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -388,7 +388,7 @@ func GetTermsAndConditions(w http.ResponseWriter, r *http.Request, ctx types.Web
 	helpers.ServeContent(w, files, data)
 }
 
-func PostQuote(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+func PostQuote(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -655,7 +655,7 @@ func GetContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteCon
 	}
 }
 
-func PostContactForm(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+func PostContactForm(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 
 	if err != nil {
@@ -812,7 +812,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) 
 	}
 }
 
-func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+func PostLogin(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form data.", http.StatusBadRequest)
 		return
@@ -882,7 +882,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext)
 	w.WriteHeader(http.StatusOK)
 }
 
-func PostLogout(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+func PostLogout(w http.ResponseWriter, r *http.Request) {
 
 	sessions.SetCookie(w, time.Now().Add(-1*time.Hour), "")
 
