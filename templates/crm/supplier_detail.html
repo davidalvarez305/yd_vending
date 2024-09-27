@@ -101,7 +101,12 @@
     function handleLeadSaveChanges(e) {
         e.preventDefault();
 
-        var body = new FormData(e.target);
+        const data = new FormData(e.target);
+		const body = new FormData();
+		for (const [key, value] of data.entries()) {
+			if (value) body.append(key, value);
+		}
+
         const endpoint = e.target.action;
         const method = e.target.method === "get" ? body.get('_method') : e.target.method;
 
