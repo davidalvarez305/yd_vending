@@ -204,8 +204,8 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
 		return
 	}
 
