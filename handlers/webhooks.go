@@ -235,6 +235,17 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%+v\n", t)
 	}
 
+	response := map[string]interface{}{
+		"status":  "success",
+		"message": "Received successfully",
+		"count":   len(transactions),
+		"data":    transactions,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Received successfully"))
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Unable to encode response", http.StatusInternalServerError)
+	}
 }
