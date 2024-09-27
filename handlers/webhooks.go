@@ -20,6 +20,8 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/webhooks/lead-form":
 			handleGoogleLeadFormWebhook(w, r)
+		case "/webhooks/seed-live-hourly":
+			handleSeedLiveHourly(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -199,4 +201,28 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var payload map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	payloadString, err := json.Marshal(payload)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(string(payloadString))
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Received successfully"))
 }
