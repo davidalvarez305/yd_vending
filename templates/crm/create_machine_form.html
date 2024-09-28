@@ -135,7 +135,6 @@
 	const submitForm = document.getElementById("submitForm");
 	const cancelForm = document.getElementById("cancelForm");
 	const closeForm = document.getElementById("closeForm");
-	const alertModal = document.getElementById("alertModal");
 
 	function handleCloseForm() {
 		const modal = document.getElementById('formModalContainer');
@@ -149,6 +148,7 @@
 	function handleSubmitForm() {
 		const data = new FormData(form);
 		const body = new FormData();
+		const alertModal = document.getElementById("alertModal");
 
 		const purchaseDate = data.get('purchase_date');
 		const timestamp = new Date(purchaseDate).getTime() / 1000;

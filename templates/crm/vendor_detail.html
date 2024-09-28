@@ -118,9 +118,9 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const alertModal = document.getElementById("alertModal");
     function handleSubmitForm(e) {
         e.preventDefault();
+        const alertModal = document.getElementById("alertModal");
 
         const data = new FormData(e.target);
         const body = new FormData();

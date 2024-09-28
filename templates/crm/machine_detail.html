@@ -70,7 +70,8 @@
                             <select id="vendor_id" name="vendor_id" required
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                                 {{ range .Vendors }}
-                                <option value="{{ .VendorID }}" {{ if eq .VendorID $.Machine.VendorID }}selected{{ end }}>
+                                <option value="{{ .VendorID }}" {{ if eq .VendorID $.Machine.VendorID }}selected{{ end
+                                    }}>
                                     {{ .Name }}
                                 </option>
                                 {{ end }}
@@ -133,9 +134,9 @@
         purchaseDate.value = date.toISOString().split('T')[0];
     }
 
-    const alertModal = document.getElementById("alertModal");
     function handleSubmitForm(e) {
         e.preventDefault();
+        const alertModal = document.getElementById("alertModal");
 
         const data = new FormData(e.target);
         const body = new FormData();

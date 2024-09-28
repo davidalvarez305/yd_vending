@@ -123,7 +123,6 @@
     const submitForm = document.getElementById("submitForm");
     const cancelForm = document.getElementById("cancelForm");
     const closeForm = document.getElementById("closeForm");
-    const alertModal = document.getElementById("alertModal");
 
     function handleCloseForm() {
         const modal = document.getElementById('formModalContainer');
@@ -137,6 +136,7 @@
     function handleSubmitForm() {
         const data = new FormData(form);
         const body = new FormData();
+        const alertModal = document.getElementById("alertModal");
 
         let membershipRenewal = data.get('membership_renewal');
 
