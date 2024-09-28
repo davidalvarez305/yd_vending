@@ -32,7 +32,6 @@
                                     <label for="vending_location_id" class="font-medium">Location Type*</label>
                                     <select id="vending_location_id" name="vending_location_id" required
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
-                                        <option value=""></option>
                                         {{ range .VendingLocations }}
                                         <option value="{{ .VendingLocationID }}">{{ .LocationType }}</option>
                                         {{ end }}
@@ -56,10 +55,8 @@
                                         <label for="location_contact_id" class="font-medium">Location Contact*</label>
                                         <select id="location_contact_id" name="location_contact_id" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
-                                            <option value=""></option>
                                             {{ range .LocationContacts }}
-                                            <option value="{{ .LocationContactID }}">{{ .FirstName }} {{ .LastName }}
-                                            </option>
+                                            <option value="{{ .LocationContactID }}">{{ .FirstName }} {{ .LastName }}</option>
                                             {{ end }}
                                         </select>
                                     </div>
