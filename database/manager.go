@@ -1425,7 +1425,8 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 
 	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
 
-	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
+	rows, err := DB.Query(`SELECT m.machine_id,
+	CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
 	m.card_reader_serial_number, s.status, l.name, m.purchase_date, COUNT(*) OVER() AS total_rows
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
@@ -1444,6 +1445,7 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 		var location, cardReaderSerialNumber sql.NullString
 
 		err := rows.Scan(
+			&machine.MachineID,
 			&machine.MachineName,
 			&cardReaderSerialNumber,
 			&machine.MachineStatus,
@@ -2551,7 +2553,7 @@ func GetLocationDetails(businessID, locationID int) (types.LocationDetails, erro
 func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 	var machines []types.MachineList
 
-	rows, err := DB.Query(`SELECT CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
+	rows, err := DB.Query(`SELECT m.machine_id, CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
 	m.card_reader_serial_number, s.status, l.name, m.purchase_date
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
@@ -2568,6 +2570,7 @@ func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 		var location, cardReaderSerialNumber sql.NullString
 
 		err := rows.Scan(
+			&machine.MachineID,
 			&machine.MachineName,
 			&cardReaderSerialNumber,
 			&machine.MachineStatus,
