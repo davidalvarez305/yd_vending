@@ -2332,7 +2332,8 @@ func GetLocationsByBusiness(businessId string) ([]types.LocationList, error) {
 	var locations []types.LocationList
 
 	rows, err := DB.Query(`
-		SELECT location_id, business_id, v.location_type, name, longitude, latitude, street_address_line_one, street_address_line_two, c.name, zip_code, state, opening, closing 
+		SELECT l.location_id, l.business_id, vl.location_type, l.name, l.longitude, l.latitude, l.street_address_line_one, l.street_address_line_two,
+		c.name, l.zip_code, l.state, l.opening, l.closing 
 		FROM "location" AS l
 		JOIN "city" AS c ON c.city_id = l.city_id
 		JOIN "vending_location" AS vl ON vl.vending_location_id = l.vending_location_id

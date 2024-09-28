@@ -47,7 +47,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				GetLocationDetail(w, r, ctx)
 				return
 			}
-			return
 		}
 
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
@@ -126,7 +125,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				PutLead(w, r)
 				return
 			}
-			return
 		}
 		if strings.HasPrefix(path, "/crm/business/") {
 			parts := strings.Split(path, "/")
@@ -201,7 +199,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				DeleteLocation(w, r)
 				return
 			}
-			return
 		}
 		if strings.HasPrefix(path, "/crm/business/") {
 			if len(path) > len("/crm/business/") && helpers.IsNumeric(path[len("/crm/business/"):]) {
@@ -2593,7 +2590,9 @@ func GetSupplierDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 
 func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "business_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	locationsTable := "locations_table.html"
+	createLocationForm := "create_location_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + locationsTable, constants.CRM_TEMPLATES_DIR + createLocationForm}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)

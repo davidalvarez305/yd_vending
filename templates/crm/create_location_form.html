@@ -85,12 +85,15 @@
                                 </div>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div class="space-y-1">
-                                        <label for="street_address_line_one" class="font-medium">Street Address Line One*</label>
-                                        <input type="text" id="street_address_line_one" name="street_address_line_one" required
+                                        <label for="street_address_line_one" class="font-medium">Street Address Line
+                                            One*</label>
+                                        <input type="text" id="street_address_line_one" name="street_address_line_one"
+                                            required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
                                     <div class="space-y-1">
-                                        <label for="street_address_line_two" class="font-medium">Street Address Line Two</label>
+                                        <label for="street_address_line_two" class="font-medium">Street Address Line
+                                            Two</label>
                                         <input type="text" id="street_address_line_two" name="street_address_line_two"
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
@@ -101,7 +104,7 @@
                                         <select id="city_id" name="city_id" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
                                             {{ range .Cities }}
-                                            <option value="{{ .CityID }}">{{ .City }}</option>
+                                            <option value="{{ .CityID }}">{{ .Name }}</option>
                                             {{ end }}
                                         </select>
                                     </div>
@@ -117,24 +120,23 @@
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                 </div>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2"></div>
-                                    <div class="space-y-1">
-                                        <label for="opening" class="font-medium">Opening Time</label>
-                                        <input type="text" id="opening" name="opening"
-                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
-                                    </div>
-                                    <div class="space-y-1">
-                                        <label for="closing" class="font-medium">Closing Time</label>
-                                        <input type="text" id="closing" name="closing"
-                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
-                                    </div>
-                                </div>
                                 <div class="space-y-1">
-                                    <label for="date_started" class="font-medium">Date Started</label>
-                                    <input type="date" id="date_started" name="date_started"
+                                    <label for="opening" class="font-medium">Opening Time</label>
+                                    <input type="text" id="opening" name="opening"
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                 </div>
-                            </form>
+                                <div class="space-y-1">
+                                    <label for="closing" class="font-medium">Closing Time</label>
+                                    <input type="text" id="closing" name="closing"
+                                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                                </div>
                         </div>
+                        <div class="space-y-1">
+                            <label for="date_started" class="font-medium">Date Started</label>
+                            <input type="date" id="date_started" name="date_started"
+                                class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                        </div>
+                        </form>
                     </div>
                 </div>
                 <div class="space-x-1 bg-gray-50 px-5 py-4 text-right dark:bg-gray-700/50">
@@ -150,7 +152,8 @@
             </div>
         </div>
     </div>
-    <!-- END Modals: With Form -->
+</div>
+<!-- END Modals: With Form -->
 </div>
 <!-- END Modal Container -->
 
@@ -204,17 +207,17 @@
     closeForm.addEventListener("click", () => handleCloseForm());
 
     function handleSubmitForm() {
-		const data = new FormData(form);
-		const body = new FormData();
+        const data = new FormData(form);
+        const body = new FormData();
 
         const dateStarted = data.get('date_started');
         const timestamp = new Date(dateStarted).getTime() / 1000;
         body.append('date_started', timestamp);
         data.delete('date_started');
 
-		for (const [key, value] of data.entries()) {
-			if (value) body.append(key, value);
-		}
+        for (const [key, value] of data.entries()) {
+            if (value) body.append(key, value);
+        }
 
         fetch("/crm/location", {
             method: "POST",
