@@ -682,15 +682,15 @@ func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 
 	query := `
 		UPDATE lead_marketing
-		SET ad_campaign = COALESCE($2, ad_campaign), 
-		    medium = COALESCE($3, medium), 
-		    source = COALESCE($4, source), 
-		    referrer = COALESCE($5, referrer), 
-		    landing_page = COALESCE($6, landing_page),
-		    ip = COALESCE($7, ip), 
-		    keyword = COALESCE($8, keyword), 
-		    channel = COALESCE($9, channel), 
-		    language = COALESCE($10, language)
+		SET ad_campaign = $2, 
+		    medium = $3, 
+		    source = $4, 
+		    referrer = $5, 
+		    landing_page = $6,
+		    ip = $7, 
+		    keyword = $8, 
+		    channel = $9, 
+		    language = $10
 		WHERE lead_id = $1
 	`
 
@@ -1219,10 +1219,10 @@ func UpdateBusinessContact(businessId int, businessContactId int, form types.Bus
 		    last_name = COALESCE($3, last_name),
 		    phone = COALESCE($4, phone),
 		    email = COALESCE($5, email),
-		    preferred_contact_method = COALESCE($6, preferred_contact_method),
-		    preferred_contact_time = COALESCE($7, preferred_contact_time),
+		    preferred_contact_method = $6,
+		    preferred_contact_time = $7,
 		    business_id = COALESCE($8, business_id),
-		    business_position = COALESCE($9, business_position)
+		    business_position = $9
 		WHERE business_contact_id = $1
 	`)
 	if err != nil {
@@ -1260,10 +1260,10 @@ func UpdateBusiness(businessId int, form types.BusinessForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE business
 		SET name = COALESCE($2, name),
-		    website = COALESCE($3, website),
-		    industry = COALESCE($4, industry),
+		    website = $3,
+		    industry = $4,
 		    is_active = COALESCE($5, is_active),
-		    google_business_profile = COALESCE($6, google_business_profile)
+		    google_business_profile = $6
 		WHERE business_id = $1
 	`)
 	if err != nil {
@@ -1296,11 +1296,11 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE machine
 		SET vending_type_id = COALESCE($2, vending_type_id),
-		    year = COALESCE($3, year),
-		    make = COALESCE($4, make),
-		    model = COALESCE($5, model),
-		    purchase_price = COALESCE($6, purchase_price),
-		    purchase_date = COALESCE(to_timestamp($7), purchase_date),
+		    year = $3,
+		    make = $4,
+		    model = $5,
+		    purchase_price = $6,
+		    purchase_date = to_timestamp($7),
 		    card_reader_serial_number = $8,
 		    location_id = $9,
 		    machine_status_id = COALESCE($10, machine_status_id),
@@ -1349,15 +1349,15 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 		SET vending_location_id = COALESCE($2, vending_location_id),
 		    business_id = COALESCE($3, business_id),
 		    name = COALESCE($4, name),
-		    longitude = COALESCE($5, longitude),
-		    latitude = COALESCE($6, latitude),
+		    longitude = $5,
+		    latitude = $6,
 		    street_address_line_one = COALESCE($7, street_address_line_one),
-		    street_address_line_two = COALESCE($8, street_address_line_two),
+		    street_address_line_two = $8,
 		    city_id = COALESCE($9, city_id),
 		    zip_code = COALESCE($10, zip_code),
 		    state = COALESCE($11, state),
-		    opening = COALESCE($12, opening),
-		    closing = COALESCE($13, closing),
+		    opening = $12,
+		    closing = $13,
 		    date_started = COALESCE(to_timestamp($14), date_started)
 		WHERE location_id = $1
 	`)
