@@ -2609,7 +2609,7 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 				m.year,
 				m.make,
 				m.model,
-				m.purchase_price,
+				m.purchase_price::NUMERIC,
 				m.purchase_date,
 				m.card_reader_serial_number
 			FROM machine AS m
@@ -2617,6 +2617,7 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 
 	var machine types.MachineDetails
 	var purchaseDate sql.NullTime
+	var location sql.NullInt64
 	var cardReaderSerialNumber sql.NullString
 
 	row := DB.QueryRow(query, machineID)
@@ -2625,7 +2626,7 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 		&machine.MachineID,
 		&machine.VendingTypeID,
 		&machine.MachineStatusID,
-		&machine.LocationID,
+		&location,
 		&machine.VendorID,
 		&machine.Year,
 		&machine.Make,
@@ -2647,6 +2648,9 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 	}
 	if cardReaderSerialNumber.Valid {
 		machine.CardReaderSerialNumber = cardReaderSerialNumber.String
+	}
+	if location.Valid {
+		machine.LocationID = int(location.Int64)
 	}
 
 	return machine, nil

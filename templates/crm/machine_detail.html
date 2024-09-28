@@ -40,7 +40,7 @@
                     <div class="space-y-6 sm:flex sm:gap-3 sm:space-y-0">
                         <div class="space-y-1">
                             <label for="location_id" class="font-medium">Location</label>
-                            <select id="location_id" name="location_id" required
+                            <select id="location_id" name="location_id"
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                                 {{ range .Locations }}
                                 <option value="{{ .LocationID }}" {{ if eq .LocationID $.Machine.LocationID }}selected{{ end }}>
@@ -55,7 +55,7 @@
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                                 {{ range .MachineStatuses }}
                                 <option value="{{ .MachineStatusID }}" {{ if eq .MachineStatusID $.Machine.MachineStatusID }}selected{{ end }}>
-                                    {{ .Name }}
+                                    {{ .Status }}
                                 </option>
                                 {{ end }}
                             </select>
@@ -99,7 +99,7 @@
                     </div>
                     <div class="space-y-1">
                         <label for="card_reader_serial_number" class="font-medium">Card Reader Serial Number</label>
-                        <input type="text" id="card_reader_serial_number" name="card_reader_serial_number" value="{{ .Machine.CardReaderSerialNumber }}" required
+                        <input type="text" id="card_reader_serial_number" name="card_reader_serial_number" value="{{ .Machine.CardReaderSerialNumber }}"
                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                     </div>
                     <button type="submit"
@@ -118,6 +118,14 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
+    const purchaseDate = document.getElementById('purchase_date');
+    const timestamp = `{{ .Machine.PurchaseDate }}`;
+
+    if (timestamp) {
+        const date = new Date(timestamp * 1000);
+        purchaseDate.value = date.toISOString().split('T')[0];
+    }
+
     const alertModal = document.getElementById("alertModal");
     function handleSubmitForm(e) {
         e.preventDefault();
