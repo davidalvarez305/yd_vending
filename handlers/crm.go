@@ -51,7 +51,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		if strings.HasPrefix(path, "/crm/business/") {
 			parts := strings.Split(path, "/")
-			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+			if len(parts) >= 6 && parts[4] == "location" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				GetLocationDetail(w, r, ctx)
 				return
 			}
@@ -136,7 +136,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if strings.HasPrefix(path, "/crm/business/") {
 			parts := strings.Split(path, "/")
-			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+			if len(parts) >= 6 && parts[4] == "location" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				PutLocation(w, r)
 				return
 			}
@@ -203,7 +203,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		if strings.HasPrefix(path, "/crm/business/") {
 			parts := strings.Split(path, "/")
-			if len(parts) >= 5 && parts[3] == "location" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+			if len(parts) >= 6 && parts[4] == "location" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				DeleteLocation(w, r)
 				return
 			}
@@ -1163,7 +1163,24 @@ func PostBusiness(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostLocation(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	token, err := helpers.GenerateTokenInHeader(w, r)
+	if err != nil {
+		fmt.Printf("Error generating token: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error generating new token. Reload page.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	w.Header().Set("X-Csrf-Token", token)
+
+	err = r.ParseForm()
 	if err != nil {
 		fmt.Printf("Error parsing form: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -1225,22 +1242,6 @@ func PostLocation(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -2636,6 +2637,20 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 		return
 	}
 
+	businesses, err := database.GetBusinesses()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting businesses.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingLocations, err := database.GetVendingLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Business Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -2643,6 +2658,8 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	data["Business"] = businessDetails
 	data["Cities"] = cities
 	data["BusinessLocations"] = businessLocations
+	data["Businesses"] = businesses
+	data["VendingLocations"] = vendingLocations
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -2720,7 +2737,8 @@ func DeleteLocation(w http.ResponseWriter, r *http.Request) {
 
 func GetLocationDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "location_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	machineTables := "machines_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + machineTables}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -2768,13 +2786,29 @@ func GetLocationDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 		return
 	}
 
+	vendingLocations, err := database.GetVendingLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
+	businesses, err := database.GetBusinesses()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting businesses.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Location Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Location"] = locationDetails
 	data["Cities"] = cities
-	data["LocationMachines"] = locationMachines
+	data["Machines"] = locationMachines
+	data["VendingLocations"] = vendingLocations
+	data["Businesses"] = businesses
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

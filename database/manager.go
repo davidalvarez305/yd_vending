@@ -1727,6 +1727,55 @@ func GetVendors() ([]models.Vendor, error) {
 	return vendors, nil
 }
 
+func GetBusinesses() ([]models.Business, error) {
+	var businesses []models.Business
+
+	rows, err := DB.Query(`
+		SELECT business_id, name, is_active, website, industry, google_business_profile
+		FROM business
+	`)
+	if err != nil {
+		return businesses, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var business models.Business
+		var website, industry, googleBusinessProfile sql.NullString
+
+		err := rows.Scan(
+			&business.BusinessID,
+			&business.Name,
+			&business.IsActive,
+			&website,
+			&industry,
+			&googleBusinessProfile,
+		)
+		if err != nil {
+			return businesses, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Check for null values and assign them if valid
+		if website.Valid {
+			business.Website = website.String
+		}
+		if industry.Valid {
+			business.Industry = industry.String
+		}
+		if googleBusinessProfile.Valid {
+			business.GoogleBusinessProfile = googleBusinessProfile.String
+		}
+
+		businesses = append(businesses, business)
+	}
+
+	if err := rows.Err(); err != nil {
+		return businesses, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return businesses, nil
+}
+
 func GetVendorList(pageNum int) ([]types.VendorList, int, error) {
 	var vendors []types.VendorList
 	var totalRows int
@@ -2552,27 +2601,53 @@ func GetLocationDetails(businessID, locationID int) (types.LocationDetails, erro
 
 	row := DB.QueryRow(query, locationID, businessID)
 
+	var dateStarted time.Time
+	var streetAddressLineTwo, opening, closing sql.NullString
+	var longitude, latitude sql.NullFloat64
+
 	err := row.Scan(
 		&location.LocationID,
 		&location.BusinessID,
 		&location.VendingLocationID,
 		&location.CityID,
-		&location.DateStarted,
+		&dateStarted,
 		&location.Name,
-		&location.Longitude,
-		&location.Latitude,
+		&longitude,
+		&latitude,
 		&location.StreetAddressLineOne,
-		&location.StreetAddressLineTwo,
+		&streetAddressLineTwo,
 		&location.ZipCode,
 		&location.State,
-		&location.Opening,
-		&location.Closing,
+		&opening,
+		&closing,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return location, fmt.Errorf("no location found with ID %d", locationID)
 		}
 		return location, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	location.DateStarted = dateStarted.Unix()
+
+	if streetAddressLineTwo.Valid {
+		location.StreetAddressLineTwo = streetAddressLineTwo.String
+	}
+
+	if opening.Valid {
+		location.Opening = opening.String
+	}
+
+	if closing.Valid {
+		location.Closing = closing.String
+	}
+
+	if longitude.Valid {
+		location.Longitude = longitude.Float64
+	}
+
+	if latitude.Valid {
+		location.Latitude = latitude.Float64
 	}
 
 	return location, nil

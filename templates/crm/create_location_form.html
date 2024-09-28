@@ -29,9 +29,10 @@
                             <form id="createLocationForm" class="space-y-6">
                                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                                 <div class="space-y-1">
-                                    <label for="location_type_id" class="font-medium">Location Type*</label>
-                                    <select id="location_type_id" name="location_type_id" required
+                                    <label for="vending_location_id" class="font-medium">Location Type*</label>
+                                    <select id="vending_location_id" name="vending_location_id" required
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
+                                        <option value=""></option>
                                         {{ range .VendingLocations }}
                                         <option value="{{ .VendingLocationID }}">{{ .LocationType }}</option>
                                         {{ end }}
@@ -41,18 +42,23 @@
                                     <div class="space-y-1">
                                         <label for="business_id" class="font-medium">Business*</label>
                                         <select id="business_id" name="business_id" required
-                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
+                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                                            <option value=""></option>
                                             {{ range .Businesses }}
-                                            <option value="{{ .BusinessID }}">{{ .Name }}</option>
+                                            <option value="{{ .BusinessID }}" {{ if eq .BusinessID $.Business.BusinessID
+                                                }}selected{{ end }}>
+                                                {{ .Name }}
+                                            </option>
                                             {{ end }}
                                         </select>
                                     </div>
                                     <div class="space-y-1">
-                                        <label for="business_contact_id" class="font-medium">Business Contact*</label>
-                                        <select id="business_contact_id" name="business_contact_id" required
+                                        <label for="location_contact_id" class="font-medium">Location Contact*</label>
+                                        <select id="location_contact_id" name="location_contact_id" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
-                                            {{ range .BusinessContacts }}
-                                            <option value="{{ .BusinessContactID }}">{{ .FirstName }} {{ .LastName }}
+                                            <option value=""></option>
+                                            {{ range .LocationContacts }}
+                                            <option value="{{ .LocationContactID }}">{{ .FirstName }} {{ .LastName }}
                                             </option>
                                             {{ end }}
                                         </select>
@@ -103,6 +109,7 @@
                                         <label for="city_id" class="font-medium">City*</label>
                                         <select id="city_id" name="city_id" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
+                                            <option value=""></option>
                                             {{ range .Cities }}
                                             <option value="{{ .CityID }}">{{ .Name }}</option>
                                             {{ end }}
@@ -119,24 +126,25 @@
                                     <input type="text" id="state" name="state" required
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                 </div>
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2"></div>
-                                <div class="space-y-1">
-                                    <label for="opening" class="font-medium">Opening Time</label>
-                                    <input type="text" id="opening" name="opening"
-                                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div class="space-y-1">
+                                        <label for="opening" class="font-medium">Opening Time</label>
+                                        <input type="text" id="opening" name="opening"
+                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label for="closing" class="font-medium">Closing Time</label>
+                                        <input type="text" id="closing" name="closing"
+                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                                    </div>
                                 </div>
                                 <div class="space-y-1">
-                                    <label for="closing" class="font-medium">Closing Time</label>
-                                    <input type="text" id="closing" name="closing"
+                                    <label for="date_started" class="font-medium">Date Started*</label>
+                                    <input type="date" id="date_started" name="date_started" required
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                 </div>
+                            </form>
                         </div>
-                        <div class="space-y-1">
-                            <label for="date_started" class="font-medium">Date Started</label>
-                            <input type="date" id="date_started" name="date_started"
-                                class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
-                        </div>
-                        </form>
                     </div>
                 </div>
                 <div class="space-x-1 bg-gray-50 px-5 py-4 text-right dark:bg-gray-700/50">
@@ -219,23 +227,18 @@
             if (value) body.append(key, value);
         }
 
-        fetch("/crm/location", {
+        fetch("/crm/business/{{ .Business.BusinessID }}/location", {
             method: "POST",
             credentials: "include",
             body: body,
         })
             .then((response) => {
+                const token = response.headers.get('X-Csrf-Token');
+                if (token) {
+                    const tokens = document.querySelectorAll('[name="csrf_token"]');
+                    tokens.forEach(csrf_token => csrf_token.value = token);
+                }
                 if (response.ok) {
-                    const token = response.headers.get("X-Csrf-Token");
-
-                    if (token) {
-                        const csrf_token = document.getElementById("csrf_token");
-
-                        if (!csrf_token) return;
-
-                        csrf_token.value = token;
-                    }
-
                     return response.text();
                 } else {
                     return response.text().then((err) => {
