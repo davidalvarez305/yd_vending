@@ -19,9 +19,7 @@
             </div>
             <div class="md:w-2/3 md:pl-24">
                 <form id="supplierForm" class="space-y-6 xl:w-2/3" action="/crm/supplier/{{ .Supplier.SupplierID }}">
-                    <input type="hidden" name="_method" value="PUT" />
                     <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
-                    <input type="hidden" id="supplier_id" name="supplier_id" value="{{ .Supplier.SupplierID }}" />
                     <div class="space-y-1">
                         <label for="name" class="font-medium">Supplier Name</label>
                         <input type="text" id="name" name="name" value="{{ .Supplier.Name }}"
@@ -112,7 +110,8 @@
     }
  
 
-    function handleLeadSaveChanges(e) {
+    const alertModal = document.getElementById("alertModal");
+    function handleSubmitForm(e) {
         e.preventDefault();
 
         const data = new FormData(e.target);
@@ -133,7 +132,7 @@
         }
 
         const endpoint = e.target.action;
-        const method = e.target.method === "get" ? body.get('_method') : e.target.method;
+        const method = "PUT";
 
         fetch(endpoint, {
             method: method,
@@ -158,14 +157,15 @@
                 }
             })
             .then(html => {
-                const el = document.getElementById("alertModal");
-                el.outerHTML = html;
-                handleCloseAlertModal();
+                alertModal.outerHTML = html;
             })
-            .catch(console.error);
+            .catch(err => {
+                alertModal.outerHTML = err;
+            })
+            .finally(() => handleCloseAlertModal());
     }
 
     const supplierForm = document.getElementById("supplierForm");
-    supplierForm.onsubmit = handleLeadSaveChanges;
+    supplierForm.onsubmit = handleSubmitForm;
 </script>
 {{ end }}

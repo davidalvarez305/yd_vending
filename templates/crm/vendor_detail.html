@@ -19,9 +19,7 @@
             </div>
             <div class="md:w-2/3 md:pl-24">
                 <form id="vendorForm" class="space-y-6 xl:w-2/3" action="/crm/vendor/{{ .Vendor.VendorID }}">
-                    <input type="hidden" name="_method" value="PUT" />
                     <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
-                    <input type="hidden" id="vendor_id" name="vendor_id" value="{{ .Vendor.VendorID }}" />
                     <div class="space-y-1">
                         <label for="name" class="font-medium">Vendor Name</label>
                         <input type="text" id="name" name="name" value="{{ .Vendor.Name }}"
@@ -115,6 +113,7 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
+    const alertModal = document.getElementById("alertModal");
     function handleSubmitForm(e) {
         e.preventDefault();
 
@@ -125,7 +124,7 @@
 		}
 
         const endpoint = e.target.action;
-        const method = e.target.method === "get" ? body.get('_method') : e.target.method;
+        const method = "PUT";
 
         fetch(endpoint, {
             method: method,
@@ -150,11 +149,12 @@
                 }
             })
             .then(html => {
-                const el = document.getElementById("alertModal");
-                el.outerHTML = html;
-                handleCloseAlertModal();
+                alertModal.outerHTML = html;
             })
-            .catch(console.error);
+            .catch(err => {
+                alertModal.outerHTML = err;
+            })
+            .finally(() => handleCloseAlertModal());
     }
 
     const vendorForm = document.getElementById("vendorForm");

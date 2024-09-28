@@ -137,6 +137,7 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
+    const alertModal = document.getElementById("alertModal");
     function handleSubmitForm(e) {
         e.preventDefault();
 
@@ -155,6 +156,7 @@
         const endpoint = e.target.action;
         const method = e.target.method === "get" ? body.get('_method') : e.target.method;
 
+        const alertModal = document.getElementById("alertModal");
         fetch(endpoint, {
             method: method,
             credentials: "include",
@@ -178,11 +180,12 @@
                 }
             })
             .then(html => {
-                const el = document.getElementById("alertModal");
-                el.outerHTML = html;
-                handleCloseAlertModal();
+                alertModal.outerHTML = html;
             })
-            .catch(console.error);
+            .catch(err => {
+                alertModal.outerHTML = err;
+            })
+            .finally(() => handleCloseAlertModal());
     }
 
     const locationForm = document.getElementById("locationForm");

@@ -19,9 +19,7 @@
             </div>
             <div class="md:w-2/3 md:pl-24">
                 <form id="machineForm" class="space-y-6 xl:w-2/3" action="/crm/machine/{{ .Machine.MachineID }}">
-                    <input type="hidden" name="_method" value="PUT" />
                     <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
-                    <input type="hidden" id="machine_id" name="machine_id" value="{{ .Machine.MachineID }}" />
                     <div class="space-y-1">
                         <label for="year" class="font-medium">Year</label>
                         <input type="text" id="year" name="year" value="{{ .Machine.Year }}"
@@ -120,6 +118,7 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
+    const alertModal = document.getElementById("alertModal");
     function handleSubmitForm(e) {
         e.preventDefault();
 
@@ -136,7 +135,7 @@
 		}
 
         const endpoint = e.target.action;
-        const method = e.target.method === "get" ? body.get('_method') : e.target.method;
+        const method = "PUT";
 
         fetch(endpoint, {
             method: method,
@@ -161,11 +160,12 @@
                 }
             })
             .then(html => {
-                const el = document.getElementById("alertModal");
-                el.outerHTML = html;
-                handleCloseAlertModal();
+                alertModal.outerHTML = html;
             })
-            .catch(console.error);
+            .catch(err => {
+                alertModal.outerHTML = err;
+            })
+            .finally(() => handleCloseAlertModal());
     }
 
     const machineForm = document.getElementById("machineForm");

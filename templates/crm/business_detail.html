@@ -19,9 +19,7 @@
             </div>
             <div class="md:w-2/3 md:pl-24">
                 <form id="businessForm" class="space-y-6 xl:w-2/3" action="/crm/business/{{ .Business.BusinessID }}">
-                    <input type="hidden" name="_method" value="PUT" />
                     <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
-                    <input type="hidden" id="business_id" name="business_id" value="{{ .Business.BusinessID }}" />
                     <div class="space-y-1">
                         <label for="name" class="font-medium">Business Name</label>
                         <input type="text" id="name" name="name" value="{{ .Business.Name }}"
@@ -90,6 +88,7 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
+    const alertModal = document.getElementById("alertModal");
     function handleSubmitForm(e) {
         e.preventDefault();
 
@@ -100,7 +99,7 @@
 		}
 
         const endpoint = e.target.action;
-        const method = e.target.method === "get" ? body.get('_method') : e.target.method;
+        const method = "PUT";
 
         fetch(endpoint, {
             method: method,
@@ -125,11 +124,12 @@
                 }
             })
             .then(html => {
-                const el = document.getElementById("alertModal");
-                el.outerHTML = html;
-                handleCloseAlertModal();
+                alertModal.outerHTML = html;
             })
-            .catch(console.error);
+            .catch(err => {
+                alertModal.outerHTML = err;
+            })
+            .finally(() => handleCloseAlertModal());
     }
 
     const businessForm = document.getElementById("businessForm");

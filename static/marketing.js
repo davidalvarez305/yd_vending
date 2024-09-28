@@ -280,13 +280,16 @@ function handleQuoteFormSubmit(e) {
 				});
 			}
 		})
-		.then((html) => {
+		.then(html => {
 			alertModal.outerHTML = html;
-			handleCloseAlertModal();
-
-			form.reset();
 		})
-		.catch(console.error);
+		.catch(err => {
+			alertModal.outerHTML = err;
+		})
+		.finally(() => {
+			handleCloseAlertModal();
+			form.reset();
+		});
 }
 
 document.addEventListener("DOMContentLoaded", getUserLocation());

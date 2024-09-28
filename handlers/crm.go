@@ -1213,9 +1213,10 @@ func PostLocation(w http.ResponseWriter, r *http.Request) {
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
-			"Message": "Location created successfully.",
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Location created successfully.",
 		},
 	}
 
@@ -1387,9 +1388,10 @@ func PutBusiness(w http.ResponseWriter, r *http.Request) {
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
-			"Message": "Business updated successfully.",
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Business updated successfully.",
 		},
 	}
 
@@ -1474,9 +1476,10 @@ func PutLocation(w http.ResponseWriter, r *http.Request) {
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
-			"Message": "Location updated successfully.",
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Location updated successfully.",
 		},
 	}
 
@@ -1561,9 +1564,10 @@ func PutBusinessContact(w http.ResponseWriter, r *http.Request) {
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
-			"Message": "Location updated successfully.",
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Business contact updated successfully.",
 		},
 	}
 
@@ -1642,9 +1646,10 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
-			"Message": "Machine updated successfully.",
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Machine updated successfully.",
 		},
 	}
 
@@ -1914,9 +1919,10 @@ func PutVendor(w http.ResponseWriter, r *http.Request) {
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
-			"Message": "Vendor updated successfully.",
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Vendor updated successfully.",
 		},
 	}
 
@@ -2145,9 +2151,10 @@ func PutSupplier(w http.ResponseWriter, r *http.Request) {
 
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
-			"Message": "Supplier updated successfully.",
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Supplier updated successfully.",
 		},
 	}
 
