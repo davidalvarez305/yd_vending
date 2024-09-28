@@ -561,3 +561,11 @@ type SeedLiveTransaction struct {
 	LineItemDesc      string    `json:"line_item_description" csv:"Line Item Description"`
 	CardId            string    `json:"card_id" csv:"Card Id"`
 }
+
+type DashboardStats struct {
+	Leads      int `json:"leads" form:"leads" schema:"leads"`
+	Businesses int `json:"businesses" form:"businesses" schema:"businesses"`
+	Vendors    int `json:"vendors" form:"vendors" schema:"vendors"`
+	Suppliers  int `json:"suppliers" form:"suppliers" schema:"suppliers"`
+	Machines   int `json:"machines" form:"machines" schema:"machines"`
+}

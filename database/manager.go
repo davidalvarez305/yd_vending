@@ -13,6 +13,33 @@ import (
 	"github.com/davidalvarez305/yd_vending/utils"
 )
 
+func GetDashboardStats() (types.DashboardStats, error) {
+	var counts types.DashboardStats
+
+	query := `
+        SELECT 
+            (SELECT COUNT(1) FROM lead) AS leads,
+            (SELECT COUNT(1) FROM business) AS businesses,
+            (SELECT COUNT(1) FROM vendor) AS vendors,
+            (SELECT COUNT(1) FROM supplier) AS suppliers,
+            (SELECT COUNT(1) FROM machine) AS machines;
+    `
+
+	row := DB.QueryRow(query)
+	err := row.Scan(
+		&counts.Leads,
+		&counts.Businesses,
+		&counts.Vendors,
+		&counts.Suppliers,
+		&counts.Machines,
+	)
+	if err != nil {
+		return counts, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	return counts, nil
+}
+
 func InsertCSRFToken(token models.CSRFToken) error {
 	stmt, err := DB.Prepare(`INSERT INTO "csrf_token" ("expiry_time", "token", "is_used") VALUES(to_timestamp($1), $2, $3)`)
 	if err != nil {

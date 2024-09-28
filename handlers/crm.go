@@ -39,6 +39,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	ctx["PagePath"] = constants.RootDomain + r.URL.Path
 	path := r.URL.Path
 
+	stats, err := database.GetDashboardStats()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting dashboard stats from DB.", http.StatusInternalServerError)
+		return
+	}
+	ctx["DashboardStats"] = stats
+
 	switch r.Method {
 	case http.MethodGet:
 		if strings.HasPrefix(path, "/crm/business/") {
