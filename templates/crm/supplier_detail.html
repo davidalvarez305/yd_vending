@@ -139,15 +139,12 @@
             body: body,
         })
             .then((response) => {
+                const token = response.headers.get('X-Csrf-Token');
+                if (token) {
+                    const tokens = document.querySelectorAll('[name="csrf_token"]');
+                    tokens.forEach(csrf_token => csrf_token.value = token);
+                }
                 if (response.ok) {
-                    const token = response.headers.get('X-Csrf-Token');
-
-                    if (token) {
-                        const tokens = document.querySelectorAll('[name="csrf_token"]');
-
-                        tokens.forEach(csrf_token => csrf_token.value = token);
-                    }
-
                     return response.text();
                 } else {
                     return response.text().then((err) => {

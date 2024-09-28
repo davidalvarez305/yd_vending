@@ -16,6 +16,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/sessions"
+	"github.com/davidalvarez305/yd_vending/types"
 )
 
 var allowedOrigins = []string{
@@ -144,6 +145,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 		}
 
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
+			// Validate request token
 			csrfToken := r.FormValue("csrf_token")
 			if csrfToken == "" {
 				// If CSRF token is not in form values, check the request headers
@@ -162,7 +164,6 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			// Check if string exists in DB
 			isUsed, err := database.CheckIsTokenUsed(csrfToken)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
@@ -183,6 +184,24 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				http.Error(w, "Error marking token as used.", http.StatusBadRequest)
 				return
 			}
+
+			// Generate new token
+			newToken, err := helpers.GenerateTokenInHeader(w, r)
+			if err != nil {
+				fmt.Printf("Error generating token: %+v\n", err)
+				tmplCtx := types.DynamicPartialTemplate{
+					TemplateName: "error",
+					TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+					Data: map[string]any{
+						"Message": "Error generating new token. Reload page.",
+					},
+				}
+				w.WriteHeader(http.StatusInternalServerError)
+				helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+				return
+			}
+
+			w.Header().Set("X-Csrf-Token", newToken)
 
 			next.ServeHTTP(w, r)
 			return

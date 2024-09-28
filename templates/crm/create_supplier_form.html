@@ -90,7 +90,8 @@
                                     </div>
                                 </div>
                                 <div class="space-y-1">
-                                    <label for="google_business_profile" class="font-medium">Google Business Profile</label>
+                                    <label for="google_business_profile" class="font-medium">Google Business
+                                        Profile</label>
                                     <input type="url" id="google_business_profile" name="google_business_profile"
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                 </div>
@@ -148,8 +149,8 @@
         }
 
         for (const [key, value] of data.entries()) {
-			if (value) body.append(key, value);
-		}
+            if (value) body.append(key, value);
+        }
 
         fetch("/crm/supplier", {
             method: "POST",
@@ -157,17 +158,12 @@
             body: body,
         })
             .then((response) => {
+                const token = response.headers.get('X-Csrf-Token');
+                if (token) {
+                    const tokens = document.querySelectorAll('[name="csrf_token"]');
+                    tokens.forEach(csrf_token => csrf_token.value = token);
+                }
                 if (response.ok) {
-                    const token = response.headers.get("X-Csrf-Token");
-
-                    if (token) {
-                        const csrf_token = document.getElementById("csrf_token");
-
-                        if (!csrf_token) return;
-
-                        csrf_token.value = token;
-                    }
-
                     return response.text();
                 } else {
                     return response.text().then((err) => {

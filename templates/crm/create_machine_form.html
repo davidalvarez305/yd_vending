@@ -59,7 +59,8 @@
 								</div>
 								<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 									<div class="space-y-1">
-										<label for="card_reader_serial_number" class="font-medium">Card Reader Serial Number</label>
+										<label for="card_reader_serial_number" class="font-medium">Card Reader Serial
+											Number</label>
 										<input type="text" id="card_reader_serial_number"
 											name="card_reader_serial_number"
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
@@ -149,10 +150,10 @@
 		const data = new FormData(form);
 		const body = new FormData();
 
-        const purchaseDate = data.get('purchase_date');
-        const timestamp = new Date(purchaseDate).getTime() / 1000;
-        body.append('purchase_date', timestamp);
-        data.delete('purchase_date');
+		const purchaseDate = data.get('purchase_date');
+		const timestamp = new Date(purchaseDate).getTime() / 1000;
+		body.append('purchase_date', timestamp);
+		data.delete('purchase_date');
 
 		for (const [key, value] of data.entries()) {
 			if (value) body.append(key, value);
@@ -164,17 +165,12 @@
 			body: body,
 		})
 			.then((response) => {
+				const token = response.headers.get('X-Csrf-Token');
+				if (token) {
+					const tokens = document.querySelectorAll('[name="csrf_token"]');
+					tokens.forEach(csrf_token => csrf_token.value = token);
+				}
 				if (response.ok) {
-					const token = response.headers.get("X-Csrf-Token");
-
-					if (token) {
-						const csrf_token = document.getElementById("csrf_token");
-
-						if (!csrf_token) return;
-
-						csrf_token.value = token;
-					}
-
 					return response.text();
 				} else {
 					return response.text().then((err) => {
@@ -187,13 +183,13 @@
 				table.outerHTML = html;
 				handleBindPagination();
 
-                form.reset();
-            })
-            .catch(err => {
-                alertModal.outerHTML = err;
-                handleCloseAlertModal();
-            })
-            .finally(() => handleCloseForm());
+				form.reset();
+			})
+			.catch(err => {
+				alertModal.outerHTML = err;
+				handleCloseAlertModal();
+			})
+			.finally(() => handleCloseForm());
 	}
 </script>
 {{ end }}

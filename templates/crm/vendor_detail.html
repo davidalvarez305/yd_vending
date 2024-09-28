@@ -138,12 +138,10 @@
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
-
                 if (token) {
                     const tokens = document.querySelectorAll('[name="csrf_token"]');
                     tokens.forEach(csrf_token => csrf_token.value = token);
                 }
-
                 if (response.ok) {
                     return response.text();
                 } else {
