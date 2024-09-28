@@ -1301,8 +1301,8 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 		    model = COALESCE($5, model),
 		    purchase_price = COALESCE($6, purchase_price),
 		    purchase_date = COALESCE(to_timestamp($7), purchase_date),
-		    card_reader_serial_number = COALESCE($8, card_reader_serial_number),
-		    location_id = COALESCE($9, location_id),
+		    card_reader_serial_number = $8,
+		    location_id = $9,
 		    machine_status_id = COALESCE($10, machine_status_id),
 		    vendor_id = COALESCE($11, vendor_id)
 		WHERE machine_id = $1
