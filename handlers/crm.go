@@ -125,7 +125,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPut:
 		if strings.HasPrefix(path, "/crm/lead/") {
 			parts := strings.Split(path, "/")
-			if len(parts) >= 5 && parts[3] == "marketing" && helpers.IsNumeric(parts[2]) && helpers.IsNumeric(parts[4]) {
+			if len(parts) >= 6 && parts[4] == "marketing" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				PutLeadMarketing(w, r)
 				return
 			}
