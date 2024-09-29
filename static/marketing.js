@@ -206,6 +206,9 @@ function applyButtonlogic() {
 			form.scrollIntoView({ behavior: "smooth" });
 			form.querySelector("input, textarea, select").focus();
 
+			const buttonClicked = document.getElementById('button_clicked');
+			buttonClicked.value = button.getAttribute("name");
+
 			const modal = document.getElementById("modalOverlay");
 			if (modal) modal.style.display = "none";
 		});
@@ -221,7 +224,6 @@ function handleQuoteFormSubmit(e) {
 	const url = new URL(landingPage);
 
 	const language = navigator.language || navigator.userLanguage;
-	const buttonName = e.target.getAttribute("name");
 
 	const marketing = Object.fromEntries(url.searchParams);
 	const data = new FormData();
@@ -236,7 +238,6 @@ function handleQuoteFormSubmit(e) {
 
 	data.append("landing_page", user.landingPage);
 	data.append("referrer", user.referrer);
-	data.append("button_clicked", buttonName);
 	data.append("language", language);
 
 	if (source) data.append("source", source); // google.com || facebook.com || youtube.com
@@ -251,7 +252,7 @@ function handleQuoteFormSubmit(e) {
 		if (value) data.append(key, value);
 	}
 
-	for (const [key, value] of Object.entries(e.target)) {
+	for (const [key, value] of Object.entries(form)) {
 		if (value) data.append(key, value);
 	}
 
@@ -262,17 +263,13 @@ function handleQuoteFormSubmit(e) {
 		body: data,
 	})
 		.then((response) => {
+			const token = response.headers.get("X-Csrf-Token");
+			if (token) {
+				const csrf_token = document.getElementById("csrf_token");
+				if (!csrf_token) return;
+				csrf_token.value = token;
+			}
 			if (response.ok) {
-				const token = response.headers.get("X-Csrf-Token");
-
-				if (token) {
-					const csrf_token = document.getElementById("csrf_token");
-
-					if (!csrf_token) return;
-
-					csrf_token.value = token;
-				}
-
 				return response.text();
 			} else {
 				return response.text().then((err) => {
