@@ -218,43 +218,33 @@ function applyButtonlogic() {
 function handleQuoteFormSubmit(e) {
 	e.preventDefault();
 
-	// Get user variables from browser
-	var user = JSON.parse(localStorage.getItem("user"));
-	const landingPage = user.landingPage || window.location.href;
-	const url = new URL(landingPage);
-
+	// Retrieve user data and URL details
+	const user = JSON.parse(localStorage.getItem("user")) || {};
+	const url = new URL(user.landingPage || window.location.href);
 	const language = navigator.language || navigator.userLanguage;
+	const marketingParams = Object.fromEntries(url.searchParams);
 
-	const marketing = Object.fromEntries(url.searchParams);
 	const data = new FormData();
-
-	if (isPaid(url.searchParams)) {
-		data.append("click_id", getClickId(url.searchParams));
-	}
-
-	const source = url.searchParams.get("source") ?? getHost(user.referrer); // google.com || facebook.com || youtube.com
-	const medium = url.searchParams.get("medium") ?? getMedium(user.referrer, url.searchParams); // organic || paid || direct
-	const channel = url.searchParams.get("channel") ?? getChannel(user.referrer); // search || social || video
-
+	if (isPaid(url.searchParams)) data.append("click_id", getClickId(url.searchParams));
 	data.append("landing_page", user.landingPage);
 	data.append("referrer", user.referrer);
 	data.append("language", language);
 
-	if (source) data.append("source", source); // google.com || facebook.com || youtube.com
-	if (medium) data.append("medium", medium); // organic || paid || direct
-	if (channel) data.append("channel", channel); // search || social || video
+	// Append source, medium, and channel based on URL or referrer
+	const source = url.searchParams.get("source") || getHost(user.referrer);
+	const medium = url.searchParams.get("medium") || getMedium(user.referrer, url.searchParams);
+	const channel = url.searchParams.get("channel") || getChannel(user.referrer);
+	if (source) data.append("source", source);
+	if (medium) data.append("medium", medium);
+	if (channel) data.append("channel", channel);
 
-	// Handle geolocation
+	// Handle geolocation (conditionally append if available)
 	if (longitude) data.append("longitude", longitude);
 	if (latitude) data.append("latitude", latitude);
 
-	for (const [key, value] of Object.entries(marketing)) {
-		if (value) data.append(key, value);
-	}
-
-	for (const [key, value] of Object.entries(form)) {
-		if (value) data.append(key, value);
-	}
+	// Append all marketing parameters and form values
+	Object.entries(marketingParams).forEach(([key, value]) => value && data.append(key, value));
+	new FormData(form).forEach((value, key) => value && data.append(key, value));
 
 	const alertModal = document.getElementById("alertModal");
 	fetch("/quote", {
@@ -264,25 +254,12 @@ function handleQuoteFormSubmit(e) {
 	})
 		.then((response) => {
 			const token = response.headers.get("X-Csrf-Token");
-			if (token) {
-				const csrf_token = document.getElementById("csrf_token");
-				if (!csrf_token) return;
-				csrf_token.value = token;
-			}
-			if (response.ok) {
-				return response.text();
-			} else {
-				return response.text().then((err) => {
-					throw new Error(err);
-				});
-			}
+			if (token) document.getElementById("csrf_token")?.value = token;
+
+			return response.ok ? response.text() : response.text().then(Promise.reject.bind(Promise));
 		})
-		.then(html => {
-			alertModal.outerHTML = html;
-		})
-		.catch(err => {
-			alertModal.outerHTML = err;
-		})
+		.then((html) => (alertModal.outerHTML = html))
+		.catch((err) => (alertModal.outerHTML = err))
 		.finally(() => {
 			handleCloseAlertModal();
 			form.reset();
