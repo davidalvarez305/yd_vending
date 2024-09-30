@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -221,8 +222,7 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	fmt.Println(string(body))
-
+	// Check for "test" in the request body
 	if strings.Contains(strings.ToLower(string(body)), "test") {
 		response := map[string]string{
 			"status":  "success",
@@ -238,22 +238,87 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var transactions []types.SeedLiveTransaction
-	if err := json.Unmarshal(body, &transactions); err != nil {
-		fmt.Printf("JSON UNMARSHALING ERROR: %+v\n", err)
-		http.Error(w, "Bad request: Invalid JSON", http.StatusBadRequest)
+	reader := csv.NewReader(strings.NewReader(string(body)))
+	records, err := reader.ReadAll()
+	if err != nil {
+		fmt.Printf("CSV READING ERROR: %+v\n", err)
+		http.Error(w, "Bad request: Invalid CSV", http.StatusBadRequest)
 		return
 	}
 
-	for _, t := range transactions {
-		log.Printf("%+v\n", t)
+	// Map CSV records to struct
+	for _, record := range records {
+		if len(record) < 11 { // Ensure we have enough fields
+			http.Error(w, "Bad request: Insufficient fields in CSV", http.StatusBadRequest)
+			return
+		}
+
+		tranDate, err := time.Parse("1/2/2006", record[8])
+		if err != nil {
+			http.Error(w, "Bad request: Invalid date format", http.StatusBadRequest)
+			return
+		}
+
+		tranTime, err := time.Parse("15:04:05", record[9])
+		if err != nil {
+			http.Error(w, "Bad request: Invalid time format", http.StatusBadRequest)
+			return
+		}
+
+		totalAmount, err := strconv.ParseFloat(record[4], 64)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Bad request: Invalid Total Amount format - %s", err), http.StatusBadRequest)
+			return
+		}
+
+		vendedColumns, err := strconv.Atoi(record[5])
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Bad request: Invalid Vended Columns format - %s", err), http.StatusBadRequest)
+			return
+		}
+
+		price, err := strconv.ParseFloat(record[6], 64)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Bad request: Invalid Price format - %s", err), http.StatusBadRequest)
+			return
+		}
+
+		mdbNumber, err := strconv.Atoi(record[7])
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Bad request: Invalid MDB Number format - %s", err), http.StatusBadRequest)
+			return
+		}
+
+		numberOfProductsVended, err := strconv.Atoi(record[8])
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Bad request: Invalid Number of Products Vended format - %s", err), http.StatusBadRequest)
+			return
+		}
+
+		transaction := types.SeedLiveTransaction{
+			TerminalNumber:         record[0],
+			TransactionRefNumber:   record[1],
+			TransactionType:        record[2],
+			CardNumber:             record[3],
+			TotalAmount:            totalAmount,
+			VendedColumns:          vendedColumns,
+			Price:                  price,
+			MDBNumber:              mdbNumber,
+			NumberOfProductsVended: numberOfProductsVended,
+			Timestamp:              tranDate.Add(tranTime.Sub(time.Time{})),
+			CardId:                 record[10],
+		}
+
+		err = database.CreateSeedLiveTransaction(transaction)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Unable to save transaction - %s", err), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	response := map[string]interface{}{
 		"status":  "success",
 		"message": "Received successfully",
-		"count":   len(transactions),
-		"data":    transactions,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

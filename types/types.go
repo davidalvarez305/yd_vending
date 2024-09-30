@@ -549,19 +549,17 @@ type MachineDetails struct {
 }
 
 type SeedLiveTransaction struct {
-	DeviceSerialNum   string    `json:"device_serial_num" csv:"Device Serial Num"`
-	RefNbr            string    `json:"ref_nbr" csv:"Ref Nbr"`
-	TransTypeCode     string    `json:"trans_type_code" csv:"Trans Type Code"`
-	MaskedCardNumber  string    `json:"masked_card_number" csv:"Masked Card Number"`
-	TotalAmount       float64   `json:"total_amount" csv:"Total Amount"`
-	VendColumn        int       `json:"vend_column" csv:"Vend Column"`
-	LineItemPrice     float64   `json:"line_item_price" csv:"Line Item Price"`
-	LineItemMDBNumber int       `json:"line_item_mdb_number" csv:"Line Item MDB Number"`
-	Quantity          int       `json:"quantity" csv:"Quantity"`
-	TranDate          time.Time `json:"tran_date" csv:"Tran Date"`
-	TranTime          time.Time `json:"tran_time" csv:"Tran Time"`
-	LineItemDesc      string    `json:"line_item_description" csv:"Line Item Description"`
-	CardId            string    `json:"card_id" csv:"Card Id"`
+	TerminalNumber         string    `json:"terminal_number" csv:"Terminal Number"`
+	TransactionRefNumber   string    `json:"transaction_ref_number" csv:"Transaction Reference Number"`
+	TransactionType        string    `json:"transaction_type" csv:"Transaction Type"`
+	CardNumber             string    `json:"card_number" csv:"Card Number"`
+	TotalAmount            float64   `json:"total_amount" csv:"Total Amount"`
+	VendedColumns          int       `json:"vended_columns" csv:"Vended Columns"`
+	Price                  float64   `json:"price" csv:"Price"`
+	MDBNumber              int       `json:"mdb_number" csv:"MDB Number"`
+	NumberOfProductsVended int       `json:"number_of_products_vended" csv:"Number of Products Vended"`
+	Timestamp              time.Time `json:"timestamp" csv:"Timestamp"`
+	CardId                 string    `json:"card_id" csv:"Card Id"`
 }
 
 type DashboardStats struct {

@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type VendingType struct {
 	VendingTypeID int    `json:"vending_type_id"`
 	MachineType   string `json:"machine_type"`
@@ -265,4 +267,19 @@ type Image struct {
 	Src           string `json:"src" form:"src" schema:"src"`
 	DateAdded     int64  `json:"date_added" form:"date_added" schema:"date_added"`
 	AddedByUserID int    `json:"added_by_user_id" form:"added_by_user_id" schema:"added_by_user_id"`
+}
+
+type SeedLiveTransaction struct {
+	SeedLiveTransactionID  int       `json:"seed_live_transaction_id" form:"seed_live_transaction_id" schema:"seed_live_transaction_id"`
+	TerminalNumber         string    `json:"terminal_number" form:"terminal_number" schema:"terminal_number"`
+	TransactionRefNumber   string    `json:"transaction_ref_number" form:"transaction_ref_number" schema:"transaction_ref_number"`
+	TransactionType        string    `json:"transaction_type" form:"transaction_type" schema:"transaction_type"`
+	CardNumber             string    `json:"card_number" form:"card_number" schema:"card_number"`
+	TotalAmount            float64   `json:"total_amount" form:"total_amount" schema:"total_amount"`
+	VendedColumns          int       `json:"vended_columns" form:"vended_columns" schema:"vended_columns"`
+	Price                  float64   `json:"price" form:"price" schema:"price"`
+	MDBNumber              int       `json:"mdb_number" form:"mdb_number" schema:"mdb_number"`
+	NumberOfProductsVended int       `json:"number_of_products_vended" form:"number_of_products_vended" schema:"number_of_products_vended"`
+	Timestamp              time.Time `json:"timestamp" form:"timestamp" schema:"timestamp"`
+	CardId                 string    `json:"card_id" form:"card_id" schema:"card_id"`
 }
