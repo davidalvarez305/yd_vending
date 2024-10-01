@@ -591,10 +591,18 @@ type ProductBatchForm struct {
 	ProductID      *int     `json:"product_id" form:"product_id" schema:"product_id"`
 	SupplierID     *int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
 	ExpirationDate *int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
-	PurchaseDate   *int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
 	UnitCost       *float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
 	Quantity       *int     `json:"quantity" form:"quantity" schema:"quantity"`
 	DatePurchased  *int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
+}
+
+type ProductBatchList struct {
+	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
+	Supplier       int     `json:"supplier" form:"supplier" schema:"supplier"`
+	ExpirationDate int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
+	DatePurchased  int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
 }
 
 type ProductDetails struct {
