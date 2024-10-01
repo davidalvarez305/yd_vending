@@ -3042,9 +3042,8 @@ func GetProductDetails(productID string) (types.ProductDetails, error) {
 	return productDetails, nil
 }
 
-func GetProductBatchList(productId int) ([]types.ProductBatchList, int, error) {
+func GetProductBatchList(productId string) ([]types.ProductBatchList, error) {
 	var batches []types.ProductBatchList
-	var totalRows int
 
 	rows, err := DB.Query(`
 		SELECT 
@@ -3060,7 +3059,7 @@ func GetProductBatchList(productId int) ([]types.ProductBatchList, int, error) {
 		ORDER BY pb.date_purchased ASC;
 	`, productId)
 	if err != nil {
-		return batches, totalRows, fmt.Errorf("error executing query: %w", err)
+		return batches, fmt.Errorf("error executing query: %w", err)
 	}
 	defer rows.Close()
 
@@ -3075,10 +3074,9 @@ func GetProductBatchList(productId int) ([]types.ProductBatchList, int, error) {
 			&batch.UnitCost,
 			&batch.Quantity,
 			&datePurchased,
-			&totalRows,
 		)
 		if err != nil {
-			return batches, totalRows, fmt.Errorf("error scanning row: %w", err)
+			return batches, fmt.Errorf("error scanning row: %w", err)
 		}
 
 		batch.DatePurchased = datePurchased.Unix()
@@ -3088,8 +3086,8 @@ func GetProductBatchList(productId int) ([]types.ProductBatchList, int, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		return batches, totalRows, fmt.Errorf("error iterating rows: %w", err)
+		return batches, fmt.Errorf("error iterating rows: %w", err)
 	}
 
-	return batches, totalRows, nil
+	return batches, nil
 }

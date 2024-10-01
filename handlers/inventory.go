@@ -398,12 +398,28 @@ func GetProductDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 		return
 	}
 
+	productBatches, err := database.GetProductBatchList(productId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting product batches.", http.StatusInternalServerError)
+		return
+	}
+
+	suppliers, err := database.GetSuppliers()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting suppliers.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Product Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["Product"] = productDetails
 	data["ProductCategories"] = productCategories
+	data["ProductBatches"] = productBatches
+	data["Suppliers"] = suppliers
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
