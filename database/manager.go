@@ -2905,3 +2905,75 @@ func GetProductList(pageNum int) ([]types.ProductList, int, error) {
 
 	return products, totalRows, nil
 }
+
+func CreateProduct(form types.ProductForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO product (
+			name,
+			size,
+			size_type,
+			upc,
+			category_id,
+		) VALUES ($1, $2, $3, $4, $5)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	name := utils.CreateNullString(form.Name)
+	productCategoryID := utils.CreateNullInt(form.ProductCategoryID)
+	size := utils.CreateNullFloat64(form.Size)
+	sizeType := utils.CreateNullString(form.SizeType)
+	upc := utils.CreateNullString(form.UPC)
+
+	_, err = stmt.Exec(
+		name,
+		size,
+		sizeType,
+		upc,
+		productCategoryID,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateProduct(productId int, form types.ProductForm) error {
+	stmt, err := DB.Prepare(`
+		UPDATE product 
+		SET 
+			item = $2,
+			size = $3,
+			size_type = $4,
+			upc = $5,
+			product_category_id = $6
+		WHERE product_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	name := utils.CreateNullString(form.Name)
+	productCategoryID := utils.CreateNullInt(form.ProductCategoryID)
+	size := utils.CreateNullFloat64(form.Size)
+	sizeType := utils.CreateNullString(form.SizeType)
+	upc := utils.CreateNullString(form.UPC)
+
+	_, err = stmt.Exec(
+		productId,
+		name,
+		size,
+		sizeType,
+		upc,
+		productCategoryID,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
