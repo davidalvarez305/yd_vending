@@ -1318,22 +1318,6 @@ func PutBusiness(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -1406,22 +1390,6 @@ func PutLocation(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -1494,22 +1462,6 @@ func PutBusinessContact(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -1576,22 +1528,6 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -1833,22 +1769,6 @@ func PutVendor(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -2049,22 +1969,6 @@ func PutSupplier(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -2131,22 +2035,6 @@ func DeleteMachine(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -2213,22 +2101,6 @@ func DeleteBusiness(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -2295,22 +2167,6 @@ func DeleteVendor(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -2377,22 +2233,6 @@ func DeleteSupplier(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
@@ -2601,22 +2441,6 @@ func DeleteLocation(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token, err := helpers.GenerateTokenInHeader(w, r)
-	if err != nil {
-		fmt.Printf("Error generating token: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error generating new token. Reload page.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
