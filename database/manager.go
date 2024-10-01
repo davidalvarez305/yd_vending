@@ -3091,3 +3091,86 @@ func GetProductBatchList(productId string) ([]types.ProductBatchList, error) {
 
 	return batches, nil
 }
+
+func CreateProductBatch(form types.ProductBatchForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO product_batch (
+			product_id,
+			supplier_id,
+			expiration_date,
+			date_purchased,
+			unit_cost,
+			quantity,
+		) VALUES ($1, $2, to_timestamp($3), to_timestamp($4), $5, $6)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	productId := utils.CreateNullInt(form.ProductID)
+	supplierId := utils.CreateNullInt(form.SupplierID)
+	unitCost := utils.CreateNullFloat64(form.UnitCost)
+	quantity := utils.CreateNullInt(form.Quantity)
+
+	_, err = stmt.Exec(
+		productId,
+		supplierId,
+		form.ExpirationDate,
+		form.DatePurchased,
+		unitCost,
+		quantity,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateProductBatch(productId int, form types.ProductBatchForm) error {
+	stmt, err := DB.Prepare(`
+		UPDATE product_batch 
+		SET 
+			supplier_id = $2,
+			expiration_date = to_timestamp($3),
+			date_purchased = to_timestamp($4),
+			unit_cost = $5,
+			quantity = $6
+		WHERE product_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	supplierId := utils.CreateNullInt(form.SupplierID)
+	unitCost := utils.CreateNullFloat64(form.UnitCost)
+	quantity := utils.CreateNullInt(form.Quantity)
+
+	_, err = stmt.Exec(
+		productId,
+		supplierId,
+		form.ExpirationDate,
+		form.DatePurchased,
+		unitCost,
+		quantity,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteProductBatch(id int) error {
+	sqlStatement := `
+        DELETE FROM product_batch WHERE product_batch_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
