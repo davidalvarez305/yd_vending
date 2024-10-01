@@ -50,18 +50,18 @@ type LeadFormWebhook struct {
 	APIVersion     string           `json:"api_version" form:"api_version" schema:"api_version"`
 	FormID         int64            `json:"form_id" form:"form_id" schema:"form_id"`
 	CampaignID     int64            `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
-	AdGroupID      *int64           `json:"adgroup_id,omitempty" form:"adgroup_id,omitempty" schema:"adgroup_id,omitempty"`
-	CreativeID     *int64           `json:"creative_id,omitempty" form:"creative_id,omitempty" schema:"creative_id,omitempty"`
+	AdGroupID      *int64           `json:"adgroup_id" form:"adgroup_id" schema:"adgroup_id"`
+	CreativeID     *int64           `json:"creative_id" form:"creative_id" schema:"creative_id"`
 	GCLID          string           `json:"gcl_id" form:"gcl_id" schema:"gcl_id"`
 	GoogleKey      string           `json:"google_key" form:"google_key" schema:"google_key"`
-	IsTest         *bool            `json:"is_test,omitempty" form:"is_test,omitempty" schema:"is_test,omitempty"`
+	IsTest         *bool            `json:"is_test" form:"is_test" schema:"is_test"`
 	UserColumnData []UserColumnData `json:"user_column_data" form:"user_column_data" schema:"user_column_data"`
 }
 
 type UserColumnData struct {
 	ColumnID    string `json:"column_id" form:"column_id" schema:"column_id"`
 	StringValue string `json:"string_value" form:"string_value" schema:"string_value"`
-	ColumnName  string `json:"column_name,omitempty" form:"column_name,omitempty" schema:"column_name,omitempty"`
+	ColumnName  string `json:"column_name" form:"column_name" schema:"column_name"`
 }
 
 type ContactForm struct {
@@ -259,7 +259,7 @@ type IncomingPhoneCallDialStatus struct {
 	CalledState      string `json:"called_state" form:"called_state" schema:"called_state"`
 	FromZip          string `json:"from_zip" form:"from_zip" schema:"from_zip"`
 	FromState        string `json:"from_state" form:"from_state" schema:"from_state"`
-	RecordingURL     string `json:"recording_url,omitempty" form:"recording_url,omitempty" schema:"recording_url,omitempty"`
+	RecordingURL     string `json:"recording_url" form:"recording_url" schema:"recording_url"`
 }
 
 type WebsiteContext struct {
@@ -413,7 +413,7 @@ type VendorList struct {
 	CityName               string `json:"city_name" form:"city_name" schema:"city_name"`
 	ZipCode                string `json:"zip_code" form:"zip_code" schema:"zip_code"`
 	State                  string `json:"state" form:"state" schema:"state"`
-	GoogleBusinessProfile  string `json:"google_business_profile,omitempty" form:"google_business_profile" schema:"google_business_profile"`
+	GoogleBusinessProfile  string `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
 
 type VendorForm struct {
@@ -489,7 +489,7 @@ type SupplierDetails struct {
 	CityID                int     `json:"city_id" form:"city_id" schema:"city_id"`
 	ZipCode               string  `json:"zip_code" form:"zip_code" schema:"zip_code"`
 	State                 string  `json:"state" form:"state" schema:"state"`
-	GoogleBusinessProfile string  `json:"google_business_profile,omitempty" form:"google_business_profile" schema:"google_business_profile"`
+	GoogleBusinessProfile string  `json:"google_business_profile" form:"google_business_profile" schema:"google_business_profile"`
 }
 
 type BusinessDetails struct {
@@ -568,4 +568,22 @@ type DashboardStats struct {
 	Vendors    int `json:"vendors" form:"vendors" schema:"vendors"`
 	Suppliers  int `json:"suppliers" form:"suppliers" schema:"suppliers"`
 	Machines   int `json:"machines" form:"machines" schema:"machines"`
+}
+
+type ProductForm struct {
+	Name              *string  `json:"name" form:"name" schema:"name"`
+	ProductCategoryID *int     `json:"product_category_id" form:"product_category_id" schema:"product_category_id"`
+	Size              *float64 `json:"size" form:"size" schema:"size"`
+	SizeType          *string  `json:"size_type" form:"size_type" schema:"size_type"`
+	UPC               *string  `json:"upc" form:"upc" schema:"upc"`
+}
+
+type ProductBatchForm struct {
+	ProductID      *int     `json:"product_id" form:"product_id" schema:"product_id"`
+	SupplierID     *int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
+	ExpirationDate *int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	PurchaseDate   *int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+	UnitCost       *float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity       *int     `json:"quantity" form:"quantity" schema:"quantity"`
+	DatePurchased  *int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
 }

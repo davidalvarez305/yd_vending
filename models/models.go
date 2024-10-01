@@ -283,3 +283,28 @@ type SeedLiveTransaction struct {
 	Timestamp              time.Time `json:"timestamp" form:"timestamp" schema:"timestamp"`
 	CardId                 string    `json:"card_id" form:"card_id" schema:"card_id"`
 }
+
+type Product struct {
+	ProductID         int     `json:"product_id" form:"product_id" schema:"product_id"`
+	Name              string  `json:"name" form:"name" schema:"name"`
+	ProductCategoryID int     `json:"product_category_id" form:"product_category_id" schema:"product_category_id"`
+	Size              float64 `json:"size" form:"size" schema:"size"`
+	SizeType          string  `json:"size_type" form:"size_type" schema:"size_type"`
+	UPC               string  `json:"upc" form:"upc" schema:"upc"`
+}
+
+type ProductBatch struct {
+	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
+	ProductID      int     `json:"product_id" form:"product_id" schema:"product_id"`
+	SupplierID     int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
+	ExpirationDate int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	PurchaseDate   int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
+	DatePurchased  int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
+}
+
+type ProductCategory struct {
+	ProductCategoryID int    `json:"product_category_id" form:"product_category_id"`
+	Name              string `json:"name" form:"name" schema:"name"`
+}
