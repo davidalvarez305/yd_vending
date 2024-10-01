@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -49,7 +50,16 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodGet:
-		switch r.URL.Path {
+		path := r.URL.Path
+		if strings.HasPrefix(path, "/inventory/product/") {
+			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
+				GetProductDetail(w, r, ctx)
+				return
+			}
+			return
+		}
+
+		switch path {
 		case "/inventory/product":
 			GetProducts(w, r, ctx)
 		default:
@@ -355,4 +365,47 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("X-Csrf-Token", token)
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetProductDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "product_detail.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	productId := strings.TrimPrefix(r.URL.Path, "/inventory/product/")
+
+	productDetails, err := database.GetProductDetails(productId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting product details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	productCategories, err := database.GetProductCategories()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting product categories.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Product Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Product"] = productDetails
+	data["ProductCategories"] = productCategories
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
 }
