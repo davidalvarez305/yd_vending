@@ -2989,3 +2989,55 @@ func DeleteProduct(id int) error {
 
 	return nil
 }
+
+func GetProductDetails(productID string) (types.ProductDetails, error) {
+	query := `SELECT 
+		p.product_id,
+		p.name,
+		p.size,
+		p.size_type,
+		p.category_id,
+		p.upc
+	FROM product AS v
+	WHERE p.product_id = $1`
+
+	var productDetails types.ProductDetails
+
+	row := DB.QueryRow(query, productID)
+
+	var (
+		size     sql.NullFloat64
+		sizeType sql.NullString
+		upc      sql.NullString
+	)
+
+	err := row.Scan(
+		&productDetails.ProductID,
+		&productDetails.Name,
+		&productDetails.Size,
+		&productDetails.SizeType,
+		&productDetails.ProductCategoryID,
+		&productDetails.UPC,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return productDetails, fmt.Errorf("no product found with ID %s", productID)
+		}
+		return productDetails, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	if upc.Valid {
+		productDetails.UPC = upc.String
+	}
+
+	if size.Valid {
+		productDetails.Size = size.Float64
+	}
+
+	if sizeType.Valid {
+		productDetails.SizeType = sizeType.String
+	}
+
+	return productDetails, nil
+}

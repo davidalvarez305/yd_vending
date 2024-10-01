@@ -596,3 +596,12 @@ type ProductBatchForm struct {
 	Quantity       *int     `json:"quantity" form:"quantity" schema:"quantity"`
 	DatePurchased  *int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
 }
+
+type ProductDetails struct {
+	ProductID         int     `json:"product_id" form:"product_id" schema:"product_id"`
+	Name              string  `json:"name" form:"name" schema:"name"`
+	ProductCategoryID int     `json:"product_category_id" form:"product_category_id" schema:"product_category_id"`
+	Size              float64 `json:"size" form:"size" schema:"size"`
+	SizeType          string  `json:"size_type" form:"size_type" schema:"size_type"`
+	UPC               string  `json:"upc" form:"upc" schema:"upc"`
+}
