@@ -578,6 +578,15 @@ type ProductForm struct {
 	UPC               *string  `json:"upc" form:"upc" schema:"upc"`
 }
 
+type ProductList struct {
+	ProductID int     `json:"product_id" form:"product_id" schema:"product_id"`
+	Name      string  `json:"name" form:"name" schema:"name"`
+	Category  string  `json:"category" form:"category" schema:"category"`
+	Size      float64 `json:"size" form:"size" schema:"size"`
+	SizeType  string  `json:"size_type" form:"size_type" schema:"size_type"`
+	UPC       string  `json:"upc" form:"upc" schema:"upc"`
+}
+
 type ProductBatchForm struct {
 	ProductID      *int     `json:"product_id" form:"product_id" schema:"product_id"`
 	SupplierID     *int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`

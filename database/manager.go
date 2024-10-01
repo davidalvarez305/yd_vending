@@ -2813,3 +2813,95 @@ func CreateSeedLiveTransaction(transaction types.SeedLiveTransaction) error {
 
 	return nil
 }
+
+func GetProductCategories() ([]models.ProductCategory, error) {
+	var productCategories []models.ProductCategory
+
+	rows, err := DB.Query(`SELECT "product_category_id", "name" FROM "product_category"`)
+	if err != nil {
+		return productCategories, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var productCategory models.ProductCategory
+		err := rows.Scan(&productCategory.ProductCategoryID, &productCategory.Name)
+		if err != nil {
+			return productCategories, fmt.Errorf("error scanning row: %w", err)
+		}
+		productCategories = append(productCategories, productCategory)
+	}
+
+	if err := rows.Err(); err != nil {
+		return productCategories, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return productCategories, nil
+}
+
+func GetProductList(pageNum int) ([]types.ProductList, int, error) {
+	var products []types.ProductList
+	var totalRows int
+
+	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
+
+	rows, err := DB.Query(`
+		SELECT 
+			p.product_id,
+			p.name,
+			c.name AS category,
+			p.size,
+			p.size_type,
+			p.upc,
+			COUNT(*) OVER() AS total_rows
+		FROM "product" AS p
+		JOIN product_category AS c ON c.product_category_id = p.product_category_id
+		ORDER BY p.product_id DESC
+		LIMIT $1
+		OFFSET $2;
+	`, constants.LeadsPerPage, offset)
+	if err != nil {
+		return products, totalRows, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product types.ProductList
+
+		var size sql.NullFloat64
+		var sizeType, upc sql.NullString
+
+		err := rows.Scan(
+			&product.ProductID,
+			&product.Name,
+			&product.Category,
+			&size,
+			&sizeType,
+			&upc,
+			&totalRows,
+		)
+		if err != nil {
+			return products, totalRows, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if size.Valid {
+			product.Size = size.Float64
+		}
+
+		if sizeType.Valid {
+			product.SizeType = sizeType.String
+		}
+
+		if upc.Valid {
+			product.UPC = upc.String
+		}
+
+		products = append(products, product)
+	}
+
+	if err := rows.Err(); err != nil {
+		return products, totalRows, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return products, totalRows, nil
+}

@@ -17,11 +17,11 @@
                 </th>
                 <th
                     class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Unit Cost
+                    Size
                 </th>
                 <th
                     class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Size
+                    UPC
                 </th>
             </tr>
         </thead>
@@ -42,10 +42,10 @@
                     <p class="font-medium">{{ .Category }}</p>
                 </td>
                 <td class="p-3">
-                    <p class="font-medium">{{ .UnitCost }}</p>
-                </td>
-                <td class="p-3">
                     <p class="font-medium">{{ .Size }}, {{ .SizeType }}</p>
+                </td>
+                <td class="p-3"></td>
+                    <p class="font-medium">{{ .UPC }}</p>
                 </td>
             </tr>
             {{ end }}
