@@ -2977,3 +2977,15 @@ func UpdateProduct(productId int, form types.ProductForm) error {
 
 	return nil
 }
+
+func DeleteProduct(id int) error {
+	sqlStatement := `
+        DELETE FROM product WHERE product_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
