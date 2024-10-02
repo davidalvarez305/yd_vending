@@ -57,8 +57,9 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodGet:
+		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
+			if len(parts) >= 6 && parts[4] == "product" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				GetEditProductBatch(w, r, ctx)
 				return
 			}
