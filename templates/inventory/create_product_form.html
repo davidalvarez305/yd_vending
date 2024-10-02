@@ -59,6 +59,12 @@
                                     <input type="text" id="upc" name="upc" required
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                 </div>
+                                <div class="space-y-1">
+                                    <button type="button" id="scanBarcode"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                                        Scan Barcode
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -86,39 +92,45 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" nonce="{{ .Nonce }}"></script>
 <script nonce="{{ .Nonce }}">
-    Quagga.init({
-        inputStream: {
-            name: "Live",
-            type: "LiveStream",
-            target: document.querySelector('#barcodeScanner'), // The HTML element to display the video
-            constraints: {
-                facingMode: "environment" // Use the rear camera on mobile devices
+    const scanBarcode = document.getElementById("scanBarcode");
+
+    scanBarcode.addEventListener("click", handleScanBarcode());
+
+    function handleScanBarcode() {
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#barcodeScanner'), // The HTML element to display the video
+                constraints: {
+                    facingMode: "environment" // Use the rear camera on mobile devices
+                }
+            },
+            decoder: {
+                readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"] // List of barcode formats to scan
             }
-        },
-        decoder: {
-            readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"] // List of barcode formats to scan
-        }
-    }, (err) => {
-        if (err) {
-            console.error("Error initializing Quagga:", err);
-            return;
-        }
-        Quagga.start();
-    });
+        }, (err) => {
+            if (err) {
+                console.error("Error initializing Quagga:", err);
+                return;
+            }
+            Quagga.start();
+        });
 
-    // Listen for detected codes
-    Quagga.onDetected((data) => {
-        const code = data.codeResult.code;
-        const upc = document.getElementById('upc')
+        // Listen for detected codes
+        Quagga.onDetected((data) => {
+            const code = data.codeResult.code;
+            const upc = document.getElementById('upc')
 
-        if (upc) upc.value = code;
+            if (upc) upc.value = code;
 
-        Quagga.stop();
-    });
+            Quagga.stop();
+        });
 
-    window.addEventListener('unload', function() {
-        Quagga.stop();
-    });
+        window.addEventListener('unload', function () {
+            Quagga.stop();
+        });
+    }
 </script>
 
 <script nonce="{{ .Nonce }}">
