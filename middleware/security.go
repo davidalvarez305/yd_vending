@@ -99,7 +99,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		var csrfURLs = []string{"/contact", "/quote", "/login", "/crm", "/atm-services", "/ice-vending-services", "/servicios-de-maquinas-expendedoras"}
+		var csrfURLs = []string{"/contact", "/quote", "/login", "/crm", "/inventory", "/atm-services", "/ice-vending-services", "/servicios-de-maquinas-expendedoras"}
 
 		if r.Method == http.MethodGet && (csrf.UrlsListHasCurrentPath(csrfURLs, path) || path == "/") {
 			csrfSecret, ok := r.Context().Value("csrf_secret").(string)
