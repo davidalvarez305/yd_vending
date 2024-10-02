@@ -72,6 +72,14 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPut:
+		if strings.HasPrefix(path, "/inventory/product/") {
+			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
+				PutProductBatch(w, r)
+				return
+			}
+			return
+		}
+
 		switch path {
 		case "/inventory/product":
 			PutProduct(w, r)
@@ -79,9 +87,24 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodDelete:
+		if strings.HasPrefix(path, "/inventory/product/") {
+			parts := strings.Split(path, "/")
+			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
+				DeleteProductBatch(w, r)
+				return
+			}
+			return
+		}
+
+		if strings.HasPrefix(path, "/inventory/product/") {
+			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
+				DeleteProduct(w, r)
+				return
+			}
+			return
+		}
+
 		switch path {
-		case "/inventory/product":
-			DeleteProduct(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
