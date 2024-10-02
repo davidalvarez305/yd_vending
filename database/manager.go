@@ -3174,3 +3174,46 @@ func DeleteProductBatch(id int) error {
 
 	return nil
 }
+
+func GetProductBatchDetails(productId, productBatchId int) (models.ProductBatch, error) {
+	var productBatch models.ProductBatch
+
+	row := DB.QueryRow(`
+		SELECT 
+			pb.product_batch_id,
+			pb.product_id,
+			pb.expiration_date,
+			pb.unit_cost::NUMERIC,
+			pb.quantity,
+			pb.date_purchased
+		FROM "product_batch" AS pb
+		WHERE pb.product_id = $1 AND pb.product_batch_id = $2;
+	`, productId, productBatchId)
+
+	var datePurchased, expirationDate time.Time
+
+	err := row.Scan(
+		&productBatch.ProductBatchID,
+		&productBatch.ProductID,
+		&expirationDate,
+		&productBatch.UnitCost,
+		&productBatch.Quantity,
+		&datePurchased,
+	)
+
+	if err != nil {
+		return productBatch, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	productBatch.DatePurchased = datePurchased.Unix()
+	productBatch.ExpirationDate = expirationDate.Unix()
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return productBatch, fmt.Errorf("no product batch found with ID %d", productBatchId)
+		}
+		return productBatch, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	return productBatch, nil
+}
