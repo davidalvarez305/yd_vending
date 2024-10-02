@@ -59,7 +59,7 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(parts) >= 6 && parts[4] == "product" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
+			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				GetEditProductBatch(w, r, ctx)
 				return
 			}
@@ -81,8 +81,9 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPut:
+		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
+			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				PutProductBatch(w, r)
 				return
 			}
@@ -96,8 +97,8 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodDelete:
+		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/inventory/product/") {
-			parts := strings.Split(path, "/")
 			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				DeleteProductBatch(w, r)
 				return
