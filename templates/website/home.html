@@ -234,40 +234,6 @@
 </div>
 <!-- END How It Works -->
 
-<!-- Gallery -->
-<div class="bg-white dark:bg-gray-900 dark:text-gray-100">
-    <div class="container mx-auto space-y-4 px-4 py-4 lg:px-4 lg:py-4 xl:max-w-7xl">
-        <div class="grow p-5">
-            <div id="imagesSlider">
-                {{ range .MarketingImages }}
-                <div>
-                    <img src="{{ . }}" />
-                </div>
-                {{ end }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js" nonce="{{ .Nonce }}"></script>
-<script type="text/javascript" src="https://code.jquery.com/jquery-migrate-1.2.1.min.js" nonce="{{ .Nonce }}"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
-    nonce="{{ .Nonce }}"></script>
-
-<!-- Initialize slick after jQuery is loaded -->
-<script nonce="{{ .Nonce }}">
-    $(document).ready(function () {
-        $('#imagesSlider').slick({
-            dots: true,
-            infinite: true,
-            speed: 500,
-            fade: true,
-            cssEase: 'linear'
-        });
-    });
-</script>
-<!-- END Gallery -->
-
 <!-- Features -->
 <div class="bg-white dark:bg-gray-900 dark:text-gray-100">
     <div class="container mx-auto space-y-16 px-4 py-16 lg:px-8 lg:py-16 xl:max-w-7xl">
