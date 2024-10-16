@@ -118,8 +118,11 @@
             </div>
         </div>
     </div>
-    <!-- END Location Details -->
+    <!-- END Machine Details -->
     <!-- Machine Slots -->
+    {{ template "slots_table.html" . }}
+
+    {{ template "create_slot_form.html" . }}
     <!-- END Machine Slots -->
 </div>
 
