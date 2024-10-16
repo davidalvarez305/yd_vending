@@ -121,6 +121,13 @@
 
     scanBarcode.addEventListener("click", () => handleScanBarcode());
 
+    function handleErrorModal(err) {
+        const alertModal = document.getElementById("alertModal");
+
+        alertModal.outerHTML = err;
+        handleCloseAlertModal();
+    }
+
     function handleScanBarcode() {
         Quagga.init({
             inputStream: {
@@ -144,7 +151,7 @@
             }
         }, (err) => {
             if (err) {
-                console.error("Error initializing Quagga:", err);
+                handleErrorModal("Error initializing Quagga:", err)
                 return;
             }
             Quagga.start();
@@ -161,7 +168,7 @@
                     size.value = data.size;
                     sizeType.value = data.size_type;
                 })
-                .catch(console.error);
+                .catch(err => handleErrorModal(err));
 
             Quagga.stop();
         });
@@ -175,11 +182,12 @@
     scanBarcodeImage.addEventListener("click", () => handleScanBarcodeImage());
 
     function handleScanBarcodeImage() {
+        const alertModal = document.getElementById("alertModal");
         const img = document.getElementById("upload_barcode");
         const file = img.files[0];
 
         if (!file) {
-            console.error("No image file selected");
+            handleErrorModal("No image file selected");
             return;
         }
 
@@ -212,9 +220,9 @@
                                 size.value = data.size;
                                 sizeType.value = data.size_type;
                             })
-                            .catch(console.error);
+                            .catch(err => handleErrorModal(err));
                     } else {
-                        console.log("No barcode detected in the image.");
+                        handleErrorModal("No barcode detected in the image.");
                     }
                 });
             };
@@ -304,10 +312,7 @@
 
                 form.reset();
             })
-            .catch(err => {
-                alertModal.outerHTML = err;
-                handleCloseAlertModal();
-            })
+            .catch(err => handleErrorModal(err))
             .finally(() => handleCloseForm());
     }
 </script>
