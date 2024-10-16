@@ -571,6 +571,7 @@ type DashboardStats struct {
 }
 
 type ProductForm struct {
+	CSRFToken         *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	Name              *string  `json:"name" form:"name" schema:"name"`
 	ProductCategoryID *int     `json:"product_category_id" form:"product_category_id" schema:"product_category_id"`
 	Size              *float64 `json:"size" form:"size" schema:"size"`
@@ -588,6 +589,7 @@ type ProductList struct {
 }
 
 type ProductBatchForm struct {
+	CSRFToken      *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	ProductID      *int     `json:"product_id" form:"product_id" schema:"product_id"`
 	SupplierID     *int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
 	ExpirationDate *int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`

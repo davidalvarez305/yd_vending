@@ -2913,7 +2913,7 @@ func CreateProduct(form types.ProductForm) error {
 			size,
 			size_type,
 			upc,
-			category_id,
+			product_category_id
 		) VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
@@ -2945,7 +2945,7 @@ func UpdateProduct(productId int, form types.ProductForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE product 
 		SET 
-			item = $2,
+		name = $2,
 			size = $3,
 			size_type = $4,
 			upc = $5,

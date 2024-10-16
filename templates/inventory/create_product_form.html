@@ -59,11 +59,31 @@
                                     <input type="text" id="upc" name="upc" required
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                 </div>
-                                <div class="space-y-1">
-                                    <button type="button" id="scanBarcode"
-                                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
-                                        Scan Barcode
-                                    </button>
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div class="space-y-1">
+                                        <button type="button" id="scanBarcode"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                                            Scan Barcode
+                                        </button>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label for="upload_barcode" class="font-medium">Upload Image of Barcode</label>
+                                        <input
+                                            class="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 dark:text-gray-400 dark:file:bg-blue-200 dark:file:text-blue-800 dark:hover:file:bg-blue-300"
+                                            type="file" id="upload_barcode" name="upload_barcode"
+                                            accept=".jpg,.jpeg,.png,.webp" />
+                                        <button type="button" id="scanBarcodeImage"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+                                                fill="currentColor"
+                                                class="hi-micro hi-magnifying-glass inline-block size-4">
+                                                <path fill-rule="evenodd"
+                                                    d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            <span>Scan</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -79,6 +99,8 @@
                         Submit
                     </button>
                 </div>
+                <div class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100"
+                    id="barcodeScanner"></div>
             </div>
         </div>
     </div>
@@ -88,13 +110,16 @@
 
 <div id="alertModal"></div>
 
-<div id="barcodeScanner"></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" nonce="{{ .Nonce }}"></script>
 <script nonce="{{ .Nonce }}">
     const scanBarcode = document.getElementById("scanBarcode");
 
-    scanBarcode.addEventListener("click", handleScanBarcode());
+    const name = document.getElementById('name');
+    const size = document.getElementById('size');
+    const sizeType = document.getElementById('size_type');
+    const upc = document.getElementById('upc');
+
+    scanBarcode.addEventListener("click", () => handleScanBarcode());
 
     function handleScanBarcode() {
         Quagga.init({
@@ -103,11 +128,19 @@
                 type: "LiveStream",
                 target: document.querySelector('#barcodeScanner'), // The HTML element to display the video
                 constraints: {
-                    facingMode: "environment" // Use the rear camera on mobile devices
-                }
+                    width: 640,
+                    height: 480,
+                    facingMode: "environment"
+                },
+                area: { // defines rectangle of the detection/localization area
+                    top: "0%",    // top offset
+                    right: "0%",  // right offset
+                    left: "0%",   // left offset
+                    bottom: "0%"  // bottom offset
+                },
             },
             decoder: {
-                readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"] // List of barcode formats to scan
+                readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
             }
         }, (err) => {
             if (err) {
@@ -120,15 +153,103 @@
         // Listen for detected codes
         Quagga.onDetected((data) => {
             const code = data.codeResult.code;
-            const upc = document.getElementById('upc')
+            upc.value = code;
 
-            if (upc) upc.value = code;
+            getUPCData(code)
+                .then(data => {
+                    name.value = data.name;
+                    size.value = data.size;
+                    sizeType.value = data.size_type;
+                })
+                .catch(console.error);
 
             Quagga.stop();
         });
 
         window.addEventListener('unload', function () {
             Quagga.stop();
+        });
+    }
+
+    const scanBarcodeImage = document.getElementById("scanBarcodeImage");
+    scanBarcodeImage.addEventListener("click", () => handleScanBarcodeImage());
+
+    function handleScanBarcodeImage() {
+        const img = document.getElementById("upload_barcode");
+        const file = img.files[0];
+
+        if (!file) {
+            console.error("No image file selected");
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            const image = new Image();
+            image.src = event.target.result;
+
+            // When the image is ready, initialize Quagga with the image data
+            image.onload = function () {
+                Quagga.decodeSingle({
+                    src: image.src, // The image file source
+                    numOfWorkers: 0, // No web workers for a single image
+                    inputStream: {
+                        size: 800 // Adjust this size to the actual image size if needed
+                    },
+                    decoder: {
+                        readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
+                    }
+                }, (result) => {
+                    if (result && result.codeResult) {
+                        const code = result.codeResult.code;
+
+                        upc.value = code;
+
+                        getUPCData(code)
+                            .then(data => {
+                                name.value = data.name;
+                                size.value = data.size;
+                                sizeType.value = data.size_type;
+                            })
+                            .catch(console.error);
+                    } else {
+                        console.log("No barcode detected in the image.");
+                    }
+                });
+            };
+        };
+
+        reader.readAsDataURL(file); // Convert the image file to Data URL
+    }
+
+    function getUPCData(upc) {
+        const url = `https://world.openfoodfacts.org/api/v0/product/${upc}.json`;
+
+        return new Promise((resolve, reject) => {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        reject(new Error('Network response was not ok'));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 1) { // Status 1 means the product was found
+                        const product = data.product;
+                        resolve({
+                            name: product.product_name,
+                            size: product.product_quantity,
+                            size_type: product.product_quantity_unit,
+                            category: product.categories
+                        });
+                    } else {
+                        reject(new Error(`Product not found for barcode: ${upc}`));
+                    }
+                })
+                .catch(error => {
+                    reject(error); // Handle any other errors like network issues
+                });
         });
     }
 </script>
