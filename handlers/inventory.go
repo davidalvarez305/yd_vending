@@ -42,8 +42,9 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
+		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
+			if len(parts) >= 5 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) {
 				PostProductBatch(w, r)
 				return
 			}
@@ -63,7 +64,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 				GetEditProductBatch(w, r, ctx)
 				return
 			}
-			return
 		}
 
 		if strings.HasPrefix(path, "/inventory/product/") {
@@ -71,7 +71,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 				GetProductDetail(w, r, ctx)
 				return
 			}
-			return
 		}
 
 		switch path {
@@ -87,12 +86,16 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 				PutProductBatch(w, r)
 				return
 			}
-			return
+		}
+
+		if strings.HasPrefix(path, "/inventory/product/") {
+			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
+				PutProduct(w, r)
+				return
+			}
 		}
 
 		switch path {
-		case "/inventory/product":
-			PutProduct(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -103,7 +106,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 				DeleteProductBatch(w, r)
 				return
 			}
-			return
 		}
 
 		if strings.HasPrefix(path, "/inventory/product/") {
@@ -111,7 +113,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 				DeleteProduct(w, r)
 				return
 			}
-			return
 		}
 
 		switch path {
@@ -375,7 +376,9 @@ func DeleteProductBatch(w http.ResponseWriter, r *http.Request) {
 
 func GetProductDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "product_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	productBatchForm := "create_product_batch_form.html"
+	productBatchesTable := "product_batches_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.INVENTORY_TEMPLATES_DIR + fileName, constants.INVENTORY_TEMPLATES_DIR + productBatchForm, constants.PARTIAL_TEMPLATES_DIR + productBatchesTable}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)

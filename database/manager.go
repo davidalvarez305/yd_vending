@@ -1937,7 +1937,7 @@ func GetSuppliers() ([]models.Supplier, error) {
 
 	for rows.Next() {
 		var supplier models.Supplier
-		var googleBusinessProfile, membershipRenewal, membershipID sql.NullString
+		var googleBusinessProfile, membershipRenewal, membershipID, streetAddressLineTwo sql.NullString
 		var membershipCost sql.NullFloat64
 
 		err := rows.Scan(
@@ -1947,7 +1947,7 @@ func GetSuppliers() ([]models.Supplier, error) {
 			&membershipCost,
 			&membershipRenewal,
 			&supplier.StreetAddressLineOne,
-			&supplier.StreetAddressLineTwo,
+			&streetAddressLineTwo,
 			&supplier.CityID,
 			&supplier.ZipCode,
 			&supplier.State,
@@ -1968,6 +1968,9 @@ func GetSuppliers() ([]models.Supplier, error) {
 		}
 		if membershipCost.Valid {
 			supplier.MembershipCost = membershipCost.Float64
+		}
+		if streetAddressLineTwo.Valid {
+			supplier.StreetAddressLineTwo = streetAddressLineTwo.String
 		}
 
 		suppliers = append(suppliers, supplier)
@@ -2996,9 +2999,9 @@ func GetProductDetails(productID string) (types.ProductDetails, error) {
 		p.name,
 		p.size,
 		p.size_type,
-		p.category_id,
+		p.product_category_id,
 		p.upc
-	FROM product AS v
+	FROM product AS p
 	WHERE p.product_id = $1`
 
 	var productDetails types.ProductDetails
@@ -3014,10 +3017,10 @@ func GetProductDetails(productID string) (types.ProductDetails, error) {
 	err := row.Scan(
 		&productDetails.ProductID,
 		&productDetails.Name,
-		&productDetails.Size,
-		&productDetails.SizeType,
+		&size,
+		&sizeType,
 		&productDetails.ProductCategoryID,
-		&productDetails.UPC,
+		&upc,
 	)
 
 	if err != nil {
@@ -3048,6 +3051,7 @@ func GetProductBatchList(productId string) ([]types.ProductBatchList, error) {
 	rows, err := DB.Query(`
 		SELECT 
 			pb.product_batch_id,
+			pb.product_id,
 			s.name,
 			pb.expiration_date,
 			pb.unit_cost::NUMERIC,
@@ -3069,6 +3073,7 @@ func GetProductBatchList(productId string) ([]types.ProductBatchList, error) {
 
 		err := rows.Scan(
 			&batch.ProductBatchID,
+			&batch.ProductID,
 			&batch.Supplier,
 			&expirationDate,
 			&batch.UnitCost,
@@ -3100,7 +3105,7 @@ func CreateProductBatch(form types.ProductBatchForm) error {
 			expiration_date,
 			date_purchased,
 			unit_cost,
-			quantity,
+			quantity
 		) VALUES ($1, $2, to_timestamp($3), to_timestamp($4), $5, $6)
 	`)
 	if err != nil {
