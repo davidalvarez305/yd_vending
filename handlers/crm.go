@@ -2652,7 +2652,9 @@ func PostImagesUpload(w http.ResponseWriter, r *http.Request) {
 
 func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "machine_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	slotsTable := "slots_table.html"
+	createSlotForm := "create_slot_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + slotsTable, constants.CRM_TEMPLATES_DIR + createSlotForm}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -2710,11 +2712,16 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	locations, err := database.GetLocations()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting cities.", http.StatusInternalServerError)
+		http.Error(w, "Error getting locations.", http.StatusInternalServerError)
 		return
 	}
 
-	// Get machine slots....
+	slots, err := database.GetMachineSlotsByMachineID(fmt.Sprint(machineId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machine slots.", http.StatusInternalServerError)
+		return
+	}
 
 	data := ctx
 	data["PageTitle"] = "Machine Detail — " + constants.CompanyName
@@ -2726,6 +2733,7 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	data["Vendors"] = vendors
 	data["MachineStatuses"] = machineStatuses
 	data["Locations"] = locations
+	data["Slots"] = slots
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

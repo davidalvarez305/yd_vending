@@ -3220,3 +3220,59 @@ func GetProductBatchDetails(productId, productBatchId int) (models.ProductBatch,
 
 	return productBatch, nil
 }
+
+func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
+	var slots []types.SlotList
+
+	rows, err := DB.Query(`
+		SELECT 
+			s.slot_id,
+			s.slot,
+			s.machine_id,
+			s.machine_code,
+			s.price::NUMERIC,
+			s.quantity,
+			s.capacity,
+			p.name
+		FROM "slots" AS s
+		JOIN product AS p ON p.product_id = s.product_id
+		WHERE s.machine_id = $1
+		ORDER BY s.slot ASC;
+	`, machineId)
+	if err != nil {
+		return slots, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var slot types.SlotList
+
+		var product sql.NullString
+
+		err := rows.Scan(
+			&slot.SlotID,
+			&slot.Slot,
+			&slot.MachineID,
+			&slot.MachineCode,
+			&slot.Price,
+			&slot.Quantity,
+			&slot.Capacity,
+			&product,
+		)
+		if err != nil {
+			return slots, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if product.Valid {
+			slot.Product = product.String
+		}
+
+		slots = append(slots, slot)
+	}
+
+	if err := rows.Err(); err != nil {
+		return slots, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return slots, nil
+}
