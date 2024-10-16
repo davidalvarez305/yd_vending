@@ -307,3 +307,29 @@ type ProductCategory struct {
 	ProductCategoryID int    `json:"product_category_id" form:"product_category_id"`
 	Name              string `json:"name" form:"name" schema:"name"`
 }
+
+type Slot struct {
+	SlotID      int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	Nickname    string  `json:"nickname" form:"nickname" schema:"nickname"`
+	Slot        string  `json:"slot" form:"slot" schema:"slot"`
+	MachineCode string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
+	MachineID   int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	ProductID   int     `json:"product_id" form:"product_id" schema:"product_id"` // NULLABLE
+	Price       float64 `json:"price" form:"price" schema:"price"`
+	Quantity    int     `json:"quantity" form:"quantity" schema:"quantity"`
+	Capacity    int     `json:"capacity" form:"capacity" schema:"capacity"`
+}
+
+type ProductSlotAssignment struct {
+	ProductSlotAssignmentID int64 `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	SlotID                  int   `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	ProductBatchID          int   `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
+	DateAssigned            int64 `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+}
+
+type MachineLocationAssignment struct {
+	MachineLocationAssignmentID int64 `json:"machine_location_assignment_id" form:"machine_location_assignment_id" schema:"machine_location_assignment_id"`
+	LocationID                  int   `json:"location_id" form:"location_id" schema:"location_id"`
+	MachineID                   int   `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	DateAssigned                int64 `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+}
