@@ -616,3 +616,13 @@ type ProductDetails struct {
 	SizeType          string  `json:"size_type" form:"size_type" schema:"size_type"`
 	UPC               string  `json:"upc" form:"upc" schema:"upc"`
 }
+
+type ProductBatchDetail struct {
+	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
+	ProductID      int     `json:"product_id" form:"product_id" schema:"product_id"`
+	SupplierID     int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
+	ExpirationDate string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
+	DatePurchased  string  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
+}

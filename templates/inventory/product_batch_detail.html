@@ -25,8 +25,7 @@
                         <select id="supplier_id" name="supplier_id" required
                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                             {{ range .Suppliers }}
-                            <option value="{{ .SupplierID }}" {{ if eq .SupplierID $.ProductBatch.SupplierID
-                                }}selected{{ end }}>
+                            <option value="{{ .SupplierID }}" {{ if eq .SupplierID $.ProductBatch.SupplierID }}selected{{ end }}>
                                 {{ .Name }}
                             </option>
                             {{ end }}

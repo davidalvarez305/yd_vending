@@ -3190,7 +3190,8 @@ func GetProductBatchDetails(productId, productBatchId int) (models.ProductBatch,
 			pb.expiration_date,
 			pb.unit_cost::NUMERIC,
 			pb.quantity,
-			pb.date_purchased
+			pb.date_purchased,
+			pb.supplier_id
 		FROM "product_batch" AS pb
 		WHERE pb.product_id = $1 AND pb.product_batch_id = $2;
 	`, productId, productBatchId)
@@ -3204,6 +3205,7 @@ func GetProductBatchDetails(productId, productBatchId int) (models.ProductBatch,
 		&productBatch.UnitCost,
 		&productBatch.Quantity,
 		&datePurchased,
+		&productBatch.SupplierID,
 	)
 
 	if err != nil {
