@@ -3084,8 +3084,8 @@ func GetProductBatchList(productId string) ([]types.ProductBatchList, error) {
 			return batches, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		batch.DatePurchased = datePurchased.Unix()
-		batch.ExpirationDate = expirationDate.Unix()
+		batch.DatePurchased = utils.FormatDateMMDDYYYY(datePurchased.Unix())
+		batch.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
 
 		batches = append(batches, batch)
 	}
@@ -3207,18 +3207,14 @@ func GetProductBatchDetails(productId, productBatchId int) (models.ProductBatch,
 	)
 
 	if err != nil {
-		return productBatch, fmt.Errorf("error scanning row: %w", err)
-	}
-
-	productBatch.DatePurchased = datePurchased.Unix()
-	productBatch.ExpirationDate = expirationDate.Unix()
-
-	if err != nil {
 		if err == sql.ErrNoRows {
 			return productBatch, fmt.Errorf("no product batch found with ID %d", productBatchId)
 		}
 		return productBatch, fmt.Errorf("error scanning row: %w", err)
 	}
+
+	productBatch.DatePurchased = datePurchased.Unix()
+	productBatch.ExpirationDate = expirationDate.Unix()
 
 	return productBatch, nil
 }

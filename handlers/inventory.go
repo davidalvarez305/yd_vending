@@ -61,7 +61,7 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/inventory/product/") {
 			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
-				GetEditProductBatch(w, r, ctx)
+				GetProductBatchDetail(w, r, ctx)
 				return
 			}
 		}
@@ -346,7 +346,7 @@ func DeleteProductBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productBatches, err := database.GetProductBatchList(string(productBatchId))
+	productBatches, err := database.GetProductBatchList(fmt.Sprint(productBatchId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -498,7 +498,7 @@ func PostProductBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productBatches, err := database.GetProductBatchList(string(productId))
+	productBatches, err := database.GetProductBatchList(fmt.Sprint(productId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -589,7 +589,7 @@ func PutProductBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productBatches, err := database.GetProductBatchList(string(productId))
+	productBatches, err := database.GetProductBatchList(fmt.Sprint(productId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -668,9 +668,9 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func GetEditProductBatch(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetProductBatchDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "product_batch_detail.html"
-	files := []string{constants.INVENTORY_TEMPLATES_DIR + fileName}
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.INVENTORY_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -712,7 +712,7 @@ func GetEditProductBatch(w http.ResponseWriter, r *http.Request, ctx map[string]
 	}
 
 	data := ctx
-	data["PageTitle"] = "Location Detail — " + constants.CompanyName
+	data["PageTitle"] = "Product Batch Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["ProductBatch"] = productBatchDetails

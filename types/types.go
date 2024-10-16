@@ -602,10 +602,10 @@ type ProductBatchList struct {
 	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
 	ProductID      int     `json:"product_id" form:"product_id" schema:"product_id"`
 	Supplier       string  `json:"supplier" form:"supplier" schema:"supplier"`
-	ExpirationDate int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	ExpirationDate string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
 	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
 	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
-	DatePurchased  int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
+	DatePurchased  string  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
 }
 
 type ProductDetails struct {
