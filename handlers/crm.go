@@ -2723,6 +2723,13 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 		return
 	}
 
+	productBatches, err := database.GetAvailableProductBatches()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting product batches.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Machine Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -2734,6 +2741,7 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	data["MachineStatuses"] = machineStatuses
 	data["Locations"] = locations
 	data["Slots"] = slots
+	data["ProductBatches"] = productBatches
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

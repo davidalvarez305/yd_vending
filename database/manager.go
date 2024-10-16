@@ -3231,7 +3231,6 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			s.machine_id,
 			s.machine_code,
 			s.price::NUMERIC,
-			s.quantity,
 			s.capacity,
 			p.name
 		FROM "slots" AS s
@@ -3255,7 +3254,6 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			&slot.MachineID,
 			&slot.MachineCode,
 			&slot.Price,
-			&slot.Quantity,
 			&slot.Capacity,
 			&product,
 		)
@@ -3275,4 +3273,57 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	}
 
 	return slots, nil
+}
+
+func GetAvailableProductBatches() ([]types.AvailableProductBatches, error) {
+	var batches []types.AvailableProductBatches
+
+	rows, err := DB.Query(`
+		SELECT 
+			pb.product_batch_id,
+			s.name,
+			p.name,
+			pb.unit_cost::NUMERIC,
+			pb.quantity,
+			pb.date_purchased,
+			pb.expiration_date
+		FROM "product_batch" AS pb
+		JOIN supplier AS s ON pb.supplier_id = s.supplier_id
+		JOIN product AS p ON pb.product_id = p.product_id
+		WHERE pb.quantity > 0 AND pb.expiration_date < CURRENT_DATE
+		ORDER BY pb.date_purchased ASC;
+	`)
+	if err != nil {
+		return batches, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var batch types.AvailableProductBatches
+		var datePurchased, expirationDate time.Time
+
+		err := rows.Scan(
+			&batch.ProductBatchID,
+			&batch.Supplier,
+			&batch.ProductName,
+			&batch.UnitCost,
+			&batch.Quantity,
+			&datePurchased,
+			&expirationDate,
+		)
+		if err != nil {
+			return batches, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		batch.DatePurchased = utils.FormatDateMMDDYYYY(datePurchased.Unix())
+		batch.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
+
+		batches = append(batches, batch)
+	}
+
+	if err := rows.Err(); err != nil {
+		return batches, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return batches, nil
 }
