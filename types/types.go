@@ -650,7 +650,7 @@ type SlotForm struct {
 
 type AvailableProductBatches struct {
 	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
-	ProductName    int     `json:"product_name" form:"product_name" schema:"product_name"`
+	ProductName    string  `json:"product_name" form:"product_name" schema:"product_name"`
 	Supplier       string  `json:"supplier" form:"supplier" schema:"supplier"`
 	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
 	ExpirationDate string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`

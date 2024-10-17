@@ -3233,7 +3233,7 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			s.price::NUMERIC,
 			s.capacity,
 			p.name
-		FROM "slots" AS s
+		FROM "slot" AS s
 		JOIN product AS p ON p.product_id = s.product_id
 		WHERE s.machine_id = $1
 		ORDER BY s.slot ASC;
@@ -3290,7 +3290,7 @@ func GetAvailableProductBatches() ([]types.AvailableProductBatches, error) {
 		FROM "product_batch" AS pb
 		JOIN supplier AS s ON pb.supplier_id = s.supplier_id
 		JOIN product AS p ON pb.product_id = p.product_id
-		WHERE pb.quantity > 0 AND pb.expiration_date < CURRENT_DATE
+		WHERE pb.quantity > 0 AND pb.expiration_date > CURRENT_DATE
 		ORDER BY pb.date_purchased ASC;
 	`)
 	if err != nil {
