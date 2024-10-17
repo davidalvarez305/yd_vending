@@ -2895,7 +2895,7 @@ func DeleteSlot(w http.ResponseWriter, r *http.Request) {
 
 func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "slot_detail.html"
-	productSlotAssignmentTables := "product_slow_assignments_table.html"
+	productSlotAssignmentTables := "product_slot_assignments_table.html"
 	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
@@ -2947,4 +2947,70 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	helpers.ServeContent(w, files, data)
+}
+
+func PutSlot(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.SlotForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	slotId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.UpdateSlot(slotId, form)
+	if err != nil {
+		fmt.Printf("Error updating: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update slot.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Slot details have been updated.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
