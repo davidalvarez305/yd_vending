@@ -2799,7 +2799,7 @@ func PostSlot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateSlot(form)
+	slotId, err := database.CreateSlot(form)
 	if err != nil {
 		fmt.Printf("Error creating location: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -2812,6 +2812,29 @@ func PostSlot(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
+	}
+
+	if form.DateAssigned != nil && form.ProductBatchID != nil {
+		assignment := types.ProductSlotAssignmentForm{
+			SlotID:         &slotId,
+			ProductBatchID: form.ProductBatchID,
+			DateAssigned:   form.DateAssigned,
+		}
+
+		err = database.CreateProductSlotAssignment(assignment)
+		if err != nil {
+			fmt.Printf("Error creating product slot assignment: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to create product slot assignment.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
 	}
 
 	slots, err := database.GetMachineSlotsByMachineID(fmt.Sprint(machineId))

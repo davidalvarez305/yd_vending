@@ -652,6 +652,7 @@ type SlotForm struct {
 	MachineCode    *string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
 	MachineID      *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	ProductBatchID *int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"` // NULLABLE
+	DateAssigned   *int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`          // NULLABLE
 	Price          *float64 `json:"price" form:"price" schema:"price"`
 	Capacity       *int     `json:"capacity" form:"capacity" schema:"capacity"`
 }

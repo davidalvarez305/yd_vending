@@ -3319,7 +3319,8 @@ func GetAvailableProductBatches() ([]types.AvailableProductBatches, error) {
 	return batches, nil
 }
 
-func CreateSlot(form types.SlotForm) error {
+func CreateSlot(form types.SlotForm) (int, error) {
+	var slotId int
 	stmt, err := DB.Prepare(`
 		INSERT INTO slot (
 			nickname,
@@ -3329,9 +3330,10 @@ func CreateSlot(form types.SlotForm) error {
 			price,
 			capacity
 		) VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING slot_id
 	`)
 	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
+		return slotId, fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
@@ -3342,19 +3344,20 @@ func CreateSlot(form types.SlotForm) error {
 	price := utils.CreateNullFloat64(form.Price)
 	capacity := utils.CreateNullInt(form.Capacity)
 
-	_, err = stmt.Exec(
+	err = stmt.QueryRow(
 		nickname,
 		slot,
 		machineCode,
 		machineID,
 		price,
 		capacity,
-	)
+	).Scan(&slotId)
+
 	if err != nil {
-		return fmt.Errorf("error executing statement: %w", err)
+		return slotId, fmt.Errorf("error executing statement: %w", err)
 	}
 
-	return nil
+	return slotId, nil
 }
 
 func UpdateSlot(slotId int, form types.SlotForm) error {
