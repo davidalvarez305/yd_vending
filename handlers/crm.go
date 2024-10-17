@@ -2426,7 +2426,7 @@ func DeleteLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	locations, err := database.GetLocationsByBusiness(string(businessId))
+	locations, err := database.GetLocationsByBusiness(fmt.Sprint(businessId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -2863,7 +2863,7 @@ func DeleteSlot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slots, err := database.GetMachineSlotsByMachineID(string(machineId))
+	slots, err := database.GetMachineSlotsByMachineID(fmt.Sprint(machineId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
