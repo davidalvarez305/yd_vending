@@ -632,20 +632,19 @@ type SlotList struct {
 	Slot        string  `json:"slot" form:"slot" schema:"slot"`
 	MachineID   int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	MachineCode string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
-	Product     string  `json:"product" form:"product" schema:"product"`
 	Price       float64 `json:"price" form:"price" schema:"price"`
 	Capacity    int     `json:"capacity" form:"capacity" schema:"capacity"`
 }
 
 type SlotForm struct {
-	CSRFToken   *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	Nickname    *string  `json:"nickname" form:"nickname" schema:"nickname"`
-	Slot        *string  `json:"slot" form:"slot" schema:"slot"`
-	MachineCode *string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
-	MachineID   *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
-	ProductID   *int     `json:"product_id" form:"product_id" schema:"product_id"` // NULLABLE
-	Price       *float64 `json:"price" form:"price" schema:"price"`
-	Capacity    *int     `json:"capacity" form:"capacity" schema:"capacity"`
+	CSRFToken      *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Nickname       *string  `json:"nickname" form:"nickname" schema:"nickname"`
+	Slot           *string  `json:"slot" form:"slot" schema:"slot"`
+	MachineCode    *string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
+	MachineID      *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	ProductBatchID *int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"` // NULLABLE
+	Price          *float64 `json:"price" form:"price" schema:"price"`
+	Capacity       *int     `json:"capacity" form:"capacity" schema:"capacity"`
 }
 
 type AvailableProductBatches struct {

@@ -3231,10 +3231,8 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			s.machine_id,
 			s.machine_code,
 			s.price::NUMERIC,
-			s.capacity,
-			p.name
+			s.capacity
 		FROM "slot" AS s
-		JOIN product AS p ON p.product_id = s.product_id
 		WHERE s.machine_id = $1
 		ORDER BY s.slot ASC;
 	`, machineId)
@@ -3246,8 +3244,6 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	for rows.Next() {
 		var slot types.SlotList
 
-		var product sql.NullString
-
 		err := rows.Scan(
 			&slot.SlotID,
 			&slot.Slot,
@@ -3255,14 +3251,9 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			&slot.MachineCode,
 			&slot.Price,
 			&slot.Capacity,
-			&product,
 		)
 		if err != nil {
 			return slots, fmt.Errorf("error scanning row: %w", err)
-		}
-
-		if product.Valid {
-			slot.Product = product.String
 		}
 
 		slots = append(slots, slot)
@@ -3326,4 +3317,82 @@ func GetAvailableProductBatches() ([]types.AvailableProductBatches, error) {
 	}
 
 	return batches, nil
+}
+
+func CreateSlot(form types.SlotForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO slot (
+			nickname,
+			slot,
+			machine_code,
+			machine_id,
+			price,
+			capacity
+		) VALUES ($1, $2, $3, $4, $5, $6)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	nickname := utils.CreateNullString(form.Nickname)
+	slot := utils.CreateNullString(form.Slot)
+	machineCode := utils.CreateNullString(form.MachineCode)
+	machineID := utils.CreateNullInt(form.MachineID)
+	price := utils.CreateNullFloat64(form.Price)
+	capacity := utils.CreateNullInt(form.Capacity)
+
+	_, err = stmt.Exec(
+		nickname,
+		slot,
+		machineCode,
+		machineID,
+		price,
+		capacity,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateSlot(slotId int, form types.SlotForm) error {
+	stmt, err := DB.Prepare(`
+		UPDATE slot 
+		SET 
+			nickname = COALESCE($2, nickname),
+			slot = COALESCE($3, slot),
+			machine_code = COALESCE($4, machine_code),
+			machine_id = COALESCE($5, machine_id),
+			price = COALESCE($6, price),
+			capacity = COALESCE($7, capacity)
+		WHERE slot_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	nickname := utils.CreateNullString(form.Nickname)
+	slot := utils.CreateNullString(form.Slot)
+	machineCode := utils.CreateNullString(form.MachineCode)
+	machineID := utils.CreateNullInt(form.MachineID)
+	price := utils.CreateNullFloat64(form.Price)
+	capacity := utils.CreateNullInt(form.Capacity)
+
+	_, err = stmt.Exec(
+		slotId,
+		nickname,
+		slot,
+		machineCode,
+		machineID,
+		price,
+		capacity,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
 }

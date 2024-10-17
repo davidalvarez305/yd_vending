@@ -12,23 +12,15 @@
                     Slot
                 </th>
                 <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Machine Code
                 </th>
                 <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Product
-                </th>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Price
                 </th>
                 <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Quantity
-                </th>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Capacity
                 </th>
             </tr>
@@ -43,22 +35,16 @@
                         View
                     </a>
                 </td>
-                <td class="p-3">
+                <td class="p-3 text-center">
                     <p class="font-medium">{{ .Slot }}</p>
                 </td>
-                <td class="p-3">
+                <td class="p-3 text-center">
                     <p class="font-medium">{{ .MachineCode }}</p>
                 </td>
-                <td class="p-3">
-                    <p class="font-medium">${{ .Product }}</p>
+                <td class="p-3 text-center">
+                    <p class="font-medium">${{ .Price }}</p>
                 </td>
-                <td class="p-3">
-                    <p class="font-medium">{{ .Price }}</p>
-                </td>
-                <td class="p-3">
-                    <p class="font-medium">{{ .Quantity }}</p>
-                </td>
-                <td class="p-3">
+                <td class="p-3 text-center">
                     <p class="font-medium">{{ .Capacity }}</p>
                 </td>
             </tr>

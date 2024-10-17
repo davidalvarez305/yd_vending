@@ -12,15 +12,15 @@
                     Product
                 </th>
                 <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Category
                 </th>
                 <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Size
                 </th>
                 <th
-                    class="bg-gray-100/75 px-3 py-4 text-left font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     UPC
                 </th>
             </tr>
@@ -35,16 +35,16 @@
                         View
                     </a>
                 </td>
-                <td class="p-3">
+                <td class="p-3 text-center">
                     <p class="font-medium">{{ .Name }}</p>
                 </td>
-                <td class="p-3">
+                <td class="p-3 text-center">
                     <p class="font-medium">{{ .Category }}</p>
                 </td>
-                <td class="p-3">
+                <td class="p-3 text-center">
                     <p class="font-medium">{{ .Size }}{{ .SizeType }}</p>
                 </td>
-                <td class="p-3">
+                <td class="p-3 text-center">
                     <a href="https://www.barcodelookup.com/{{ .UPC }}" target="_blank" class="font-medium">
                         {{ .UPC }}
                     </a>
