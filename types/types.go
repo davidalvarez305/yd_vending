@@ -673,3 +673,11 @@ type ProductSlotAssignment struct {
 	Quantity                int    `json:"quantity" form:"quantity" schema:"quantity"`
 	DateAssigned            string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
+
+type ProductSlotAssignmentForm struct {
+	CSRFToken               *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	ProductSlotAssignmentID *int64  `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	SlotID                  *int    `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	ProductBatchID          *int    `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
+	DateAssigned            *int64  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+}

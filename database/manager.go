@@ -3490,3 +3490,28 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 
 	return productSlotAssignments, nil
 }
+
+func CreateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO product_slot_assignment (
+			slot_id,
+			product_batch_id,
+			date_assigned
+		) VALUES ($1, $2, to_timestamp($3))
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.SlotID,
+		form.ProductBatchID,
+		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
