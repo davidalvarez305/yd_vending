@@ -3396,3 +3396,15 @@ func UpdateSlot(slotId int, form types.SlotForm) error {
 
 	return nil
 }
+
+func DeleteSlot(id int) error {
+	sqlStatement := `
+        DELETE FROM slot WHERE slot_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
