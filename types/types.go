@@ -636,6 +636,15 @@ type SlotList struct {
 	Capacity    int     `json:"capacity" form:"capacity" schema:"capacity"`
 }
 
+type SlotDetails struct {
+	SlotID      int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	Slot        string  `json:"slot" form:"slot" schema:"slot"`
+	MachineID   int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	MachineCode string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
+	Price       float64 `json:"price" form:"price" schema:"price"`
+	Capacity    int     `json:"capacity" form:"capacity" schema:"capacity"`
+}
+
 type SlotForm struct {
 	CSRFToken      *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	Nickname       *string  `json:"nickname" form:"nickname" schema:"nickname"`
@@ -655,4 +664,12 @@ type AvailableProductBatches struct {
 	ExpirationDate string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
 	DatePurchased  string  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
 	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
+}
+
+type ProductSlotAssignment struct {
+	ProductSlotAssignmentID int64  `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	Slot                    string `json:"slot" form:"slot" schema:"slot"`
+	Product                 string `json:"product" form:"product" schema:"product"`
+	Quantity                int    `json:"quantity" form:"quantity" schema:"quantity"`
+	DateAssigned            string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }

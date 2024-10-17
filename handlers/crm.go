@@ -49,8 +49,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
+		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/crm/business/") {
-			parts := strings.Split(path, "/")
 			if len(parts) >= 6 && parts[4] == "location" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				GetLocationDetail(w, r, ctx)
 				return
@@ -84,6 +84,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(path, "/crm/machine/") {
 			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
 				GetMachineDetail(w, r, ctx)
+				return
+			}
+			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
+				GetSlotDetail(w, r, ctx)
 				return
 			}
 		}
@@ -2887,4 +2891,60 @@ func DeleteSlot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "slot_detail.html"
+	productSlotAssignmentTables := "product_slow_assignments_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machine ID from URL.", http.StatusInternalServerError)
+		return
+	}
+
+	slotId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting slot ID from URL.", http.StatusInternalServerError)
+		return
+	}
+
+	slotDetails, err := database.GetSlotDetails(fmt.Sprint(machineId), fmt.Sprint(slotId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting slot details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	productSlotAssignments, err := database.GetProductSlotAssignments(fmt.Sprint(slotId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting product slot assignments.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Slot Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Slot"] = slotDetails
+	data["ProductSlotAssignments"] = productSlotAssignments
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
 }

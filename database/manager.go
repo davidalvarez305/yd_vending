@@ -3408,3 +3408,85 @@ func DeleteSlot(id int) error {
 
 	return nil
 }
+
+func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
+	query := `SELECT 
+		s.slot_id,
+		s.slot,
+		s.machine_code,
+		s.machine_id,
+		s.price,
+		s.capacity
+	FROM slot AS s
+	WHERE s.slot_id = $1 AND s.machine_id = $2`
+
+	var businessDetails types.SlotDetails
+
+	row := DB.QueryRow(query, slotId, machineId)
+
+	err := row.Scan(
+		&businessDetails.SlotID,
+		&businessDetails.Slot,
+		&businessDetails.MachineCode,
+		&businessDetails.MachineID,
+		&businessDetails.Price,
+		&businessDetails.Capacity,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return businessDetails, fmt.Errorf("no business found with ID %s", slotId)
+		}
+		return businessDetails, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	return businessDetails, nil
+}
+
+func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, error) {
+	query := `SELECT 
+		psa.product_slot_assignment_id,
+		s.slot,
+		p.name,
+		psa.date_assigned,
+		psa.quantity
+	FROM product_slot_assignment AS psa
+	JOIN slot AS s ON psa.slot_id = s.slot_id
+	JOIN product_batch AS pb ON pb.product_batch_id = psa.product_batch_id
+	JOIN product AS p ON p.product_id = pb.product_batch_id
+	WHERE psa.slot_id = $1`
+
+	var productSlotAssignments []types.ProductSlotAssignment
+
+	rows, err := DB.Query(query, slotId)
+
+	if err != nil {
+		return productSlotAssignments, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var assignment types.ProductSlotAssignment
+		var dateAssigned time.Time
+
+		err := rows.Scan(
+			&assignment.ProductSlotAssignmentID,
+			&assignment.Slot,
+			&assignment.Product,
+			&dateAssigned,
+			&assignment.Quantity,
+		)
+		if err != nil {
+			return productSlotAssignments, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		assignment.DateAssigned = utils.FormatDateMMDDYYYY(dateAssigned.Unix())
+
+		productSlotAssignments = append(productSlotAssignments, assignment)
+	}
+
+	if err := rows.Err(); err != nil {
+		return productSlotAssignments, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return productSlotAssignments, nil
+}
