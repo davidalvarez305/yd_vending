@@ -3232,11 +3232,12 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 		s.machine_code,
 		s.price::NUMERIC,
 		s.capacity,
-		MAX(r.date_refilled)
+		MAX(r.date_refilled),
+		r.refill_id
 	FROM "slot" AS s
 	LEFT JOIN refill AS r ON r.slot_id = s.slot_id
 	WHERE s.machine_id = $1
-	GROUP BY s.slot_id, s.slot, s.machine_id, s.machine_code, s.price, s.capacity
+	GROUP BY s.slot_id, s.slot, s.machine_id, s.machine_code, s.price, s.capacity, r.refill_id
 	ORDER BY s.slot ASC;
 	`, machineId)
 	if err != nil {
@@ -3257,6 +3258,7 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			&slot.Price,
 			&slot.Capacity,
 			&dateRefilled,
+			&slot.LastRefillID,
 		)
 		if err != nil {
 			return slots, fmt.Errorf("error scanning row: %w", err)

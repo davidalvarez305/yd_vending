@@ -628,13 +628,14 @@ type ProductBatchDetail struct {
 }
 
 type SlotList struct {
-	SlotID      int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
-	Slot        string  `json:"slot" form:"slot" schema:"slot"`
-	MachineID   int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
-	MachineCode string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
-	Price       float64 `json:"price" form:"price" schema:"price"`
-	Capacity    int     `json:"capacity" form:"capacity" schema:"capacity"`
-	LastRefill  string  `json:"last_refill" form:"last_refill" schema:"last_refill"`
+	SlotID       int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	Slot         string  `json:"slot" form:"slot" schema:"slot"`
+	MachineID    int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	MachineCode  string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
+	Price        float64 `json:"price" form:"price" schema:"price"`
+	Capacity     int     `json:"capacity" form:"capacity" schema:"capacity"`
+	LastRefill   string  `json:"last_refill" form:"last_refill" schema:"last_refill"`
+	LastRefillID int     `json:"last_refill_id" form:"last_refill_id" schema:"last_refill_id"`
 }
 
 type SlotDetails struct {
