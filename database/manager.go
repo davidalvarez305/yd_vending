@@ -3452,8 +3452,7 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 		psa.product_slot_assignment_id,
 		s.slot,
 		p.name,
-		psa.date_assigned,
-		psa.quantity
+		psa.date_assigned
 	FROM product_slot_assignment AS psa
 	JOIN slot AS s ON psa.slot_id = s.slot_id
 	JOIN product_batch AS pb ON pb.product_batch_id = psa.product_batch_id
@@ -3478,7 +3477,6 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 			&assignment.Slot,
 			&assignment.Product,
 			&dateAssigned,
-			&assignment.Quantity,
 		)
 		if err != nil {
 			return productSlotAssignments, fmt.Errorf("error scanning row: %w", err)

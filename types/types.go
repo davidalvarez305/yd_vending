@@ -672,7 +672,6 @@ type ProductSlotAssignment struct {
 	ProductSlotAssignmentID int64  `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
 	Slot                    string `json:"slot" form:"slot" schema:"slot"`
 	Product                 string `json:"product" form:"product" schema:"product"`
-	Quantity                int    `json:"quantity" form:"quantity" schema:"quantity"`
 	DateAssigned            string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
 
