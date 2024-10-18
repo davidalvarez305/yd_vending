@@ -3607,3 +3607,188 @@ func DeleteRefill(id int) error {
 
 	return nil
 }
+
+func CreateMachineLocationAssignment(form models.MachineLocationAssignment) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO machine_location_assignment (
+			location_id,
+			machine_id,
+			date_assigned
+		) VALUES ($1, $2, to_timestamp($3))
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.LocationID,
+		form.MachineID,
+		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func CreateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO machine_card_reader (
+			card_reader_serial_number,
+			machine_id,
+			date_assigned
+		) VALUES ($1, $2, to_timestamp($3))
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.CardReaderSerialNumber,
+		form.MachineID,
+		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func CreateSlotPriceLog(form models.SlotPriceLog) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO slot_price_log (
+			slot_id,
+			date_assigned
+		) VALUES ($1, $2, to_timestamp($3))
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.SlotID,
+		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteMachineLocationAssignment(id int) error {
+	sqlStatement := `
+        DELETE FROM machine_location_assignment WHERE machine_location_assignment_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteMachineCardReaderAssignment(id int) error {
+	sqlStatement := `
+        DELETE FROM machine_card_reader WHERE machine_card_reader_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteSlotPriceLog(id int) error {
+	sqlStatement := `
+        DELETE FROM slot_price_log WHERE slot_price_log_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) error {
+	stmt, err := DB.Prepare(`
+		UPDATE machine_location_assignment
+		SET location_id = COALESCE($2, location_id),
+			machine_id = COALESCE($3, machine_id),
+			date_assigned = COALESCE(to_timestamp($4), date_assigned)
+		WHERE machine_location_assignment_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.MachineLocationAssignmentID,
+		form.LocationID,
+		form.MachineID,
+		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) error {
+	stmt, err := DB.Prepare(`
+		UPDATE machine_card_reader
+		SET card_reader_serial_number = COALESCE($2, card_reader_serial_number),
+			machine_id = COALESCE($3, machine_id),
+			date_assigned = COALESCE(to_timestamp($4), date_assigned)
+		WHERE machine_card_reader_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.MachineCardReaderID,
+		form.CardReaderSerialNumber,
+		form.MachineID,
+		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateSlotPriceLog(form models.SlotPriceLog) error {
+	stmt, err := DB.Prepare(`
+		UPDATE slot_price_log
+		SET slot_id = COALESCE($2, slot_id),
+			date_assigned = COALESCE($3, date_assigned)
+		WHERE slot_price_log_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.SlotPriceLogID,
+		form.SlotID,
+		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
