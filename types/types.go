@@ -686,7 +686,6 @@ type ProductSlotAssignmentForm struct {
 
 type RefillForm struct {
 	CSRFToken    *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	RefillID     int     `json:"refill_id" form:"refill_id" schema:"refill_id"`
-	SlotID       int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
-	DateRefilled int64   `json:"date_refilled" form:"date_refilled" schema:"date_refilled"`
+	SlotID       *int    `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	DateRefilled *int64  `json:"date_refilled" form:"date_refilled" schema:"date_refilled"`
 }

@@ -91,15 +91,15 @@
     const deleteRefill = document.getElementById("deleteRefill");
 
     function handleMarkRefill(slotId) {
-        const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId;
+        const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill";
         const method = "POST";
 
         const body = new FormData();
         const token = document.getElementById("csrf_token");
-        const dateRefilled = Date.now() / 1000;
+        const dateRefilled = Math.floor(Date.now() / 1000);
 
         body.set('csrf_token', token.value);
-        body.set('slot_id', slotId);
+        body.set('slot_id', parseInt(slotId));
         body.set('date_refilled', dateRefilled);
 
         fetch(endpoint, {
@@ -133,15 +133,14 @@
             .finally(() => handleCloseSlotForm());
     }
 
-    deleteRefill.addEventListener("click", (e) => {
+    markRefill.addEventListener("click", (e) => {
         const slotId = e.target.getAttribute('data-slot-id');
-        handleDeleteRefill(slotId);
+        handleMarkRefill(slotId);
     });
 
-    function handleMarkRefill(slotId) {
-        const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId;
+    function handleDeleteRefill(slotId) {
+        const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill/" + refillId;
         const method = "DELETE";
-
 
         fetch(endpoint, {
             method: method,
@@ -173,9 +172,9 @@
             .finally(() => handleCloseSlotForm());
     }
 
-    markRefill.addEventListener("click", (e) => {
+    deleteRefill.addEventListener("click", (e) => {
         const slotId = e.target.getAttribute('data-slot-id');
-        handleMarkRefill(slotId);
+        handleDeleteRefill(slotId);
     });
 </script>
 {{ end }}
