@@ -332,3 +332,9 @@ type MachineLocationAssignment struct {
 	MachineID                   int   `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	DateAssigned                int64 `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
+
+type Refill struct {
+	RefillID     int   `json:"refill_id" form:"refill_id" schema:"refill_id"`
+	SlotID       int   `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	DateRefilled int64 `json:"date_refilled" form:"date_refilled" schema:"date_refilled"`
+}
