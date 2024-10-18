@@ -3415,6 +3415,7 @@ func DeleteSlot(id int) error {
 func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 	query := `SELECT 
 		s.slot_id,
+		s.nickname,
 		s.slot,
 		s.machine_code,
 		s.machine_id,
@@ -3429,6 +3430,7 @@ func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 
 	err := row.Scan(
 		&businessDetails.SlotID,
+		&businessDetails.Nickname,
 		&businessDetails.Slot,
 		&businessDetails.MachineCode,
 		&businessDetails.MachineID,
@@ -3455,7 +3457,7 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 	FROM product_slot_assignment AS psa
 	JOIN slot AS s ON psa.slot_id = s.slot_id
 	JOIN product_batch AS pb ON pb.product_batch_id = psa.product_batch_id
-	JOIN product AS p ON p.product_id = pb.product_batch_id
+	JOIN product AS p ON p.product_id = pb.product_id
 	WHERE psa.slot_id = $1`
 
 	var productSlotAssignments []types.ProductSlotAssignment
@@ -3511,6 +3513,48 @@ func CreateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 		form.SlotID,
 		form.ProductBatchID,
 		form.DateAssigned,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteProductSlotAssignment(id int) error {
+	sqlStatement := `
+        DELETE FROM product_slot_assignment WHERE product_slot_assignment_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
+	stmt, err := DB.Prepare(`
+		UPDATE product_slot_assignment 
+		SET 
+			slot_id = COALESCE($2, slot_id),
+			product_batch_id = COALESCE($3, product_batch_id),
+			date_assigned = COALESCE(to_timestamp($4), date_assigned)
+		WHERE product_slot_assignment_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	slotID := utils.CreateNullInt(form.SlotID)
+	productBatchID := utils.CreateNullInt(form.ProductBatchID)
+	dateAssigned := utils.CreateNullInt64(form.DateAssigned)
+
+	_, err = stmt.Exec(
+		slotID,
+		productBatchID,
+		dateAssigned,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)

@@ -15,10 +15,6 @@
                     class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Date Assigned
                 </th>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Quantity
-                </th>
             </tr>
         </thead>
 
@@ -32,10 +28,7 @@
                     <p class="font-medium">{{ .Product }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">${{ .DateAssignment }}</p>
-                </td>
-                <td class="p-3 text-center">
-                    <p class="font-medium">{{ .Quantity }}</p>
+                    <p class="font-medium">{{ .DateAssigned }}</p>
                 </td>
             </tr>
             {{ end }}

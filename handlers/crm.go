@@ -127,8 +127,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPut:
+		parts := strings.Split(path, "/")
 		if strings.HasPrefix(path, "/crm/lead/") {
-			parts := strings.Split(path, "/")
 			if len(parts) >= 5 && parts[4] == "marketing" && helpers.IsNumeric(parts[3]) {
 				PutLeadMarketing(w, r)
 				return
@@ -158,6 +158,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				PutMachine(w, r)
 				return
 			}
+			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
+				PutSlot(w, r)
+				return
+			}
+			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) && strings.Contains(path, "/assignment") {
+				PutProductSlotAssignment(w, r)
+				return
+			}
 		}
 		if strings.HasPrefix(path, "/crm/supplier/") {
 			if len(path) > len("/crm/supplier/") && helpers.IsNumeric(path[len("/crm/supplier/"):]) {
@@ -183,6 +191,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/notes") {
 			PostLeadNotes(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/slot") && strings.Contains(path, "/assignment") {
+			PostProductSlotAssignment(w, r)
 			return
 		}
 		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/location") {
@@ -225,6 +237,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(path, "/crm/machine/") {
 			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
 				DeleteMachine(w, r)
+				return
+			}
+			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) && strings.Contains(path, "/assignment") {
+				DeleteProductSlotAssigment(w, r)
 				return
 			}
 			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
@@ -2919,7 +2935,8 @@ func DeleteSlot(w http.ResponseWriter, r *http.Request) {
 func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "slot_detail.html"
 	productSlotAssignmentTables := "product_slot_assignments_table.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables}
+	createProductSlotAssignmentForm := "create_product_slot_assignments_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables, constants.CRM_TEMPLATES_DIR + createProductSlotAssignmentForm}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -2953,6 +2970,13 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	availableProductBatches, err := database.GetAvailableProductBatches()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting available product batches from DB.", http.StatusInternalServerError)
+		return
+	}
+
 	productSlotAssignments, err := database.GetProductSlotAssignments(fmt.Sprint(slotId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -2966,6 +2990,7 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["CSRFToken"] = csrfToken
 	data["Slot"] = slotDetails
 	data["ProductSlotAssignments"] = productSlotAssignments
+	data["AvailableProductBatches"] = availableProductBatches
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -3038,7 +3063,7 @@ func PutSlot(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func CreateProductSlotAssignment(w http.ResponseWriter, r *http.Request) {
+func PostProductSlotAssignment(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("Error parsing form: %+v\n", err)
@@ -3108,8 +3133,122 @@ func CreateProductSlotAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "product_slot_assignments.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "product_slot_assignments.html",
+		TemplateName: "product_slot_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "product_slot_assignments_table.html",
+		Data: map[string]any{
+			"ProductSlotAssignments": productSlotAssignments,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutProductSlotAssignment(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.ProductSlotAssignmentForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.UpdateProductSlotAssignment(form)
+	if err != nil {
+		fmt.Printf("Error updating: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update product slot assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Product slot assigment details have been updated.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func DeleteProductSlotAssigment(w http.ResponseWriter, r *http.Request) {
+	slotId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	productSlotAssignmentId, err := helpers.GetThirdIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteProductSlotAssignment(productSlotAssignmentId)
+	if err != nil {
+		fmt.Printf("Error deleting product slot assignment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete product slot assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	productSlotAssignments, err := database.GetProductSlotAssignments(fmt.Sprint(slotId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting product slot assignments from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "product_slot_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "product_slot_assignments_table.html",
 		Data: map[string]any{
 			"ProductSlotAssignments": productSlotAssignments,
 		},

@@ -231,6 +231,22 @@ func GetSecondIDFromPath(r *http.Request, prefix string) (int, error) {
 	return id, nil
 }
 
+func GetThirdIDFromPath(r *http.Request, prefix string) (int, error) {
+	trimmedPath := strings.TrimPrefix(r.URL.Path, prefix)
+	parts := strings.Split(trimmedPath, "/")
+	if len(parts) < 6 {
+		return 0, fmt.Errorf("invalid path format")
+	}
+
+	idStr := parts[5]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return 0, fmt.Errorf("invalid id: %w", err)
+	}
+
+	return id, nil
+}
+
 func IsNumeric(s string) bool {
 	for _, ch := range s {
 		if !unicode.IsDigit(ch) {

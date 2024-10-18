@@ -1,4 +1,4 @@
-{{ define "create_slot_form.html" }}
+{{ define "create_product_slot_assignments_form.html" }}
 <!-- Modal Container -->
 <div id="formModalContainer" style="display: none;">
     <div>
@@ -28,14 +28,13 @@
                         <div class="grow p-5 md:px-16 md:py-12">
                             <form id="createProductSlotAssignmentForm" class="space-y-6">
                                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
-                                <input type="hidden" id="machine_id" name="machine_id" value="{{ .Slot.MachineID }}" />
                                 <input type="hidden" id="slot_id" name="slot_id" value="{{ .Slot.SlotID }}" />
                                 <div class="space-y-1">
                                     <label for="product_batch_id" class="font-medium">Product</label>
                                     <select id="product_batch_id" name="product_batch_id"
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
                                         <option value=""></option>
-                                        {{ range .ProductBatches }}
+                                        {{ range .AvailableProductBatches }}
                                         <option value="{{ .ProductBatchID }}">{{ .ProductName }} - ${{ .UnitCost }} - {{ .Quantity }} Available</option>
                                         {{ end }}
                                     </select>

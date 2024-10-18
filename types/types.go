@@ -638,6 +638,7 @@ type SlotList struct {
 
 type SlotDetails struct {
 	SlotID      int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	Nickname    string  `json:"nickname" form:"nickname" schema:"nickname"`
 	Slot        string  `json:"slot" form:"slot" schema:"slot"`
 	MachineID   int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	MachineCode string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
