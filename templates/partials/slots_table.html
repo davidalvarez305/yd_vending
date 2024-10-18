@@ -59,9 +59,20 @@
                 <td class="p-3 text-center">
                     <button id="markRefill" type="button" data-slot-id="{{ .SlotID }}"
                         class="inline-flex items-center justify-center gap-2 rounded-l-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="hi-micro hi-check inline-block size-4">
-                            <path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd"/>
-                          </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
+                            class="hi-micro hi-check inline-block size-4">
+                            <path fill-rule="evenodd"
+                                d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <button id="deleteRefill" type="button" data-slot-id="{{ .SlotID }}"
+                        class="inline-flex items-center justify-center gap-2 rounded-l-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
+                            class="hi-micro hi-x-mark inline-block size-4">
+                            <path
+                                d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
+                        </svg>
                     </button>
                 </td>
                 <td class="p-3 text-center">
@@ -77,6 +88,7 @@
 
 <script nonce="{{ .Nonce }}">
     const markRefill = document.getElementById("markRefill");
+    const deleteRefill = document.getElementById("deleteRefill");
 
     function handleMarkRefill(slotId) {
         const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId;
@@ -110,16 +122,60 @@
                 }
             })
             .then(html => {
-                alertModal.outerHTML = html;
+                const table = document.getElementById('slotsTable');
+                table.outerHTML = html;
+                handleBindPagination();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
+                handleCloseAlertModal();
             })
-            .finally(() => handleCloseAlertModal());
+            .finally(() => handleCloseSlotForm());
     }
 
-    markRefill.addEventListener("click", () => {
+    deleteRefill.addEventListener("click", (e) => {
+        const slotId = e.target.getAttribute('data-slot-id');
+        handleDeleteRefill(slotId);
+    });
 
+    function handleMarkRefill(slotId) {
+        const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId;
+        const method = "DELETE";
+
+
+        fetch(endpoint, {
+            method: method,
+            credentials: "include",
+        })
+            .then((response) => {
+                const token = response.headers.get('X-Csrf-Token');
+                if (token) {
+                    const tokens = document.querySelectorAll('[name="csrf_token"]');
+                    tokens.forEach(csrf_token => csrf_token.value = token);
+                }
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then((err) => {
+                        throw new Error(err);
+                    });
+                }
+            })
+            .then(html => {
+                const table = document.getElementById('slotsTable');
+                table.outerHTML = html;
+                handleBindPagination();
+            })
+            .catch(err => {
+                alertModal.outerHTML = err;
+                handleCloseAlertModal();
+            })
+            .finally(() => handleCloseSlotForm());
+    }
+
+    markRefill.addEventListener("click", (e) => {
+        const slotId = e.target.getAttribute('data-slot-id');
+        handleMarkRefill(slotId);
     });
 </script>
 {{ end }}
