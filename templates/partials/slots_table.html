@@ -66,7 +66,8 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <button id="deleteRefill" type="button" data-slot-id="{{ .SlotID }}"
+                    <button name="deleteRefill" type="button" data-slot-id="{{ .SlotID }}"
+                        data-last-refill-id="{{ .LastRefillID }}"
                         class="inline-flex items-center justify-center gap-2 rounded-l-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
                             class="hi-micro hi-x-mark inline-block size-4">
@@ -84,11 +85,73 @@
     </table>
 </div>
 
+<div id="deleteRefillConfirmationModal" style="display: none;">
+    <div tabindex="-1" role="dialog"
+        class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
+        <div role="document"
+            class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+            <div class="flex grow gap-5 px-5 py-7">
+                <div
+                    class="flex size-14 flex-none items-center justify-center rounded-full bg-rose-100 text-rose-500 dark:bg-rose-700/50 dark:text-rose-300">
+                    <svg class="hi-outline hi-shield-exclamation inline-block size-6" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="mb-1 text-lg font-bold">Refill Deletion</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Are you sure you want to delete the last refill?
+                    </p>
+                </div>
+            </div>
+            <div class="space-x-1 bg-gray-50 px-5 py-4 text-right dark:bg-gray-700/50">
+                <button type="cancelDeleteRefill"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                    Cancel
+                </button>
+                <button type="confirmDeleteRefill"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-rose-700 bg-rose-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-rose-600 hover:bg-rose-600 hover:text-white focus:ring focus:ring-rose-400/50 active:border-rose-700 active:bg-rose-700 dark:focus:ring-rose-400/90">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
 
 <script nonce="{{ .Nonce }}">
     const markRefill = document.getElementById("markRefill");
-    const deleteRefill = document.getElementById("deleteRefill");
+    const deleteRefill = document.querySelectorAll("deleteRefill");
+
+    const deleteRefillConfirmationModal = document.getElementById("deleteRefillConfirmationModal");
+    const cancelDeleteRefill = document.getElementById("cancelDeleteRefill");
+    const confirmDeleteRefill = document.getElementById("confirmDeleteRefill");
+
+    let slotId = "";
+    let refillId = "";
+
+    markRefill.addEventListener("click", (e) => {
+        const slotId = e.target.getAttribute('data-slot-id');
+        handleMarkRefill(slotId);
+    });
+
+    deleteRefill.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            slotId = e.target.getAttribute('data-slot-id');
+            refillId = e.target.getAttribute('data-last-refill-id');
+           
+            deleteRefillConfirmationModal.style.display = "";
+        });
+    });
+
+    cancelDeleteRefill.addEventListener("click", () => {
+        deleteRefillConfirmationModal.style.display = "none";
+    });
+
+    confirmDeleteRefill.addEventListener("click", () => handleConfirmDeleteRefill());
 
     function handleMarkRefill(slotId) {
         const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill";
@@ -133,12 +196,7 @@
             .finally(() => handleCloseSlotForm());
     }
 
-    markRefill.addEventListener("click", (e) => {
-        const slotId = e.target.getAttribute('data-slot-id');
-        handleMarkRefill(slotId);
-    });
-
-    function handleDeleteRefill(slotId) {
+    function handleConfirmDeleteRefill() {
         const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill/" + refillId;
         const method = "DELETE";
 
@@ -171,10 +229,5 @@
             })
             .finally(() => handleCloseSlotForm());
     }
-
-    deleteRefill.addEventListener("click", (e) => {
-        const slotId = e.target.getAttribute('data-slot-id');
-        handleDeleteRefill(slotId);
-    });
 </script>
 {{ end }}
