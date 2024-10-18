@@ -158,12 +158,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				PutMachine(w, r)
 				return
 			}
-			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
-				PutSlot(w, r)
-				return
-			}
 			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) && strings.Contains(path, "/assignment") {
 				PutProductSlotAssignment(w, r)
+				return
+			}
+			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
+				PutSlot(w, r)
 				return
 			}
 		}
@@ -195,6 +195,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/slot") && strings.Contains(path, "/assignment") {
 			PostProductSlotAssignment(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/slot") && strings.Contains(path, "/refill") {
+			PostRefill(w, r)
 			return
 		}
 		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/location") {
@@ -3251,6 +3255,140 @@ func DeleteProductSlotAssigment(w http.ResponseWriter, r *http.Request) {
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "product_slot_assignments_table.html",
 		Data: map[string]any{
 			"ProductSlotAssignments": productSlotAssignments,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostRefill(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.RefillForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.CreateRefill(form)
+	if err != nil {
+		fmt.Printf("Error creating refill: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create refill.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	slots, err := database.GetMachineSlotsByMachineID(fmt.Sprint(machineId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting slots from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "slots_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "slots_table.html",
+		Data: map[string]any{
+			"Slots": slots,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func DeleteRefill(w http.ResponseWriter, r *http.Request) {
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	refillId, err := helpers.GetThirdIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteRefill(refillId)
+	if err != nil {
+		fmt.Printf("Error deleting refill: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete refill.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	slots, err := database.GetMachineSlotsByMachineID(fmt.Sprint(machineId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting slots from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "slots_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "slots_table.html",
+		Data: map[string]any{
+			"Slots": slots,
 		},
 	}
 

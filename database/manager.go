@@ -3570,3 +3570,38 @@ func UpdateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 
 	return nil
 }
+
+func CreateRefill(form types.RefillForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO refill (
+			slot_id,
+			date_refilled
+		) VALUES ($1, to_timestamp($2))
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		form.SlotID,
+		form.DateRefilled,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteRefill(id int) error {
+	sqlStatement := `
+        DELETE FROM refill WHERE refill_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
