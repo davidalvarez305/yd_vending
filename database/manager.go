@@ -3225,16 +3225,19 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	var slots []types.SlotList
 
 	rows, err := DB.Query(`
-		SELECT 
-			s.slot_id,
-			s.slot,
-			s.machine_id,
-			s.machine_code,
-			s.price::NUMERIC,
-			s.capacity
-		FROM "slot" AS s
-		WHERE s.machine_id = $1
-		ORDER BY s.slot ASC;
+	SELECT 
+		s.slot_id,
+		s.slot,
+		s.machine_id,
+		s.machine_code,
+		s.price::NUMERIC,
+		s.capacity,
+		MAX(r.date_refilled)
+	FROM "slot" AS s
+	LEFT JOIN refill AS r ON r.slot_id = s.slot_id
+	WHERE s.machine_id = $1
+	GROUP BY s.slot_id, s.slot, s.machine_id, s.machine_code, s.price, s.capacity
+	ORDER BY s.slot ASC;
 	`, machineId)
 	if err != nil {
 		return slots, fmt.Errorf("error executing query: %w", err)
@@ -3244,6 +3247,8 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	for rows.Next() {
 		var slot types.SlotList
 
+		var dateRefilled sql.NullTime
+
 		err := rows.Scan(
 			&slot.SlotID,
 			&slot.Slot,
@@ -3251,9 +3256,14 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			&slot.MachineCode,
 			&slot.Price,
 			&slot.Capacity,
+			&dateRefilled,
 		)
 		if err != nil {
 			return slots, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if dateRefilled.Valid {
+			slot.LastRefill = utils.FormatTimestamp(dateRefilled.Time.Unix())
 		}
 
 		slots = append(slots, slot)

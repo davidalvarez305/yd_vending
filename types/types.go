@@ -634,6 +634,7 @@ type SlotList struct {
 	MachineCode string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
 	Price       float64 `json:"price" form:"price" schema:"price"`
 	Capacity    int     `json:"capacity" form:"capacity" schema:"capacity"`
+	LastRefill  string  `json:"last_refill" form:"last_refill" schema:"last_refill"`
 }
 
 type SlotDetails struct {
@@ -681,4 +682,11 @@ type ProductSlotAssignmentForm struct {
 	SlotID                  *int    `json:"slot_id" form:"slot_id" schema:"slot_id"`
 	ProductBatchID          *int    `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
 	DateAssigned            *int64  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+}
+
+type Refill struct {
+	CSRFToken    *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	RefillID     int     `json:"refill_id" form:"refill_id" schema:"refill_id"`
+	SlotID       int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	DateRefilled int64   `json:"date_refilled" form:"date_refilled" schema:"date_refilled"`
 }
