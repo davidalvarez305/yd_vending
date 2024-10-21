@@ -2950,6 +2950,30 @@ func PostSlot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	price := utils.CreateNullFloat64(form.Price)
+	if price.Valid {
+		slotPriceLog := models.SlotPriceLog{
+			SlotID:       slotId,
+			Price:        price.Float64,
+			DateAssigned: time.Now().Unix(),
+		}
+
+		err = database.CreateSlotPriceLog(slotPriceLog)
+		if err != nil {
+			fmt.Printf("Error creating slot price log: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to create slot price log.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+	}
+
 	if form.DateAssigned != nil && form.ProductBatchID != nil {
 		assignment := types.ProductSlotAssignmentForm{
 			SlotID:         &slotId,
@@ -3150,9 +3174,30 @@ func PutSlot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	slotId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	slot, err := database.GetSlotDetails(fmt.Sprint(machineId), fmt.Sprint(slotId))
+	if err != nil {
+		fmt.Printf("Error updating: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get slot.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
@@ -3169,6 +3214,31 @@ func PutSlot(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
+	}
+
+	// If current price and updated price are not equal, create price slot log
+	price := utils.CreateNullFloat64(form.Price)
+	if price.Valid && price.Float64 != slot.Price {
+		slotPriceLog := models.SlotPriceLog{
+			SlotID:       slotId,
+			Price:        price.Float64,
+			DateAssigned: time.Now().Unix(),
+		}
+
+		err = database.CreateSlotPriceLog(slotPriceLog)
+		if err != nil {
+			fmt.Printf("Error creating slot price log: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to create slot price log.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
 	}
 
 	tmplCtx := types.DynamicPartialTemplate{
