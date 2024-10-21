@@ -1301,10 +1301,8 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 		    model = $5,
 		    purchase_price = $6,
 		    purchase_date = to_timestamp($7),
-		    card_reader_serial_number = $8,
-		    location_id = $9,
-		    machine_status_id = COALESCE($10, machine_status_id),
-		    vendor_id = COALESCE($11, vendor_id)
+		    machine_status_id = COALESCE($8, machine_status_id),
+		    vendor_id = COALESCE($9, vendor_id)
 		WHERE machine_id = $1
 	`)
 	if err != nil {
@@ -1318,8 +1316,6 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 	model := utils.CreateNullString(form.Model)
 	purchasePrice := utils.CreateNullFloat64(form.PurchasePrice)
 	purchaseDate := utils.CreateNullInt64(form.PurchaseDate)
-	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
-	locationID := utils.CreateNullInt(form.LocationID)
 	machineStatusID := utils.CreateNullInt(form.MachineStatusID)
 	vendorID := utils.CreateNullInt(form.VendorID)
 
@@ -1331,8 +1327,6 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 		model,
 		purchasePrice,
 		purchaseDate,
-		cardReaderSerialNumber,
-		locationID,
 		machineStatusID,
 		vendorID,
 	)
@@ -1454,10 +1448,12 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 
 	rows, err := DB.Query(`SELECT m.machine_id,
 	CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
-	m.card_reader_serial_number, s.status, l.name, m.purchase_date, COUNT(*) OVER() AS total_rows
+	card_reader.card_reader_serial_number, s.status, l.name, m.purchase_date, COUNT(*) OVER() AS total_rows
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
-	LEFT JOIN location AS l ON l.location_id = m.location_id
+	LEFT JOIN machine_location_assignment AS location_assignment ON location_assignment.machine_id = m.machine_id
+	LEFT JOIN location AS l ON l.location_id = location_assignment.location_id
+	LEFT JOIN machine_card_reader_assignment AS card_reader ON card_reader.machine_id = m.machine_id
 	ORDER BY m.purchase_date DESC
 	LIMIT $1
 	OFFSET $2;`, constants.LeadsPerPage, offset)
@@ -2657,10 +2653,12 @@ func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 	var machines []types.MachineList
 
 	rows, err := DB.Query(`SELECT m.machine_id, CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
-	m.card_reader_serial_number, s.status, l.name, m.purchase_date
+	card_reader.card_reader_serial_number, s.status, l.name, m.purchase_date
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
-	JOIN location AS l ON l.location_id = m.location_id AND (l.location_id = $1 OR $1 IS NULL)
+	LEFT JOIN machine_location_assignment AS location_assignment ON location_assignment.machine_id = m.machine_id AND (location_assignment.location_id = $1 OR $1 IS NULL)
+	LEFT JOIN location AS l ON l.location_id = location_assignment.location_id AND (l.location_id = $1 OR $1 IS NULL)
+	LEFT JOIN machine_card_reader_assignment AS card_reader ON card_reader.machine_id = m.machine_id
 	ORDER BY m.purchase_date DESC;`, locationId)
 	if err != nil {
 		return machines, fmt.Errorf("error executing query: %w", err)
@@ -2707,15 +2705,17 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 				m.machine_id,
 				m.vending_type_id,
 				m.machine_status_id,
-				m.location_id,
+				machine_location_assignment.location_id,
 				m.vendor_id,
 				m.year,
 				m.make,
 				m.model,
 				m.purchase_price::NUMERIC,
 				m.purchase_date,
-				m.card_reader_serial_number
+				card_reader.card_reader_serial_number
 			FROM machine AS m
+			LEFT JOIN machine_location_assignment AS location_assignment ON location_assignment.machine_id = m.machine_id
+			LEFT JOIN machine_card_reader_assignment AS card_reader ON card_reader.machine_id = m.machine_id
 			WHERE m.machine_id = $1`
 
 	var machine types.MachineDetails
