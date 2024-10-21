@@ -2533,52 +2533,49 @@ func GetMarketingImages() ([]string, error) {
 	return images, nil
 }
 
-func CreateMachine(form types.MachineForm) error {
+func CreateMachine(form types.MachineForm) (int, error) {
+	var machineId int
 	stmt, err := DB.Prepare(`
 		INSERT INTO machine (
 			vending_type_id, 
-			machine_status_id, 
-			location_id, 
+			machine_status_id,
 			vendor_id,
 			year, 
 			make, 
 			model, 
 			purchase_price, 
-			purchase_date, 
-			card_reader_serial_number
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, to_timestamp($9), $10)
+			purchase_date
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, to_timestamp($8))
+		RETURNING machine_id
 	`)
 	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
+		return machineId, fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
 	make := utils.CreateNullString(form.Make)
 	model := utils.CreateNullString(form.Model)
-	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
 	purchasePrice := utils.CreateNullFloat64(form.PurchasePrice)
 	year := utils.CreateNullInt(form.Year)
-	locationID := utils.CreateNullInt(form.LocationID)
 	vendorID := utils.CreateNullInt(form.VendorID)
 	purchaseDate := utils.CreateNullInt64(form.PurchaseDate)
 
-	_, err = stmt.Exec(
+	err = stmt.QueryRow(
 		int64(*form.VendingTypeID),
 		int64(*form.MachineStatusID),
-		locationID,
 		vendorID,
 		year,
 		make,
 		model,
 		purchasePrice,
 		purchaseDate,
-		cardReaderSerialNumber,
-	)
+	).Scan(&machineId)
+
 	if err != nil {
-		return fmt.Errorf("error executing statement: %w", err)
+		return machineId, fmt.Errorf("error executing statement: %w", err)
 	}
 
-	return nil
+	return machineId, nil
 }
 
 func GetLocationDetails(businessID, locationID int) (types.LocationDetails, error) {

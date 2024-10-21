@@ -320,7 +320,7 @@ type Slot struct {
 }
 
 type ProductSlotAssignment struct {
-	ProductSlotAssignmentID int64 `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	ProductSlotAssignmentID int   `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
 	SlotID                  int   `json:"slot_id" form:"slot_id" schema:"slot_id"`
 	ProductBatchID          int   `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
 	DateAssigned            int64 `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
@@ -333,22 +333,22 @@ type Refill struct {
 }
 
 type MachineLocationAssignment struct {
-	MachineLocationAssignmentID int64 `json:"machine_location_assignment_id" form:"machine_location_assignment_id" schema:"machine_location_assignment_id"`
-	LocationID                  int64 `json:"location_id" form:"location_id" schema:"location_id"`
-	MachineID                   int64 `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	MachineLocationAssignmentID int   `json:"machine_location_assignment_id" form:"machine_location_assignment_id" schema:"machine_location_assignment_id"`
+	LocationID                  int   `json:"location_id" form:"location_id" schema:"location_id"`
+	MachineID                   int   `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	DateAssigned                int64 `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
 
 type MachineCardReaderAssignment struct {
-	MachineCardReaderID    int64  `json:"machine_card_reader_id" form:"machine_card_reader_id" schema:"machine_card_reader_id"`
+	MachineCardReaderID    int    `json:"machine_card_reader_id" form:"machine_card_reader_id" schema:"machine_card_reader_id"`
 	CardReaderSerialNumber string `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
-	MachineID              int64  `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	MachineID              int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	DateAssigned           int64  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
 
 type SlotPriceLog struct {
-	SlotPriceLogID int64   `json:"slot_price_log_id" form:"slot_price_log_id" schema:"slot_price_log_id"`
-	SlotID         int64   `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	SlotPriceLogID int     `json:"slot_price_log_id" form:"slot_price_log_id" schema:"slot_price_log_id"`
+	SlotID         int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
 	Price          float64 `json:"price" form:"price" schema:"price"`
 	DateAssigned   int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }

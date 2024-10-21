@@ -15,6 +15,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/davidalvarez305/yd_vending/utils"
 	"github.com/google/uuid"
 )
 
@@ -1243,7 +1244,7 @@ func PostMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateMachine(form)
+	machineId, err := database.CreateMachine(form)
 	if err != nil {
 		fmt.Printf("Error creating machine: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -1256,6 +1257,56 @@ func PostMachine(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
+	}
+
+	dateAssigned := time.Now().Unix()
+	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
+	locationId := utils.CreateNullInt(form.LocationID)
+
+	// Assign machine to location
+	if locationId.Valid {
+		assignment := models.MachineLocationAssignment{
+			LocationID:   int(locationId.Int64),
+			MachineID:    machineId,
+			DateAssigned: dateAssigned,
+		}
+		err = database.CreateMachineLocationAssignment(assignment)
+		if err != nil {
+			fmt.Printf("Error creating machine: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to create machine location assignemnt.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+	}
+
+	// Assign card reader to machine
+	if cardReaderSerialNumber.Valid {
+		cardReaderAssignment := models.MachineCardReaderAssignment{
+			CardReaderSerialNumber: cardReaderSerialNumber.String,
+			MachineID:              machineId,
+			DateAssigned:           dateAssigned,
+		}
+		err = database.CreateMachineCardReaderAssignment(cardReaderAssignment)
+		if err != nil {
+			fmt.Printf("Error creating machine: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Failed to create machine card reader assignemnt.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
 	}
 
 	pageNum := 1 // Always default to one after new business is created
