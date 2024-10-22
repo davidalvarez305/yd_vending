@@ -1517,7 +1517,7 @@ func GetLocations() ([]models.Location, error) {
 	var locations []models.Location
 
 	rows, err := DB.Query(`
-		SELECT location_id, vending_location_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing, date_started 
+		SELECT location_id, vending_location_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing, date_started, location_status_id 
 		FROM "location"
 	`)
 	if err != nil {
@@ -1546,6 +1546,7 @@ func GetLocations() ([]models.Location, error) {
 			&opening,
 			&closing,
 			&dateStarted,
+			&loc.LocationStatusID,
 		)
 		if err != nil {
 			return locations, fmt.Errorf("error scanning row: %w", err)
@@ -1558,10 +1559,10 @@ func GetLocations() ([]models.Location, error) {
 			loc.Latitude = latitude.Float64
 		}
 		if streetAddressLineOne.Valid {
-			loc.StreetAdressLineOne = streetAddressLineOne.String
+			loc.StreetAddressLineOne = streetAddressLineOne.String
 		}
 		if streetAddressLineTwo.Valid {
-			loc.StreetAdressLineTwo = streetAddressLineTwo.String
+			loc.StreetAddressLineTwo = streetAddressLineTwo.String
 		}
 		if cityID.Valid {
 			loc.CityID = int(cityID.Int64)
@@ -2422,10 +2423,11 @@ func GetLocationsByBusiness(businessId string) ([]types.LocationList, error) {
 
 	rows, err := DB.Query(`
 		SELECT l.location_id, l.business_id, vl.location_type, l.name, l.longitude, l.latitude, l.street_address_line_one, l.street_address_line_two,
-		c.name, l.zip_code, l.state, l.opening, l.closing 
+		c.name, l.zip_code, l.state, l.opening, l.closing, s.status
 		FROM "location" AS l
 		JOIN "city" AS c ON c.city_id = l.city_id
 		JOIN "vending_location" AS vl ON vl.vending_location_id = l.vending_location_id
+		JOIN location_status AS s ON s.location_status_id = l.location_status_id
 		WHERE l.business_id = $1
 	`, businessId)
 	if err != nil {
@@ -2452,6 +2454,7 @@ func GetLocationsByBusiness(businessId string) ([]types.LocationList, error) {
 			&state,
 			&opening,
 			&closing,
+			&loc.LocationStatus,
 		)
 		if err != nil {
 			return locations, fmt.Errorf("error scanning row: %w", err)
@@ -3855,4 +3858,42 @@ func UpdateSlotPriceLog(form models.SlotPriceLog) error {
 	}
 
 	return nil
+}
+
+func GetLocationStatuses() ([]models.LocationStatus, error) {
+	var statuses []models.LocationStatus
+
+	rows, err := DB.Query(`
+		SELECT location_status_id, status 
+		FROM "location_status"
+	`)
+	if err != nil {
+		return statuses, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var status models.LocationStatus
+		var statusText sql.NullString
+
+		err := rows.Scan(
+			&status.LocationStatusID,
+			&statusText,
+		)
+		if err != nil {
+			return statuses, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if statusText.Valid {
+			status.Status = statusText.String
+		}
+
+		statuses = append(statuses, status)
+	}
+
+	if err := rows.Err(); err != nil {
+		return statuses, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return statuses, nil
 }

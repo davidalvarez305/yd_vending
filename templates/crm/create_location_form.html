@@ -89,15 +89,12 @@
                                 </div>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div class="space-y-1">
-                                        <label for="street_address_line_one" class="font-medium">Street Address Line
-                                            One*</label>
-                                        <input type="text" id="street_address_line_one" name="street_address_line_one"
-                                            required
+                                        <label for="street_address_line_one" class="font-medium">Street Address Line One*</label>
+                                        <input type="text" id="street_address_line_one" name="street_address_line_one" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
                                     <div class="space-y-1">
-                                        <label for="street_address_line_two" class="font-medium">Street Address Line
-                                            Two</label>
+                                        <label for="street_address_line_two" class="font-medium">Street Address Line Two</label>
                                         <input type="text" id="street_address_line_two" name="street_address_line_two"
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
@@ -140,6 +137,16 @@
                                     <label for="date_started" class="font-medium">Date Started*</label>
                                     <input type="date" id="date_started" name="date_started" required
                                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="location_status_id" class="font-medium">Location Status*</label>
+                                    <select id="location_status_id" name="location_status_id" required
+                                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
+                                        <option value=""></option>
+                                        {{ range .LocationStatuses }}
+                                        <option value="{{ .LocationStatusID }}">{{ .Status }}</option>
+                                        {{ end }}
+                                    </select>
                                 </div>
                             </form>
                         </div>

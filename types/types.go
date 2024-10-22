@@ -536,6 +536,7 @@ type LocationList struct {
 	State                string  `json:"state" form:"state" schema:"state"`
 	Opening              string  `json:"opening" form:"opening" schema:"opening"`
 	Closing              string  `json:"closing" form:"closing" schema:"closing"`
+	LocationStatus       string  `json:"location_status" form:"location_status" schema:"location_status"`
 }
 
 type MachineDetails struct {

@@ -136,20 +136,26 @@ type Session struct {
 }
 
 type Location struct {
-	LocationID          int     `json:"location_id" form:"location_id" schema:"location_id"`
-	BusinessID          int     `json:"business_id" form:"business_id" schema:"business_id"`
-	VendingLocationID   int     `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
-	CityID              int     `json:"city_id" form:"city_id" schema:"city_id"`
-	DateStarted         int64   `json:"date_started" form:"date_started" schema:"date_started"`
-	Name                string  `json:"name" form:"name" schema:"name"`
-	Longitude           float64 `json:"longitude" form:"longitude" schema:"longitude"`
-	Latitude            float64 `json:"latitude" form:"latitude" schema:"latitude"`
-	StreetAdressLineOne string  `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
-	StreetAdressLineTwo string  `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
-	ZipCode             string  `json:"zip_code" form:"zip_code" schema:"zip_code"`
-	State               string  `json:"state" form:"state" schema:"state"`
-	Opening             string  `json:"opening" form:"opening" schema:"opening"`
-	Closing             string  `json:"closing" form:"closing" schema:"closing"`
+	LocationID           int     `json:"location_id" form:"location_id" schema:"location_id"`
+	BusinessID           int     `json:"business_id" form:"business_id" schema:"business_id"`
+	VendingLocationID    int     `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
+	CityID               int     `json:"city_id" form:"city_id" schema:"city_id"`
+	LocationStatusID     int     `json:"location_status_id" form:"location_status_id" schema:"location_status_id"`
+	DateStarted          int64   `json:"date_started" form:"date_started" schema:"date_started"`
+	Name                 string  `json:"name" form:"name" schema:"name"`
+	Longitude            float64 `json:"longitude" form:"longitude" schema:"longitude"`
+	Latitude             float64 `json:"latitude" form:"latitude" schema:"latitude"`
+	StreetAddressLineOne string  `json:"street_address_line_one" form:"street_address_line_one" schema:"street_address_line_one"`
+	StreetAddressLineTwo string  `json:"street_address_line_two" form:"street_address_line_two" schema:"street_address_line_two"`
+	ZipCode              string  `json:"zip_code" form:"zip_code" schema:"zip_code"`
+	State                string  `json:"state" form:"state" schema:"state"`
+	Opening              string  `json:"opening" form:"opening" schema:"opening"`
+	Closing              string  `json:"closing" form:"closing" schema:"closing"`
+}
+
+type LocationStatus struct {
+	LocationStatusID int    `json:"location_status_id" form:"location_status_id" schema:"location_status_id"`
+	Status           string `json:"status" form:"status" schema:"status"`
 }
 
 type Business struct {

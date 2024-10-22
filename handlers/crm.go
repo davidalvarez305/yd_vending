@@ -2529,6 +2529,13 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 		return
 	}
 
+	locationStatuses, err := database.GetLocationStatuses()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Business Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -2538,6 +2545,7 @@ func GetBusinessDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	data["BusinessLocations"] = businessLocations
 	data["Businesses"] = businesses
 	data["VendingLocations"] = vendingLocations
+	data["LocationStatuses"] = locationStatuses
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -2662,6 +2670,13 @@ func GetLocationDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 		return
 	}
 
+	locationStatuses, err := database.GetLocationStatuses()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting location stauses.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Location Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -2671,6 +2686,7 @@ func GetLocationDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	data["Machines"] = locationMachines
 	data["VendingLocations"] = vendingLocations
 	data["Businesses"] = businesses
+	data["LocationStatuses"] = locationStatuses
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
