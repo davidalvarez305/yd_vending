@@ -2750,14 +2750,16 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 		m.model,
 		m.purchase_price::NUMERIC,
 		m.purchase_date,
-		card_reader.card_reader_serial_number
+		card_reader.card_reader_serial_number,
+		card_reader.date_assigned,
+		location_assignment.date_assigned
 	FROM machine AS m
 	LEFT JOIN latest_location AS location_assignment ON location_assignment.machine_id = m.machine_id AND location_assignment.rn = 1
 	LEFT JOIN latest_card_reader AS card_reader ON card_reader.machine_id = m.machine_id AND card_reader.rn = 1
 	WHERE m.machine_id = $1;`
 
 	var machine types.MachineDetails
-	var purchaseDate sql.NullTime
+	var purchaseDate, dateAssigned, locationDateAssigned sql.NullTime
 	var location sql.NullInt64
 	var cardReaderSerialNumber sql.NullString
 
@@ -2775,6 +2777,8 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 		&machine.PurchasePrice,
 		&purchaseDate,
 		&cardReaderSerialNumber,
+		&dateAssigned,
+		&locationDateAssigned,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -2792,6 +2796,12 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 	}
 	if location.Valid {
 		machine.LocationID = int(location.Int64)
+	}
+	if dateAssigned.Valid {
+		machine.DateAssigned = dateAssigned.Time.Unix()
+	}
+	if locationDateAssigned.Valid {
+		machine.LocationDateAssigned = locationDateAssigned.Time.Unix()
 	}
 
 	return machine, nil

@@ -1602,7 +1602,8 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dateAssigned := time.Now().Unix()
+	dateAssigned := utils.CreateNullInt64(form.DateAssigned)
+	locationDateAssigned := utils.CreateNullInt64(form.LocationDateAssigned)
 	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
 	locationId := utils.CreateNullInt(form.LocationID)
 
@@ -1622,11 +1623,11 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Assign machine to location if not equal to current location
-	if locationId.Valid && locationId.Int64 != int64(machine.LocationID) {
+	if locationId.Valid && locationId.Int64 != int64(machine.LocationID) && locationDateAssigned.Valid && locationDateAssigned.Int64 != machine.LocationDateAssigned {
 		assignment := models.MachineLocationAssignment{
 			LocationID:   int(locationId.Int64),
 			MachineID:    machineId,
-			DateAssigned: dateAssigned,
+			DateAssigned: locationDateAssigned.Int64,
 		}
 		err = database.CreateMachineLocationAssignment(assignment)
 		if err != nil {
@@ -1635,7 +1636,7 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 				TemplateName: "error",
 				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 				Data: map[string]any{
-					"Message": "Failed to create machine location assignemnt.",
+					"Message": "Failed to create machine location assignment.",
 				},
 			}
 			w.WriteHeader(http.StatusInternalServerError)
@@ -1645,11 +1646,11 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Assign card reader to machine if not equal to current card reader
-	if cardReaderSerialNumber.Valid && cardReaderSerialNumber.String != machine.CardReaderSerialNumber {
+	if cardReaderSerialNumber.Valid && cardReaderSerialNumber.String != machine.CardReaderSerialNumber && dateAssigned.Valid && dateAssigned.Int64 != machine.DateAssigned {
 		cardReaderAssignment := models.MachineCardReaderAssignment{
 			CardReaderSerialNumber: cardReaderSerialNumber.String,
 			MachineID:              machineId,
-			DateAssigned:           dateAssigned,
+			DateAssigned:           dateAssigned.Int64,
 		}
 		err = database.CreateMachineCardReaderAssignment(cardReaderAssignment)
 		if err != nil {
@@ -1658,7 +1659,7 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 				TemplateName: "error",
 				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 				Data: map[string]any{
-					"Message": "Failed to create machine card reader assignemnt.",
+					"Message": "Failed to create machine card reader assignment.",
 				},
 			}
 			w.WriteHeader(http.StatusInternalServerError)
