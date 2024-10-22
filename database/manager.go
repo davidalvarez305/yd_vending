@@ -2733,12 +2733,12 @@ func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 
 func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 	query := `WITH latest_card_reader AS (
-		SELECT machine_id, card_reader_serial_number, 
+		SELECT machine_id, card_reader_serial_number, date_assigned, is_active,
 			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
 		FROM machine_card_reader_assignment
 	),
 	latest_location AS (
-		SELECT machine_id, location_id, 
+		SELECT machine_id, location_id, date_assigned, is_active, 
 			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
 		FROM machine_location_assignment
 	)
