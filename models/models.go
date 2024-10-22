@@ -335,6 +335,7 @@ type MachineLocationAssignment struct {
 	LocationID                  int   `json:"location_id" form:"location_id" schema:"location_id"`
 	MachineID                   int   `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	DateAssigned                int64 `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	IsActive                    bool  `json:"is_active" form:"is_active" schema:"is_active"`
 }
 
 type MachineCardReaderAssignment struct {
@@ -342,6 +343,7 @@ type MachineCardReaderAssignment struct {
 	CardReaderSerialNumber string `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
 	MachineID              int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	DateAssigned           int64  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	IsActive               bool   `json:"is_active" form:"is_active" schema:"is_active"`
 }
 
 type SlotPriceLog struct {

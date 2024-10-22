@@ -2752,7 +2752,9 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 		m.purchase_date,
 		card_reader.card_reader_serial_number,
 		card_reader.date_assigned,
-		location_assignment.date_assigned
+		location_assignment.date_assigned,
+		location_assignment.is_active,
+		card_reader.is_active
 	FROM machine AS m
 	LEFT JOIN latest_location AS location_assignment ON location_assignment.machine_id = m.machine_id AND location_assignment.rn = 1
 	LEFT JOIN latest_card_reader AS card_reader ON card_reader.machine_id = m.machine_id AND card_reader.rn = 1
@@ -2762,6 +2764,7 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 	var purchaseDate, dateAssigned, locationDateAssigned sql.NullTime
 	var location sql.NullInt64
 	var cardReaderSerialNumber sql.NullString
+	var isCardReaderActive, isLocationActive sql.NullBool
 
 	row := DB.QueryRow(query, machineID)
 
@@ -2779,6 +2782,8 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 		&cardReaderSerialNumber,
 		&dateAssigned,
 		&locationDateAssigned,
+		&isCardReaderActive,
+		&isLocationActive,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -2802,6 +2807,12 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 	}
 	if locationDateAssigned.Valid {
 		machine.LocationDateAssigned = locationDateAssigned.Time.Unix()
+	}
+	if isCardReaderActive.Valid {
+		machine.IsCardReaderActive = isCardReaderActive.Bool
+	}
+	if isLocationActive.Valid {
+		machine.IsLocationActive = isLocationActive.Bool
 	}
 
 	return machine, nil
@@ -3658,8 +3669,9 @@ func CreateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 		INSERT INTO machine_location_assignment (
 			location_id,
 			machine_id,
-			date_assigned
-		) VALUES ($1, $2, to_timestamp($3))
+			date_assigned,
+			is_active
+		) VALUES ($1, $2, to_timestamp($3), $4)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3670,6 +3682,7 @@ func CreateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 		form.LocationID,
 		form.MachineID,
 		form.DateAssigned,
+		form.IsActive,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3683,8 +3696,9 @@ func CreateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 		INSERT INTO machine_card_reader (
 			card_reader_serial_number,
 			machine_id,
-			date_assigned
-		) VALUES ($1, $2, to_timestamp($3))
+			date_assigned,
+			is_active,
+		) VALUES ($1, $2, to_timestamp($3), $4)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3695,6 +3709,7 @@ func CreateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 		form.CardReaderSerialNumber,
 		form.MachineID,
 		form.DateAssigned,
+		form.IsActive,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3767,7 +3782,8 @@ func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 		UPDATE machine_location_assignment
 		SET location_id = COALESCE($2, location_id),
 			machine_id = COALESCE($3, machine_id),
-			date_assigned = COALESCE(to_timestamp($4), date_assigned)
+			date_assigned = COALESCE(to_timestamp($4), date_assigned),
+			is_active = COALESCE($5, is_active)
 		WHERE machine_location_assignment_id = $1
 	`)
 	if err != nil {
@@ -3780,6 +3796,7 @@ func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 		form.LocationID,
 		form.MachineID,
 		form.DateAssigned,
+		form.IsActive,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3793,7 +3810,8 @@ func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 		UPDATE machine_card_reader
 		SET card_reader_serial_number = COALESCE($2, card_reader_serial_number),
 			machine_id = COALESCE($3, machine_id),
-			date_assigned = COALESCE(to_timestamp($4), date_assigned)
+			date_assigned = COALESCE(to_timestamp($4), date_assigned),
+			is_active = COALESCE($5, is_active)
 		WHERE machine_card_reader_id = $1
 	`)
 	if err != nil {
@@ -3806,6 +3824,7 @@ func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 		form.CardReaderSerialNumber,
 		form.MachineID,
 		form.DateAssigned,
+		form.IsActive,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)

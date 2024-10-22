@@ -1606,6 +1606,8 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 	locationDateAssigned := utils.CreateNullInt64(form.LocationDateAssigned)
 	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
 	locationId := utils.CreateNullInt(form.LocationID)
+	isCardReaderActive := utils.CreateNullBool(form.IsCardReaderActive)
+	isLocationActive := utils.CreateNullBool(form.IsLocationActive)
 
 	machine, err := database.GetMachineDetails(machineId)
 	if err != nil {
@@ -1628,6 +1630,7 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 			LocationID:   int(locationId.Int64),
 			MachineID:    machineId,
 			DateAssigned: locationDateAssigned.Int64,
+			IsActive:     isLocationActive.Bool,
 		}
 		err = database.CreateMachineLocationAssignment(assignment)
 		if err != nil {
@@ -1651,6 +1654,7 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 			CardReaderSerialNumber: cardReaderSerialNumber.String,
 			MachineID:              machineId,
 			DateAssigned:           dateAssigned.Int64,
+			IsActive:               isCardReaderActive.Bool,
 		}
 		err = database.CreateMachineCardReaderAssignment(cardReaderAssignment)
 		if err != nil {
