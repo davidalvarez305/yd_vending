@@ -63,8 +63,7 @@
                             <select id="vendor_id" name="vendor_id" required
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                                 {{ range .Vendors }}
-                                <option value="{{ .VendorID }}" {{ if eq .VendorID $.Machine.VendorID }}selected{{ end
-                                    }}>
+                                <option value="{{ .VendorID }}" {{ if eq .VendorID $.Machine.VendorID }}selected{{ end }}>
                                     {{ .Name }}
                                 </option>
                                 {{ end }}
@@ -75,8 +74,7 @@
                             <select id="vending_type_id" name="vending_type_id" required
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                                 {{ range .VendingTypes }}
-                                <option value="{{ .VendingTypeID }}" {{ if eq .VendingTypeID $.Machine.VendingTypeID
-                                    }}selected{{ end }}>
+                                <option value="{{ .VendingTypeID }}" {{ if eq .VendingTypeID $.Machine.VendingTypeID }}selected{{ end }}>
                                     {{ .MachineType }}
                                 </option>
                                 {{ end }}
@@ -179,6 +177,16 @@
         const timestamp = new Date(purchaseDate).getTime() / 1000;
         body.append('purchase_date', timestamp);
         data.delete('purchase_date');
+
+        const dateAssigned = data.get('date_assigned');
+        const dateAssignedTimestamp = new Date(dateAssigned).getTime() / 1000;
+        body.append('date_assigned', dateAssignedTimestamp);
+        data.delete('date_assigned');
+
+        const locationDateAssigned = data.get('location_date_assigned');
+        const locationDateAssignedTimestamp = new Date(locationDateAssigned).getTime() / 1000;
+        body.append('location_date_assigned', locationDateAssignedTimestamp);
+        data.delete('location_date_assigned');
 
         for (const [key, value] of data.entries()) {
             if (value) body.append(key, value);
