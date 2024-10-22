@@ -202,6 +202,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostRefill(w, r)
 			return
 		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/refill") {
+			PostRefillAll(w, r)
+			return
+		}
 		if strings.HasPrefix(path, "/crm/business/") && strings.Contains(path, "/location") {
 			PostLocation(w, r)
 			return
@@ -3569,6 +3573,54 @@ func DeleteRefill(w http.ResponseWriter, r *http.Request) {
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
 				"Message": "Failed to delete refill.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	slots, err := database.GetMachineSlotsByMachineID(fmt.Sprint(machineId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting slots from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "slots_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "slots_table.html",
+		Data: map[string]any{
+			"Slots": slots,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostRefillAll(w http.ResponseWriter, r *http.Request) {
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.CreateRefillAll(machineId)
+	if err != nil {
+		fmt.Printf("Error creating bulk refill: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create bulk refill.",
 			},
 		}
 		w.WriteHeader(http.StatusInternalServerError)

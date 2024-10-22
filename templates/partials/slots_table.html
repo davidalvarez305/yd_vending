@@ -191,9 +191,8 @@
             })
             .catch(err => {
                 alertModal.outerHTML = err;
-                handleCloseAlertModal();
             })
-            .finally(() => handleCloseSlotForm());
+            .finally(() => handleCloseAlertModal());
     }
 
     function handleConfirmDeleteRefill() {

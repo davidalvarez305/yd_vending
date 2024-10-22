@@ -154,6 +154,13 @@
                 Add Slot
             </button>
         </div>
+        <div
+            class="flex flex-col gap-3 bg-gray-50 px-5 py-4 text-center dark:bg-gray-700/50 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+            <button id="refillAll" type="button"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                Refill All
+            </button>
+        </div>
     </div>
 
     {{ template "slots_table.html" . }}
@@ -176,6 +183,7 @@
 <script nonce="{{ .Nonce }}">
     const purchaseDate = document.getElementById('purchase_date');
     const timestamp = `{{ .Machine.PurchaseDate }}`;
+    const alertModal = document.getElementById("alertModal");
 
     if (timestamp) {
         const date = new Date(timestamp * 1000);
@@ -184,7 +192,6 @@
 
     function handleSubmitForm(e) {
         e.preventDefault();
-        const alertModal = document.getElementById("alertModal");
 
         const data = new FormData(e.target);
         const body = new FormData();
@@ -241,6 +248,49 @@
 
     const machineForm = document.getElementById("machineForm");
     machineForm.onsubmit = handleSubmitForm;
+</script>
+
+<script nonce="{{ .Nonce }}">
+    const refillAllButton = document.getElementById('refillAll');
+
+    refillAllButton.addEventListener('click', () => {
+        const formModalContainer = document.getElementById('formModalContainer');
+        formModalContainer.style.display = '';
+    });
+
+    function handleRefillAll() {
+        const endpoint = `/crm/machine/{{ .Machine.MachineID }}/refill`;
+        const method = "POST";
+
+        fetch(endpoint, {
+            method: method,
+            credentials: "include",
+            body: body,
+        })
+            .then((response) => {
+                const token = response.headers.get('X-Csrf-Token');
+                if (token) {
+                    const tokens = document.querySelectorAll('[name="csrf_token"]');
+                    tokens.forEach(csrf_token => csrf_token.value = token);
+                }
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then((err) => {
+                        throw new Error(err);
+                    });
+                }
+            })
+            .then(html => {
+                const table = document.getElementById('slotsTable');
+                table.outerHTML = html;
+                handleBindPagination();
+            })
+            .catch(err => {
+                alertModal.outerHTML = err;
+            })
+            .finally(() => handleCloseAlertModal());
+    }
 </script>
 
 <script src="{{ .StaticPath }}/pagination.js" nonce="{{ .Nonce }}"></script>
