@@ -4019,7 +4019,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 	}
 
 	rows, err := DB.Query(`
-		SELECT t.transaction_log_id, t.transaction_timestamp, m.name AS machine, l.name AS location,
+		SELECT t.transaction_log_id, t.transaction_timestamp, CONCAT(m.year, ' ', m.model, ' ', m.make) AS machine, l.name AS location,
 				s.machine_code, p.name,
 		       t.transaction_type, t.card_number, t.num_transactions, t.items
 		FROM seed_transaction AS t
