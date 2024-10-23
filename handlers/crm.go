@@ -1263,20 +1263,24 @@ func PostMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dateAssigned := time.Now().Unix()
 	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
 	locationId := utils.CreateNullInt(form.LocationID)
+	locationDateAssigned := utils.CreateNullInt64(form.LocationDateAssigned)
+	machineCardReaderDateAssigned := utils.CreateNullInt64(form.DateAssigned)
+	isLocationActive := utils.CreateNullBool(form.IsLocationActive)
+	isCardReaderActive := utils.CreateNullBool(form.IsCardReaderActive)
 
 	// Assign machine to location
-	if locationId.Valid {
+	if locationId.Valid && locationDateAssigned.Valid && isLocationActive.Valid {
 		assignment := models.MachineLocationAssignment{
 			LocationID:   int(locationId.Int64),
 			MachineID:    machineId,
-			DateAssigned: dateAssigned,
+			DateAssigned: locationDateAssigned.Int64,
+			IsActive:     isLocationActive.Bool,
 		}
 		err = database.CreateMachineLocationAssignment(assignment)
 		if err != nil {
-			fmt.Printf("Error creating machine: %+v\n", err)
+			fmt.Printf("Error creating machine location assignemnt: %+v\n", err)
 			tmplCtx := types.DynamicPartialTemplate{
 				TemplateName: "error",
 				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
@@ -1291,15 +1295,16 @@ func PostMachine(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Assign card reader to machine
-	if cardReaderSerialNumber.Valid {
+	if cardReaderSerialNumber.Valid && machineCardReaderDateAssigned.Valid && isCardReaderActive.Valid {
 		cardReaderAssignment := models.MachineCardReaderAssignment{
 			CardReaderSerialNumber: cardReaderSerialNumber.String,
 			MachineID:              machineId,
-			DateAssigned:           dateAssigned,
+			DateAssigned:           machineCardReaderDateAssigned.Int64,
+			IsActive:               isCardReaderActive.Bool,
 		}
 		err = database.CreateMachineCardReaderAssignment(cardReaderAssignment)
 		if err != nil {
-			fmt.Printf("Error creating machine: %+v\n", err)
+			fmt.Printf("Error creating machine card reader assignemnt: %+v\n", err)
 			tmplCtx := types.DynamicPartialTemplate{
 				TemplateName: "error",
 				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",

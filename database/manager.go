@@ -3696,11 +3696,11 @@ func CreateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 
 func CreateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO machine_card_reader (
+		INSERT INTO machine_card_reader_assignment (
 			card_reader_serial_number,
 			machine_id,
 			date_assigned,
-			is_active,
+			is_active
 		) VALUES ($1, $2, to_timestamp($3), $4)
 	`)
 	if err != nil {
@@ -3758,7 +3758,7 @@ func DeleteMachineLocationAssignment(id int) error {
 
 func DeleteMachineCardReaderAssignment(id int) error {
 	sqlStatement := `
-        DELETE FROM machine_card_reader WHERE machine_card_reader_id = $1
+        DELETE FROM machine_card_reader_assignment WHERE machine_card_reader_assignment_id = $1
     `
 	_, err := DB.Exec(sqlStatement, id)
 	if err != nil {
@@ -3810,12 +3810,12 @@ func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 
 func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) error {
 	stmt, err := DB.Prepare(`
-		UPDATE machine_card_reader
+		UPDATE machine_card_reader_assignment
 		SET card_reader_serial_number = COALESCE($2, card_reader_serial_number),
 			machine_id = COALESCE($3, machine_id),
 			date_assigned = COALESCE(to_timestamp($4), date_assigned),
 			is_active = COALESCE($5, is_active)
-		WHERE machine_card_reader_id = $1
+		WHERE machine_card_reader_assignment_id = $1
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)

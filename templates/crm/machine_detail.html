@@ -146,16 +146,16 @@
     </div>
     <!-- END Machine Details -->
     <!-- Machine Slots -->
-    <div class="flex flex-col my-6 overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+    <div class="flex flex-row my-6 overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
         <div
-            class="flex flex-col gap-3 bg-gray-50 px-5 py-4 text-center dark:bg-gray-700/50 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+            class="flex flex-col gap-3 px-5 py-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
             <button id="addSlot" type="button"
                 class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                 Add Slot
             </button>
         </div>
         <div
-            class="flex flex-col gap-3 bg-gray-50 px-5 py-4 text-center dark:bg-gray-700/50 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+            class="flex flex-col gap-3 px-5 py-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
             <button id="refillAll" type="button"
                 class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                 Refill All
@@ -188,6 +188,20 @@
     if (timestamp) {
         const date = new Date(timestamp * 1000);
         purchaseDate.value = date.toISOString().split('T')[0];
+    }
+
+    const locationAssignmentDate = document.getElementById('location_date_assigned');
+    const locationAssignmentDateTimestamp = `{{ .Machine.LocationDateAssigned }}`;
+    if (locationAssignmentDateTimestamp) {
+        const date = new Date(locationAssignmentDateTimestamp * 1000);
+        locationAssignmentDate.value = date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:MM
+    }
+
+    const cardReaderAssignmentDate = document.getElementById('date_assigned');
+    const cardReaderAssignmentDateTimestamp = `{{ .Machine.DateAssigned }}`;
+    if (cardReaderAssignmentDateTimestamp) {
+        const date = new Date(cardReaderAssignmentDateTimestamp * 1000);
+        cardReaderAssignmentDate.value = date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:MM
     }
 
     function handleSubmitForm(e) {

@@ -510,6 +510,7 @@ type LocationDetails struct {
 	BusinessID           int     `json:"business_id" form:"business_id" schema:"business_id"`
 	VendingLocationID    int     `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
 	CityID               int     `json:"city_id" form:"city_id" schema:"city_id"`
+	LocationStatusID     int     `json:"location_status_id" form:"location_status_id" schema:"location_status_id"`
 	DateStarted          int64   `json:"date_started" form:"date_started" schema:"date_started"`
 	Name                 string  `json:"name" form:"name" schema:"name"`
 	Longitude            float64 `json:"longitude" form:"longitude" schema:"longitude"`
