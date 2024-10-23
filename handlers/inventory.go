@@ -97,13 +97,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if strings.HasPrefix(path, "/inventory/transaction/") {
-			if len(path) > len("/inventory/transaction/") && helpers.IsNumeric(path[len("/inventory/transaction/"):]) {
-				PutTransaction(w, r)
-				return
-			}
-		}
-
 		switch path {
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
