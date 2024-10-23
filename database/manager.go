@@ -4009,16 +4009,25 @@ func GetProducts() ([]models.Product, error) {
 func GetTransactionList(params types.GetTransactionsParams) ([]types.TransactionList, int, error) {
 	var transactions []types.TransactionList
 
+	var offset int
+	if params.PageNum != nil {
+		pageNum, err := strconv.Atoi(*params.PageNum)
+		if err != nil {
+			return nil, 0, fmt.Errorf("could not convert page num: %w", err)
+		}
+		offset = (pageNum - 1) * int(constants.LeadsPerPage)
+	}
+
 	rows, err := DB.Query(`
 		SELECT t.transaction_log_id, t.transaction_timestamp, m.name AS machine, l.name AS location,
 				s.machine_code, p.name,
 		       t.transaction_type, t.card_number, t.num_transactions, t.items
 		FROM seed_transaction AS t
 		JOIN machine_card_reader_assignment AS card_reader ON card_reader.card_reader_serial_number = t.device
-		JOIN machine_location_assignment AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
-		JOIN location AS l ON loc_assignment.location_id = l.location_id
-		JOIN machine AS m ON m.machine_id = card_reader.machine_id
-		JOIN slot AS s ON s.machine_id = m.machine_id
+		JOIN machine_location_assignment AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND (loc_assignment.machine_id = $2 OR $2 IS NULL)
+		JOIN location AS l ON loc_assignment.location_id = l.location_id AND (l.location_id = $1 OR $1 IS NULL)
+		JOIN machine AS m ON m.machine_id = card_reader.machine_id AND (m.machine_id = $2 OR $2 IS NULL)
+		JOIN slot AS s ON s.machine_id = m.machine_id AND (s.machine_id = $2 OR $2 IS NULL)
 		JOIN (
 			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
@@ -4027,8 +4036,11 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			LIMIT 1
 		) AS slot_assignment
 			ON slot_assignment.slot_id = s.slot_id
-		JOIN product AS p ON p.product_id = slot_assignment.product_id
-	`)
+		JOIN product AS p ON p.product_id = slot_assignment.product_id AND (p.product_id = $3 OR $3 IS NULL)
+		WHERE t.transaction_timestamp >= $5 AND t.transaction_timestamp <= $6 AND (t.transaction_type = $4 OR $4 IS NULL)
+		OFFSET $7
+		LIMIT $8 
+	`, params.Location, params.Machine, params.Product, params.TransactionType, params.DateFrom, params.DateTo, offset, constants.LeadsPerPage)
 	if err != nil {
 		return transactions, 0, fmt.Errorf("error executing query: %w", err)
 	}
@@ -4065,4 +4077,32 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 	}
 
 	return transactions, len(transactions), nil
+}
+
+func GetTransactionTypes() ([]string, error) {
+	var transactionTypes []string
+
+	rows, err := DB.Query(`
+		SELECT DISTINCT transaction_type
+		FROM seed_transaction
+		ORDER BY transaction_type;
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var transactionType string
+		if err := rows.Scan(&transactionType); err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+		transactionTypes = append(transactionTypes, transactionType)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return transactionTypes, nil
 }

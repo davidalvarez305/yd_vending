@@ -783,7 +783,14 @@ func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	products, err := database.GetProducts()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting locations from DB.", http.StatusInternalServerError)
+		http.Error(w, "Error getting products from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	transactionTypes, err := database.GetTransactionTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting transaction types from DB.", http.StatusInternalServerError)
 		return
 	}
 
@@ -796,6 +803,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	data["Machines"] = machines
 	data["Locations"] = locations
 	data["Products"] = products
+	data["TransactionTypes"] = transactionTypes
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["CurrentPage"] = pageNum
 
