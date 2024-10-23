@@ -2824,61 +2824,6 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 	return machine, nil
 }
 
-func CreateSeedLiveTransaction(transaction types.SeedLiveTransaction) error {
-	stmt, err := DB.Prepare(`
-		INSERT INTO seed_live_transaction (
-			terminal_number, 
-			transaction_ref_number, 
-			transaction_type, 
-			card_number, 
-			total_amount, 
-			vended_columns, 
-			price, 
-			mdb_number, 
-			number_of_products_vended, 
-			timestamp, 
-			card_id
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, to_timestamp($10), $11)
-	`)
-	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
-	}
-	defer stmt.Close()
-
-	var (
-		terminalNumber         = transaction.TerminalNumber
-		transactionRefNumber   = transaction.TransactionRefNumber
-		transactionType        = transaction.TransactionType
-		cardNumber             = utils.CreateNullString(&transaction.CardNumber)
-		totalAmount            = transaction.TotalAmount
-		vendedColumns          = transaction.VendedColumns
-		price                  = transaction.Price
-		mdbNumber              = utils.CreateNullInt(&transaction.MDBNumber)
-		numberOfProductsVended = utils.CreateNullInt(&transaction.NumberOfProductsVended)
-		timestamp              = transaction.Timestamp.Unix()
-		cardId                 = utils.CreateNullString(&transaction.CardId)
-	)
-
-	_, err = stmt.Exec(
-		terminalNumber,
-		transactionRefNumber,
-		transactionType,
-		cardNumber,
-		totalAmount,
-		vendedColumns,
-		price,
-		mdbNumber,
-		numberOfProductsVended,
-		timestamp,
-		cardId,
-	)
-	if err != nil {
-		return fmt.Errorf("error executing statement: %w", err)
-	}
-
-	return nil
-}
-
 func GetProductCategories() ([]models.ProductCategory, error) {
 	var productCategories []models.ProductCategory
 
@@ -4137,4 +4082,44 @@ func GetMachines() ([]types.MachineList, error) {
 	}
 
 	return machines, nil
+}
+
+func CreateSeedTransaction(transaction types.SeedLiveTransaction) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO seed_transaction (
+			transaction_timestamp, 
+			device, 
+			item, 
+			transaction_type, 
+			card_id, 
+			card_number, 
+			num_transactions, 
+			items
+		) VALUES (to_timestamp($1), $2, $3, $4, $5, $6, $7, $8)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	time, err := utils.ConvertSeedTransactionTimestamp(transaction.Day, transaction.HourOfDay)
+	if err != nil {
+		return fmt.Errorf("error converting seed transaction timestamp: %w", err)
+	}
+
+	_, err = stmt.Exec(
+		time,
+		transaction.Device,
+		transaction.Item,
+		transaction.TransType,
+		transaction.CardID,
+		transaction.CardNumber,
+		transaction.NumOfTrans,
+		transaction.ItemQuantity,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
 }
