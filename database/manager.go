@@ -4106,3 +4106,35 @@ func GetTransactionTypes() ([]string, error) {
 
 	return transactionTypes, nil
 }
+
+func GetMachines() ([]types.MachineList, error) {
+	var machines []types.MachineList
+
+	rows, err := DB.Query(`
+		SELECT machine_id, CONCAT(year, ' ', make, ' ', model) FROM "machine"
+	`)
+	if err != nil {
+		return machines, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var machine types.MachineList
+
+		err := rows.Scan(
+			&machine.MachineID,
+			&machine.MachineName,
+		)
+		if err != nil {
+			return machines, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		machines = append(machines, machine)
+	}
+
+	if err := rows.Err(); err != nil {
+		return machines, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return machines, nil
+}

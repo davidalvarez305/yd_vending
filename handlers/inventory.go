@@ -766,7 +766,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 		return
 	}
 
-	machines, _, err := database.GetMachineList(1)
+	machines, err := database.GetMachines()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting machines from DB.", http.StatusInternalServerError)
