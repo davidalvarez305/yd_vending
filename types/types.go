@@ -360,6 +360,7 @@ type BusinessContactForm struct {
 type LocationForm struct {
 	CSRFToken            *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	VendingLocationID    *int     `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
+	LocationStatusID     *int     `json:"location_status_id" form:"location_status_id" schema:"location_status_id"`
 	BusinessID           *int     `json:"business_id" form:"business_id" schema:"business_id"`
 	LocationContact      *int     `json:"location_contact_id" form:"location_contact_id" schema:"location_contact_id"`
 	DateStarted          int64    `json:"date_started" form:"date_started" schema:"date_started"`

@@ -1352,7 +1352,8 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 		    state = COALESCE($11, state),
 		    opening = $12,
 		    closing = $13,
-		    date_started = COALESCE(to_timestamp($14), date_started)
+		    date_started = COALESCE(to_timestamp($14), date_started),
+		    location_status_id = COALESCE($15, location_status_id)
 		WHERE location_id = $1
 	`)
 	if err != nil {
@@ -1365,6 +1366,7 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 	streetAddressLineTwo := utils.CreateNullString(form.StreetAddressLineTwo)
 	opening := utils.CreateNullString(form.Opening)
 	closing := utils.CreateNullString(form.Closing)
+	locationStatusId := utils.CreateNullInt(form.LocationStatusID)
 
 	_, err = stmt.Exec(
 		locationId,
@@ -1381,6 +1383,7 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 		opening,
 		closing,
 		form.DateStarted,
+		locationStatusId,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
