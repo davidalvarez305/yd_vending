@@ -722,3 +722,84 @@ func GetProductBatchDetail(w http.ResponseWriter, r *http.Request, ctx map[strin
 
 	helpers.ServeContent(w, files, data)
 }
+
+func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.INVENTORY_TEMPLATES_DIR + "transactions.html"
+	table := constants.PARTIAL_TEMPLATES_DIR + "transactions_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("pageNum")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("pageNum"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	var params types.GetTransactionsParams
+	params.TransactionType = helpers.SafeStringToPointer(r.URL.Query().Get("transaction_type"))
+	params.Machine = helpers.SafeStringToPointer(r.URL.Query().Get("machine"))
+	params.Location = helpers.SafeStringToPointer(r.URL.Query().Get("location"))
+	params.Product = helpers.SafeStringToPointer(r.URL.Query().Get("product"))
+	params.PageNum = helpers.SafeStringToPointer(r.URL.Query().Get("page_num"))
+	params.DateFrom = helpers.SafeStringToInt64Pointer(r.URL.Query().Get("date_from"))
+	params.DateTo = helpers.SafeStringToInt64Pointer(r.URL.Query().Get("date_to"))
+
+	transactions, totalRows, err := database.GetTransactionList(params)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting products from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	machines, _, err := database.GetMachineList(1)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machines from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	locations, err := database.GetLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting locations from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	products, err := database.GetProducts()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting locations from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Transactions — " + constants.CompanyName
+
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Transactions"] = transactions
+	data["Machines"] = machines
+	data["Locations"] = locations
+	data["Products"] = products
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
+	data["CurrentPage"] = pageNum
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}

@@ -3956,3 +3956,113 @@ func CreateRefillAll(machineId int) error {
 
 	return nil
 }
+
+func GetProducts() ([]models.Product, error) {
+	var products []models.Product
+
+	rows, err := DB.Query(`
+		SELECT product_id, name, product_category_id, size, size_type, upc 
+		FROM "product"
+	`)
+	if err != nil {
+		return products, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var prod models.Product
+		var size sql.NullFloat64
+		var sizeType, upc sql.NullString
+
+		err := rows.Scan(
+			&prod.ProductID,
+			&prod.Name,
+			&prod.ProductCategoryID,
+			&size,
+			&sizeType,
+			&upc,
+		)
+		if err != nil {
+			return products, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if size.Valid {
+			prod.Size = size.Float64
+		}
+		if sizeType.Valid {
+			prod.SizeType = sizeType.String
+		}
+		if upc.Valid {
+			prod.UPC = upc.String
+		}
+
+		products = append(products, prod)
+	}
+
+	if err := rows.Err(); err != nil {
+		return products, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return products, nil
+}
+
+func GetTransactionList(params types.GetTransactionsParams) ([]types.TransactionList, int, error) {
+	var transactions []types.TransactionList
+
+	rows, err := DB.Query(`
+		SELECT t.transaction_log_id, t.transaction_timestamp, m.name AS machine, l.name AS location,
+				s.machine_code, p.name,
+		       t.transaction_type, t.card_number, t.num_transactions, t.items
+		FROM seed_transaction AS t
+		JOIN machine_card_reader_assignment AS card_reader ON card_reader.card_reader_serial_number = t.device
+		JOIN machine_location_assignment AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
+		JOIN location AS l ON loc_assignment.location_id = l.location_id
+		JOIN machine AS m ON m.machine_id = card_reader.machine_id
+		JOIN slot AS s ON s.machine_id = m.machine_id
+		JOIN (
+			SELECT psa.slot_id, psa.product_id, psa.date_assigned
+			FROM product_slot_assignment AS psa
+			WHERE psa.date_assigned >= t.transaction_timestamp
+			ORDER BY psa.date_assigned
+			LIMIT 1
+		) AS slot_assignment
+			ON slot_assignment.slot_id = s.slot_id
+		JOIN product AS p ON p.product_id = slot_assignment.product_id
+	`)
+	if err != nil {
+		return transactions, 0, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var transaction types.TransactionList
+
+		var transactionTime time.Time
+
+		err := rows.Scan(
+			&transaction.TransactionLogID,
+			&transactionTime,
+			&transaction.Machine,
+			&transaction.Location,
+			&transaction.MachineSelection,
+			&transaction.Product,
+			&transaction.TransactionType,
+			&transaction.CardNumber,
+			&transaction.NumTransactions,
+			&transaction.Items,
+		)
+		if err != nil {
+			return transactions, 0, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		transaction.TransactionTimestamp = transactionTime.Unix()
+
+		transactions = append(transactions, transaction)
+	}
+
+	if err := rows.Err(); err != nil {
+		return transactions, 0, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return transactions, len(transactions), nil
+}

@@ -701,3 +701,26 @@ type RefillForm struct {
 	SlotID       *int    `json:"slot_id" form:"slot_id" schema:"slot_id"`
 	DateRefilled *int64  `json:"date_refilled" form:"date_refilled" schema:"date_refilled"`
 }
+
+type GetTransactionsParams struct {
+	TransactionType *string `json:"transaction_type" schema:"transaction_type" form:"transaction_type"`
+	Machine         *string `json:"machine" schema:"machine" form:"machine"`
+	Location        *string `json:"location" schema:"location" form:"location"`
+	Product         *string `json:"product" schema:"product" form:"product"`
+	PageNum         *string `json:"page_num" schema:"page_num" form:"page_num"`
+	DateFrom        *int64  `json:"date_from" form:"date_from" schema:"date_from"`
+	DateTo          *int64  `json:"date_to" form:"date_to" schema:"date_to"`
+}
+
+type TransactionList struct {
+	TransactionLogID     int64  `json:"transaction_log_id" db:"transaction_log_id" form:"transaction_log_id" schema:"transaction_log_id"`
+	Machine              string `json:"machine" db:"machine" form:"machine" schema:"machine"`
+	Location             string `json:"location" db:"location" form:"location" schema:"location"`
+	MachineSelection     string `json:"machine_selection" db:"machine_selection" form:"machine_selection" schema:"machine_selection"`
+	Product              string `json:"product" db:"product" form:"product" schema:"product"`
+	TransactionTimestamp int64  `json:"transaction_timestamp" db:"transaction_timestamp" form:"transaction_timestamp" schema:"transaction_timestamp"`
+	TransactionType      string `json:"transaction_type" db:"transaction_type" form:"transaction_type" schema:"transaction_type"`
+	CardNumber           string `json:"card_number" db:"card_number" form:"card_number" schema:"card_number"`
+	NumTransactions      int    `json:"num_transactions" db:"num_transactions" form:"num_transactions" schema:"num_transactions"`
+	Items                int    `json:"items" db:"items" form:"items" schema:"items"`
+}
