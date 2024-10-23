@@ -76,6 +76,8 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 		switch path {
 		case "/inventory/product":
 			GetProducts(w, r, ctx)
+		case "/inventory/transaction":
+			GetTransactions(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
