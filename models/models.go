@@ -358,3 +358,15 @@ type SlotPriceLog struct {
 	Price          float64 `json:"price" form:"price" schema:"price"`
 	DateAssigned   int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
+
+type SeedTransaction struct {
+	TransactionLogID     int64  `json:"transaction_log_id" db:"transaction_log_id" form:"transaction_log_id" schema:"transaction_log_id"`
+	TransactionTimestamp int64  `json:"transaction_timestamp" db:"transaction_timestamp" form:"transaction_timestamp" schema:"transaction_timestamp"`
+	Device               string `json:"device" db:"device" form:"device" schema:"device"`
+	Item                 string `json:"item" db:"item" form:"item" schema:"item"`
+	TransactionType      string `json:"transaction_type" db:"transaction_type" form:"transaction_type" schema:"transaction_type"`
+	CardID               string `json:"card_id" db:"card_id" form:"card_id" schema:"card_id"`
+	CardNumber           string `json:"card_number" db:"card_number" form:"card_number" schema:"card_number"`
+	NumTransactions      int    `json:"num_transactions" db:"num_transactions" form:"num_transactions" schema:"num_transactions"`
+	Items                int    `json:"items" db:"items" form:"items" schema:"items"`
+}
