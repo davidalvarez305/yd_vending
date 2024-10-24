@@ -113,6 +113,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" nonce="{{ .Nonce }}"></script>
 <script nonce="{{ .Nonce }}">
     const scanBarcode = document.getElementById("scanBarcode");
+    const alertModal = document.getElementById("alertModal");
 
     const name = document.getElementById('name');
     const size = document.getElementById('size');
@@ -122,9 +123,25 @@
     scanBarcode.addEventListener("click", () => handleScanBarcode());
 
     function handleErrorModal(err) {
-        const alertModal = document.getElementById("alertModal");
+        if (!err.includes("alertModal")) {
+            alertModal.outerHTML = err;
+        } else {
+            fetch(`/partials/error-modal?err=${err}`)
+            .then((response) => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then((err) => {
+                        throw new Error(err);
+                    });
+                }
+            })
+            .then(html => {
+                alertModal.outerHTML = html;
+            })
+            .catch(console.error);
+        }
 
-        alertModal.outerHTML = err;
         handleCloseAlertModal();
     }
 
@@ -182,7 +199,6 @@
     scanBarcodeImage.addEventListener("click", () => handleScanBarcodeImage());
 
     function handleScanBarcodeImage() {
-        const alertModal = document.getElementById("alertModal");
         const img = document.getElementById("upload_barcode");
         const file = img.files[0];
 
@@ -280,7 +296,6 @@
     function handleSubmitForm() {
         const data = new FormData(form);
         const body = new FormData();
-        const alertModal = document.getElementById("alertModal");
 
         for (const [key, value] of data.entries()) {
             if (key === "upload_barcode") continue;
