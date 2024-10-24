@@ -297,16 +297,6 @@ type Product struct {
 	UPC               string  `json:"upc" form:"upc" schema:"upc"`
 }
 
-type ProductBatch struct {
-	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
-	ProductID      int     `json:"product_id" form:"product_id" schema:"product_id"`
-	SupplierID     int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
-	ExpirationDate int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
-	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
-	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
-	DatePurchased  int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
-}
-
 type ProductCategory struct {
 	ProductCategoryID int    `json:"product_category_id" form:"product_category_id"`
 	Name              string `json:"name" form:"name" schema:"name"`
@@ -323,10 +313,14 @@ type Slot struct {
 }
 
 type ProductSlotAssignment struct {
-	ProductSlotAssignmentID int   `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
-	SlotID                  int   `json:"slot_id" form:"slot_id" schema:"slot_id"`
-	ProductBatchID          int   `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
-	DateAssigned            int64 `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	ProductSlotAssignmentID int     `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	SlotID                  int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	ProductID               int     `json:"product_id" form:"product_id" schema:"product_id"`
+	SupplierID              int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
+	ExpirationDate          int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	UnitCost                float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity                int     `json:"quantity" form:"quantity" schema:"quantity"`
+	DateAssigned            int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
 
 type Refill struct {

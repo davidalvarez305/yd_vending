@@ -599,26 +599,6 @@ type ProductList struct {
 	UPC       string  `json:"upc" form:"upc" schema:"upc"`
 }
 
-type ProductBatchForm struct {
-	CSRFToken      *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	ProductID      *int     `json:"product_id" form:"product_id" schema:"product_id"`
-	SupplierID     *int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
-	UnitCost       *float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
-	Quantity       *int     `json:"quantity" form:"quantity" schema:"quantity"`
-	DatePurchased  *int64   `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
-	ExpirationDate *int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
-}
-
-type ProductBatchList struct {
-	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
-	ProductID      int     `json:"product_id" form:"product_id" schema:"product_id"`
-	Supplier       string  `json:"supplier" form:"supplier" schema:"supplier"`
-	ExpirationDate string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
-	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
-	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
-	DatePurchased  string  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
-}
-
 type ProductDetails struct {
 	ProductID         int     `json:"product_id" form:"product_id" schema:"product_id"`
 	Name              string  `json:"name" form:"name" schema:"name"`
@@ -626,16 +606,6 @@ type ProductDetails struct {
 	Size              float64 `json:"size" form:"size" schema:"size"`
 	SizeType          string  `json:"size_type" form:"size_type" schema:"size_type"`
 	UPC               string  `json:"upc" form:"upc" schema:"upc"`
-}
-
-type ProductBatchDetail struct {
-	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
-	ProductID      int     `json:"product_id" form:"product_id" schema:"product_id"`
-	SupplierID     int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
-	ExpirationDate string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
-	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
-	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
-	DatePurchased  string  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
 }
 
 type SlotList struct {
@@ -660,40 +630,37 @@ type SlotDetails struct {
 }
 
 type SlotForm struct {
-	CSRFToken      *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	Nickname       *string  `json:"nickname" form:"nickname" schema:"nickname"`
-	Slot           *string  `json:"slot" form:"slot" schema:"slot"`
-	MachineCode    *string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
-	MachineID      *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
-	ProductBatchID *int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"` // NULLABLE
-	DateAssigned   *int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`          // NULLABLE
-	Price          *float64 `json:"price" form:"price" schema:"price"`
-	Capacity       *int     `json:"capacity" form:"capacity" schema:"capacity"`
-}
-
-type AvailableProductBatches struct {
-	ProductBatchID int     `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
-	ProductName    string  `json:"product_name" form:"product_name" schema:"product_name"`
-	Supplier       string  `json:"supplier" form:"supplier" schema:"supplier"`
-	UnitCost       float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
-	ExpirationDate string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
-	DatePurchased  string  `json:"date_purchased" form:"date_purchased" schema:"date_purchased"`
-	Quantity       int     `json:"quantity" form:"quantity" schema:"quantity"`
+	CSRFToken               *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Nickname                *string  `json:"nickname" form:"nickname" schema:"nickname"`
+	Slot                    *string  `json:"slot" form:"slot" schema:"slot"`
+	MachineCode             *string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
+	MachineID               *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	Price                   *float64 `json:"price" form:"price" schema:"price"`
+	Capacity                *int     `json:"capacity" form:"capacity" schema:"capacity"`
+	ProductSlotAssignmentID int64    `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
 }
 
 type ProductSlotAssignment struct {
-	ProductSlotAssignmentID int64  `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
-	Slot                    string `json:"slot" form:"slot" schema:"slot"`
-	Product                 string `json:"product" form:"product" schema:"product"`
-	DateAssigned            string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	ProductSlotAssignmentID int64   `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	Slot                    string  `json:"slot" form:"slot" schema:"slot"`
+	DateAssigned            int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	ProductID               int     `json:"product_id" form:"product_id" schema:"product_id"`
+	SupplierID              int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
+	UnitCost                float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity                int     `json:"quantity" form:"quantity" schema:"quantity"`
+	ExpirationDate          int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
 }
 
 type ProductSlotAssignmentForm struct {
-	CSRFToken               *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	ProductSlotAssignmentID *int64  `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
-	SlotID                  *int    `json:"slot_id" form:"slot_id" schema:"slot_id"`
-	ProductBatchID          *int    `json:"product_batch_id" form:"product_batch_id" schema:"product_batch_id"`
-	DateAssigned            *int64  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	CSRFToken               *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	ProductSlotAssignmentID *int     `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	SlotID                  *int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	ProductID               *int     `json:"product_id" form:"product_id" schema:"product_id"`
+	DateAssigned            *int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	SupplierID              *int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
+	UnitCost                *float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity                *int     `json:"quantity" form:"quantity" schema:"quantity"`
+	ExpirationDate          *int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
 }
 
 type RefillForm struct {

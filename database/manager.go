@@ -3052,182 +3052,6 @@ func GetProductDetails(productID string) (types.ProductDetails, error) {
 	return productDetails, nil
 }
 
-func GetProductBatchList(productId string) ([]types.ProductBatchList, error) {
-	var batches []types.ProductBatchList
-
-	rows, err := DB.Query(`
-		SELECT 
-			pb.product_batch_id,
-			pb.product_id,
-			s.name,
-			pb.expiration_date,
-			pb.unit_cost::NUMERIC,
-			pb.quantity,
-			pb.date_purchased
-		FROM "product_batch" AS pb
-		JOIN supplier AS s ON pb.supplier_id = s.supplier_id
-		WHERE pb.product_id = $1
-		ORDER BY pb.date_purchased ASC;
-	`, productId)
-	if err != nil {
-		return batches, fmt.Errorf("error executing query: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var batch types.ProductBatchList
-		var datePurchased, expirationDate time.Time
-
-		err := rows.Scan(
-			&batch.ProductBatchID,
-			&batch.ProductID,
-			&batch.Supplier,
-			&expirationDate,
-			&batch.UnitCost,
-			&batch.Quantity,
-			&datePurchased,
-		)
-		if err != nil {
-			return batches, fmt.Errorf("error scanning row: %w", err)
-		}
-
-		batch.DatePurchased = utils.FormatDateMMDDYYYY(datePurchased.Unix())
-		batch.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
-
-		batches = append(batches, batch)
-	}
-
-	if err := rows.Err(); err != nil {
-		return batches, fmt.Errorf("error iterating rows: %w", err)
-	}
-
-	return batches, nil
-}
-
-func CreateProductBatch(form types.ProductBatchForm) error {
-	stmt, err := DB.Prepare(`
-		INSERT INTO product_batch (
-			product_id,
-			supplier_id,
-			expiration_date,
-			date_purchased,
-			unit_cost,
-			quantity
-		) VALUES ($1, $2, to_timestamp($3), to_timestamp($4), $5, $6)
-	`)
-	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
-	}
-	defer stmt.Close()
-
-	productId := utils.CreateNullInt(form.ProductID)
-	supplierId := utils.CreateNullInt(form.SupplierID)
-	unitCost := utils.CreateNullFloat64(form.UnitCost)
-	quantity := utils.CreateNullInt(form.Quantity)
-
-	_, err = stmt.Exec(
-		productId,
-		supplierId,
-		form.ExpirationDate,
-		form.DatePurchased,
-		unitCost,
-		quantity,
-	)
-	if err != nil {
-		return fmt.Errorf("error executing statement: %w", err)
-	}
-
-	return nil
-}
-
-func UpdateProductBatch(productId int, form types.ProductBatchForm) error {
-	stmt, err := DB.Prepare(`
-		UPDATE product_batch 
-		SET 
-			supplier_id = $2,
-			expiration_date = to_timestamp($3),
-			date_purchased = to_timestamp($4),
-			unit_cost = $5,
-			quantity = $6
-		WHERE product_id = $1
-	`)
-	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
-	}
-	defer stmt.Close()
-
-	supplierId := utils.CreateNullInt(form.SupplierID)
-	unitCost := utils.CreateNullFloat64(form.UnitCost)
-	quantity := utils.CreateNullInt(form.Quantity)
-
-	_, err = stmt.Exec(
-		productId,
-		supplierId,
-		form.ExpirationDate,
-		form.DatePurchased,
-		unitCost,
-		quantity,
-	)
-	if err != nil {
-		return fmt.Errorf("error executing statement: %w", err)
-	}
-
-	return nil
-}
-
-func DeleteProductBatch(id int) error {
-	sqlStatement := `
-        DELETE FROM product_batch WHERE product_batch_id = $1
-    `
-	_, err := DB.Exec(sqlStatement, id)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func GetProductBatchDetails(productId, productBatchId int) (models.ProductBatch, error) {
-	var productBatch models.ProductBatch
-
-	row := DB.QueryRow(`
-		SELECT 
-			pb.product_batch_id,
-			pb.product_id,
-			pb.expiration_date,
-			pb.unit_cost::NUMERIC,
-			pb.quantity,
-			pb.date_purchased,
-			pb.supplier_id
-		FROM "product_batch" AS pb
-		WHERE pb.product_id = $1 AND pb.product_batch_id = $2;
-	`, productId, productBatchId)
-
-	var datePurchased, expirationDate time.Time
-
-	err := row.Scan(
-		&productBatch.ProductBatchID,
-		&productBatch.ProductID,
-		&expirationDate,
-		&productBatch.UnitCost,
-		&productBatch.Quantity,
-		&datePurchased,
-		&productBatch.SupplierID,
-	)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return productBatch, fmt.Errorf("no product batch found with ID %d", productBatchId)
-		}
-		return productBatch, fmt.Errorf("error scanning row: %w", err)
-	}
-
-	productBatch.DatePurchased = datePurchased.Unix()
-	productBatch.ExpirationDate = expirationDate.Unix()
-
-	return productBatch, nil
-}
-
 func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	var slots []types.SlotList
 
@@ -3283,59 +3107,6 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	}
 
 	return slots, nil
-}
-
-func GetAvailableProductBatches() ([]types.AvailableProductBatches, error) {
-	var batches []types.AvailableProductBatches
-
-	rows, err := DB.Query(`
-		SELECT 
-			pb.product_batch_id,
-			s.name,
-			p.name,
-			pb.unit_cost::NUMERIC,
-			pb.quantity,
-			pb.date_purchased,
-			pb.expiration_date
-		FROM "product_batch" AS pb
-		JOIN supplier AS s ON pb.supplier_id = s.supplier_id
-		JOIN product AS p ON pb.product_id = p.product_id
-		WHERE pb.quantity > 0 AND pb.expiration_date > CURRENT_DATE
-		ORDER BY pb.date_purchased ASC;
-	`)
-	if err != nil {
-		return batches, fmt.Errorf("error executing query: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var batch types.AvailableProductBatches
-		var datePurchased, expirationDate time.Time
-
-		err := rows.Scan(
-			&batch.ProductBatchID,
-			&batch.Supplier,
-			&batch.ProductName,
-			&batch.UnitCost,
-			&batch.Quantity,
-			&datePurchased,
-			&expirationDate,
-		)
-		if err != nil {
-			return batches, fmt.Errorf("error scanning row: %w", err)
-		}
-
-		batch.DatePurchased = utils.FormatDateMMDDYYYY(datePurchased.Unix())
-		batch.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
-
-		batches = append(batches, batch)
-	}
-
-	if err := rows.Err(); err != nil {
-		return batches, fmt.Errorf("error iterating rows: %w", err)
-	}
-
-	return batches, nil
 }
 
 func CreateSlot(form types.SlotForm) (int, error) {
@@ -3470,18 +3241,19 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 	query := `SELECT 
 		psa.product_slot_assignment_id,
 		s.slot,
-		p.name,
-		psa.date_assigned
+		psa.date_assigned,
+		psa.product_id,
+		psa.supplier_id,
+		psa.unit_cost,
+		psa.quantity,
+		psa.expiration_date
 	FROM product_slot_assignment AS psa
 	JOIN slot AS s ON psa.slot_id = s.slot_id
-	JOIN product_batch AS pb ON pb.product_batch_id = psa.product_batch_id
-	JOIN product AS p ON p.product_id = pb.product_id
 	WHERE psa.slot_id = $1`
 
 	var productSlotAssignments []types.ProductSlotAssignment
 
 	rows, err := DB.Query(query, slotId)
-
 	if err != nil {
 		return productSlotAssignments, fmt.Errorf("error executing query: %w", err)
 	}
@@ -3489,19 +3261,24 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 
 	for rows.Next() {
 		var assignment types.ProductSlotAssignment
-		var dateAssigned time.Time
+		var dateAssigned, expirationDate time.Time
 
 		err := rows.Scan(
 			&assignment.ProductSlotAssignmentID,
 			&assignment.Slot,
-			&assignment.Product,
 			&dateAssigned,
+			&assignment.ProductID,
+			&assignment.SupplierID,
+			&assignment.UnitCost,
+			&assignment.Quantity,
+			&expirationDate,
 		)
 		if err != nil {
 			return productSlotAssignments, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		assignment.DateAssigned = utils.FormatDateMMDDYYYY(dateAssigned.Unix())
+		assignment.DateAssigned = dateAssigned.Unix()
+		assignment.ExpirationDate = expirationDate.Unix()
 
 		productSlotAssignments = append(productSlotAssignments, assignment)
 	}
@@ -3517,9 +3294,14 @@ func CreateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO product_slot_assignment (
 			slot_id,
-			product_batch_id,
-			date_assigned
-		) VALUES ($1, $2, to_timestamp($3))
+			product_id,
+			date_assigned,
+			product_id,
+			supplier_id,
+			expiration_date,
+			unit_cost,
+			quantity
+		) VALUES ($1, $2, to_timestamp($3), $4, $5, to_timestamp($6), $7, $8)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3528,8 +3310,13 @@ func CreateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 
 	_, err = stmt.Exec(
 		form.SlotID,
-		form.ProductBatchID,
+		form.ProductID,
 		form.DateAssigned,
+		form.ProductID,
+		form.SupplierID,
+		form.ExpirationDate,
+		form.UnitCost,
+		form.Quantity,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3555,8 +3342,12 @@ func UpdateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 		UPDATE product_slot_assignment 
 		SET 
 			slot_id = COALESCE($2, slot_id),
-			product_batch_id = COALESCE($3, product_batch_id),
-			date_assigned = COALESCE(to_timestamp($4), date_assigned)
+			product_id = COALESCE($3, product_id),
+			date_assigned = COALESCE(to_timestamp($4), date_assigned),
+			supplier_id = COALESCE($5, supplier_id),
+			expiration_date = COALESCE(to_timestamp($6), expiration_date),
+			unit_cost = COALESCE($7, unit_cost),
+			quantity = COALESCE($8, quantity)
 		WHERE product_slot_assignment_id = $1
 	`)
 	if err != nil {
@@ -3564,14 +3355,24 @@ func UpdateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 	}
 	defer stmt.Close()
 
+	productSlotAssignmentID := form.ProductSlotAssignmentID
 	slotID := utils.CreateNullInt(form.SlotID)
-	productBatchID := utils.CreateNullInt(form.ProductBatchID)
 	dateAssigned := utils.CreateNullInt64(form.DateAssigned)
+	productID := utils.CreateNullInt(form.ProductID)
+	supplierID := utils.CreateNullInt(form.SupplierID)
+	expirationDate := utils.CreateNullInt64(form.ExpirationDate)
+	unitCost := utils.CreateNullFloat64(form.UnitCost)
+	quantity := utils.CreateNullInt(form.Quantity)
 
 	_, err = stmt.Exec(
+		productSlotAssignmentID,
 		slotID,
-		productBatchID,
+		productID,
 		dateAssigned,
+		supplierID,
+		expirationDate,
+		unitCost,
+		quantity,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3974,15 +3775,14 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id AND (m.machine_id = $2 OR $2 IS NULL)
 		JOIN slot AS s ON s.machine_id = m.machine_id AND (s.machine_id = $2 OR $2 IS NULL)
 		JOIN LATERAL (
-			SELECT psa.slot_id, psa.product_batch_id, psa.date_assigned
+			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
 			WHERE psa.slot_id = s.slot_id 
 			  AND psa.date_assigned >= t.transaction_timestamp
 			ORDER BY psa.date_assigned
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
-		JOIN product_batch AS pb ON pb.product_batch_id = slot_assignment.product_batch_id
-		JOIN product AS p ON p.product_id = pb.product_id AND (p.product_id = $3 OR $3 IS NULL)
+		JOIN product AS p ON p.product_id = slot_assignment.product_id AND (p.product_id = $3 OR $3 IS NULL)
 		WHERE t.transaction_timestamp >= $5 AND t.transaction_timestamp <= $6 AND (t.transaction_type = $4 OR $4 IS NULL)
 		OFFSET $7
 		LIMIT $8 

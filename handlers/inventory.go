@@ -42,15 +42,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
-		parts := strings.Split(path, "/")
-		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(parts) >= 5 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) {
-				PostProductBatch(w, r)
-				return
-			}
-			return
-		}
-
 		switch path {
 		case "/inventory/product":
 			PostProduct(w, r)
@@ -58,14 +49,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodGet:
-		parts := strings.Split(path, "/")
-		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
-				GetProductBatchDetail(w, r, ctx)
-				return
-			}
-		}
-
 		if strings.HasPrefix(path, "/inventory/product/") {
 			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
 				GetProductDetail(w, r, ctx)
@@ -82,14 +65,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodPut:
-		parts := strings.Split(path, "/")
-		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
-				PutProductBatch(w, r)
-				return
-			}
-		}
-
 		if strings.HasPrefix(path, "/inventory/product/") {
 			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
 				PutProduct(w, r)
@@ -102,14 +77,6 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
 	case http.MethodDelete:
-		parts := strings.Split(path, "/")
-		if strings.HasPrefix(path, "/inventory/product/") {
-			if len(parts) >= 6 && parts[4] == "batch" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
-				DeleteProductBatch(w, r)
-				return
-			}
-		}
-
 		if strings.HasPrefix(path, "/inventory/product/") {
 			if len(path) > len("/inventory/product/") && helpers.IsNumeric(path[len("/inventory/product/"):]) {
 				DeleteProduct(w, r)
@@ -326,61 +293,9 @@ func PutProduct(w http.ResponseWriter, r *http.Request) {
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func DeleteProductBatch(w http.ResponseWriter, r *http.Request) {
-	productBatchId, err := helpers.GetSecondIDFromPath(r, "/inventory/product/")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = database.DeleteProductBatch(productBatchId)
-	if err != nil {
-		fmt.Printf("Error deleting product batch: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to delete product batch.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	productBatches, err := database.GetProductBatchList(fmt.Sprint(productBatchId))
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting products from DB.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "products_table.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "products_table.html",
-		Data: map[string]any{
-			"ProductBatches": productBatches,
-			"CurrentPage":    1,
-			"MaxPages":       helpers.CalculateMaxPages(len(productBatches), constants.LeadsPerPage),
-		},
-	}
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
 func GetProductDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "product_detail.html"
-	productBatchForm := "create_product_batch_form.html"
-	productBatchesTable := "product_batches_table.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.INVENTORY_TEMPLATES_DIR + fileName, constants.INVENTORY_TEMPLATES_DIR + productBatchForm, constants.PARTIAL_TEMPLATES_DIR + productBatchesTable}
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.INVENTORY_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -409,13 +324,6 @@ func GetProductDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 		return
 	}
 
-	productBatches, err := database.GetProductBatchList(productId)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting product batches.", http.StatusInternalServerError)
-		return
-	}
-
 	suppliers, err := database.GetSuppliers()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -429,194 +337,11 @@ func GetProductDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	data["CSRFToken"] = csrfToken
 	data["Product"] = productDetails
 	data["ProductCategories"] = productCategories
-	data["ProductBatches"] = productBatches
 	data["Suppliers"] = suppliers
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	helpers.ServeContent(w, files, data)
-}
-
-func PostProductBatch(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Printf("Error parsing form: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Invalid request.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	var form types.ProductBatchForm
-	err = decoder.Decode(&form, r.PostForm)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error decoding form data.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	err = database.CreateProductBatch(form)
-	if err != nil {
-		fmt.Printf("Error creating product batch: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to create product batch.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	productId, err := helpers.GetFirstIDAfterPrefix(r, "/inventory/product/")
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Invalid URL.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	productBatches, err := database.GetProductBatchList(fmt.Sprint(productId))
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting product batches from DB.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "product_batches_table.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "product_batches_table.html",
-		Data: map[string]any{
-			"ProductBatches": productBatches,
-			"CurrentPage":    1,
-			"MaxPages":       helpers.CalculateMaxPages(len(productBatches), constants.LeadsPerPage),
-		},
-	}
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
-func PutProductBatch(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Printf("Error parsing form: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Invalid request.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	var form types.ProductBatchForm
-	err = decoder.Decode(&form, r.PostForm)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error decoding form data.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	productId, err := helpers.GetFirstIDAfterPrefix(r, "/inventory/product/")
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Invalid URL.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	err = database.UpdateProductBatch(productId, form)
-	if err != nil {
-		fmt.Printf("Error updating product batch: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to update product batch.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	productBatches, err := database.GetProductBatchList(fmt.Sprint(productId))
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting product batches from DB.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "product_batches_table.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "product_batches_table.html",
-		Data: map[string]any{
-			"ProductBatches": productBatches,
-			"CurrentPage":    1,
-			"MaxPages":       helpers.CalculateMaxPages(len(productBatches), constants.LeadsPerPage),
-		},
-	}
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
@@ -649,7 +374,7 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Error getting product batches from DB.",
+				"Message": "Error getting products from DB.",
 			},
 		}
 		w.WriteHeader(http.StatusInternalServerError)
@@ -658,71 +383,16 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "product_batches_table.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "product_batches_table.html",
+		TemplateName: "products_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "products_table.html",
 		Data: map[string]any{
-			"ProductBatches": products,
-			"CurrentPage":    pageNum,
-			"MaxPages":       helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+			"Products":    products,
+			"CurrentPage": pageNum,
+			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
 		},
 	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
-func GetProductBatchDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	fileName := "product_batch_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.INVENTORY_TEMPLATES_DIR + fileName}
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	productId, err := helpers.GetFirstIDAfterPrefix(r, "/inventory/product/")
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting product ID from URL.", http.StatusInternalServerError)
-		return
-	}
-
-	productBatchId, err := helpers.GetSecondIDFromPath(r, "/inventory/product/")
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting product batch ID from URL.", http.StatusInternalServerError)
-		return
-	}
-
-	productBatchDetails, err := database.GetProductBatchDetails(productId, productBatchId)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting product batch details from DB.", http.StatusInternalServerError)
-		return
-	}
-
-	suppliers, err := database.GetSuppliers()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting suppliers.", http.StatusInternalServerError)
-		return
-	}
-
-	data := ctx
-	data["PageTitle"] = "Product Batch Detail — " + constants.CompanyName
-	data["Nonce"] = nonce
-	data["CSRFToken"] = csrfToken
-	data["ProductBatch"] = productBatchDetails
-	data["Suppliers"] = suppliers
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	helpers.ServeContent(w, files, data)
 }
 
 func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any) {

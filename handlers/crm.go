@@ -2901,13 +2901,6 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 		return
 	}
 
-	productBatches, err := database.GetAvailableProductBatches()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting product batches.", http.StatusInternalServerError)
-		return
-	}
-
 	data := ctx
 	data["PageTitle"] = "Machine Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -2919,7 +2912,6 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	data["MachineStatuses"] = machineStatuses
 	data["Locations"] = locations
 	data["Slots"] = slots
-	data["ProductBatches"] = productBatches
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -2996,29 +2988,6 @@ func PostSlot(w http.ResponseWriter, r *http.Request) {
 				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 				Data: map[string]any{
 					"Message": "Failed to create slot price log.",
-				},
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-			return
-		}
-	}
-
-	if form.DateAssigned != nil && form.ProductBatchID != nil {
-		assignment := types.ProductSlotAssignmentForm{
-			SlotID:         &slotId,
-			ProductBatchID: form.ProductBatchID,
-			DateAssigned:   form.DateAssigned,
-		}
-
-		err = database.CreateProductSlotAssignment(assignment)
-		if err != nil {
-			fmt.Printf("Error creating product slot assignment: %+v\n", err)
-			tmplCtx := types.DynamicPartialTemplate{
-				TemplateName: "error",
-				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-				Data: map[string]any{
-					"Message": "Failed to create product slot assignment.",
 				},
 			}
 			w.WriteHeader(http.StatusInternalServerError)
@@ -3144,7 +3113,14 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	availableProductBatches, err := database.GetAvailableProductBatches()
+	products, err := database.GetProducts()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting available product batches from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	suppliers, err := database.GetSuppliers()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting available product batches from DB.", http.StatusInternalServerError)
@@ -3164,7 +3140,8 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["CSRFToken"] = csrfToken
 	data["Slot"] = slotDetails
 	data["ProductSlotAssignments"] = productSlotAssignments
-	data["AvailableProductBatches"] = availableProductBatches
+	data["Suppliers"] = suppliers
+	data["Products"] = products
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

@@ -15,6 +15,22 @@
                     class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Date Assigned
                 </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Supplier
+                </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Cost / Unit
+                </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Quantity
+                </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Expiration Date
+                </th>
             </tr>
         </thead>
 
@@ -29,6 +45,18 @@
                 </td>
                 <td class="p-3 text-center">
                     <p class="font-medium">{{ .DateAssigned }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .Supplier }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">${{ .UnitCost }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .Quantity }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .ExpirationDate }}</p>
                 </td>
             </tr>
             {{ end }}
