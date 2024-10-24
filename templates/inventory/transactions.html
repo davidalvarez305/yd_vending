@@ -8,10 +8,10 @@
             </button>
             <select id="transaction_type" name="transaction_type"
                 class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
-                <option value="">Transaction Type</option>
+                <option value="">Transaction</option>
                 {{ range .TransactionTypes }}
-                <option value="{{ .TransactionType }}">
-                    {{ .TransactionType }}
+                <option value="{{ . }}">
+                    {{ . }}
                 </option>
                 {{ end }}
             </select>
@@ -42,12 +42,16 @@
                 </option>
                 {{ end }}
             </select>
-            <label for="date_from" class="font-medium">Date From</label>
-            <input type="date" id="date_from" name="date_from"
-                class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
-            <label for="date_to" class="font-medium">Date To</label>
-            <input type="date" id="date_to" name="date_to"
-                class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+            <div>
+                <label for="date_from" class="font-medium">Date From</label>
+                <input type="date" id="date_from" name="date_from"
+                    class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+            </div>
+            <div>
+                <label for="date_to" class="font-medium">Date To</label>
+                <input type="date" id="date_to" name="date_to"
+                    class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+            </div>
         </form>
         <button id="clearButton" type="button"
             class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">

@@ -3964,7 +3964,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 	}
 
 	rows, err := DB.Query(`
-		SELECT t.transaction_log_id, t.transaction_timestamp, CONCAT(m.year, ' ', m.model, ' ', m.make) AS machine, l.name AS location,
+		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.year, ' ', m.model, ' ', m.make) AS machine, l.name AS location,
 				s.machine_code, p.name,
 		       t.transaction_type, t.card_number, t.num_transactions, t.items
 		FROM seed_transaction AS t
@@ -3973,15 +3973,16 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 		JOIN location AS l ON loc_assignment.location_id = l.location_id AND (l.location_id = $1 OR $1 IS NULL)
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id AND (m.machine_id = $2 OR $2 IS NULL)
 		JOIN slot AS s ON s.machine_id = m.machine_id AND (s.machine_id = $2 OR $2 IS NULL)
-		JOIN (
-			SELECT psa.slot_id, psa.product_id, psa.date_assigned
+		JOIN LATERAL (
+			SELECT psa.slot_id, psa.product_batch_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
-			WHERE psa.date_assigned >= t.transaction_timestamp
+			WHERE psa.slot_id = s.slot_id 
+			  AND psa.date_assigned >= t.transaction_timestamp
 			ORDER BY psa.date_assigned
 			LIMIT 1
-		) AS slot_assignment
-			ON slot_assignment.slot_id = s.slot_id
-		JOIN product AS p ON p.product_id = slot_assignment.product_id AND (p.product_id = $3 OR $3 IS NULL)
+		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
+		JOIN product_batch AS pb ON pb.product_batch_id = slot_assignment.product_batch_id
+		JOIN product AS p ON p.product_id = pb.product_id AND (p.product_id = $3 OR $3 IS NULL)
 		WHERE t.transaction_timestamp >= $5 AND t.transaction_timestamp <= $6 AND (t.transaction_type = $4 OR $4 IS NULL)
 		OFFSET $7
 		LIMIT $8 

@@ -764,7 +764,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	transactions, totalRows, err := database.GetTransactionList(params)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting products from DB.", http.StatusInternalServerError)
+		http.Error(w, "Error getting transactions from DB.", http.StatusInternalServerError)
 		return
 	}
 
