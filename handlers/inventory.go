@@ -145,10 +145,10 @@ func GetProducts(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	pageNum := 1
-	hasPageNum := r.URL.Query().Has("pageNum")
+	hasPageNum := r.URL.Query().Has("page_num")
 
 	if hasPageNum {
-		num, err := strconv.Atoi(r.URL.Query().Get("pageNum"))
+		num, err := strconv.Atoi(r.URL.Query().Get("page_num"))
 		if err == nil && num > 1 {
 			pageNum = num
 		}
@@ -743,10 +743,10 @@ func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	}
 
 	pageNum := 1
-	hasPageNum := r.URL.Query().Has("pageNum")
+	hasPageNum := r.URL.Query().Has("page_num")
 
 	if hasPageNum {
-		num, err := strconv.Atoi(r.URL.Query().Get("pageNum"))
+		num, err := strconv.Atoi(r.URL.Query().Get("page_num"))
 		if err == nil && num > 1 {
 			pageNum = num
 		}
