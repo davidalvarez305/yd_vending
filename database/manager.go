@@ -3277,8 +3277,8 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 			return productSlotAssignments, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		assignment.DateAssigned = dateAssigned.Unix()
-		assignment.ExpirationDate = expirationDate.Unix()
+		assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Unix())
+		assignment.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
 
 		productSlotAssignments = append(productSlotAssignments, assignment)
 	}
@@ -3923,4 +3923,46 @@ func CreateSeedTransaction(transaction types.SeedLiveTransaction) error {
 	}
 
 	return nil
+}
+
+func GetProductSlotAssignmentDetails(productSlotAssignemtnId string) (types.ProductSlotAssignment, error) {
+	query := `SELECT 
+		psa.product_slot_assignment_id,
+		psa.slot_id,
+		psa.date_assigned,
+		psa.product_id,
+		psa.supplier_id,
+		psa.unit_cost,
+		psa.quantity,
+		psa.expiration_date
+	FROM product_slot_assignment AS psa WHERE psa.product_slot_assignment_id = $1`
+
+	var productSlotAssignment types.ProductSlotAssignment
+
+	row := DB.QueryRow(query, productSlotAssignemtnId)
+
+	var dateAssigned, expirationDate time.Time
+
+	err := row.Scan(
+		&productSlotAssignment.ProductSlotAssignmentID,
+		&productSlotAssignment.Slot,
+		&dateAssigned,
+		&productSlotAssignment.ProductID,
+		&productSlotAssignment.SupplierID,
+		&productSlotAssignment.UnitCost,
+		&productSlotAssignment.Quantity,
+		&expirationDate,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return productSlotAssignment, fmt.Errorf("no product slot assignment found with ID %s", productSlotAssignemtnId)
+		}
+		return productSlotAssignment, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	productSlotAssignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Unix())
+	productSlotAssignment.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
+
+	return productSlotAssignment, nil
 }

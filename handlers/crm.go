@@ -104,6 +104,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/product-slot-assignment/") {
+			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
+				GetProductSlotAssignmentDetail(w, r, ctx)
+				return
+			}
+		}
 
 		switch path {
 		case "/crm/dashboard":
@@ -148,6 +154,11 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if len(path) > len("/crm/product-slot-assignment/") && helpers.IsNumeric(path[len("/crm/product-slot-assignment/"):]) {
+			PutProductSlotAssignment(w, r)
+			return
+		}
+
 		if strings.HasPrefix(path, "/crm/business/") {
 			if len(path) > len("/crm/business/") && helpers.IsNumeric(path[len("/crm/business/"):]) {
 				PutBusiness(w, r)
@@ -157,10 +168,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(path, "/crm/machine/") {
 			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
 				PutMachine(w, r)
-				return
-			}
-			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) && strings.Contains(path, "/assignment") {
-				PutProductSlotAssignment(w, r)
 				return
 			}
 			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
@@ -194,10 +201,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostLeadNotes(w, r)
 			return
 		}
-		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/slot") && strings.Contains(path, "/assignment") {
-			PostProductSlotAssignment(w, r)
-			return
-		}
 		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/slot") && strings.Contains(path, "/refill") {
 			PostRefill(w, r)
 			return
@@ -226,6 +229,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostSupplier(w, r)
 		case "/crm/upload-images":
 			PostImagesUpload(w, r)
+		case "/crm/product-slot-assignment":
+			PostProductSlotAssignment(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -248,10 +253,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				DeleteMachine(w, r)
 				return
 			}
-			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) && strings.Contains(path, "/assignment") {
-				DeleteProductSlotAssigment(w, r)
-				return
-			}
 			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				DeleteSlot(w, r)
 				return
@@ -268,6 +269,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				DeleteVendor(w, r)
 				return
 			}
+		}
+		if len(path) > len("/crm/product-slot-assignment/") && helpers.IsNumeric(path[len("/crm/product-slot-assignment/"):]) {
+			DeleteProductSlotAssigment(w, r)
+			return
 		}
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -3293,12 +3298,6 @@ func PostProductSlotAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slotId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	err = database.CreateProductSlotAssignment(form)
 	if err != nil {
 		fmt.Printf("Error creating product slot assignment: %+v\n", err)
@@ -3314,7 +3313,22 @@ func PostProductSlotAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productSlotAssignments, err := database.GetProductSlotAssignments(fmt.Sprint(slotId))
+	slotId := utils.CreateNullInt(form.SlotID)
+	if !slotId.Valid {
+		fmt.Printf("Invalid slot id: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid slot id.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	productSlotAssignments, err := database.GetProductSlotAssignments(fmt.Sprint(slotId.Int64))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -3401,13 +3415,14 @@ func PutProductSlotAssignment(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteProductSlotAssigment(w http.ResponseWriter, r *http.Request) {
-	slotId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	slotId := r.URL.Query().Get("slotId")
+
+	if len(slotId) == 0 {
+		http.Error(w, "Missing slotId querystring.", http.StatusBadRequest)
 		return
 	}
 
-	productSlotAssignmentId, err := helpers.GetThirdIDFromPath(r, "/crm/machine/")
+	productSlotAssignmentId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/product-slot-assignment/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -3428,7 +3443,7 @@ func DeleteProductSlotAssigment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productSlotAssignments, err := database.GetProductSlotAssignments(fmt.Sprint(slotId))
+	productSlotAssignments, err := database.GetProductSlotAssignments(slotId)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -3634,4 +3649,55 @@ func PostRefillAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetProductSlotAssignmentDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "product_slot_assignment_detail.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	productSlotAssignmentId := strings.TrimPrefix(r.URL.Path, "/crm/product-slot-assignment/")
+
+	productSlotAssignmentDetails, err := database.GetProductSlotAssignmentDetails(productSlotAssignmentId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vendor details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	suppliers, err := database.GetSuppliers()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting suppliers.", http.StatusInternalServerError)
+		return
+	}
+
+	products, err := database.GetProducts()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting products.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Product Slot Assignment Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["ProductSlotAssignment"] = productSlotAssignmentDetails
+	data["Products"] = products
+	data["Suppliers"] = suppliers
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
 }

@@ -643,12 +643,12 @@ type SlotForm struct {
 type ProductSlotAssignment struct {
 	ProductSlotAssignmentID int64   `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
 	Slot                    string  `json:"slot" form:"slot" schema:"slot"`
-	DateAssigned            int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	DateAssigned            string  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 	ProductID               int     `json:"product_id" form:"product_id" schema:"product_id"`
 	SupplierID              int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
 	UnitCost                float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
 	Quantity                int     `json:"quantity" form:"quantity" schema:"quantity"`
-	ExpirationDate          int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	ExpirationDate          string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
 }
 
 type ProductSlotAssignmentForm struct {

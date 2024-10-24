@@ -134,7 +134,7 @@
             if (value) body.append(key, value);
         }
 
-        fetch("/crm/machine/{{ .Slot.MachineID }}/slot/{{ .Slot.SlotID }}/assignment", {
+        fetch("/crm/product-slot-assignment", {
             method: "POST",
             credentials: "include",
             body: body,
