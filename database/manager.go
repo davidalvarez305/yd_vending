@@ -3244,7 +3244,7 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 		psa.date_assigned,
 		psa.product_id,
 		psa.supplier_id,
-		psa.unit_cost,
+		psa.unit_cost::NUMERIC,
 		psa.quantity,
 		psa.expiration_date
 	FROM product_slot_assignment AS psa
@@ -3261,24 +3261,50 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 
 	for rows.Next() {
 		var assignment types.ProductSlotAssignment
-		var dateAssigned, expirationDate time.Time
+		var dateAssigned sql.NullTime
+		var expirationDate sql.NullTime
+		var productID sql.NullInt32
+		var supplierID sql.NullInt32
+		var unitCost sql.NullFloat64
+		var quantity sql.NullInt32
 
 		err := rows.Scan(
 			&assignment.ProductSlotAssignmentID,
 			&assignment.Slot,
 			&dateAssigned,
-			&assignment.ProductID,
-			&assignment.SupplierID,
-			&assignment.UnitCost,
-			&assignment.Quantity,
+			&productID,
+			&supplierID,
+			&unitCost,
+			&quantity,
 			&expirationDate,
 		)
 		if err != nil {
 			return productSlotAssignments, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Unix())
-		assignment.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
+		if dateAssigned.Valid {
+			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+		}
+
+		if productID.Valid {
+			assignment.ProductID = int(productID.Int32)
+		}
+
+		if supplierID.Valid {
+			assignment.SupplierID = int(supplierID.Int32)
+		}
+
+		if unitCost.Valid {
+			assignment.UnitCost = unitCost.Float64
+		}
+
+		if quantity.Valid {
+			assignment.Quantity = int(quantity.Int32)
+		}
+
+		if expirationDate.Valid {
+			assignment.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Time.Unix())
+		}
 
 		productSlotAssignments = append(productSlotAssignments, assignment)
 	}
@@ -3296,27 +3322,33 @@ func CreateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 			slot_id,
 			product_id,
 			date_assigned,
-			product_id,
 			supplier_id,
 			expiration_date,
 			unit_cost,
 			quantity
-		) VALUES ($1, $2, to_timestamp($3), $4, $5, to_timestamp($6), $7, $8)
+		) VALUES ($1, $2, to_timestamp($3), $4, to_timestamp($5), $6, $7)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
+	slotID := utils.CreateNullInt(form.SlotID)
+	productID := utils.CreateNullInt(form.ProductID)
+	dateAssigned := utils.CreateNullInt64(form.DateAssigned)
+	supplierID := utils.CreateNullInt(form.SupplierID)
+	expirationDate := utils.CreateNullInt64(form.ExpirationDate)
+	unitCost := utils.CreateNullFloat64(form.UnitCost)
+	quantity := utils.CreateNullInt(form.Quantity)
+
 	_, err = stmt.Exec(
-		form.SlotID,
-		form.ProductID,
-		form.DateAssigned,
-		form.ProductID,
-		form.SupplierID,
-		form.ExpirationDate,
-		form.UnitCost,
-		form.Quantity,
+		slotID,
+		productID,
+		dateAssigned,
+		supplierID,
+		expirationDate,
+		unitCost,
+		quantity,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3925,44 +3957,70 @@ func CreateSeedTransaction(transaction types.SeedLiveTransaction) error {
 	return nil
 }
 
-func GetProductSlotAssignmentDetails(productSlotAssignemtnId string) (types.ProductSlotAssignment, error) {
+func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.ProductSlotAssignment, error) {
 	query := `SELECT 
 		psa.product_slot_assignment_id,
 		psa.slot_id,
 		psa.date_assigned,
 		psa.product_id,
 		psa.supplier_id,
-		psa.unit_cost,
+		psa.unit_cost::NUMERIC,
 		psa.quantity,
 		psa.expiration_date
 	FROM product_slot_assignment AS psa WHERE psa.product_slot_assignment_id = $1`
 
 	var productSlotAssignment types.ProductSlotAssignment
 
-	row := DB.QueryRow(query, productSlotAssignemtnId)
+	row := DB.QueryRow(query, productSlotAssignmentId)
 
-	var dateAssigned, expirationDate time.Time
+	var dateAssigned sql.NullTime
+	var expirationDate sql.NullTime
+	var productID sql.NullInt32
+	var supplierID sql.NullInt32
+	var unitCost sql.NullFloat64
+	var quantity sql.NullInt32
 
 	err := row.Scan(
 		&productSlotAssignment.ProductSlotAssignmentID,
 		&productSlotAssignment.Slot,
 		&dateAssigned,
-		&productSlotAssignment.ProductID,
-		&productSlotAssignment.SupplierID,
-		&productSlotAssignment.UnitCost,
-		&productSlotAssignment.Quantity,
+		&productID,
+		&supplierID,
+		&unitCost,
+		&quantity,
 		&expirationDate,
 	)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return productSlotAssignment, fmt.Errorf("no product slot assignment found with ID %s", productSlotAssignemtnId)
+			return productSlotAssignment, fmt.Errorf("no product slot assignment found with ID %s", productSlotAssignmentId)
 		}
 		return productSlotAssignment, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	productSlotAssignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Unix())
-	productSlotAssignment.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Unix())
+	if dateAssigned.Valid {
+		productSlotAssignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+	}
+
+	if productID.Valid {
+		productSlotAssignment.ProductID = int(productID.Int32)
+	}
+
+	if supplierID.Valid {
+		productSlotAssignment.SupplierID = int(supplierID.Int32)
+	}
+
+	if unitCost.Valid {
+		productSlotAssignment.UnitCost = unitCost.Float64
+	}
+
+	if quantity.Valid {
+		productSlotAssignment.Quantity = int(quantity.Int32)
+	}
+
+	if expirationDate.Valid {
+		productSlotAssignment.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Time.Unix())
+	}
 
 	return productSlotAssignment, nil
 }
