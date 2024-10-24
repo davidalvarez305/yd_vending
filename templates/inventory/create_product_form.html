@@ -283,6 +283,8 @@
         const alertModal = document.getElementById("alertModal");
 
         for (const [key, value] of data.entries()) {
+            if (key === "upload_barcode") continue;
+
             if (value) body.append(key, value);
         }
 
