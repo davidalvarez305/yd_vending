@@ -105,7 +105,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if strings.HasPrefix(path, "/crm/product-slot-assignment/") {
-			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
+			if len(path) > len("/crm/product-slot-assignment/") && helpers.IsNumeric(path[len("/crm/product-slot-assignment/"):]) {
 				GetProductSlotAssignmentDetail(w, r, ctx)
 				return
 			}
