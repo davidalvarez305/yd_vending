@@ -63,9 +63,6 @@
 {{ template "transactions_table.html" . }}
 
 <script nonce="{{ .Nonce }}">
-    const defaultDateFrom = new Date().setDate(defaultDateFrom.getDate() - 30);
-    const defaultDateTo = new Date();
-
     const params = new URLSearchParams(window.location.search);
     const form = document.getElementById("filters");
     const clear = document.getElementById("clearButton");
@@ -87,6 +84,7 @@
                 continue;
             }
 
+            console.log(value);
             if (value) params.set(key, value);
         }
 
