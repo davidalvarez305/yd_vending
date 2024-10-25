@@ -83,6 +83,18 @@
         });
     </script>
     <!-- END Product Slot Assignments -->
+
+     <!-- Divider: With Heading -->
+    <h3 class="my-8 flex items-center">
+        <span aria-hidden="true" class="h-0.5 grow rounded bg-gray-200 dark:bg-gray-700/75"></span>
+        <span class="mx-3 text-lg font-medium">Price Logs</span>
+        <span aria-hidden="true" class="h-0.5 grow rounded bg-gray-200 dark:bg-gray-700/75"></span>
+    </h3>
+    <!-- END Divider: With Heading -->
+
+    <!-- Price Change Logs -->
+    {{ template "price_change_logs_table.html" . }}
+    <!-- END Price Change Logs -->
 </div>
 
 <div id="alertModal"></div>

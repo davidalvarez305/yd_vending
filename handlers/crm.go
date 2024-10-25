@@ -274,6 +274,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			DeleteProductSlotAssigment(w, r)
 			return
 		}
+		if len(path) > len("/crm/price-change-log/") && helpers.IsNumeric(path[len("/crm/price-change-log/"):]) {
+			DeletePriceChangeLog(w, r)
+			return
+		}
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
@@ -3084,7 +3088,8 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "slot_detail.html"
 	productSlotAssignmentTables := "product_slot_assignments_table.html"
 	createProductSlotAssignmentForm := "create_product_slot_assignments_form.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables, constants.CRM_TEMPLATES_DIR + createProductSlotAssignmentForm}
+	productPriceChangeLogsTable := "price_change_logs_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables, constants.CRM_TEMPLATES_DIR + createProductSlotAssignmentForm, constants.PARTIAL_TEMPLATES_DIR + productPriceChangeLogsTable}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -3139,6 +3144,13 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
+	priceChangeLogs, err := database.GetSlotPriceLogs(fmt.Sprint(slotId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting price change logs.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Slot Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -3147,6 +3159,7 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["ProductSlotAssignments"] = productSlotAssignments
 	data["Suppliers"] = suppliers
 	data["Products"] = products
+	data["PriceChangeLogs"] = priceChangeLogs
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

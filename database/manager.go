@@ -4092,3 +4092,58 @@ func DeleteTransactionInvalidation(transactionId string) error {
 
 	return nil
 }
+
+func GetSlotPriceLogs(slotId string) ([]types.SlotPriceLogList, error) {
+	var logs []types.SlotPriceLogList
+
+	rows, err := DB.Query(`
+		SELECT log.slot_price_log_id, m.machine_id, log.slot_id, log.price::NUMERIC, log.date_assigned
+		FROM "slot_price_log" AS log
+		JOIN slot AS s ON s.slot_id = log.slot_id
+		JOIN machine AS m ON s.machine_id = m.machine_id
+		WHERE log.slot_id = $1
+	`, slotId)
+	if err != nil {
+		return logs, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var log types.SlotPriceLogList
+
+		var dateAssigned time.Time
+
+		err := rows.Scan(
+			&log.SlotPriceLogID,
+			&log.MachineID,
+			&log.SlotPriceLogID,
+			&log.Price,
+			&dateAssigned,
+		)
+		if err != nil {
+			return logs, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		log.DateAssigned = utils.FormatTimestamp(dateAssigned.Unix())
+
+		logs = append(logs, log)
+	}
+
+	if err := rows.Err(); err != nil {
+		return logs, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return logs, nil
+}
+
+func DeletePriceSlotLog(logId string) error {
+	sqlStatement := `
+        DELETE FROM price_slot_log WHERE price_slot_log_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, logId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

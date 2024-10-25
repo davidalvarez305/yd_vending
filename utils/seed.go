@@ -34,6 +34,7 @@ func ConvertSeedTransactionTimestamp(day string, hourOfDay string) (int64, error
 		return 0, fmt.Errorf("error parsing hour: %w", err)
 	}
 
+	// EST must be used because that's how Seed is reporting transactions
 	location, err := time.LoadLocation("America/New_York")
 	if err != nil {
 		return 0, fmt.Errorf("invalid time zone: %w", err)
