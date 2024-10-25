@@ -42,6 +42,13 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
+		if strings.HasPrefix(path, "/inventory/transaction/") {
+			if len(path) > len("/inventory/transaction/") && helpers.IsNumeric(path[len("/inventory/transaction/"):]) {
+				PostInvalidateTransaction(w, r)
+				return
+			}
+		}
+
 		switch path {
 		case "/inventory/product":
 			PostProduct(w, r)
@@ -482,4 +489,82 @@ func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	helpers.ServeContent(w, files, data)
+}
+
+func PostInvalidateTransaction(w http.ResponseWriter, r *http.Request) {
+	transactionId, err := helpers.GetFirstIDAfterPrefix(r, "/inventory/transaction")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "No transaction id found in URL path.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateTransactionInvalidation(fmt.Sprint(transactionId))
+	if err != nil {
+		fmt.Printf("Error creating product: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to invalidate transaction.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("page_num")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("page_num"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	var params types.GetTransactionsParams
+	params.TransactionType = helpers.SafeStringToPointer(r.URL.Query().Get("transaction_type"))
+	params.Machine = helpers.SafeStringToPointer(r.URL.Query().Get("machine"))
+	params.Location = helpers.SafeStringToPointer(r.URL.Query().Get("location"))
+	params.Product = helpers.SafeStringToPointer(r.URL.Query().Get("product"))
+	params.PageNum = helpers.SafeStringToPointer(r.URL.Query().Get("page_num"))
+	params.DateFrom = helpers.SafeStringToInt64Pointer(r.URL.Query().Get("date_from"))
+	params.DateTo = helpers.SafeStringToInt64Pointer(r.URL.Query().Get("date_to"))
+
+	transactions, totalRows, err := database.GetTransactionList(params)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting transactions from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "transactions_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "transactions_table.html",
+		Data: map[string]any{
+			"Transactions": transactions,
+			"CurrentPage":  pageNum,
+			"MaxPages":     helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

@@ -4055,3 +4055,26 @@ func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.Prod
 
 	return productSlotAssignment, nil
 }
+
+func CreateTransactionInvalidation(transactionId string) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO transaction_validation (
+			transaction_id,
+			is_validated
+		) VALUES ($1, $2)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		transactionId,
+		true,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}

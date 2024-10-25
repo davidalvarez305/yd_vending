@@ -134,7 +134,6 @@
 	form.addEventListener("submit", e => {
 		e.preventDefault();
 
-		console.log(e.target);
 		const formData = new FormData(e.target);
 		for (const [key, value] of formData.entries()) {
 

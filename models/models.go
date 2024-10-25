@@ -363,3 +363,9 @@ type SeedTransaction struct {
 	NumTransactions      int    `json:"num_transactions" db:"num_transactions" form:"num_transactions" schema:"num_transactions"`
 	Items                int    `json:"items" db:"items" form:"items" schema:"items"`
 }
+
+type TransactionValidation struct {
+	TransactionValidationID int64 `json:"transaction_validation_id" db:"transaction_validation_id"`
+	TransactionID           int64 `json:"transaction_id" db:"transaction_id" form:"transaction_id" schema:"transaction_id"`
+	IsValidated             bool  `json:"is_validated" db:"is_validated" form:"is_validated" schema:"is_validated"`
+}
