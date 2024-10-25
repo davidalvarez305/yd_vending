@@ -75,7 +75,7 @@
         const data = new FormData(e.target);
         for (const [key, value] of data.entries()) {
 
-            if (key.includes("date_")) {
+            if (key.includes("date_") && value) {
                 const date = data.get(key);
 		        const timestamp = new Date(date).getTime() / 1000;
 
@@ -83,8 +83,6 @@
 
                 continue;
             }
-
-            console.log(value);
             if (value) params.set(key, value);
         }
 
