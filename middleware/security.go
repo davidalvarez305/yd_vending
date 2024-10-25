@@ -116,7 +116,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			expirationTime := time.Now().Add(time.Duration(constants.TokenExpiryLength) * time.Second)
+			expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * 24 * time.Hour)
 
 			encryptedToken, err := csrf.EncryptToken(expirationTime.Unix(), decodedSecret)
 			if err != nil {

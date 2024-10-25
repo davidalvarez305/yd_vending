@@ -34,7 +34,12 @@ func ConvertSeedTransactionTimestamp(day string, hourOfDay string) (int64, error
 		return 0, fmt.Errorf("error parsing hour: %w", err)
 	}
 
-	date := time.Date(year, time.Month(month), dayOfMonth, hour, minute, 0, 0, time.UTC)
+	location, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		return 0, fmt.Errorf("invalid time zone: %w", err)
+	}
+
+	date := time.Date(year, time.Month(month), dayOfMonth, hour, minute, 0, 0, location)
 
 	if date.IsZero() {
 		return 0, errors.New("invalid date")

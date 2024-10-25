@@ -56,7 +56,7 @@ func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
 		return session, err
 	}
 
-	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * time.Second)
+	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * 24 * time.Hour)
 
 	session = models.Session{
 		CSRFSecret:  secret,
