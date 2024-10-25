@@ -274,8 +274,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			DeleteProductSlotAssigment(w, r)
 			return
 		}
-		if len(path) > len("/crm/price-change-log/") && helpers.IsNumeric(path[len("/crm/price-change-log/"):]) {
-			DeletePriceChangeLog(w, r)
+		if len(path) > len("/crm/slot-price-log/") && helpers.IsNumeric(path[len("/crm/slot-price-log/"):]) {
+			DeleteSlotPriceLog(w, r)
 			return
 		}
 	default:
@@ -3088,8 +3088,8 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "slot_detail.html"
 	productSlotAssignmentTables := "product_slot_assignments_table.html"
 	createProductSlotAssignmentForm := "create_product_slot_assignments_form.html"
-	productPriceChangeLogsTable := "price_change_logs_table.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables, constants.CRM_TEMPLATES_DIR + createProductSlotAssignmentForm, constants.PARTIAL_TEMPLATES_DIR + productPriceChangeLogsTable}
+	productPriceSlotLogsTable := "price_slot_logs_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables, constants.CRM_TEMPLATES_DIR + createProductSlotAssignmentForm, constants.PARTIAL_TEMPLATES_DIR + productPriceSlotLogsTable}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -3144,7 +3144,7 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	priceChangeLogs, err := database.GetSlotPriceLogs(fmt.Sprint(slotId))
+	priceSlotLogs, err := database.GetSlotPriceLogs(fmt.Sprint(slotId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting price change logs.", http.StatusInternalServerError)
@@ -3159,7 +3159,7 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["ProductSlotAssignments"] = productSlotAssignments
 	data["Suppliers"] = suppliers
 	data["Products"] = products
-	data["PriceChangeLogs"] = priceChangeLogs
+	data["PriceSlotLogs"] = priceSlotLogs
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -3713,4 +3713,59 @@ func GetProductSlotAssignmentDetail(w http.ResponseWriter, r *http.Request, ctx 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	helpers.ServeContent(w, files, data)
+}
+
+func DeleteSlotPriceLog(w http.ResponseWriter, r *http.Request) {
+	slotId := r.URL.Query().Get("slotId")
+
+	if len(slotId) == 0 {
+		http.Error(w, "Missing slotId querystring.", http.StatusBadRequest)
+		return
+	}
+
+	priceSlotId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/slot-price-log/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeletePriceSlotLog(fmt.Sprint(priceSlotId))
+	if err != nil {
+		fmt.Printf("Error deleting slot price log: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete slot price log.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	priceSlotLogs, err := database.GetSlotPriceLogs(slotId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting slot price logs from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "price_slot_logs_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "price_slot_logs_table.html",
+		Data: map[string]any{
+			"PriceSlotLogs": priceSlotLogs,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

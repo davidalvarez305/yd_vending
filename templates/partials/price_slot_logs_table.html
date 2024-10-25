@@ -1,5 +1,5 @@
 {{ define "price_change_logs_table.html" }}
-<div id="priceChangeLogsTable"
+<div id="priceSlotLogsTable"
     class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
     <table class="min-w-full whitespace-nowrap align-middle text-sm">
         <thead>
@@ -20,7 +20,7 @@
         </thead>
 
         <tbody>
-            {{ range .PriceChangeLogs }}
+            {{ range .PriceSlotLogs }}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                 <td class="p-3 text-center">
                     <p class="font-medium">${{ .Price }}</p>
@@ -84,7 +84,7 @@
     });
 
     function handleDeletePriceChangeLog(priceChangeLogId) {
-        fetch(`/crm/machine/{{ .Slot.MachineID }}/slot/{{ .Slot.SlotID }}/price-log/${priceChangeLogId}`, {
+        fetch(`/crm/slot-price-log/${priceChangeLogId}`, {
             method: "DELETE",
             credentials: "include",
         })
@@ -103,7 +103,7 @@
                 }
             })
             .then(html => {
-                const table = document.getElementById('priceChangeLogsTable');
+                const table = document.getElementById('priceSlotLogsTable');
                 table.outerHTML = html;
                 handleBindPagination();
             })
