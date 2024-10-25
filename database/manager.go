@@ -3811,8 +3811,18 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 		return transactions, totalRows, fmt.Errorf("failed to load location: %w", err)
 	}
 
-	defaultDateTo := time.Now().In(location)
-	defaultDateFrom := defaultDateTo.AddDate(0, 0, -30)
+	dateTo := time.Now().In(location)
+	dateFrom := dateTo.AddDate(0, 0, -30)
+
+	paramsDateFrom := utils.CreateNullInt64(params.DateFrom)
+	paramsDateTo := utils.CreateNullInt64(params.DateTo)
+
+	if paramsDateFrom.Valid {
+		dateFrom = time.Unix(paramsDateFrom.Int64, 0).UTC()
+	}
+	if paramsDateTo.Valid {
+		dateTo = time.Unix(paramsDateTo.Int64, 0).UTC()
+	}
 
 	rows, err := DB.Query(`
 		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.model, ' ', m.make) AS machine, l.name AS location,
@@ -3835,9 +3845,10 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id AND (p.product_id = $3 OR $3 IS NULL)
 		WHERE t.transaction_timestamp >= $5 AND t.transaction_timestamp <= $6 AND (t.transaction_type = $4 OR $4 IS NULL)
+		ORDER BY t.transaction_timestamp ASC
 		OFFSET $7
 		LIMIT $8 
-	`, params.Location, params.Machine, params.Product, params.TransactionType, defaultDateFrom, defaultDateTo, offset, constants.LeadsPerPage)
+	`, params.Location, params.Machine, params.Product, params.TransactionType, dateFrom, dateTo, offset, constants.LeadsPerPage)
 	if err != nil {
 		return transactions, totalRows, fmt.Errorf("error executing query: %w", err)
 	}
