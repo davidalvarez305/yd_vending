@@ -2690,9 +2690,10 @@ func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 		m.purchase_date
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
-	LEFT JOIN latest_location AS location_assignment ON location_assignment.machine_id = m.machine_id AND (location_assignment.location_id = $1 OR $1 IS NULL) AND location_assignment.rn = 1
-	LEFT JOIN location AS l ON l.location_id = location_assignment.location_id AND (l.location_id = $1 OR $1 IS NULL)
+	JOIN latest_location AS location_assignment ON location_assignment.machine_id = m.machine_id AND location_assignment.location_id = $1 AND location_assignment.rn = 1
+	JOIN location AS l ON l.location_id = location_assignment.location_id AND l.location_id = $1
 	LEFT JOIN latest_card_reader AS card_reader ON card_reader.machine_id = m.machine_id AND card_reader.rn = 1
+	WHERE latest_location.location_id = $1
 	ORDER BY m.purchase_date DESC;`, locationId)
 	if err != nil {
 		return machines, fmt.Errorf("error executing query: %w", err)
