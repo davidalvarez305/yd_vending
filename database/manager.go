@@ -4078,3 +4078,15 @@ func CreateTransactionInvalidation(transactionId string) error {
 
 	return nil
 }
+
+func DeleteTransactionInvalidation(transactionId string) error {
+	sqlStatement := `
+        DELETE FROM transaction_validation WHERE transaction_validation_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, transactionId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
