@@ -701,4 +701,5 @@ type TransactionList struct {
 	CardNumber           string `json:"card_number" db:"card_number" form:"card_number" schema:"card_number"`
 	NumTransactions      int    `json:"num_transactions" db:"num_transactions" form:"num_transactions" schema:"num_transactions"`
 	Items                int    `json:"items" db:"items" form:"items" schema:"items"`
+	IsInvalidated        bool   `json:"is_invalidated" db:"is_invalidated" form:"is_invalidated" schema:"is_invalidated"`
 }

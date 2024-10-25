@@ -3827,9 +3827,10 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 	rows, err := DB.Query(`
 		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.model, ' ', m.make) AS machine, l.name AS location,
 				s.machine_code, p.name,
-		       t.transaction_type, t.card_number, t.num_transactions, t.items,
+		       t.transaction_type, t.card_number, t.num_transactions, t.items, COALESCE(i.is_validated, false),
 			   COUNT(*) OVER() AS total_rows
 		FROM seed_transaction AS t
+		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
 		JOIN machine_card_reader_assignment AS card_reader ON card_reader.card_reader_serial_number = t.device
 		JOIN machine_location_assignment AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND (loc_assignment.machine_id = $2 OR $2 IS NULL)
 		JOIN location AS l ON loc_assignment.location_id = l.location_id AND (l.location_id = $1 OR $1 IS NULL)
@@ -3870,6 +3871,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			&transaction.CardNumber,
 			&transaction.NumTransactions,
 			&transaction.Items,
+			&transaction.IsInvalidated,
 			&totalRows,
 		)
 		if err != nil {
