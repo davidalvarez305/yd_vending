@@ -3069,7 +3069,7 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	LEFT JOIN refill AS r ON r.slot_id = s.slot_id
 	WHERE s.machine_id = $1
 	GROUP BY s.slot_id, s.slot, s.machine_id, s.machine_code, s.price, s.capacity, r.refill_id
-	ORDER BY s.slot ASC;
+	ORDER BY s.slot_id ASC;
 	`, machineId)
 	if err != nil {
 		return slots, fmt.Errorf("error executing query: %w", err)
@@ -3080,6 +3080,7 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 		var slot types.SlotList
 
 		var dateRefilled sql.NullTime
+		var refillId sql.NullInt64
 
 		err := rows.Scan(
 			&slot.SlotID,
@@ -3089,7 +3090,7 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 			&slot.Price,
 			&slot.Capacity,
 			&dateRefilled,
-			&slot.LastRefillID,
+			&refillId,
 		)
 		if err != nil {
 			return slots, fmt.Errorf("error scanning row: %w", err)
@@ -3097,6 +3098,9 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 
 		if dateRefilled.Valid {
 			slot.LastRefill = utils.FormatTimestamp(dateRefilled.Time.Unix())
+		}
+		if refillId.Valid {
+			slot.LastRefillID = int(refillId.Int64)
 		}
 
 		slots = append(slots, slot)
@@ -3242,13 +3246,15 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 		psa.product_slot_assignment_id,
 		s.slot,
 		psa.date_assigned,
-		psa.product_id,
-		psa.supplier_id,
+		p.name,
+		sup.name,
 		psa.unit_cost::NUMERIC,
 		psa.quantity,
 		psa.expiration_date
 	FROM product_slot_assignment AS psa
 	JOIN slot AS s ON psa.slot_id = s.slot_id
+	JOIN supplier AS sup ON psa.supplier_id = sup.supplier_id
+	JOIN product AS p ON psa.product_id = p.product_id
 	WHERE psa.slot_id = $1`
 
 	var productSlotAssignments []types.ProductSlotAssignment
@@ -3263,8 +3269,7 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 		var assignment types.ProductSlotAssignment
 		var dateAssigned sql.NullTime
 		var expirationDate sql.NullTime
-		var productID sql.NullInt32
-		var supplierID sql.NullInt32
+		var product, supplier sql.NullString
 		var unitCost sql.NullFloat64
 		var quantity sql.NullInt32
 
@@ -3272,8 +3277,8 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 			&assignment.ProductSlotAssignmentID,
 			&assignment.Slot,
 			&dateAssigned,
-			&productID,
-			&supplierID,
+			&product,
+			&supplier,
 			&unitCost,
 			&quantity,
 			&expirationDate,
@@ -3286,12 +3291,12 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
 		}
 
-		if productID.Valid {
-			assignment.ProductID = int(productID.Int32)
+		if product.Valid {
+			assignment.Product = product.String
 		}
 
-		if supplierID.Valid {
-			assignment.SupplierID = int(supplierID.Int32)
+		if supplier.Valid {
+			assignment.Supplier = supplier.String
 		}
 
 		if unitCost.Valid {
@@ -3506,6 +3511,7 @@ func CreateSlotPriceLog(form models.SlotPriceLog) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO slot_price_log (
 			slot_id,
+			price,
 			date_assigned
 		) VALUES ($1, $2, to_timestamp($3))
 	`)
@@ -3516,6 +3522,7 @@ func CreateSlotPriceLog(form models.SlotPriceLog) error {
 
 	_, err = stmt.Exec(
 		form.SlotID,
+		form.Price,
 		form.DateAssigned,
 	)
 	if err != nil {
@@ -3621,7 +3628,8 @@ func UpdateSlotPriceLog(form models.SlotPriceLog) error {
 	stmt, err := DB.Prepare(`
 		UPDATE slot_price_log
 		SET slot_id = COALESCE($2, slot_id),
-			date_assigned = COALESCE($3, date_assigned)
+			price = COALESCE($3, price),
+			date_assigned = COALESCE(to_timestamp($4), date_assigned)
 		WHERE slot_price_log_id = $1
 	`)
 	if err != nil {
@@ -3632,6 +3640,7 @@ func UpdateSlotPriceLog(form models.SlotPriceLog) error {
 	_, err = stmt.Exec(
 		form.SlotPriceLogID,
 		form.SlotID,
+		form.Price,
 		form.DateAssigned,
 	)
 	if err != nil {
@@ -3786,31 +3795,41 @@ func GetProducts() ([]models.Product, error) {
 
 func GetTransactionList(params types.GetTransactionsParams) ([]types.TransactionList, int, error) {
 	var transactions []types.TransactionList
+	var totalRows int
 
 	var offset int
 	if params.PageNum != nil {
 		pageNum, err := strconv.Atoi(*params.PageNum)
 		if err != nil {
-			return nil, 0, fmt.Errorf("could not convert page num: %w", err)
+			return nil, totalRows, fmt.Errorf("could not convert page num: %w", err)
 		}
 		offset = (pageNum - 1) * int(constants.LeadsPerPage)
 	}
 
+	location, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		return transactions, totalRows, fmt.Errorf("failed to load location: %w", err)
+	}
+
+	defaultDateTo := time.Now().In(location)
+	defaultDateFrom := defaultDateTo.AddDate(0, 0, -30)
+
 	rows, err := DB.Query(`
-		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.year, ' ', m.model, ' ', m.make) AS machine, l.name AS location,
+		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.model, ' ', m.make) AS machine, l.name AS location,
 				s.machine_code, p.name,
-		       t.transaction_type, t.card_number, t.num_transactions, t.items
+		       t.transaction_type, t.card_number, t.num_transactions, t.items,
+			   COUNT(*) OVER() AS total_rows
 		FROM seed_transaction AS t
 		JOIN machine_card_reader_assignment AS card_reader ON card_reader.card_reader_serial_number = t.device
 		JOIN machine_location_assignment AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND (loc_assignment.machine_id = $2 OR $2 IS NULL)
 		JOIN location AS l ON loc_assignment.location_id = l.location_id AND (l.location_id = $1 OR $1 IS NULL)
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id AND (m.machine_id = $2 OR $2 IS NULL)
-		JOIN slot AS s ON s.machine_id = m.machine_id AND (s.machine_id = $2 OR $2 IS NULL)
+		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item AND (s.machine_id = $2 OR $2 IS NULL)
 		JOIN LATERAL (
 			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
 			WHERE psa.slot_id = s.slot_id 
-			  AND psa.date_assigned >= t.transaction_timestamp
+			  AND psa.date_assigned <= t.transaction_timestamp
 			ORDER BY psa.date_assigned
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
@@ -3818,9 +3837,9 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 		WHERE t.transaction_timestamp >= $5 AND t.transaction_timestamp <= $6 AND (t.transaction_type = $4 OR $4 IS NULL)
 		OFFSET $7
 		LIMIT $8 
-	`, params.Location, params.Machine, params.Product, params.TransactionType, params.DateFrom, params.DateTo, offset, constants.LeadsPerPage)
+	`, params.Location, params.Machine, params.Product, params.TransactionType, defaultDateFrom, defaultDateTo, offset, constants.LeadsPerPage)
 	if err != nil {
-		return transactions, 0, fmt.Errorf("error executing query: %w", err)
+		return transactions, totalRows, fmt.Errorf("error executing query: %w", err)
 	}
 	defer rows.Close()
 
@@ -3840,21 +3859,22 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			&transaction.CardNumber,
 			&transaction.NumTransactions,
 			&transaction.Items,
+			&totalRows,
 		)
 		if err != nil {
-			return transactions, 0, fmt.Errorf("error scanning row: %w", err)
+			return transactions, totalRows, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		transaction.TransactionTimestamp = transactionTime.Unix()
+		transaction.TransactionTimestamp = utils.FormatTimestamp(transactionTime.Unix())
 
 		transactions = append(transactions, transaction)
 	}
 
 	if err := rows.Err(); err != nil {
-		return transactions, 0, fmt.Errorf("error iterating rows: %w", err)
+		return transactions, totalRows, fmt.Errorf("error iterating rows: %w", err)
 	}
 
-	return transactions, len(transactions), nil
+	return transactions, totalRows, nil
 }
 
 func GetTransactionTypes() ([]string, error) {
@@ -3957,7 +3977,7 @@ func CreateSeedTransaction(transaction types.SeedLiveTransaction) error {
 	return nil
 }
 
-func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.ProductSlotAssignment, error) {
+func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.ProductSlotAssignmentDetails, error) {
 	query := `SELECT 
 		psa.product_slot_assignment_id,
 		psa.slot_id,
@@ -3969,7 +3989,7 @@ func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.Prod
 		psa.expiration_date
 	FROM product_slot_assignment AS psa WHERE psa.product_slot_assignment_id = $1`
 
-	var productSlotAssignment types.ProductSlotAssignment
+	var productSlotAssignment types.ProductSlotAssignmentDetails
 
 	row := DB.QueryRow(query, productSlotAssignmentId)
 
@@ -3982,7 +4002,7 @@ func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.Prod
 
 	err := row.Scan(
 		&productSlotAssignment.ProductSlotAssignmentID,
-		&productSlotAssignment.Slot,
+		&productSlotAssignment.SlotID,
 		&dateAssigned,
 		&productID,
 		&supplierID,
@@ -3999,7 +4019,7 @@ func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.Prod
 	}
 
 	if dateAssigned.Valid {
-		productSlotAssignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+		productSlotAssignment.DateAssigned = dateAssigned.Time.Unix()
 	}
 
 	if productID.Valid {
@@ -4019,7 +4039,7 @@ func GetProductSlotAssignmentDetails(productSlotAssignmentId string) (types.Prod
 	}
 
 	if expirationDate.Valid {
-		productSlotAssignment.ExpirationDate = utils.FormatDateMMDDYYYY(expirationDate.Time.Unix())
+		productSlotAssignment.ExpirationDate = expirationDate.Time.Unix()
 	}
 
 	return productSlotAssignment, nil

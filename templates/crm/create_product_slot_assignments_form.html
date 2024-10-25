@@ -125,7 +125,7 @@
             }
 
             // Handle dates
-            if (key === "date_purchased" || key === "expiration_date") {
+            if (key === "date_assigned" || key === "expiration_date") {
                 const timestamp = new Date(value).getTime() / 1000;
                 body.append(key, timestamp);
                 continue;
@@ -158,7 +158,7 @@
                 table.outerHTML = html;
                 handleBindPagination();
 
-                form.reset();
+                productSlotAssignmentForm.reset();
             })
             .catch(err => {
                 alertModal.outerHTML = err;

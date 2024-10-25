@@ -644,11 +644,22 @@ type ProductSlotAssignment struct {
 	ProductSlotAssignmentID int64   `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
 	Slot                    string  `json:"slot" form:"slot" schema:"slot"`
 	DateAssigned            string  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	Product                 string  `json:"product" form:"product" schema:"product"`
+	Supplier                string  `json:"supplier" form:"supplier" schema:"supplier"`
+	UnitCost                float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
+	Quantity                int     `json:"quantity" form:"quantity" schema:"quantity"`
+	ExpirationDate          string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+}
+
+type ProductSlotAssignmentDetails struct {
+	ProductSlotAssignmentID int64   `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	SlotID                  int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	DateAssigned            int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 	ProductID               int     `json:"product_id" form:"product_id" schema:"product_id"`
 	SupplierID              int     `json:"supplier_id" form:"supplier_id" schema:"supplier_id"`
 	UnitCost                float64 `json:"unit_cost" form:"unit_cost" schema:"unit_cost"`
 	Quantity                int     `json:"quantity" form:"quantity" schema:"quantity"`
-	ExpirationDate          string  `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
+	ExpirationDate          int64   `json:"expiration_date" form:"expiration_date" schema:"expiration_date"`
 }
 
 type ProductSlotAssignmentForm struct {
@@ -685,7 +696,7 @@ type TransactionList struct {
 	Location             string `json:"location" db:"location" form:"location" schema:"location"`
 	MachineSelection     string `json:"machine_selection" db:"machine_selection" form:"machine_selection" schema:"machine_selection"`
 	Product              string `json:"product" db:"product" form:"product" schema:"product"`
-	TransactionTimestamp int64  `json:"transaction_timestamp" db:"transaction_timestamp" form:"transaction_timestamp" schema:"transaction_timestamp"`
+	TransactionTimestamp string `json:"transaction_timestamp" db:"transaction_timestamp" form:"transaction_timestamp" schema:"transaction_timestamp"`
 	TransactionType      string `json:"transaction_type" db:"transaction_type" form:"transaction_type" schema:"transaction_type"`
 	CardNumber           string `json:"card_number" db:"card_number" form:"card_number" schema:"card_number"`
 	NumTransactions      int    `json:"num_transactions" db:"num_transactions" form:"num_transactions" schema:"num_transactions"`

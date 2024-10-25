@@ -3121,14 +3121,14 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	products, err := database.GetProducts()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting available product batches from DB.", http.StatusInternalServerError)
+		http.Error(w, "Error getting products from DB.", http.StatusInternalServerError)
 		return
 	}
 
 	suppliers, err := database.GetSuppliers()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting available product batches from DB.", http.StatusInternalServerError)
+		http.Error(w, "Error getting suppliers from DB.", http.StatusInternalServerError)
 		return
 	}
 
