@@ -3928,6 +3928,11 @@ select{
   color: rgb(156 163 175 / 0.75);
 }
 
+.dark\:text-primary-600:is(.dark *){
+  --tw-text-opacity: 1;
+  color: rgb(108 23 72 / var(--tw-text-opacity));
+}
+
 .dark\:placeholder-gray-400:is(.dark *)::-moz-placeholder{
   --tw-placeholder-opacity: 1;
   color: rgb(156 163 175 / var(--tw-placeholder-opacity));
@@ -4083,6 +4088,10 @@ select{
 }
 
 @media (min-width: 640px){
+  .sm\:relative{
+    position: relative;
+  }
+
   .sm\:m-4{
     margin: 1rem;
   }
@@ -4117,6 +4126,10 @@ select{
 
   .sm\:w-36{
     width: 9rem;
+  }
+
+  .sm\:flex-none{
+    flex: none;
   }
 
   .sm\:grid-cols-2{
