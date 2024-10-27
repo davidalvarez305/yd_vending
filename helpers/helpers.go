@@ -255,3 +255,15 @@ func IsNumeric(s string) bool {
 	}
 	return true
 }
+
+func IsMobileRequest(r *http.Request) bool {
+	userAgent := r.Header.Get("User-Agent")
+	mobileKeywords := []string{"Mobile", "Android", "iPhone", "iPad", "iPod"}
+
+	for _, keyword := range mobileKeywords {
+		if strings.Contains(userAgent, keyword) {
+			return true
+		}
+	}
+	return false
+}
