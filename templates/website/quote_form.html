@@ -1,6 +1,5 @@
 {{ define "quote_form.html" }}
 <!-- Modal Container -->
-<div id="alertModal"></div>
 <div id="formModalContainer" style="display: none;">
     <div>
         <div tabindex="-1" role="dialog"
@@ -23,10 +22,10 @@
                         </button>
                     </div>
                 </div>
-                <div class="grow p-5">
+                <div class="grow px-5">
                     <div
                         class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
-                        <div class="grow p-5 md:px-16 md:py-12">
+                        <div class="grow p-5 md:px-16 md:py-6">
                             <form id="get-a-quote-form" class="space-y-6 p-2 md:p-2">
                                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                                 <input type="hidden" id="button_clicked" name="button_clicked" />
@@ -100,7 +99,5 @@
         </div>
     </div>
 </div>
-<!-- END Modals: With Form -->
-</div>
-<!-- END Modal Container -->
+<div id="alertModal"></div>
 {{ end }}

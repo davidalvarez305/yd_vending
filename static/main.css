@@ -4335,6 +4335,11 @@ select{
     padding-bottom: 3rem;
   }
 
+  .md\:py-6{
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
   .md\:pb-4{
     padding-bottom: 1rem;
   }
