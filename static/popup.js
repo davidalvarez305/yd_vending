@@ -14,11 +14,11 @@ function showModal() {
 			}
 		})
 		.then((modalHTML) => {
-			const modalOverlay = document.getElementById("modalOverlay");
+			const modalOverlay = document.getElementById("popUpModalOverlay");
 			modalOverlay.outerHTML = modalHTML;
 			modalOverlay.style.display = "flex";
 
-			const modalContent = document.getElementById("modalContent");
+			const modalContent = document.getElementById("popUpModalContent");
 
 			// Prevent clicks inside the modal content from closing the modal
 			modalContent.addEventListener("click", (e) => {
@@ -26,7 +26,7 @@ function showModal() {
 			});
 
 			// Hide the modal when clicking outside the modal content
-			const modal = document.getElementById("modalOverlay");
+			const modal = document.getElementById("popUpModalOverlay");
 			modal.addEventListener("click", () => {
 				modal.outerHTML = "";
 				alreadyPoppedUp = true;
