@@ -1,7 +1,75 @@
 const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
-const form = document.getElementById("get-a-quote-form");
 let latitude = null;
 let longitude = null;
+
+const submitQuoteForm = document.getElementById("submitQuoteForm");
+const cancelQuoteForm = document.getElementById("cancelQuoteForm");
+const closeQuoteForm = document.getElementById("closeQuoteForm");
+
+function handleCloseQuoteForm() {
+	const modal = document.getElementById('formModalContainer');
+	modal.style.display = 'none';
+}
+
+function handleQuoteFormSubmit() {
+	const form = document.getElementById("get-a-quote-form");
+
+	const user = JSON.parse(localStorage.getItem("user")) || {};
+	const url = new URL(user.landingPage || window.location.href);
+	const language = navigator.language || navigator.userLanguage;
+	const marketingParams = Object.fromEntries(url.searchParams);
+
+	const data = new FormData(form);
+
+	if (isPaid(url.searchParams)) data.append("click_id", getClickId(url.searchParams));
+
+	data.append("landing_page", user.landingPage);
+	data.append("referrer", user.referrer);
+	data.append("language", language);
+
+	// Append source, medium, and channel based on URL or referrer
+	const source = url.searchParams.get("source") || getHost(user.referrer);
+	const medium = url.searchParams.get("medium") || getMedium(user.referrer, url.searchParams);
+	const channel = url.searchParams.get("channel") || getChannel(user.referrer);
+	if (source) data.append("source", source);
+	if (medium) data.append("medium", medium);
+	if (channel) data.append("channel", channel);
+
+	// Handle geolocation (conditionally append if available)
+	if (longitude) data.append("longitude", longitude);
+	if (latitude) data.append("latitude", latitude);
+
+	// Append all marketing parameters and form values
+	Object.entries(marketingParams).forEach(([key, value]) => value && data.append(key, value));
+	new FormData(form).forEach((value, key) => value && data.append(key, value));
+
+	const alertModal = document.getElementById("alertModal");
+	fetch("/quote", {
+		method: "POST",
+		credentials: "include",
+		body: data,
+	})
+		.then(response => {
+			const token = response.headers.get("X-Csrf-Token");
+			if (token) {
+				const tokens = document.querySelectorAll('[name="csrf_token"]');
+				tokens.forEach((csrf_token) => (csrf_token.value = token));
+			}
+			if (response.ok) {
+				return response.text();
+			} else {
+				return response.text().then((err) => {
+					throw new Error(err);
+				});
+			}
+		})
+		.then((html) => (alertModal.outerHTML = html))
+		.catch((err) => (alertModal.outerHTML = err))
+		.finally(() => {
+			handleCloseAlertModal();
+			form.reset();
+		});
+}
 
 function getHost(urlString) {
 	let url;
@@ -193,92 +261,24 @@ function getChannel(referrerUrl) {
 	return "other";
 }
 
-function applyButtonlogic() {
+document.addEventListener("DOMContentLoaded", () => {
 	let quoteButtons = document.querySelectorAll(".quoteButton");
 
 	quoteButtons.forEach((button) => {
-		let children = button.children;
-		Array.from(children).forEach((child) => {
-			child.setAttribute("name", button.name);
-		});
-
 		button.addEventListener("click", function () {
-			form.scrollIntoView({ behavior: "smooth" });
-			form.querySelector("input, textarea, select").focus();
+			const formModal = document.getElementById("formModalContainer");
+			if (formModal) formModal.style.display = "";
 
 			const buttonClicked = document.getElementById("button_clicked");
 			buttonClicked.value = button.getAttribute("name");
 
-			const modal = document.getElementById("modalOverlay");
-			if (modal) modal.style.display = "none";
+			const popUp = document.getElementById("popUpModalOverlay");
+			if (popUp) popUp.style.display = "none";
 		});
 	});
-}
+});
 
-function handleQuoteFormSubmit(e) {
-	e.preventDefault();
-
-	// Retrieve user data and URL details
-	const user = JSON.parse(localStorage.getItem("user")) || {};
-	const url = new URL(user.landingPage || window.location.href);
-	const language = navigator.language || navigator.userLanguage;
-	const marketingParams = Object.fromEntries(url.searchParams);
-
-	const data = new FormData();
-	if (isPaid(url.searchParams))
-		data.append("click_id", getClickId(url.searchParams));
-	data.append("landing_page", user.landingPage);
-	data.append("referrer", user.referrer);
-	data.append("language", language);
-
-	// Append source, medium, and channel based on URL or referrer
-	const source = url.searchParams.get("source") || getHost(user.referrer);
-	const medium =
-		url.searchParams.get("medium") ||
-		getMedium(user.referrer, url.searchParams);
-	const channel = url.searchParams.get("channel") || getChannel(user.referrer);
-	if (source) data.append("source", source);
-	if (medium) data.append("medium", medium);
-	if (channel) data.append("channel", channel);
-
-	// Handle geolocation (conditionally append if available)
-	if (longitude) data.append("longitude", longitude);
-	if (latitude) data.append("latitude", latitude);
-
-	// Append all marketing parameters and form values
-	Object.entries(marketingParams).forEach(
-		([key, value]) => value && data.append(key, value)
-	);
-	new FormData(form).forEach((value, key) => value && data.append(key, value));
-
-	const alertModal = document.getElementById("alertModal");
-	fetch("/quote", {
-		method: "POST",
-		credentials: "include",
-		body: data,
-	})
-		.then(response => {
-			const token = response.headers.get("X-Csrf-Token");
-			if (token) {
-				const tokens = document.querySelectorAll('[name="csrf_token"]');
-				tokens.forEach((csrf_token) => (csrf_token.value = token));
-			}
-			if (response.ok) {
-				return response.text();
-			} else {
-				return response.text().then((err) => {
-					throw new Error(err);
-				});
-			}
-		})
-		.then((html) => (alertModal.outerHTML = html))
-		.catch((err) => (alertModal.outerHTML = err))
-		.finally(() => {
-			handleCloseAlertModal();
-			form.reset();
-		});
-}
-
-document.addEventListener("DOMContentLoaded", getUserLocation());
-document.addEventListener("DOMContentLoaded", applyButtonlogic());
-form.addEventListener("submit", handleQuoteFormSubmit);
+document.addEventListener("DOMContentLoaded", () => getUserLocation());
+submitQuoteForm.addEventListener("click", () => handleQuoteFormSubmit());
+closeQuoteForm.addEventListener("click", () => handleCloseQuoteForm());
+cancelQuoteForm.addEventListener("click", () => handleCloseQuoteForm());

@@ -64,14 +64,6 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetTermsAndConditions(w, r, ctx)
 		case "/robots.txt":
 			GetRobots(w, r, ctx)
-		case "/ice-vending-services":
-			GetIceLandingPage(w, r, ctx)
-		case "/atm-services":
-			GetATMLandingPage(w, r, ctx)
-		case "/servicios-de-maquinas-expendedoras":
-			GetVendingESP(w, r, ctx)
-		case "/cdd-proposal":
-			GetCDDProposal(w, r, ctx)
 		case "/":
 			GetHome(w, r, ctx)
 		default:
@@ -95,24 +87,6 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetCDDProposal(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
-	fileName := "proposal.html"
-	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-
-	data := ctx
-	data.PageTitle = "Coral Bay Community Dev District — Proposal by " + constants.CompanyName
-	data.Nonce = nonce
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	helpers.ServeContent(w, files, data)
-}
-
 func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	isMobile := helpers.IsMobileRequest(r)
 	heroImagePath := "hero_image_desktop.html"
@@ -121,7 +95,8 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	}
 
 	fileName := "home.html"
-	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + heroImagePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	form := "quote_form.html"
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + heroImagePath, constants.WEBSITE_TEMPLATES_DIR + form, constants.WEBSITE_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -172,151 +147,6 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	data.VendingTypes = vendingTypes
 	data.VendingLocations = vendingLocations
 	data.MarketingImages = images
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	helpers.ServeContent(w, files, data)
-}
-
-func GetVendingESP(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
-	fileName := "vending_esp.html"
-	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-	vendingTypes, err := database.GetVendingTypes()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
-	}
-
-	vendingLocations, err := database.GetVendingLocations()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	data := ctx
-	data.PageTitle = "Servicios de Máquinas Expendedoras en Miami — " + constants.CompanyName
-	data.Nonce = nonce
-	data.Features = []string{
-		"Rotación Regular de Productos", "Máquinas Modernas e Inteligentes", "Opciones Saludables", "Horarios de Trabajo Flexibles", "Selección de Productos Innovadora", "Atención al Cliente Cuidadosa", "Agentes de Reparación y Servicio Receptivos", "Mantenimiento y Cuidado de Alta Calidad",
-	}
-	data.CSRFToken = csrfToken
-	data.VendingTypes = vendingTypes
-	data.VendingLocations = vendingLocations
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	helpers.ServeContent(w, files, data)
-}
-
-func GetIceLandingPage(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
-	fileName := "ice.html"
-	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-	vendingTypes, err := database.GetVendingTypes()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
-	}
-
-	vendingLocations, err := database.GetVendingLocations()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	data := ctx
-	data.PageTitle = "Miami Ice Vending Services — " + constants.CompanyName
-	data.Nonce = nonce
-	data.Features = []string{
-		"Free Installation & Inspection",
-		"Regular Upkeep & Maintance",
-		"Impeccable Hygiene & Safety Standards",
-		"Modern & Smart Machines",
-		"Secure Payment Solutions Implemented",
-		"Energy Efficiency",
-		"Attentive & Efficient Service",
-		"Commercial Ice Makers Available",
-		"Flexible Working Partnerships",
-	}
-	data.CSRFToken = csrfToken
-	data.VendingTypes = vendingTypes
-	data.VendingLocations = vendingLocations
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	helpers.ServeContent(w, files, data)
-}
-
-func GetATMLandingPage(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
-	fileName := "atm.html"
-	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + fileName}
-	nonce, ok := r.Context().Value("nonce").(string)
-	if !ok {
-		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
-		return
-	}
-	vendingTypes, err := database.GetVendingTypes()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
-		return
-	}
-
-	vendingLocations, err := database.GetVendingLocations()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
-		return
-	}
-
-	csrfToken, ok := r.Context().Value("csrf_token").(string)
-	if !ok {
-		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
-		return
-	}
-
-	data := ctx
-	data.PageTitle = "Miami ATM Rental Services — " + constants.CompanyName
-	data.Nonce = nonce
-	data.Features = []string{
-		"Complimentary Installation & Initial Inspection",
-		"Ongoing Maintenance & Regular Upkeep",
-		"High Standards for Hygiene & Security",
-		"Advanced & User-Friendly Machines",
-		"Robust Payment Security Measures",
-		"Energy-Efficient Technology",
-		"Responsive & Professional Customer Support",
-		"Commercial-Grade ATM Solutions",
-		"Customizable Partnership Options",
-	}
-	data.CSRFToken = csrfToken
-	data.VendingTypes = vendingTypes
-	data.VendingLocations = vendingLocations
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
