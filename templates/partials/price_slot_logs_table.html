@@ -62,8 +62,6 @@
     });
 
     function handleDeletePriceChangeLog(priceSlotLogId) {
-        
-        data.set("csrf_token", )
         fetch(`/crm/slot-price-log/${priceSlotLogId}`, {
             method: "DELETE",
             credentials: "include",
