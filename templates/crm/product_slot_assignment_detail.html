@@ -21,6 +21,7 @@
                 <form id="updateProductSlotAssignmentForm" class="space-y-6 xl:w-2/3">
                     <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                     <input type="hidden" id="slot_id" name="slot_id" value="{{ .ProductSlotAssignment.SlotID }}" />
+                    <input type="hidden" id="product_slot_assignment_id" name="product_slot_assignment_id" value="{{ .ProductSlotAssignment.ProductSlotAssignmentID }}" />
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="space-y-1">
                             <label for="supplier_id" class="font-medium">Supplier</label>
