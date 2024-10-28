@@ -4117,7 +4117,7 @@ func GetSlotPriceLogs(slotId string) ([]types.SlotPriceLogList, error) {
 		err := rows.Scan(
 			&log.SlotPriceLogID,
 			&log.MachineID,
-			&log.SlotPriceLogID,
+			&log.SlotID,
 			&log.Price,
 			&dateAssigned,
 		)
