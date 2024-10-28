@@ -24,7 +24,7 @@ function setUser() {
 document.addEventListener("DOMContentLoaded", () => localStorage.getItem("user") ?? setUser());
 
 function preserveQuerystring() {
-	if (window.location.pathname.includes("crm")) return;
+	if (["crm", "inventory", "reports"].some(link => window.location.pathname.includes(link))) return;
 
 	const links = document.querySelectorAll('a');
 
