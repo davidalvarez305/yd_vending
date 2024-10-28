@@ -47,6 +47,7 @@
 
 <script nonce="{{ .Nonce }}">
     const deleteButtons = document.querySelectorAll(".deletePriceLog");
+    const slotId = `{{ .Slot.SlotID }}`
 
     const data = new FormData();
     const csrfToken = document.querySelector('[name="csrf_token"]');
@@ -62,7 +63,7 @@
     });
 
     function handleDeletePriceChangeLog(priceSlotLogId) {
-        fetch(`/crm/slot-price-log/${priceSlotLogId}?slotId={{ .Slot.SlotID }}`, {
+        fetch(`/crm/slot-price-log/${priceSlotLogId}?slotId=${slotId}`, {
             method: "DELETE",
             credentials: "include",
             body: data
