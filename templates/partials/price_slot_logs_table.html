@@ -48,6 +48,12 @@
 <script nonce="{{ .Nonce }}">
     const deleteButtons = document.querySelectorAll(".deletePriceLog");
 
+    const data = new FormData();
+    const csrfToken = document.querySelector('[name="csrf_token"]');
+    if (csrfToken) {
+        data.set("csrf_token", csrfToken);
+    }
+
     deleteButtons.forEach(button => {
         button.addEventListener("click", function (e) {
             const priceSlotLogId = button.dataset.priceSlotLogId;
@@ -56,9 +62,12 @@
     });
 
     function handleDeletePriceChangeLog(priceSlotLogId) {
+        
+        data.set("csrf_token", )
         fetch(`/crm/slot-price-log/${priceSlotLogId}`, {
             method: "DELETE",
             credentials: "include",
+            body: data
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
