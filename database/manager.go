@@ -4139,7 +4139,7 @@ func GetSlotPriceLogs(slotId string) ([]types.SlotPriceLogList, error) {
 
 func DeletePriceSlotLog(logId string) error {
 	sqlStatement := `
-        DELETE FROM price_slot_log WHERE price_slot_log_id = $1
+        DELETE FROM slot_price_log WHERE slot_price_log_id = $1
     `
 	_, err := DB.Exec(sqlStatement, logId)
 	if err != nil {
