@@ -57,8 +57,7 @@
 
     deleteButtons.forEach(button => {
         button.addEventListener("click", function (e) {
-            const priceSlotLogId = button.dataset.priceSlotLogId;
-            handleDeletePriceChangeLog(priceSlotLogId);
+            handleDeletePriceChangeLog(button.dataset.priceSlotLogId);
         });
     });
 

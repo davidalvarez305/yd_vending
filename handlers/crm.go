@@ -3760,8 +3760,8 @@ func DeleteSlotPriceLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "price_slot_logs_table.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "price_slot_logs_table.html",
+		TemplateName: "price_change_logs_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "price_change_logs_table.html",
 		Data: map[string]any{
 			"PriceSlotLogs": priceSlotLogs,
 		},
