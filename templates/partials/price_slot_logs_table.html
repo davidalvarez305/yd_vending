@@ -51,7 +51,7 @@
     const data = new FormData();
     const csrfToken = document.querySelector('[name="csrf_token"]');
     if (csrfToken) {
-        data.set("csrf_token", csrfToken);
+        data.set("csrf_token", csrfToken.value);
     }
 
     deleteButtons.forEach(button => {
