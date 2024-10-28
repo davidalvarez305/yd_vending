@@ -62,7 +62,7 @@
     });
 
     function handleDeletePriceChangeLog(priceSlotLogId) {
-        fetch(`/crm/slot-price-log/${priceSlotLogId}`, {
+        fetch(`/crm/slot-price-log/${priceSlotLogId}?slotId={{ .Slot.SlotID }}`, {
             method: "DELETE",
             credentials: "include",
             body: data
