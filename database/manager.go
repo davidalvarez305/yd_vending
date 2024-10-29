@@ -3649,6 +3649,7 @@ func UpdateSlotPriceLog(form types.SlotPriceLog) error {
 		}
 
 		timestamp.Int64 = timeEST
+		timestamp.Valid = true
 	}
 
 	_, err = stmt.Exec(
