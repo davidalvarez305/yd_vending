@@ -41,7 +41,7 @@ func GetDashboardStats() (types.DashboardStats, error) {
 }
 
 func InsertCSRFToken(token models.CSRFToken) error {
-	stmt, err := DB.Prepare(`INSERT INTO "csrf_token" ("expiry_time", "token", "is_used") VALUES(to_timestamp($1), $2, $3)`)
+	stmt, err := DB.Prepare(`INSERT INTO "csrf_token" ("expiry_time", "token", "is_used") VALUES(to_timestamp($1)::timestamptz AT TIME ZONE 'America/New_York', $2, $3)`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -84,7 +84,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 
 	leadStmt, err := tx.Prepare(`
 		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, message)
-		VALUES ($1, $2, $3, to_timestamp($4), $5, $6, $7, $8, $9, $10)
+		VALUES ($1, $2, $3, to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', $5, $6, $7, $8, $9, $10)
 		RETURNING lead_id
 	`)
 	if err != nil {
@@ -189,7 +189,7 @@ func MarkCSRFTokenAsUsed(token string) error {
 func SaveSMS(msg models.Message) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO message (external_id, user_id, lead_id, text, date_created, text_from, text_to, is_inbound)
-		VALUES ($1, $2, $3, $4, to_timestamp($5), $6, $7, $8)
+		VALUES ($1, $2, $3, $4, to_timestamp($5)::timestamptz AT TIME ZONE 'America/New_York', $6, $7, $8)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -884,7 +884,7 @@ func GetSession(userKey string) (models.Session, error) {
 func CreateSession(session models.Session) error {
 	sqlStatement := `
         INSERT INTO sessions (csrf_secret, external_id, date_created, date_expires)
-        VALUES ($1, $2, to_timestamp($3), to_timestamp($4))
+        VALUES ($1, $2, to_timestamp($3), to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York')
     `
 
 	_, err := DB.Exec(sqlStatement,
@@ -938,7 +938,7 @@ func DeleteSession(secret string) error {
 func CreateLeadImage(img models.LeadImage) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO lead_image (src, lead_id, date_added, added_by_user_id)
-		VALUES ($1, $2, to_timestamp($3), $4)
+		VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -958,7 +958,7 @@ func CreateLeadImage(img models.LeadImage) error {
 func CreateLeadNote(note models.LeadNote) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO lead_note (note, lead_id, date_added, added_by_user_id)
-		VALUES ($1, $2, to_timestamp($3), $4)
+		VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -1121,7 +1121,7 @@ func CreateBusinessContact(form types.BusinessContactForm) error {
 func CreateLocation(businessId int, form types.LocationForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO location (vending_location_id, business_id, name, longitude, latitude, street_address_line_one, street_address_line_two, city_id, zip_code, state, opening, closing, date_started)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, to_timestamp($13))
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, to_timestamp($13)::timestamptz AT TIME ZONE 'America/New_York')
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -1303,7 +1303,7 @@ func UpdateMachine(machineId int, form types.MachineForm) error {
 		    make = $4,
 		    model = $5,
 		    purchase_price = $6,
-		    purchase_date = to_timestamp($7),
+		    purchase_date = to_timestamp($7)::timestamptz AT TIME ZONE 'America/New_York',
 		    machine_status_id = COALESCE($8, machine_status_id),
 		    vendor_id = COALESCE($9, vendor_id)
 		WHERE machine_id = $1
@@ -1355,7 +1355,7 @@ func UpdateLocation(businessId int, locationId int, form types.LocationForm) err
 		    state = COALESCE($11, state),
 		    opening = $12,
 		    closing = $13,
-		    date_started = COALESCE(to_timestamp($14), date_started),
+		    date_started = COALESCE(to_timestamp($14)::timestamptz AT TIME ZONE 'America/New_York', date_started),
 		    location_status_id = COALESCE($15, location_status_id)
 		WHERE location_id = $1
 	`)
@@ -2504,7 +2504,7 @@ func GetLocationsByBusiness(businessId string) ([]types.LocationList, error) {
 func CreateMarketingImage(img models.Image) error {
 	stmt, err := DB.Prepare(`
 	INSERT INTO image (src, date_added, added_by_user_id)
-	VALUES ($1, to_timestamp($2), $3)
+	VALUES ($1, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York', $3)
 `)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -2564,7 +2564,7 @@ func CreateMachine(form types.MachineForm) (int, error) {
 			model, 
 			purchase_price, 
 			purchase_date
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, to_timestamp($8))
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, to_timestamp($8)::timestamptz AT TIME ZONE 'America/New_York')
 		RETURNING machine_id
 	`)
 	if err != nil {
@@ -3335,7 +3335,7 @@ func CreateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 			expiration_date,
 			unit_cost,
 			quantity
-		) VALUES ($1, $2, to_timestamp($3), $4, to_timestamp($5), $6, $7)
+		) VALUES ($1, $2, to_timestamp($3), $4, to_timestamp($5)::timestamptz AT TIME ZONE 'America/New_York', $6, $7)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3384,9 +3384,9 @@ func UpdateProductSlotAssignment(form types.ProductSlotAssignmentForm) error {
 		SET 
 			slot_id = COALESCE($2, slot_id),
 			product_id = COALESCE($3, product_id),
-			date_assigned = COALESCE(to_timestamp($4), date_assigned),
+			date_assigned = COALESCE(to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', date_assigned),
 			supplier_id = COALESCE($5, supplier_id),
-			expiration_date = COALESCE(to_timestamp($6), expiration_date),
+			expiration_date = COALESCE(to_timestamp($6)::timestamptz AT TIME ZONE 'America/New_York', expiration_date),
 			unit_cost = COALESCE($7, unit_cost),
 			quantity = COALESCE($8, quantity)
 		WHERE product_slot_assignment_id = $1
@@ -3427,7 +3427,7 @@ func CreateRefill(form types.RefillForm) error {
 		INSERT INTO refill (
 			slot_id,
 			date_refilled
-		) VALUES ($1, to_timestamp($2))
+		) VALUES ($1, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York')
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3464,7 +3464,7 @@ func CreateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 			machine_id,
 			date_assigned,
 			is_active
-		) VALUES ($1, $2, to_timestamp($3), $4)
+		) VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3491,7 +3491,7 @@ func CreateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 			machine_id,
 			date_assigned,
 			is_active
-		) VALUES ($1, $2, to_timestamp($3), $4)
+		) VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3517,7 +3517,7 @@ func CreateSlotPriceLog(form models.SlotPriceLog) error {
 			slot_id,
 			price,
 			date_assigned
-		) VALUES ($1, $2, to_timestamp($3))
+		) VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York')
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3577,7 +3577,7 @@ func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 		UPDATE machine_location_assignment
 		SET location_id = COALESCE($2, location_id),
 			machine_id = COALESCE($3, machine_id),
-			date_assigned = COALESCE(to_timestamp($4), date_assigned),
+			date_assigned = COALESCE(to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', date_assigned),
 			is_active = COALESCE($5, is_active)
 		WHERE machine_location_assignment_id = $1
 	`)
@@ -3605,7 +3605,7 @@ func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 		UPDATE machine_card_reader_assignment
 		SET card_reader_serial_number = COALESCE($2, card_reader_serial_number),
 			machine_id = COALESCE($3, machine_id),
-			date_assigned = COALESCE(to_timestamp($4), date_assigned),
+			date_assigned = COALESCE(to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', date_assigned),
 			is_active = COALESCE($5, is_active)
 		WHERE machine_card_reader_assignment_id = $1
 	`)
@@ -3720,7 +3720,7 @@ func CreateRefillAll(machineId int) error {
 		INSERT INTO refill (
 			slot_id,
 			date_refilled
-		) VALUES ($1, to_timestamp($2))
+		) VALUES ($1, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York')
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -3980,7 +3980,7 @@ func CreateSeedTransaction(transaction types.SeedLiveTransaction) error {
 			card_number, 
 			num_transactions, 
 			items
-		) VALUES (to_timestamp($1), $2, $3, $4, $5, $6, $7, $8)
+		) VALUES (to_timestamp($1)::timestamptz AT TIME ZONE 'America/New_York', $2, $3, $4, $5, $6, $7, $8)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
