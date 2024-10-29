@@ -4121,6 +4121,7 @@ func GetSlotPriceLogs(slotId string) ([]types.SlotPriceLogList, error) {
 		JOIN slot AS s ON s.slot_id = log.slot_id
 		JOIN machine AS m ON s.machine_id = m.machine_id
 		WHERE log.slot_id = $1
+		ORDER BY log.date_assigned DESC
 	`, slotId)
 	if err != nil {
 		return logs, fmt.Errorf("error executing query: %w", err)
