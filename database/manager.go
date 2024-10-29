@@ -3629,6 +3629,7 @@ func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 }
 
 func UpdateSlotPriceLog(form types.SlotPriceLog) error {
+	fmt.Printf("%+v\n", *form.DateAssigned)
 	stmt, err := DB.Prepare(`
 		UPDATE slot_price_log
 		SET price = COALESCE($2, price),
