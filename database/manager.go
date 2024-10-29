@@ -3833,7 +3833,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 	rows, err := DB.Query(`
 		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.model, ' ', m.make) AS machine, l.name AS location,
 				s.machine_code, p.name,
-		       t.transaction_type, t.card_number, t.num_transactions, t.items, COALESCE(i.is_validated, false),
+		       t.transaction_type, t.card_number, slot_price.price * t.items, t.items, COALESCE(i.is_validated, false),
 			   COUNT(*) OVER() AS total_rows
 		FROM seed_transaction AS t
 		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
@@ -3850,6 +3850,14 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			ORDER BY psa.date_assigned DESC
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
+		JOIN LATERAL (
+			SELECT spl.slot_id, spl.price::NUMERIC
+			FROM slot_price_log AS spl
+			WHERE spl.slot_id = s.slot_id 
+			  AND spl.date_assigned <= t.transaction_timestamp
+			ORDER BY spl.date_assigned DESC
+			LIMIT 1
+		) AS slot_price ON slot_price.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id AND (p.product_id = $3 OR $3 IS NULL)
 		WHERE t.transaction_timestamp >= $5 AND t.transaction_timestamp <= $6 AND (t.transaction_type = $4 OR $4 IS NULL)
 		ORDER BY t.transaction_timestamp ASC
@@ -3876,7 +3884,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			&transaction.Product,
 			&transaction.TransactionType,
 			&cardNumber,
-			&transaction.NumTransactions,
+			&transaction.Revenue,
 			&transaction.Items,
 			&transaction.IsInvalidated,
 			&totalRows,
