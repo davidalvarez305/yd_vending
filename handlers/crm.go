@@ -187,6 +187,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if len(path) > len("/crm/slot-price-log/") && helpers.IsNumeric(path[len("/crm/slot-price-log/"):]) {
+			PutSlotPriceLog(w, r)
+			return
+		}
 
 		switch path {
 		default:
@@ -900,10 +904,25 @@ func PostLeadImages(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		dateAdded, err := utils.GetCurrentTimeInEST()
+		if err != nil {
+			fmt.Printf("Error getting time as EST: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Error getting time as EST.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+
 		form := models.LeadImage{
 			Src:           src,
 			LeadID:        leadID,
-			DateAdded:     time.Now().Unix(),
+			DateAdded:     dateAdded,
 			AddedByUserID: values.UserID,
 		}
 
@@ -983,10 +1002,25 @@ func PostLeadNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dateAdded, err := utils.GetCurrentTimeInEST()
+	if err != nil {
+		fmt.Printf("Error getting time as EST: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting time as EST.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	leadNote := models.LeadNote{
 		LeadID:        leadID,
 		Note:          note,
-		DateAdded:     time.Now().Unix(),
+		DateAdded:     dateAdded,
 		AddedByUserID: values.UserID,
 	}
 
@@ -2803,9 +2837,24 @@ func PostImagesUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		dateAdded, err := utils.GetCurrentTimeInEST()
+		if err != nil {
+			fmt.Printf("Error getting time as EST: %+v\n", err)
+			tmplCtx := types.DynamicPartialTemplate{
+				TemplateName: "error",
+				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+				Data: map[string]any{
+					"Message": "Error getting time as EST.",
+				},
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+			return
+		}
+
 		form := models.Image{
 			Src:           src,
-			DateAdded:     time.Now().Unix(),
+			DateAdded:     dateAdded,
 			AddedByUserID: values.UserID,
 		}
 
@@ -2982,11 +3031,26 @@ func PostSlot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	price := utils.CreateNullFloat64(form.Price)
+	dateAssigned, err := utils.GetCurrentTimeInEST()
+	if err != nil {
+		fmt.Printf("Error getting time as EST: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting time as EST.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	if price.Valid {
 		slotPriceLog := models.SlotPriceLog{
 			SlotID:       slotId,
 			Price:        price.Float64,
-			DateAssigned: time.Now().Unix(),
+			DateAssigned: dateAssigned,
 		}
 
 		err = database.CreateSlotPriceLog(slotPriceLog)
@@ -3241,13 +3305,26 @@ func PutSlot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If current price and updated price are not equal, create price slot log
 	price := utils.CreateNullFloat64(form.Price)
+	dateAssigned, err := utils.GetCurrentTimeInEST()
+	if err != nil {
+		fmt.Printf("Error getting time as EST: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting time as EST.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
 	if price.Valid && price.Float64 != slot.Price {
 		slotPriceLog := models.SlotPriceLog{
 			SlotID:       slotId,
 			Price:        price.Float64,
-			DateAssigned: time.Now().Unix(),
+			DateAssigned: dateAssigned,
 		}
 
 		err = database.CreateSlotPriceLog(slotPriceLog)
@@ -3760,8 +3837,96 @@ func DeleteSlotPriceLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "price_change_logs_table.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "price_change_logs_table.html",
+		TemplateName: "price_slot_logs_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "price_slot_logs_table.html",
+		Data: map[string]any{
+			"PriceSlotLogs": priceSlotLogs,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutSlotPriceLog(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.SlotPriceLog
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.UpdateSlotPriceLog(form)
+	if err != nil {
+		fmt.Printf("Error updating: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update slot price log.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	slotId := utils.CreateNullInt(form.SlotID)
+	if !slotId.Valid {
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error parsing slot ID.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	priceSlotLogs, err := database.GetSlotPriceLogs(fmt.Sprint(slotId.Int64))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting slot price logs from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "price_slot_logs_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "price_slot_logs_table.html",
 		Data: map[string]any{
 			"PriceSlotLogs": priceSlotLogs,
 		},

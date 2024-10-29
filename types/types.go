@@ -709,5 +709,14 @@ type SlotPriceLogList struct {
 	MachineID      int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	SlotID         int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
 	Price          float64 `json:"price" form:"price" schema:"price"`
-	DateAssigned   string  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	DateAssigned   int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+}
+
+type SlotPriceLog struct {
+	CSRFToken      *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	SlotPriceLogID *int     `json:"slot_price_log_id" form:"slot_price_log_id" schema:"slot_price_log_id"`
+	MachineID      *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	SlotID         *int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	Price          *float64 `json:"price" form:"price" schema:"price"`
+	DateAssigned   *int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }

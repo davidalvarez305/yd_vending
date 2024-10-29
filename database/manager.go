@@ -92,8 +92,11 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	}
 	defer leadStmt.Close()
 
-	// Convert fields using utility functions
-	createdAt := time.Now().Unix()
+	createdAt, err := utils.GetCurrentTimeInEST()
+	if err != nil {
+		return leadID, fmt.Errorf("error getting time as EST: %w", err)
+	}
+
 	rent := utils.CreateNullString(quoteForm.Rent)
 	footTraffic := utils.CreateNullString(quoteForm.FootTraffic)
 	footTrafficType := utils.CreateNullString(quoteForm.FootTrafficType)
@@ -3625,12 +3628,11 @@ func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 	return nil
 }
 
-func UpdateSlotPriceLog(form models.SlotPriceLog) error {
+func UpdateSlotPriceLog(form types.SlotPriceLog) error {
 	stmt, err := DB.Prepare(`
 		UPDATE slot_price_log
-		SET slot_id = COALESCE($2, slot_id),
-			price = COALESCE($3, price),
-			date_assigned = COALESCE(to_timestamp($4), date_assigned)
+		SET price = COALESCE($2, price),
+			date_assigned = COALESCE(to_timestamp($3), date_assigned)
 		WHERE slot_price_log_id = $1
 	`)
 	if err != nil {
@@ -3639,10 +3641,9 @@ func UpdateSlotPriceLog(form models.SlotPriceLog) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		form.SlotPriceLogID,
-		form.SlotID,
-		form.Price,
-		form.DateAssigned,
+		utils.CreateNullInt(form.SlotPriceLogID),
+		utils.CreateNullFloat64(form.Price),
+		utils.CreateNullInt64(form.DateAssigned),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3726,7 +3727,11 @@ func CreateRefillAll(machineId int) error {
 	}
 	defer stmt.Close()
 
-	currentTime := time.Now().Unix()
+	currentTime, err := utils.GetCurrentTimeInEST()
+	if err != nil {
+		return fmt.Errorf("error getting time as EST: %w", err)
+	}
+
 	for rows.Next() {
 		var slotID int
 		if err := rows.Scan(&slotID); err != nil {
@@ -4130,7 +4135,7 @@ func GetSlotPriceLogs(slotId string) ([]types.SlotPriceLogList, error) {
 			return logs, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		log.DateAssigned = utils.FormatTimestamp(dateAssigned.Unix())
+		log.DateAssigned = dateAssigned.Unix()
 
 		logs = append(logs, log)
 	}
