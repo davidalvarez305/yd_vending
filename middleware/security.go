@@ -217,7 +217,7 @@ func AuthRequired(next http.Handler) http.Handler {
 		values, err := sessions.Get(r)
 		if err != nil || values.UserID == 0 {
 			fmt.Printf("SESSION NOT FOUND, REDIRECTING TO LOGIN PAGE: %+v\n", err)
-			http.Redirect(w, r, "/login?redirect="+r.URL.Path, http.StatusSeeOther)
+			http.Redirect(w, r, "/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
 			return
 		}
 
