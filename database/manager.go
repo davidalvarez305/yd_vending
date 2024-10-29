@@ -3640,22 +3640,10 @@ func UpdateSlotPriceLog(form types.SlotPriceLog) error {
 	}
 	defer stmt.Close()
 
-	date := utils.CreateNullInt64(form.DateAssigned)
-	var timestamp sql.NullInt64
-	if date.Valid {
-		timeEST, err := utils.ParseDateInLocation(date.Int64)
-		if err != nil {
-			return fmt.Errorf("error parsing date: %w", err)
-		}
-
-		timestamp.Int64 = timeEST
-		timestamp.Valid = true
-	}
-
 	_, err = stmt.Exec(
 		utils.CreateNullInt(form.SlotPriceLogID),
 		utils.CreateNullFloat64(form.Price),
-		timestamp,
+		utils.CreateNullInt64(form.DateAssigned),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
