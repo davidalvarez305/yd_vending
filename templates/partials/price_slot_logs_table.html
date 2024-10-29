@@ -129,6 +129,7 @@
                 const table = document.getElementById('priceSlotLogsTable');
                 table.outerHTML = html;
                 handleBindPagination();
+                handleDates();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
