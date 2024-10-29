@@ -3860,6 +3860,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 		var transaction types.TransactionList
 
 		var transactionTime time.Time
+		var cardNumber sql.NullString
 
 		err := rows.Scan(
 			&transaction.TransactionLogID,
@@ -3869,7 +3870,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			&transaction.MachineSelection,
 			&transaction.Product,
 			&transaction.TransactionType,
-			&transaction.CardNumber,
+			&cardNumber,
 			&transaction.NumTransactions,
 			&transaction.Items,
 			&transaction.IsInvalidated,
@@ -3877,6 +3878,10 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 		)
 		if err != nil {
 			return transactions, totalRows, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if cardNumber.Valid {
+			transaction.CardNumber = cardNumber.String
 		}
 
 		transaction.TransactionTimestamp = utils.FormatTimestamp(transactionTime.Unix())
