@@ -3842,7 +3842,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			FROM product_slot_assignment AS psa
 			WHERE psa.slot_id = s.slot_id 
 			  AND psa.date_assigned <= t.transaction_timestamp
-			ORDER BY psa.date_assigned
+			ORDER BY psa.date_assigned DESC
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id AND (p.product_id = $3 OR $3 IS NULL)
