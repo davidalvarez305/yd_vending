@@ -21,8 +21,6 @@ function setUser() {
 	localStorage.setItem("user", JSON.stringify(user));
 }
 
-document.addEventListener("DOMContentLoaded", () => localStorage.getItem("user") ?? setUser());
-
 function preserveQuerystring() {
 	if (["crm", "inventory", "reports"].some(link => window.location.pathname.includes(link))) return;
 
@@ -40,4 +38,26 @@ function preserveQuerystring() {
 	});
 }
 
-document.addEventListener("DOMContentLoaded", () => preserveQuerystring());
+document.addEventListener("DOMContentLoaded", () => {
+	// Preserve querystring
+	preserveQuerystring();
+
+	// Get user variables
+	localStorage.getItem("user") ?? setUser();
+
+	// Pop quote form when CTA's are clicked
+	let quoteButtons = document.querySelectorAll(".quoteButton");
+
+	quoteButtons.forEach((button) => {
+		button.addEventListener("click", function () {
+			const formModal = document.getElementById("formModalContainer");
+			if (formModal) formModal.style.display = "";
+
+			const buttonClicked = document.getElementById("button_clicked");
+			if (buttonClicked) buttonClicked.value = button.getAttribute("name");
+
+			const popUp = document.getElementById("popUpModalOverlay");
+			if (popUp) popUp.style.display = "none";
+		});
+	});
+});

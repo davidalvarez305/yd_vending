@@ -17,6 +17,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/davidalvarez305/yd_vending/utils"
 )
 
 var allowedOrigins = []string{
@@ -79,7 +80,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 
-		if csrf.UrlsListHasCurrentPath([]string{"/static/", "/partials/", "/webhooks/"}, path) {
+		if utils.UrlsListHasCurrentPath([]string{"/static/", "/partials/", "/webhooks/"}, path) {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -99,9 +100,9 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		var csrfURLs = []string{"/contact", "/quote", "/login", "/crm", "/inventory"}
+		var csrfURLs = []string{"/terms-and-conditions", "/privacy-policy", "/about", "/contact", "/quote", "/login", "/crm", "/inventory"}
 
-		if r.Method == http.MethodGet && (csrf.UrlsListHasCurrentPath(csrfURLs, path) || path == "/") {
+		if r.Method == http.MethodGet && (utils.UrlsListHasCurrentPath(csrfURLs, path) || path == "/") {
 			csrfSecret, ok := r.Context().Value("csrf_secret").(string)
 			if !ok {
 				fmt.Printf("ERROR GETTING CSRF SECRET IN SECURITY MIDDLEWARE")

@@ -261,23 +261,6 @@ function getChannel(referrerUrl) {
 	return "other";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-	let quoteButtons = document.querySelectorAll(".quoteButton");
-
-	quoteButtons.forEach((button) => {
-		button.addEventListener("click", function () {
-			const formModal = document.getElementById("formModalContainer");
-			if (formModal) formModal.style.display = "";
-
-			const buttonClicked = document.getElementById("button_clicked");
-			buttonClicked.value = button.getAttribute("name");
-
-			const popUp = document.getElementById("popUpModalOverlay");
-			if (popUp) popUp.style.display = "none";
-		});
-	});
-});
-
 document.addEventListener("DOMContentLoaded", () => getUserLocation());
 submitQuoteForm.addEventListener("click", () => handleQuoteFormSubmit());
 closeQuoteForm.addEventListener("click", () => handleCloseQuoteForm());

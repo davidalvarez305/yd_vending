@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/davidalvarez305/yd_vending/csrf"
 	"github.com/davidalvarez305/yd_vending/sessions"
+	"github.com/davidalvarez305/yd_vending/utils"
 )
 
 var urlsToSkip = []string{"/static/", "/partials/", "/sms/", "/call/", "/webhooks/"}
 
 func UserTracking(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if csrf.UrlsListHasCurrentPath(urlsToSkip, r.URL.Path) {
+		if utils.UrlsListHasCurrentPath(urlsToSkip, r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}

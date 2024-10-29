@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -26,4 +27,13 @@ func ParseDateInLocation(timestamp int64) (int64, error) {
 
 	localTime := time.Unix(timestamp, 0).In(loc)
 	return localTime.Unix(), nil
+}
+
+func UrlsListHasCurrentPath(urls []string, url string) bool {
+	for _, protectedUrl := range urls {
+		if strings.Contains(url, protectedUrl) {
+			return true
+		}
+	}
+	return false
 }

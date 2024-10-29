@@ -148,12 +148,3 @@ func ValidateCSRFToken(isUsed bool, csrfToken string, userToken []byte) error {
 
 	return nil
 }
-
-func UrlsListHasCurrentPath(urls []string, url string) bool {
-	for _, protectedUrl := range urls {
-		if strings.Contains(url, protectedUrl) {
-			return true
-		}
-	}
-	return false
-}
