@@ -67,6 +67,7 @@ function handleQuoteFormSubmit() {
 		.catch((err) => (alertModal.outerHTML = err))
 		.finally(() => {
 			handleCloseAlertModal();
+			handleCloseQuoteForm();
 			form.reset();
 		});
 }
