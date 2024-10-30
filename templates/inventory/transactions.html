@@ -6,57 +6,63 @@
                 class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                 Filter
             </button>
-            <select id="transaction_type" name="transaction_type"
-                class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
-                <option value="">Transaction</option>
-                {{ range .TransactionTypes }}
-                <option value="{{ . }}">
-                    {{ . }}
-                </option>
-                {{ end }}
-            </select>
-            <select id="machine" name="machine"
-                class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
-                <option value="">Machine</option>
-                {{ range .Machines }}
-                <option value="{{ .MachineID }}">
-                    {{ .MachineName }}
-                </option>
-                {{ end }}
-            </select>
-            <select id="location" name="location"
-                class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
-                <option value="">Location</option>
-                {{ range .Locations }}
-                <option value="{{ .LocationID }}">
-                    {{ .Name }}
-                </option>
-                {{ end }}
-            </select>
-            <select id="product" name="product"
-                class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
-                <option value="">Product</option>
-                {{ range .Products }}
-                <option value="{{ .ProductID }}">
-                    {{ .Name }}
-                </option>
-                {{ end }}
-            </select>
-            <div class="relative">
-                <input type="date" id="date_from" name="date_from"
-                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-5 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary"
-                    required />
-                <label for="date_from" class="absolute left-3 top-2.5 text-gray-500 pointer-events-none transition-all duration-200 transform -translate-y-3 scale-75 origin-[0]">
-                    Date From
-                </label>
+            <div>
+                <label for="transaction_type" class="font-medium">Transaction</label>
+                <select id="transaction_type" name="transaction_type"
+                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+                    <option value=""></option>
+                    {{ range .TransactionTypes }}
+                    <option value="{{ . }}">
+                        {{ . }}
+                    </option>
+                    {{ end }}
+                </select>
             </div>
-            <div class="relative">
+            <div>
+                <label for="machine" class="font-medium">Machine</label>
+                <select id="machine" name="machine"
+                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+                    <option value=""></option>
+                    {{ range .Machines }}
+                    <option value="{{ .MachineID }}">
+                        {{ .MachineName }}
+                    </option>
+                    {{ end }}
+                </select>
+            </div>
+            <div>
+                <label for="location" class="font-medium">Location</label>
+                <select id="location" name="location"
+                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+                    <option value=""></option>
+                    {{ range .Locations }}
+                    <option value="{{ .LocationID }}">
+                        {{ .Name }}
+                    </option>
+                    {{ end }}
+                </select>
+            </div>
+            <div>
+                <label for="product" class="font-medium">Product</label>
+                <select id="product" name="product"
+                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+                    <option value=""></option>
+                    {{ range .Products }}
+                    <option value="{{ .ProductID }}">
+                        {{ .Name }}
+                    </option>
+                    {{ end }}
+                </select>
+            </div>
+            <div>
+                <label for="date_from" class="font-medium">Date From</label>
+                <input type="date" id="date_from" name="date_from"
+                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-5 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+            </div>
+            <div>
+                <label for="date_to" class="font-medium">Date To</label>
                 <input type="date" id="date_to" name="date_to"
-                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-5 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary"
-                    required />
-                <label for="date_to" class="absolute left-3 top-2.5 text-gray-500 pointer-events-none transition-all duration-200 transform -translate-y-3 scale-75 origin-[0]">
-                    Date To
-                </label>
+                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 leading-5 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
             </div>
         </form>
         <button id="clearButton" type="button"
@@ -83,7 +89,7 @@
 
             if (key.includes("date_") && value) {
                 const date = data.get(key);
-		        const timestamp = new Date(date).getTime() / 1000;
+                const timestamp = new Date(date).getTime() / 1000;
 
                 params.set(key, timestamp);
 
@@ -105,6 +111,22 @@
 
         window.location.replace(url.href);
     }
+
+    // Pre-populate inputs
+    params.forEach((value, key) => {
+    const input = document.getElementById(key);
+    if (input) {
+        if (key.includes("date_")) {
+            const timestamp = parseFloat(value);
+            const dateObject = new Date(timestamp * 1000); // Convert to milliseconds
+            // Format the date to YYYY-MM-DD for the input
+            const formattedDate = dateObject.toISOString().split('T')[0];
+            input.value = formattedDate;
+        } else {
+            input.value = value;
+        }
+    }
+});
 </script>
 
 <script src="{{ .StaticPath }}/main.js" nonce="{{ .Nonce }}"></script>
