@@ -3897,9 +3897,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			transaction.CardNumber = cardNumber.String
 		}
 
-		transactionTimeEST := transactionTime.In(location)
-
-		transaction.TransactionTimestamp = utils.FormatTimestamp(transactionTimeEST.Unix())
+		transaction.TransactionTimestamp = utils.FormatTimestamp(transactionTime.Unix())
 
 		transactions = append(transactions, transaction)
 	}
