@@ -730,6 +730,13 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 		return
 	}
 
+	dates, err := database.GetAvailableReportDates(locationId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting available dates for report.", http.StatusInternalServerError)
+		return
+	}
+
 	var revenue, costs, grossProfit float64
 
 	for _, line := range report {
@@ -755,6 +762,7 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 	data["Costs"] = costs
 	data["CommissionDue"] = commissionDue
 	data["GrossProfit"] = grossProfit
+	data["Dates"] = dates
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

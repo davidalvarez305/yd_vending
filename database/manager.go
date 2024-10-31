@@ -4318,3 +4318,37 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 
 	return commissionReport, nil
 }
+
+func GetAvailableReportDates(locationId int) ([]string, error) {
+	var dates []string
+
+	rows, err := DB.Query(`
+	SELECT DISTINCT TO_CHAR(DATE_TRUNC('month', TO_TIMESTAMP(mla.date_assigned)), 'Month, YYYY') AS formatted_date
+	FROM machine_location_assignment AS mla
+	JOIN machine_card_reader_assignment AS mca ON DATE_TRUNC('month', TO_TIMESTAMP(mla.date_assigned)) = DATE_TRUNC('month', TO_TIMESTAMP(mca.date_assigned))
+	WHERE mla.location_id = $1
+	ORDER BY DATE_TRUNC('month', TO_TIMESTAMP(mla.date_assigned));`, locationId)
+	if err != nil {
+		return dates, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var date string
+
+		err := rows.Scan(
+			&date,
+		)
+		if err != nil {
+			return dates, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		dates = append(dates, date)
+	}
+
+	if err := rows.Err(); err != nil {
+		return dates, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return dates, nil
+}
