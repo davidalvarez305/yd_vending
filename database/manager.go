@@ -4311,6 +4311,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 			&sale.Cost,
 			&sale.CreditCardFee,
 			&sale.GrossProfit,
+			&sale.CommissionDue,
 		)
 		if err != nil {
 			return commissionReport, fmt.Errorf("error scanning row: %w", err)
