@@ -4240,3 +4240,79 @@ func GetPrepReport() ([]types.PrepReport, error) {
 
 	return prepReport, nil
 }
+
+func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.CommissionReport, error) {
+	var commissionReport []types.CommissionReport
+
+	rows, err := DB.Query(`
+		SELECT p.name, SUM(t.items),
+		SUM(t.items) * slot_price.price,
+		SUM(t.items) * slot_assignment.unit_cost,
+		SUM(CASE WHEN t.transaction_type = 'Cash' THEN (SUM(t.items) * slot_price.price) * 0.06 ELSE 0 END),
+		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type = 'Cash' THEN (SUM(t.items) * slot_price.price) * 0.06 ELSE 0 END))
+		FROM seed_transaction AS t
+		JOIN LATERAL (
+			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
+			FROM machine_card_reader_assignment AS card_reader
+			WHERE card_reader.card_reader_serial_number = t.device AND card_reader.date_assigned <= t.transaction_timestamp
+			ORDER BY card_reader.date_assigned DESC
+			LIMIT 1
+		) AS card_reader ON card_reader.card_reader_serial_number = t.device
+		JOIN LATERAL (
+			SELECT loc_assignment.machine_id, loc_assignment.location_id
+			FROM machine_location_assignment AS loc_assignment
+			WHERE loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.date_assigned <= t.transaction_timestamp
+			ORDER BY loc_assignment.date_assigned DESC
+			LIMIT 1
+		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.location_id = $1
+		JOIN location AS l ON loc_assignment.location_id = l.location_id AND l.location_id = $1
+		JOIN machine AS m ON m.machine_id = card_reader.machine_id
+		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
+		JOIN LATERAL (
+			SELECT psa.slot_id, psa.product_id, psa.date_assigned, psa.unit_cost::NUMERIC
+			FROM product_slot_assignment AS psa
+			WHERE psa.slot_id = s.slot_id AND psa.date_assigned <= t.transaction_timestamp
+			ORDER BY psa.date_assigned DESC
+			LIMIT 1
+		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
+		JOIN LATERAL (
+			SELECT spl.slot_id, spl.price::NUMERIC
+			FROM slot_price_log AS spl
+			WHERE spl.slot_id = s.slot_id AND spl.date_assigned <= t.transaction_timestamp
+			ORDER BY spl.date_assigned DESC
+			LIMIT 1
+		) AS slot_price ON slot_price.slot_id = s.slot_id
+		JOIN product AS p ON p.product_id = slot_assignment.product_id
+		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3
+		GROUP BY p.name, slot_price.price
+		ORDER BY p.name ASC;
+	`, locationId, dateFrom, dateTo)
+	if err != nil {
+		return commissionReport, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var sale types.CommissionReport
+
+		err := rows.Scan(
+			&sale.Product,
+			&sale.AmountSold,
+			&sale.Revenue,
+			&sale.Cost,
+			&sale.CreditCardFee,
+			&sale.GrossProfit,
+		)
+		if err != nil {
+			return commissionReport, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		commissionReport = append(commissionReport, sale)
+	}
+
+	if err := rows.Err(); err != nil {
+		return commissionReport, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return commissionReport, nil
+}

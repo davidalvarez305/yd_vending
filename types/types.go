@@ -727,3 +727,12 @@ type PrepReport struct {
 	Product    string `json:"product" form:"product" schema:"product"`
 	AmountSold string `json:"amount_sold" form:"amount_sold" schema:"amount_sold"`
 }
+
+type CommissionReport struct {
+	Product       string  `json:"product" form:"product" schema:"product"`
+	AmountSold    float64 `json:"amount_sold" form:"amount_sold" schema:"amount_sold"`
+	Revenue       float64 `json:"revenue" form:"revenue" schema:"revenue"`
+	Cost          float64 `json:"cost" form:"cost" schema:"cost"`
+	CreditCardFee float64 `json:"credit_card_fee" form:"credit_card_fee" schema:"credit_card_fee"`
+	GrossProfit   float64 `json:"gross_profit" form:"gross_profit" schema:"gross_profit"`
+}

@@ -11,6 +11,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/davidalvarez305/yd_vending/utils"
 )
 
 func createInventoryContext() map[string]any {
@@ -70,6 +71,8 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			GetTransactions(w, r, ctx)
 		case "/inventory/prep-report":
 			GetPrepReport(w, r, ctx)
+		case "/inventory/commision-report":
+			GetCommissionReport(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -676,6 +679,73 @@ func GetPrepReport(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["PageTitle"] = "Prep Report — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["PrepReport"] = report
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.INVENTORY_TEMPLATES_DIR + "commission_report.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	if !r.URL.Query().Has("monthYear") {
+		http.Error(w, "No date range found in querystring.", http.StatusBadRequest)
+		return
+	}
+
+	monthYear := r.URL.Query().Get("monthYear")
+
+	if !r.URL.Query().Has("monthYear") {
+		http.Error(w, "No date range found in querystring.", http.StatusBadRequest)
+		return
+	}
+
+	location := r.URL.Query().Get("location")
+
+	start, end, err := utils.GetStartAndEndDatesFromMonthYear(monthYear)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting prep report.", http.StatusInternalServerError)
+		return
+	}
+
+	locationId, err := strconv.Atoi(location)
+	if err != nil {
+		http.Error(w, "Invalid location.", http.StatusBadRequest)
+		return
+	}
+
+	report, err := database.GetCommissionReport(locationId, start, end)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting prep report.", http.StatusInternalServerError)
+		return
+	}
+
+	var revenue, costs, grossProfit float64
+
+	for _, line := range report {
+		revenue += line.Revenue
+		costs += line.Cost + line.CreditCardFee
+		grossProfit += line.GrossProfit
+	}
+
+	commissionDue := grossProfit * 0.40
+
+	data := ctx
+	data["PageTitle"] = "Commission Report — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CommissionReport"] = report
+	data["Revenue"] = revenue
+	data["Costs"] = costs
+	data["CommissionDue"] = commissionDue
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

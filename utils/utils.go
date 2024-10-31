@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -36,4 +37,29 @@ func UrlsListHasCurrentPath(urls []string, url string) bool {
 		}
 	}
 	return false
+}
+
+func GetStartAndEndDatesFromMonthYear(monthYear string) (time.Time, time.Time, error) {
+	parts := strings.Split(monthYear, ", ")
+	if len(parts) != 2 {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid format")
+	}
+
+	selectedMonth := parts[0]
+	selectedYear := parts[1]
+
+	year, err := strconv.Atoi(selectedYear)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid year: %v", err)
+	}
+
+	monthTime, err := time.Parse("January", selectedMonth)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid month: %v", err)
+	}
+
+	start := time.Date(year, monthTime.Month(), 1, 0, 0, 0, 0, time.UTC)
+	end := start.AddDate(0, 1, 0)
+
+	return start, end, nil
 }
