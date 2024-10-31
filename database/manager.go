@@ -4248,7 +4248,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		SELECT p.name, SUM(t.items),
 		SUM(t.items) * slot_price.price,
 		SUM(t.items) * slot_assignment.unit_cost,
-		SUM(CASE WHEN t.transaction_type = 'Cash' THEN (SUM(t.items) * slot_price.price) * 0.06 ELSE 0 END),
+		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END),
 		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type = 'Cash' THEN (SUM(t.items) * slot_price.price) * 0.06 ELSE 0 END))
 		FROM seed_transaction AS t
 		JOIN LATERAL (
@@ -4284,7 +4284,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		) AS slot_price ON slot_price.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3
-		GROUP BY p.name, slot_price.price
+		GROUP BY p.name, slot_price.price, slot_assignment.unit_cost
 		ORDER BY p.name ASC;
 	`, locationId, dateFrom, dateTo)
 	if err != nil {
