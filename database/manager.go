@@ -4210,7 +4210,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
-		GROUP BY l.name, s.slot, p.name, m.model, m.make, r.date_refilled
+		GROUP BY l.name, p.name, m.model, m.make, r.date_refilled
 		ORDER BY l.name ASC, m.make ASC, m.model ASC;
 	`)
 	if err != nil {
