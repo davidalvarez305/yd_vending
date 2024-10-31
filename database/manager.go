@@ -4339,7 +4339,7 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 		ORDER BY loc_assignment.date_assigned DESC
 		LIMIT 1
 	) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.location_id = $1
-	ORDER BY formatted_date;`, locationId)
+	ORDER BY DATE_TRUNC('month', t.transaction_timestamp::timestamp);`, locationId)
 	if err != nil {
 		return dates, fmt.Errorf("error executing query: %w", err)
 	}
