@@ -698,7 +698,7 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 
 	monthYear := r.URL.Query().Get("monthYear")
 
-	if !r.URL.Query().Has("monthYear") {
+	if !r.URL.Query().Has("monthYear") || len(monthYear) == 0 {
 		currentTime := time.Now()
 		monthYear = currentTime.Format("January, 2006")
 	}
