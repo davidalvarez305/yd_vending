@@ -3067,7 +3067,7 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 		s.machine_code,
 		s.price::NUMERIC,
 		s.capacity,
-		MAX(r.date_refilled),
+		MAX(r.date_refilled AT TIME ZONE 'America/New_York'),
 		r.refill_id
 	FROM "slot" AS s
 	LEFT JOIN refill AS r ON r.slot_id = s.slot_id
