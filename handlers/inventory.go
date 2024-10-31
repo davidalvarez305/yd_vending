@@ -71,7 +71,7 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			GetTransactions(w, r, ctx)
 		case "/inventory/prep-report":
 			GetPrepReport(w, r, ctx)
-		case "/inventory/commision-report":
+		case "/inventory/commission-report":
 			GetCommissionReport(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
