@@ -3837,24 +3837,34 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			   COUNT(*) OVER() AS total_rows
 		FROM seed_transaction AS t
 		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
-		JOIN machine_card_reader_assignment AS card_reader ON card_reader.card_reader_serial_number = t.device
-		JOIN machine_location_assignment AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND (loc_assignment.machine_id = $2 OR $2 IS NULL)
+		JOIN LATERAL (
+			SELECT card_reader.card_reader_serial_number
+			FROM machine_card_reader_assignment AS card_reader
+			WHERE card_reader.card_reader_serial_number = t.device AND card_reader.date_assigned <= t.transaction_timestamp
+			ORDER BY card_reader.date_assigned DESC
+			LIMIT 1
+		)  AS card_reader ON card_reader.card_reader_serial_number = t.device
+		JOIN LATERAL (
+			SELECT loc_assignment.machine_id
+			FROM machine_location_assignment AS loc_assignment
+			WHERE loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.date_assigned <= t.transaction_timestamp
+			ORDER BY loc_assignment.date_assigned DESC
+			LIMIT 1
+		)  AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND (loc_assignment.machine_id = $2 OR $2 IS NULL)
 		JOIN location AS l ON loc_assignment.location_id = l.location_id AND (l.location_id = $1 OR $1 IS NULL)
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id AND (m.machine_id = $2 OR $2 IS NULL)
 		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item AND (s.machine_id = $2 OR $2 IS NULL)
 		JOIN LATERAL (
 			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
-			WHERE psa.slot_id = s.slot_id 
-			  AND psa.date_assigned <= t.transaction_timestamp
+			WHERE psa.slot_id = s.slot_id AND psa.date_assigned <= t.transaction_timestamp
 			ORDER BY psa.date_assigned DESC
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN LATERAL (
 			SELECT spl.slot_id, spl.price::NUMERIC
 			FROM slot_price_log AS spl
-			WHERE spl.slot_id = s.slot_id 
-			  AND spl.date_assigned <= t.transaction_timestamp
+			WHERE spl.slot_id = s.slot_id AND spl.date_assigned <= t.transaction_timestamp
 			ORDER BY spl.date_assigned DESC
 			LIMIT 1
 		) AS slot_price ON slot_price.slot_id = s.slot_id
