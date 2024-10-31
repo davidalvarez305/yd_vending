@@ -621,7 +621,7 @@ func GetLogin(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) 
 			return
 		}
 
-		if user.IsAdmin {
+		if user.UserRoleID == constants.UserAdminRoleID {
 			http.Redirect(w, r, "/crm/dashboard", http.StatusSeeOther)
 			return
 		}

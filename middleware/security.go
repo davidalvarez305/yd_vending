@@ -228,7 +228,12 @@ func AuthRequired(next http.Handler) http.Handler {
 			return
 		}
 
-		if !user.IsAdmin {
+		if r.URL.Path == "/external/commission-report" && user.UserRoleID == constants.CommissionReportRoleID {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		if user.UserRoleID != constants.UserAdminRoleID {
 			fmt.Printf("IS NOT ADMIN PERMISSION DENIED: %+v\n", err)
 			http.Error(w, "Admins only.", http.StatusUnauthorized)
 			return

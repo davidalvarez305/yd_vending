@@ -4,6 +4,11 @@ import (
 	"os"
 )
 
+const (
+	UserAdminRoleID        int = 1
+	CommissionReportRoleID int = 2
+)
+
 var (
 	FacebookAccessToken          string
 	FacebookDatasetID            string

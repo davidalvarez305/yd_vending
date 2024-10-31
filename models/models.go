@@ -22,7 +22,7 @@ type User struct {
 	Username    string `json:"username"`
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`
-	IsAdmin     bool   `json:"is_admin"`
+	UserRoleID  int    `json:"user_role_id"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
 }
@@ -374,4 +374,9 @@ type LocationCommission struct {
 	LocationID   int     `json:"location_id" form:"location_id" schema:"location_id"`
 	Commission   float64 `json:"commission" form:"commission" schema:"commission"`
 	DateAssigned int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+}
+
+type UserRole struct {
+	RoleID int    `json:"role_id" form:"role_id" schema:"role_id"`
+	Role   string `json:"role" form:"role" schema:"role"`
 }
