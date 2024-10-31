@@ -712,7 +712,7 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 	start, end, err := utils.GetStartAndEndDatesFromMonthYear(monthYear)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting prep report.", http.StatusInternalServerError)
+		http.Error(w, "Error getting start and end dates for commission report.", http.StatusInternalServerError)
 		return
 	}
 
@@ -725,7 +725,7 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 	report, err := database.GetCommissionReport(locationId, start, end)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting prep report.", http.StatusInternalServerError)
+		http.Error(w, "Error getting commission report.", http.StatusInternalServerError)
 		return
 	}
 
