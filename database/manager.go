@@ -4245,8 +4245,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 	var commissionReport []types.CommissionReport
 
 	rows, err := DB.Query(`
-		SELECT 
-    p.name, 
+		SELECT p.name, 
 		SUM(t.items) AS total_items,
 		SUM(t.items) * slot_price.price AS total_revenue,
 		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
@@ -4294,7 +4293,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		) AS slot_price ON slot_price.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3
-		GROUP BY p.name, slot_price.price, slot_assignment.unit_cost
+		GROUP BY p.name, slot_price.price, slot_assignment.unit_cost, loc_commission.commission
 		ORDER BY gross_profit DESC;
 	`, locationId, dateFrom, dateTo)
 	if err != nil {
