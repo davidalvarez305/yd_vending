@@ -4251,7 +4251,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		SUM(t.items) * slot_price.price AS total_revenue,
 		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
 		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
-		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS net_profit
+		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4287,7 +4287,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3
 		GROUP BY p.name, slot_price.price, slot_assignment.unit_cost
-		ORDER BY p.name ASC;
+		ORDER BY gross_profit DESC;
 	`, locationId, dateFrom, dateTo)
 	if err != nil {
 		return commissionReport, fmt.Errorf("error executing query: %w", err)
