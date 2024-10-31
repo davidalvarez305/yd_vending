@@ -4323,7 +4323,8 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 	var dates []string
 
 	rows, err := DB.Query(`
-	SELECT DISTINCT TO_CHAR(DATE_TRUNC('month', t.transaction_timestamp::timestamp), 'Month, YYYY') AS formatted_date 
+	SELECT DISTINCT TO_CHAR(DATE_TRUNC('month', t.transaction_timestamp::timestamp), 'Month, YYYY') AS formatted_date,
+	DATE_TRUNC('month', t.transaction_timestamp::timestamp) AS order_date
 	FROM seed_transaction AS t 
 	JOIN LATERAL (
 		SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4339,7 +4340,7 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 		ORDER BY loc_assignment.date_assigned DESC
 		LIMIT 1
 	) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.location_id = $1
-	ORDER BY DATE_TRUNC('month', t.transaction_timestamp::timestamp);`, locationId)
+	ORDER BY formatted_date, order_date;`, locationId)
 	if err != nil {
 		return dates, fmt.Errorf("error executing query: %w", err)
 	}
