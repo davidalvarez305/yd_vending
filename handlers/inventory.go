@@ -68,6 +68,8 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			GetProducts(w, r, ctx)
 		case "/inventory/transaction":
 			GetTransactions(w, r, ctx)
+		case "/inventory/prep-report":
+			GetPrepReport(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -651,4 +653,31 @@ func DeleteTransactionInvalidation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetPrepReport(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.INVENTORY_TEMPLATES_DIR + "prep_report.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	report, err := database.GetPrepReport()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting prep report.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Transactions — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["PrepReport"] = report
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
 }

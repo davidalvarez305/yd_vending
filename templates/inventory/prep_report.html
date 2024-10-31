@@ -1,0 +1,52 @@
+{{ define "content.html" }}
+<div id="prepReportTable" class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <table class="min-w-full whitespace-nowrap align-middle text-sm">
+        <thead>
+            <tr>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Location
+                </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Machine
+                </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Product
+                </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Slot
+                </th>
+                <th
+                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Amount Sold
+                </th>
+            </tr>
+        </thead>
+    
+        <tbody>
+            {{ range .PrepReport }}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .Location }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .Machine }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .Product }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .Slot }}</p>
+                </td>
+                <td class="p-3 text-center">
+                    <p class="font-medium">{{ .AmountSold }}</p>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+{{ end }}
