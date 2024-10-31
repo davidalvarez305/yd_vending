@@ -4323,11 +4323,23 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 	var dates []string
 
 	rows, err := DB.Query(`
-	SELECT DISTINCT TO_CHAR(DATE_TRUNC('month', TO_TIMESTAMP(mla.date_assigned)), 'Month, YYYY') AS formatted_date
-	FROM machine_location_assignment AS mla
-	JOIN machine_card_reader_assignment AS mca ON DATE_TRUNC('month', TO_TIMESTAMP(mla.date_assigned)) = DATE_TRUNC('month', TO_TIMESTAMP(mca.date_assigned))
-	WHERE mla.location_id = $1
-	ORDER BY DATE_TRUNC('month', TO_TIMESTAMP(mla.date_assigned));`, locationId)
+	SELECT DISTINCT TO_CHAR(DATE_TRUNC('month', t.transaction_timestamp::timestamp), 'Month, YYYY') AS formatted_date, DATE_TRUNC('month', t.transaction_timestamp::timestamp) AS order_date 
+	FROM seed_transaction AS t 
+	JOIN LATERAL (
+		SELECT card_reader.card_reader_serial_number, card_reader.machine_id
+		FROM machine_card_reader_assignment AS card_reader
+		WHERE card_reader.card_reader_serial_number = t.device AND card_reader.date_assigned <= t.transaction_timestamp
+		ORDER BY card_reader.date_assigned DESC
+		LIMIT 1
+	) AS card_reader ON card_reader.card_reader_serial_number = t.device 
+	JOIN LATERAL (
+		SELECT loc_assignment.location_id, loc_assignment.machine_id
+		FROM machine_location_assignment AS loc_assignment
+		WHERE loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.date_assigned <= t.transaction_timestamp
+		ORDER BY loc_assignment.date_assigned DESC
+		LIMIT 1
+	) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.location_id = $1
+	ORDER BY order_date;`, locationId)
 	if err != nil {
 		return dates, fmt.Errorf("error executing query: %w", err)
 	}
