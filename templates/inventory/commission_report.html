@@ -33,6 +33,17 @@
             </dl>
         </div>
     </div>
+
+    <div class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+        <div class="grow p-5">
+            <dl class="space-y-1">
+                <dt class="text-2xl font-bold">${{ .GrossProfit }}</dt>
+                <dd class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Gross Profit
+                </dd>
+            </dl>
+        </div>
+    </div>
 </div>
 <!-- END Statistics -->
 
@@ -75,7 +86,7 @@
                     <p class="font-medium">{{ .Product }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">${{ .AmountSold }}</p>
+                    <p class="font-medium">{{ .AmountSold }}</p>
                 </td>
                 <td class="p-3 text-center">
                     <p class="font-medium">${{ .Revenue }}</p>

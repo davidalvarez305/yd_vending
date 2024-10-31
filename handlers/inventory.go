@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -737,7 +738,14 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 		grossProfit += line.GrossProfit
 	}
 
+	// Calculate commission due
 	commissionDue := grossProfit * 0.40
+
+	// Round to 2 decimal points
+	revenue = math.Round(revenue*100) / 100
+	costs = math.Round(costs*100) / 100
+	grossProfit = math.Round(grossProfit*100) / 100
+	commissionDue = math.Round(commissionDue*100) / 100
 
 	data := ctx
 	data["PageTitle"] = "Commission Report — " + constants.CompanyName
@@ -746,6 +754,7 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 	data["Revenue"] = revenue
 	data["Costs"] = costs
 	data["CommissionDue"] = commissionDue
+	data["GrossProfit"] = grossProfit
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
