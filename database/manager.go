@@ -4251,7 +4251,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
 		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
 		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit,
-		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) * COALESCE(loc_commission.commission, 1) AS commission_due
+		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 1) AS commission_due
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
