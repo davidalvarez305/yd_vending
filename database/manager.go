@@ -4182,7 +4182,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 	var prepReport []types.PrepReport
 
 	rows, err := DB.Query(`
-		SELECT CONCAT(m.make, ' ', m.model) AS machine, l.name AS location, s.slot, p.name, SUM(t.items)
+		SELECT CONCAT(m.make, ' ', m.model) AS machine, l.name AS location, p.name, SUM(t.items)
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4224,7 +4224,6 @@ func GetPrepReport() ([]types.PrepReport, error) {
 		err := rows.Scan(
 			&productSold.Machine,
 			&productSold.Location,
-			&productSold.Slot,
 			&productSold.Product,
 			&productSold.AmountSold,
 		)

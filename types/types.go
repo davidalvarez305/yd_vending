@@ -725,6 +725,5 @@ type PrepReport struct {
 	Machine    string `json:"machine" form:"machine" schema:"machine"`
 	Location   string `json:"location" form:"location" schema:"location"`
 	Product    string `json:"product" form:"product" schema:"product"`
-	Slot       string `json:"slot" form:"slot" schema:"slot"`
 	AmountSold string `json:"amount_sold" form:"amount_sold" schema:"amount_sold"`
 }
