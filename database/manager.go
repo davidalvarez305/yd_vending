@@ -4182,7 +4182,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 	var prepReport []types.PrepReport
 
 	rows, err := DB.Query(`
-		SELECT CONCAT(m.model, ' ', m.make) AS machine, l.name AS location, s.slot, p.name, SUM(t.items)
+		SELECT CONCAT(m.make, ' ', m.model) AS machine, l.name AS location, s.slot, p.name, SUM(t.items)
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4190,14 +4190,14 @@ func GetPrepReport() ([]types.PrepReport, error) {
 			WHERE card_reader.card_reader_serial_number = t.device AND card_reader.date_assigned <= t.transaction_timestamp
 			ORDER BY card_reader.date_assigned DESC
 			LIMIT 1
-		)  AS card_reader ON card_reader.card_reader_serial_number = t.device
+		) AS card_reader ON card_reader.card_reader_serial_number = t.device
 		JOIN LATERAL (
 			SELECT loc_assignment.machine_id, loc_assignment.location_id
 			FROM machine_location_assignment AS loc_assignment
 			WHERE loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.date_assigned <= t.transaction_timestamp
 			ORDER BY loc_assignment.date_assigned DESC
 			LIMIT 1
-		)  AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
+		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
 		JOIN location AS l ON loc_assignment.location_id = l.location_id
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id
 		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
@@ -4205,13 +4205,13 @@ func GetPrepReport() ([]types.PrepReport, error) {
 		JOIN LATERAL (
 			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
-			WHERE psa.slot_id = s.slot_id AND psa.date_assigned <= r.date_refilled
+			WHERE psa.slot_id = s.slot_id AND psa.date_assigned >= r.date_refilled
 			ORDER BY psa.date_assigned DESC
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		GROUP BY l.name, s.slot, p.name, m.model, m.make, r.date_refilled
-		ORDER BY r.date_refilled ASC
+		ORDER BY l.name ASC, m.make ASC, m.model ASC;
 	`)
 	if err != nil {
 		return prepReport, fmt.Errorf("error executing query: %w", err)
