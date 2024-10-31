@@ -696,19 +696,12 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 		return
 	}
 
-	if !r.URL.Query().Has("monthYear") {
-		http.Error(w, "No date range found in querystring.", http.StatusBadRequest)
-		return
-	}
-
 	monthYear := r.URL.Query().Get("monthYear")
 
 	if !r.URL.Query().Has("monthYear") {
-		http.Error(w, "No date range found in querystring.", http.StatusBadRequest)
-		return
+		currentTime := time.Now()
+		monthYear = currentTime.Format("January, 2006")
 	}
-
-	location := r.URL.Query().Get("location")
 
 	start, end, err := utils.GetStartAndEndDatesFromMonthYear(monthYear)
 	if err != nil {
@@ -716,6 +709,8 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 		http.Error(w, "Error getting start and end dates for commission report.", http.StatusInternalServerError)
 		return
 	}
+
+	location := r.URL.Query().Get("location")
 
 	locationId, err := strconv.Atoi(location)
 	if err != nil {
