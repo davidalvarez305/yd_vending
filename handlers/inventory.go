@@ -673,7 +673,7 @@ func GetPrepReport(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	}
 
 	data := ctx
-	data["PageTitle"] = "Transactions — " + constants.CompanyName
+	data["PageTitle"] = "Prep Report — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["PrepReport"] = report
 
