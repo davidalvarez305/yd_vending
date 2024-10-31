@@ -1,6 +1,6 @@
 {{ define "content.html" }}
 <!-- Statistics -->
-<div class="grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-8">
+<div class="grid grid-cols-1 gap-4 pb-6 md:grid-cols-3 lg:gap-8">
     <div class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
         <div class="grow p-5">
             <dl class="space-y-1">
@@ -75,19 +75,19 @@
                     <p class="font-medium">{{ .Product }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">{{ .AmountSold }}</p>
+                    <p class="font-medium">${{ .AmountSold }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">{{ .Revenue }}</p>
+                    <p class="font-medium">${{ .Revenue }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">{{ .Cost }}</p>
+                    <p class="font-medium">${{ .Cost }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">{{ .CreditCardFee }}</p>
+                    <p class="font-medium">${{ .CreditCardFee }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">{{ .GrossProfit }}</p>
+                    <p class="font-medium">${{ .GrossProfit }}</p>
                 </td>
             </tr>
             {{ end }}
