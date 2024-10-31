@@ -4205,7 +4205,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 		JOIN LATERAL (
 			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
-			WHERE psa.slot_id = s.slot_id AND psa.date_assigned >= r.date_refilled
+			WHERE psa.slot_id = s.slot_id AND psa.date_assigned <= t.transaction_timestamp
 			ORDER BY psa.date_assigned DESC
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
