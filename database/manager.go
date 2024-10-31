@@ -4323,7 +4323,7 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 	var dates []string
 
 	rows, err := DB.Query(`
-	SELECT TO_CHAR(DATE_TRUNC('month', t.transaction_timestamp::timestamp), 'Month, YYYY') AS formatted_date
+	SELECT TO_CHAR(DATE_TRUNC('month', t.transaction_timestamp::timestamp), 'FMMonth, YYYY') AS formatted_date
 	FROM seed_transaction AS t 
 	JOIN LATERAL (
 		SELECT card_reader.card_reader_serial_number, card_reader.machine_id
