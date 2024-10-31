@@ -720,3 +720,11 @@ type SlotPriceLog struct {
 	Price          *float64 `json:"price" form:"price" schema:"price"`
 	DateAssigned   *int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
+
+type PrepReport struct {
+	Machine    string `json:"machine" form:"machine" schema:"machine"`
+	Location   string `json:"location" form:"location" schema:"location"`
+	Product    string `json:"product" form:"product" schema:"product"`
+	Slot       string `json:"slot" form:"slot" schema:"slot"`
+	AmountSold string `json:"amount_sold" form:"amount_sold" schema:"amount_sold"`
+}
