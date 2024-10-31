@@ -4251,7 +4251,8 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		SUM(t.items) * slot_price.price AS total_revenue,
 		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
 		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
-		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit
+		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit,
+		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) * COALESCE(loc_commission.commission, 1) AS commission_due
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4268,6 +4269,13 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 			LIMIT 1
 		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.location_id = $1
 		JOIN location AS l ON loc_assignment.location_id = l.location_id AND l.location_id = $1
+		LEFT JOIN LATERAL (
+			SELECT loc_commission.commission, loc_commission.location_id
+			FROM location_commission AS loc_commission
+			WHERE loc_commission.location_id = l.location_id AND loc_commission.date_assigned <= t.transaction_timestamp
+			ORDER BY loc_commission.date_assigned DESC
+			LIMIT 1
+		) AS loc_commission ON loc_commission.location_id = l.location_id
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id
 		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
 		JOIN LATERAL (

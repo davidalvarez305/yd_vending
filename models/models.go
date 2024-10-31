@@ -369,3 +369,9 @@ type TransactionValidation struct {
 	TransactionID           int64 `json:"transaction_id" db:"transaction_id" form:"transaction_id" schema:"transaction_id"`
 	IsValidated             bool  `json:"is_validated" db:"is_validated" form:"is_validated" schema:"is_validated"`
 }
+
+type LocationCommission struct {
+	LocationID   int     `json:"location_id" form:"location_id" schema:"location_id"`
+	Commission   float64 `json:"commission" form:"commission" schema:"commission"`
+	DateAssigned int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+}

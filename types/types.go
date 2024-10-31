@@ -735,4 +735,5 @@ type CommissionReport struct {
 	Cost          float64 `json:"cost" form:"cost" schema:"cost"`
 	CreditCardFee float64 `json:"credit_card_fee" form:"credit_card_fee" schema:"credit_card_fee"`
 	GrossProfit   float64 `json:"gross_profit" form:"gross_profit" schema:"gross_profit"`
+	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due"`
 }

@@ -732,16 +732,14 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 		return
 	}
 
-	var revenue, costs, grossProfit float64
+	var revenue, costs, grossProfit, commissionDue float64
 
 	for _, line := range report {
 		revenue += line.Revenue
 		costs += line.Cost + line.CreditCardFee
 		grossProfit += line.GrossProfit
+		commissionDue += line.CommissionDue
 	}
-
-	// Calculate commission due
-	commissionDue := grossProfit * 0.40
 
 	// Round to 2 decimal points
 	revenue = math.Round(revenue*100) / 100
