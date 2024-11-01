@@ -3,7 +3,6 @@
 <div class="flex flex-col my-6 overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
     <div class="flex flex-col gap-3 px-5 py-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
         <form id="filters" class="flex items-center gap-6">
-            <input type="hidden" id="location" name="location" value="{{ .LocationID }}" />
             <button type="submit"
                 class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                 Filter
@@ -16,6 +15,18 @@
                     {{ range .Dates }}
                     <option value="{{ . }}">
                         {{ . }}
+                    </option>
+                    {{ end }}
+                </select>
+            </div>
+            <div>
+                <label for="business_id" class="font-medium">Business</label>
+                <select id="business_id" name="business_id"
+                    class="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500 sm:w-36">
+                    <option value=""></option>
+                    {{ range .Businesses }}
+                    <option value="{{ .BusinessID }}">
+                        {{ .Name }}
                     </option>
                     {{ end }}
                 </select>

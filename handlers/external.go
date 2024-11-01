@@ -71,39 +71,37 @@ func GetExternalReportHandler(w http.ResponseWriter, r *http.Request, ctx map[st
 		return
 	}
 
-	var location string
+	var business string
 	parts := strings.Split(r.URL.Path, "/")
 
 	if len(parts) > 3 {
-		location = parts[3]
-
-		decodedLocation, err := url.PathUnescape(location)
+		decodedBusinessName, err := url.PathUnescape(parts[3])
 		if err != nil {
-			http.Error(w, "Failed to decode location.", http.StatusInternalServerError)
+			http.Error(w, "Failed to decode business name.", http.StatusInternalServerError)
 			return
 		}
 
-		location = decodedLocation
+		business = decodedBusinessName
 	} else {
-		http.Error(w, "Location ID not found in URL.", http.StatusInternalServerError)
+		http.Error(w, "Business name not found in URL.", http.StatusInternalServerError)
 		return
 	}
 
-	locationId, err := database.GetLocationIDFromURL(location)
+	businessId, err := database.GetBusinessIDFromURL(business)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting location id from URL."+location, http.StatusInternalServerError)
+		http.Error(w, "Error getting business id from URL.", http.StatusInternalServerError)
 		return
 	}
 
-	report, err := database.GetCommissionReport(locationId, start, end)
+	report, err := database.GetCommissionReport(fmt.Sprint(businessId), start, end)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting commission report.", http.StatusInternalServerError)
 		return
 	}
 
-	dates, err := database.GetAvailableReportDates(locationId)
+	dates, err := database.GetAvailableReportDatesByBusiness(fmt.Sprint(businessId))
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting available dates for report.", http.StatusInternalServerError)
@@ -126,7 +124,7 @@ func GetExternalReportHandler(w http.ResponseWriter, r *http.Request, ctx map[st
 	commissionDue = math.Round(commissionDue*100) / 100
 
 	data := ctx
-	data["PageTitle"] = "Commission Report — " + constants.CompanyName
+	data["PageTitle"] = fmt.Sprintf("%s Commission Report — %s", business, constants.CompanyName)
 	data["Nonce"] = nonce
 	data["CommissionReport"] = report
 	data["Revenue"] = revenue

@@ -710,25 +710,26 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 		return
 	}
 
-	location := r.URL.Query().Get("location")
+	businessId := r.URL.Query().Get("business_id")
 
-	locationId, err := strconv.Atoi(location)
-	if err != nil {
-		http.Error(w, "Invalid location.", http.StatusBadRequest)
-		return
-	}
-
-	report, err := database.GetCommissionReport(locationId, start, end)
+	report, err := database.GetCommissionReport(businessId, start, end)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting commission report.", http.StatusInternalServerError)
 		return
 	}
 
-	dates, err := database.GetAvailableReportDates(locationId)
+	dates, err := database.GetAvailableReportDatesByBusiness(businessId)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting available dates for report.", http.StatusInternalServerError)
+		http.Error(w, "Error getting available dates for commission report.", http.StatusInternalServerError)
+		return
+	}
+
+	businesses, err := database.GetBusinesses()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting businesses for commission report.", http.StatusInternalServerError)
 		return
 	}
 
@@ -756,6 +757,7 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 	data["CommissionDue"] = commissionDue
 	data["GrossProfit"] = grossProfit
 	data["Dates"] = dates
+	data["Businesses"] = businesses
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

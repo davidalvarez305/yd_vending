@@ -74,6 +74,30 @@ func CheckIsTokenUsed(decryptedToken string) (bool, error) {
 	return isUsed, nil
 }
 
+func GetUserCommissionReportPermission(userId int, businessName string) bool {
+	var hasAccess bool
+
+	stmt, err := DB.Prepare(`SELECT EXISTS (
+		SELECT 1 FROM "user" AS u
+		JOIN user_external_reports_role AS ur ON u.user_id = ur.user_id 
+		JOIN business AS b ON b.business_id = ur.business_id 
+		WHERE b.name = $1 AND u.user_id = $2
+	)`)
+	if err != nil {
+		fmt.Printf("Error preparing GetUserCommissionReportPermission statement: %s", err)
+		return false
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(businessName, userId).Scan(&hasAccess)
+	if err != nil {
+		fmt.Printf("Error executing GetUserCommissionReportPermission statement: %s", err)
+		return false
+	}
+
+	return hasAccess
+}
+
 func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	var leadID int
 	tx, err := DB.Begin()
@@ -4241,7 +4265,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 	return prepReport, nil
 }
 
-func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.CommissionReport, error) {
+func GetCommissionReport(businessId string, dateFrom, dateTo time.Time) ([]types.CommissionReport, error) {
 	var commissionReport []types.CommissionReport
 
 	rows, err := DB.Query(`
@@ -4266,8 +4290,9 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 			WHERE loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.date_assigned <= t.transaction_timestamp
 			ORDER BY loc_assignment.date_assigned DESC
 			LIMIT 1
-		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.location_id = $1
-		JOIN location AS l ON loc_assignment.location_id = l.location_id AND l.location_id = $1
+		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
+		JOIN location AS l ON loc_assignment.location_id = l.location_id
+		JOIN business AS b ON l.business_id = b.business_id AND b.business_id = $1
 		LEFT JOIN LATERAL (
 			SELECT loc_commission.commission, loc_commission.location_id
 			FROM location_commission AS loc_commission
@@ -4292,10 +4317,10 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 			LIMIT 1
 		) AS slot_price ON slot_price.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
-		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3
+		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3 AND b.business_id = $1
 		GROUP BY p.name, slot_price.price, slot_assignment.unit_cost, loc_commission.commission
 		ORDER BY gross_profit DESC;
-	`, locationId, dateFrom, dateTo)
+	`, businessId, dateFrom, dateTo)
 	if err != nil {
 		return commissionReport, fmt.Errorf("error executing query: %w", err)
 	}
@@ -4327,7 +4352,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 	return commissionReport, nil
 }
 
-func GetAvailableReportDates(locationId int) ([]string, error) {
+func GetAvailableReportDatesByBusiness(businessId string) ([]string, error) {
 	var dates []string
 
 	rows, err := DB.Query(`
@@ -4346,9 +4371,11 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 		WHERE loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.date_assigned <= t.transaction_timestamp
 		ORDER BY loc_assignment.date_assigned DESC
 		LIMIT 1
-	) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.location_id = $1
+	) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
+	JOIN location AS l ON l.location_id = loc_assignment.location_id
+	JOIN business AS b ON b.business_id = l.location_id AND b.business_id = $1
 	GROUP BY formatted_date, DATE_TRUNC('month', t.transaction_timestamp::timestamp)
-	ORDER BY DATE_TRUNC('month', t.transaction_timestamp::timestamp);`, locationId)
+	ORDER BY DATE_TRUNC('month', t.transaction_timestamp::timestamp);`, businessId)
 	if err != nil {
 		return dates, fmt.Errorf("error executing query: %w", err)
 	}
@@ -4374,21 +4401,21 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 	return dates, nil
 }
 
-func GetLocationIDFromURL(location string) (int, error) {
-	var locationId int
+func GetBusinessIDFromURL(businessName string) (int, error) {
+	var businessId int
 
-	stmt, err := DB.Prepare(`SELECT l.location_id FROM location AS l JOIN business AS b ON b.business_id = l.business_id WHERE b.name = $1`)
+	stmt, err := DB.Prepare(`SELECT b.business_id FROM business AS b WHERE b.name = $1`)
 	if err != nil {
-		return locationId, fmt.Errorf("error preparing statement: %w", err)
+		return businessId, fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
-	row := stmt.QueryRow(location)
+	row := stmt.QueryRow(businessName)
 
-	err = row.Scan(&locationId)
+	err = row.Scan(&businessId)
 	if err != nil {
-		return locationId, fmt.Errorf("error scanning row: %w", err)
+		return businessId, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	return locationId, nil
+	return businessId, nil
 }

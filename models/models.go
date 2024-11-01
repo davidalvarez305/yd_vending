@@ -380,3 +380,8 @@ type UserRole struct {
 	RoleID int    `json:"role_id" form:"role_id" schema:"role_id"`
 	Role   string `json:"role" form:"role" schema:"role"`
 }
+
+type UserExternalReportsRole struct {
+	UserID     string `json:"user_id" form:"user_id" schema:"user_id"`
+	BusinessID string `json:"business_id" form:"business_id" schema:"business_id"`
+}

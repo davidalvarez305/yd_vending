@@ -229,6 +229,21 @@ func AuthRequired(next http.Handler) http.Handler {
 		}
 
 		if strings.Contains(r.URL.Path, "/external/commission-report") && user.UserRoleID == constants.CommissionReportRoleID {
+			businessName, err := utils.GetBusinessNameFromURL(r.URL.Path)
+
+			if err != nil {
+				http.Error(w, "Incorrect URL structure.", http.StatusBadRequest)
+				return
+			}
+
+			var userPermission = database.GetUserCommissionReportPermission(user.UserID, businessName)
+
+			if !userPermission {
+				fmt.Printf("NO PERMISSION TO ACCESS REPORT: %+v\n", err)
+				http.Error(w, "Cannot access that report.", http.StatusUnauthorized)
+				return
+			}
+
 			next.ServeHTTP(w, r)
 			return
 		}

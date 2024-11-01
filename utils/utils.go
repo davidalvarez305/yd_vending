@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -62,4 +63,24 @@ func GetStartAndEndDatesFromMonthYear(monthYear string) (time.Time, time.Time, e
 	end := start.AddDate(0, 1, 0)
 
 	return start, end, nil
+}
+
+func GetBusinessNameFromURL(location string) (string, error) {
+	var businessName string
+	parts := strings.Split(location, "/")
+
+	if len(parts) > 3 {
+		locationPart := parts[3]
+
+		decodedLocation, err := url.PathUnescape(locationPart)
+		if err != nil {
+			return "", err
+		}
+
+		businessName = decodedLocation
+	} else {
+		return "", fmt.Errorf("incorrect URL structure")
+	}
+
+	return businessName, nil
 }
