@@ -228,7 +228,7 @@ func AuthRequired(next http.Handler) http.Handler {
 			return
 		}
 
-		if r.URL.Path == "/external/commission-report" && user.UserRoleID == constants.CommissionReportRoleID {
+		if strings.Contains(r.URL.Path, "/external/commission-report") && user.UserRoleID == constants.CommissionReportRoleID {
 			next.ServeHTTP(w, r)
 			return
 		}

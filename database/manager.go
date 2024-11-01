@@ -4251,7 +4251,7 @@ func GetCommissionReport(locationId int, dateFrom, dateTo time.Time) ([]types.Co
 		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
 		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
 		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit,
-		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 1) AS commission_due
+		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0) AS commission_due
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4372,4 +4372,23 @@ func GetAvailableReportDates(locationId int) ([]string, error) {
 	}
 
 	return dates, nil
+}
+
+func GetLocationIDFromURL(location string) (int, error) {
+	var locationId int
+
+	stmt, err := DB.Prepare(`SELECT l.location_id FROM location AS l JOIN business AS b ON b.business_id = l.business_id WHERE b.name = $1`)
+	if err != nil {
+		return locationId, fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(location)
+
+	err = row.Scan(&locationId)
+	if err != nil {
+		return locationId, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	return locationId, nil
 }
