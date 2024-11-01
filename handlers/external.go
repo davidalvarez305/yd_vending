@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -75,8 +76,15 @@ func GetExternalReportHandler(w http.ResponseWriter, r *http.Request, ctx map[st
 
 	if len(parts) > 2 {
 		location = parts[2]
+
+		decodedLocation, err := url.PathUnescape(location)
+		if err != nil {
+			http.Error(w, "Failed to decode location.", http.StatusInternalServerError)
+			return
+		}
+
+		location = decodedLocation
 	} else {
-		fmt.Printf("%+v\n", err)
 		http.Error(w, "Location ID not found in URL.", http.StatusInternalServerError)
 		return
 	}
