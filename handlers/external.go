@@ -74,8 +74,8 @@ func GetExternalReportHandler(w http.ResponseWriter, r *http.Request, ctx map[st
 	var location string
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) > 2 {
-		location = parts[2]
+	if len(parts) > 3 {
+		location = parts[3]
 
 		decodedLocation, err := url.PathUnescape(location)
 		if err != nil {
