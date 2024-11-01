@@ -36,11 +36,10 @@ func ExternalPagesHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		switch path {
-		case "/external/commission-report":
+
+		if strings.Contains(r.URL.Path, "/external/commission-report") {
 			GetExternalReportHandler(w, r, ctx)
-		default:
-			http.Error(w, "Not Found", http.StatusNotFound)
+			return
 		}
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
