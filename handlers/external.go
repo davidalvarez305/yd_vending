@@ -92,7 +92,7 @@ func GetExternalReportHandler(w http.ResponseWriter, r *http.Request, ctx map[st
 	locationId, err := database.GetLocationIDFromURL(location)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting location id from URL.", http.StatusInternalServerError)
+		http.Error(w, "Error getting location id from URL."+location, http.StatusInternalServerError)
 		return
 	}
 
