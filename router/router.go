@@ -23,7 +23,7 @@ func Router() *http.ServeMux {
 
 	router.Handle("/crm/", middleware.AuthRequired(http.HandlerFunc(handlers.CRMHandler)))
 	router.Handle("/inventory/", middleware.AuthRequired(http.HandlerFunc(handlers.InventoryHandler)))
-	router.Handle("/report/", middleware.AuthRequired(http.HandlerFunc(handlers.ExternalPagesHandler)))
+	router.Handle("/external/", middleware.AuthRequired(http.HandlerFunc(handlers.ExternalPagesHandler)))
 	router.HandleFunc("/partials/", handlers.PartialsHandler)
 	router.HandleFunc("/sms/", handlers.PhoneServiceHandler)
 	router.HandleFunc("/call/", handlers.PhoneServiceHandler)
