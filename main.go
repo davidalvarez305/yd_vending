@@ -12,6 +12,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/middleware"
 	"github.com/davidalvarez305/yd_vending/router"
+	"github.com/davidalvarez305/yd_vending/services"
 )
 
 func init() {
@@ -31,6 +32,8 @@ func init() {
 	}
 	fmt.Println("Database connected.")
 
+	services.StartEmailScheduler()
+	fmt.Println("Email scheduler started.")
 }
 
 func main() {
