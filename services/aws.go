@@ -12,7 +12,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/constants"
 )
 
-func UploadImageToS3(file multipart.File, fileHeader *multipart.FileHeader, s3FilePath string) error {
+func UploadFileToS3(file multipart.File, fileSize int64, s3FilePath string) error {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(constants.AWSRegion),
 	})
@@ -20,7 +20,6 @@ func UploadImageToS3(file multipart.File, fileHeader *multipart.FileHeader, s3Fi
 		return fmt.Errorf("failed to create session: %w", err)
 	}
 
-	fileSize := fileHeader.Size
 	buffer := make([]byte, fileSize)
 	file.Read(buffer)
 	fileType := http.DetectContentType(buffer)
@@ -35,7 +34,6 @@ func UploadImageToS3(file multipart.File, fileHeader *multipart.FileHeader, s3Fi
 		ContentType:   aws.String(fileType),
 	}
 
-	// Upload the file to S3
 	_, err = svc.PutObject(input)
 	if err != nil {
 		return fmt.Errorf("failed to upload image to S3: %w", err)

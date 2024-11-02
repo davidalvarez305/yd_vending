@@ -104,3 +104,66 @@ func SendGmail(recipients []string, subject, sender, body string) error {
 
 	return nil
 }
+
+func SendGmailWithAttachment(recipients []string, subject, sender, body, attachmentPath string) error {
+	client, err := initializeGoogleClient(gmail.GmailSendScope)
+	if err != nil {
+		fmt.Printf("Unable to initialize Gmail client: %v", err)
+		return err
+	}
+
+	srv, err := gmail.NewService(context.Background(), option.WithHTTPClient(client))
+	if err != nil {
+		fmt.Printf("Unable to retrieve Gmail client: %v", err)
+		return err
+	}
+
+	var msgBuilder strings.Builder
+
+	// Email headers
+	msgBuilder.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(recipients, ", ")))
+	msgBuilder.WriteString(fmt.Sprintf("Subject: %s\r\n", subject))
+	msgBuilder.WriteString(fmt.Sprintf("Reply-To: %s\r\n", sender))
+	msgBuilder.WriteString("MIME-Version: 1.0\r\n")
+	msgBuilder.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s\r\n", constants.EmailMIMEBoundary))
+	msgBuilder.WriteString("\r\n")
+
+	// Email body part
+	msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", constants.EmailMIMEBoundary))
+	msgBuilder.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
+	msgBuilder.WriteString("Content-Transfer-Encoding: 7bit\r\n\r\n")
+	msgBuilder.WriteString(body)
+	msgBuilder.WriteString("\r\n\r\n")
+
+	if attachmentPath != "" {
+		fileBytes, err := os.ReadFile(attachmentPath)
+		if err != nil {
+			return fmt.Errorf("unable to read attachment file: %v", err)
+		}
+
+		msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", constants.EmailMIMEBoundary))
+		msgBuilder.WriteString("Content-Type: application/octet-stream\r\n")
+		msgBuilder.WriteString(fmt.Sprintf("Content-Disposition: attachment; filename=%q\r\n", attachmentPath))
+		msgBuilder.WriteString("Content-Transfer-Encoding: base64\r\n\r\n")
+
+		attachmentEncoded := base64.StdEncoding.EncodeToString(fileBytes)
+		msgBuilder.WriteString(attachmentEncoded)
+		msgBuilder.WriteString("\r\n\r\n")
+	}
+
+	msgBuilder.WriteString(fmt.Sprintf("--%s--", constants.EmailMIMEBoundary))
+
+	message := gmail.Message{
+		Raw: base64.URLEncoding.EncodeToString([]byte(msgBuilder.String())),
+	}
+
+	user := "me"
+	_, err = srv.Users.Messages.Send(user, &message).Do()
+	if err != nil {
+		fmt.Printf("Unable to send email: %v", err)
+		return err
+	}
+
+	fmt.Println("Email sent successfully!")
+	return nil
+}

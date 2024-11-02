@@ -237,7 +237,21 @@ func GetExternalReportDownload(w http.ResponseWriter, r *http.Request, ctx map[s
 	// Create a new Excel file
 	f := excelize.NewFile()
 	sheetName := "Commission Report"
-	index := f.NewSheet(sheetName)
+	index, err := f.NewSheet(sheetName)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error creating commission report file.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
 
 	headers := []string{"Product", "Amount Sold", "Revenue", "Cost", "Credit Card Fee", "Gross Profit", "Commission Due"}
 	for i, header := range headers {

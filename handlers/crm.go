@@ -889,7 +889,7 @@ func PostLeadImages(w http.ResponseWriter, r *http.Request) {
 		src := uuid.New().String() + fileExtension
 		filePath := "images/" + src
 
-		err = services.UploadImageToS3(file, fileHeader, filePath)
+		err = services.UploadFileToS3(file, fileHeader.Size, filePath)
 		if err != nil {
 			fmt.Printf("Failed to upload image to S3: %+v\n", err)
 			tmplCtx := types.DynamicPartialTemplate{
@@ -2822,7 +2822,7 @@ func PostImagesUpload(w http.ResponseWriter, r *http.Request) {
 		src := uuid.New().String() + fileExtension
 		filePath := "marketing-images/" + src
 
-		err = services.UploadImageToS3(file, fileHeader, filePath)
+		err = services.UploadFileToS3(file, fileHeader.Size, filePath)
 		if err != nil {
 			fmt.Printf("Failed to upload image to S3: %+v\n", err)
 			tmplCtx := types.DynamicPartialTemplate{

@@ -3,6 +3,7 @@
 *.sql
 *.json
 *.conf
+*.xls
 node_modules
 env.md
 exec

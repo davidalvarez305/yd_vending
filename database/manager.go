@@ -4419,3 +4419,34 @@ func GetBusinessIDFromURL(businessName string) (int, error) {
 
 	return businessId, nil
 }
+
+func GetScheduledEmails() ([]models.EmailSchedule, error) {
+	var scheduledEmails []models.EmailSchedule
+
+	stmt, err := DB.Prepare(`SELECT email_id, email_name, interval_seconds, recipients, subject, body, sender, attachment_path, last_sent, is_active FROM email_schedule WHERE is_active = TRUE`)
+	if err != nil {
+		return scheduledEmails, fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		return scheduledEmails, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var emailSchedule models.EmailSchedule
+		err := rows.Scan(&emailSchedule.EmailID, &emailSchedule.EmailName, &emailSchedule.IntervalSeconds, &emailSchedule.Recipients, &emailSchedule.Subject, &emailSchedule.Body, &emailSchedule.Sender, &emailSchedule.AttachmentPath, &emailSchedule.LastSent, &emailSchedule.IsActive)
+		if err != nil {
+			return scheduledEmails, fmt.Errorf("error scanning row: %w", err)
+		}
+		scheduledEmails = append(scheduledEmails, emailSchedule)
+	}
+
+	if err = rows.Err(); err != nil {
+		return scheduledEmails, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return scheduledEmails, nil
+}

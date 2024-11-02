@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	UserAdminRoleID        int = 1
-	CommissionReportRoleID int = 2
+	UserAdminRoleID        int    = 1
+	CommissionReportRoleID int    = 2
+	EmailMIMEBoundary      string = "my-boundary-12345"
 )
 
 var (
@@ -111,3 +112,4 @@ var CRM_TEMPLATES_DIR = TEMPLATES_DIR + "crm/"
 var INVENTORY_TEMPLATES_DIR = TEMPLATES_DIR + "inventory/"
 var PARTIAL_TEMPLATES_DIR = TEMPLATES_DIR + "partials/"
 var EXTERNAL_REPORTS_TEMPLATES_DIR = TEMPLATES_DIR + "external/"
+var EMAIL_ATTACHMENTS_DIR = "./email_attachments/"
