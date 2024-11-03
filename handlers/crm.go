@@ -98,6 +98,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/email-schedule/") {
+			if len(path) > len("/crm/email-schedule/") && helpers.IsNumeric(path[len("/crm/email-schedule/"):]) {
+				GetEmailScheduleDetail(w, r, ctx)
+				return
+			}
+		}
 		if strings.HasPrefix(path, "/crm/vendor/") {
 			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
 				GetVendorDetail(w, r, ctx)
@@ -118,6 +124,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			GetLeads(w, r, ctx)
 		case "/crm/machine":
 			GetMachines(w, r, ctx)
+		case "/crm/email-schedule":
+			GetEmailSchedules(w, r, ctx)
 		case "/crm/business":
 			GetBusinesses(w, r, ctx)
 		case "/crm/vendor":
@@ -181,6 +189,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/email-schedule/") {
+			if len(path) > len("/crm/email-schedule/") && helpers.IsNumeric(path[len("/crm/email-schedule/"):]) {
+				PutEmailSchedule(w, r)
+				return
+			}
+		}
 		if strings.HasPrefix(path, "/crm/vendor/") {
 			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
 				PutVendor(w, r)
@@ -227,6 +241,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostBusiness(w, r)
 		case "/crm/machine":
 			PostMachine(w, r)
+		case "/crm/email-schedule":
+			PostEmailSchedule(w, r)
 		case "/crm/vendor":
 			PostVendor(w, r)
 		case "/crm/supplier":
@@ -271,6 +287,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(path, "/crm/vendor/") {
 			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
 				DeleteVendor(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/email-schedule/") {
+			if len(path) > len("/crm/email-schedule/") && helpers.IsNumeric(path[len("/crm/email-schedule/"):]) {
+				DeleteEmailSchedule(w, r)
 				return
 			}
 		}
