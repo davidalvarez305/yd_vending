@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -99,6 +100,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if strings.HasPrefix(path, "/crm/email-schedule/") {
+			if len(path) > len("/crm/email-schedule/") && helpers.IsNumeric(path[len("/crm/email-schedule/"):]) && strings.Contains(path, "test") {
+				GetEmailScheduleTest(w, r)
+				return
+			}
 			if len(path) > len("/crm/email-schedule/") && helpers.IsNumeric(path[len("/crm/email-schedule/"):]) {
 				GetEmailScheduleDetail(w, r, ctx)
 				return
@@ -4229,6 +4234,215 @@ func DeleteEmailSchedule(w http.ResponseWriter, r *http.Request) {
 			"EmailSchedules": emailSchedules,
 			"CurrentPage":    pageNum,
 			"MaxPages":       helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetEmailScheduleTest(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	emailScheduleId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/email-schedule/")
+	if err != nil {
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Bad request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	email, err := database.GetEmailScheduleDetails(fmt.Sprint(emailScheduleId))
+	if err != nil {
+		fmt.Printf("Error updating: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to ge scheduled email.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	now := time.Now()
+
+	recipients := strings.Split(email.Recipients, ", ")
+	subject := email.Subject
+	sender := email.Sender
+
+	fileName := fmt.Sprintf("%s_%s_%d.xls", email.EmailName, now.Local().Month().String(), now.Local().Year())
+	uploadReportS3Key := constants.EMAIL_ATTACHMENTS_S3_BUCKET + fileName
+	localFilePath := constants.LOCAL_FILES_DIR + fileName
+
+	sqlFileName := fmt.Sprintf("%s.sql", email.EmailName)
+	sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + sqlFileName
+	sqlFileLocalPath := constants.SQL_FILES_S3_BUCKET + sqlFileName
+
+	sqlFile, err := services.DownloadFileFromS3(sqlFileS3Key, sqlFileLocalPath)
+	if err != nil {
+		fmt.Printf("Failed to download SQL file from S3: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to download SQL file from S3.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	sqlQuery, err := os.ReadFile(sqlFile)
+	if err != nil {
+		fmt.Printf("Failed to read SQL query from file: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to read SQL query from file.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	data, err := database.ExecuteQueryFromSQLFile(string(sqlQuery))
+	if err != nil {
+		fmt.Printf("Failed to execute SQL query from file: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to execute SQL query from file.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	template, err := helpers.InsertHTMLIntoEmailTemplate(services.EmailTemplateFilePath, "content.html", email.Body, data)
+	if err != nil {
+		fmt.Printf("Failed to insert HTML into e-mail template: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to insert HTML into e-mail template.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
+
+	excelFilePath, err := helpers.GenerateExcelFile(data, "data", localFilePath)
+	if err != nil {
+		fmt.Printf("Failed to generate XLSX file: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to generate XLSX file.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	fileInfo, err := os.Open(excelFilePath)
+	if err != nil {
+		fmt.Printf("Failed to generate XLSX file: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to generate XLSX file.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+	defer fileInfo.Close()
+
+	info, err := fileInfo.Stat()
+	if err != nil {
+		fmt.Printf("Failed to get file info: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get file info.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = services.UploadFileToS3(fileInfo, info.Size(), uploadReportS3Key)
+	if err != nil {
+		fmt.Printf("Failed to upload xlsx file to S3: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to upload xlsx file to S3.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = services.SendGmailWithAttachment(recipients, subject, sender, body, excelFilePath)
+	if err != nil {
+		fmt.Printf("Failed to send e-mail with attachment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to send e-mail with attachment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Email has been sent successfully.",
 		},
 	}
 

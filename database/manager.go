@@ -4483,10 +4483,9 @@ func ExecuteQueryFromSQLFile(query string) ([]map[string]interface{}, error) {
 		return results, fmt.Errorf("error getting columns: %w", err)
 	}
 
-	// Prepare a slice to hold the row values
 	values := make([]interface{}, len(columns))
 	for i := range values {
-		values[i] = new(interface{}) // create a slice of pointers
+		values[i] = new(interface{})
 	}
 
 	// Iterate over the rows
@@ -4495,10 +4494,10 @@ func ExecuteQueryFromSQLFile(query string) ([]map[string]interface{}, error) {
 			return results, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		// Create a map for the current row
 		rowMap := make(map[string]interface{})
 		for i, col := range columns {
-			rowMap[col] = *(values[i].(*interface{})) // dereference the pointer to get the value
+			camelKey := utils.SnakeToCamel(col)            // Convert to CamelCase
+			rowMap[camelKey] = *(values[i].(*interface{})) // dereference the pointer to get the value
 		}
 		results = append(results, rowMap)
 	}

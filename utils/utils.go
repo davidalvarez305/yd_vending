@@ -6,6 +6,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func GetCurrentTimeInEST() (int64, error) {
@@ -83,4 +86,15 @@ func GetBusinessNameFromURL(location string) (string, error) {
 	}
 
 	return businessName, nil
+}
+
+func SnakeToCamel(s string) string {
+	parts := strings.Split(s, "_")
+
+	c := cases.Title(language.Und)
+	for i := range parts {
+		parts[i] = c.String(parts[i])
+	}
+
+	return strings.Join(parts, "")
 }

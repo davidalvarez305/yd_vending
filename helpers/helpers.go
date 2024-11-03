@@ -26,6 +26,39 @@ func ServeDynamicPartialTemplate(w http.ResponseWriter, ctx types.DynamicPartial
 	w.Write([]byte(template))
 }
 
+func InsertHTMLIntoEmailTemplate(templatePath, templateName, emailBody string, data any) (string, error) {
+	// Read the wrapper template file.
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return "", err
+	}
+
+	// Parse the wrapper template.
+	tmpl, err := template.New(templateName).Parse(string(templateContent))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return "", err
+	}
+
+	// Define the inline template with the dynamic email body content.
+	tmpl, err = tmpl.New("content.html").Parse(emailBody)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return "", err
+	}
+
+	// Render the template to a string using a strings.Builder.
+	var output strings.Builder
+	err = tmpl.Execute(&output, data)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		return "", err
+	}
+
+	return output.String(), nil
+}
+
 func BuildStringFromTemplate(templatePath, templateName string, data any) (string, error) {
 	var output string
 	templateContent, err := os.ReadFile(templatePath)

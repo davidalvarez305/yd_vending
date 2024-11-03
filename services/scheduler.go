@@ -18,6 +18,8 @@ const (
 	FailedDeliveryStatus  string = "FAILED"
 )
 
+var EmailTemplateFilePath string = constants.PARTIAL_TEMPLATES_DIR + "email_schedule_wrapper"
+
 func StartEmailScheduler() {
 	go func() {
 		for {
@@ -47,13 +49,12 @@ func StartEmailScheduler() {
 					recipients := strings.Split(email.Recipients, ", ")
 					subject := email.Subject
 					sender := email.Sender
-					body := email.Body
 
 					fileName := fmt.Sprintf("%s_%s_%d.xls", email.EmailName, now.Local().Month().String(), now.Local().Year())
 					uploadReportS3Key := constants.EMAIL_ATTACHMENTS_S3_BUCKET + fileName
 					localFilePath := constants.LOCAL_FILES_DIR + fileName
 
-					sqlFileName := fmt.Sprintf("%s_%s_%d.sql", email.EmailName, now.Local().Month().String(), now.Local().Year())
+					sqlFileName := fmt.Sprintf("%s.sql", email.EmailName)
 					sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + sqlFileName
 					sqlFileLocalPath := constants.SQL_FILES_S3_BUCKET + sqlFileName
 
@@ -71,6 +72,13 @@ func StartEmailScheduler() {
 					if err != nil {
 						continue
 					}
+
+					template, err := helpers.InsertHTMLIntoEmailTemplate(EmailTemplateFilePath, "content.html", email.Body, data)
+					if err != nil {
+						fmt.Printf("ERROR BUILDING SCHEDULED EMAIL TEMPLATE: %+v\n", err)
+						continue
+					}
+					body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
 
 					excelFilePath, err := helpers.GenerateExcelFile(data, "data", localFilePath)
 					if err != nil {
