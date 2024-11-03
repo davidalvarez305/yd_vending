@@ -117,7 +117,7 @@ func StartEmailScheduler() {
 								log.Printf("Unable to create scheduled email log: %v", err)
 							}
 						} else {
-							updateEmail := types.EmailSchedule{
+							updateEmail := types.EmailScheduleForm{
 								LastSent: &timeSent,
 							}
 

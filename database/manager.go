@@ -4510,7 +4510,7 @@ func ExecuteQueryFromSQLFile(query string) ([]map[string]interface{}, error) {
 	return results, nil
 }
 
-func CreateEmailSchedule(emailSchedule types.EmailSchedule) error {
+func CreateEmailSchedule(emailSchedule types.EmailScheduleForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO email_schedule (
 			email_name, 
@@ -4557,7 +4557,7 @@ func CreateEmailSchedule(emailSchedule types.EmailSchedule) error {
 	return nil
 }
 
-func UpdateEmailSchedule(emailScheduleId int, emailSchedule types.EmailSchedule) error {
+func UpdateEmailSchedule(emailScheduleId int, emailSchedule types.EmailScheduleForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE email_schedule
 		SET email_name = COALESCE($2, email_name),
@@ -4595,7 +4595,7 @@ func UpdateEmailSchedule(emailScheduleId int, emailSchedule types.EmailSchedule)
 	return nil
 }
 
-func DeleteEmailSchedule(emailScheduleId string) error {
+func DeleteEmailSchedule(emailScheduleId int) error {
 	sqlStatement := `
         DELETE FROM email_schedule WHERE email_schedule_id = $1
     `
@@ -4607,8 +4607,11 @@ func DeleteEmailSchedule(emailScheduleId string) error {
 	return nil
 }
 
-func GetEmailSchedules() ([]models.EmailSchedule, error) {
+func GetEmailSchedules(pageNum int) ([]models.EmailSchedule, int, error) {
 	var emailSchedules []models.EmailSchedule
+	var totalRows int
+
+	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
 
 	stmt, err := DB.Prepare(`
 		SELECT 
@@ -4621,18 +4624,20 @@ func GetEmailSchedules() ([]models.EmailSchedule, error) {
 			sender, 
 			attachment_path, 
 			last_sent, 
-			is_active 
+			is_active
 		FROM email_schedule
 		WHERE is_active = TRUE
+		LIMIT $1
+		OFFSET $2
 	`)
 	if err != nil {
-		return emailSchedules, fmt.Errorf("error preparing statement: %w", err)
+		return emailSchedules, totalRows, fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(constants.LeadsPerPage, offset)
 	if err != nil {
-		return emailSchedules, fmt.Errorf("error executing query: %w", err)
+		return emailSchedules, totalRows, fmt.Errorf("error executing query: %w", err)
 	}
 	defer rows.Close()
 
@@ -4655,7 +4660,7 @@ func GetEmailSchedules() ([]models.EmailSchedule, error) {
 			&emailSchedule.IsActive,
 		)
 		if err != nil {
-			return emailSchedules, fmt.Errorf("error scanning row: %w", err)
+			return emailSchedules, totalRows, fmt.Errorf("error scanning row: %w", err)
 		}
 
 		if attachmentPath.Valid {
@@ -4668,10 +4673,12 @@ func GetEmailSchedules() ([]models.EmailSchedule, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		return emailSchedules, fmt.Errorf("error iterating rows: %w", err)
+		return emailSchedules, totalRows, fmt.Errorf("error iterating rows: %w", err)
 	}
 
-	return emailSchedules, nil
+	totalRows = len(emailSchedules)
+
+	return emailSchedules, totalRows, nil
 }
 
 func CreateSentEmail(sentEmail types.SentEmail) error {
@@ -4798,7 +4805,7 @@ func GetSentEmailsByEmailSchedule(emailScheduleId int) ([]models.SentEmail, erro
 	return sentEmails, nil
 }
 
-func GetEmailScheduleDetails(emailScheduleId int) (models.EmailSchedule, error) {
+func GetEmailScheduleDetails(emailScheduleId string) (models.EmailSchedule, error) {
 	query := `SELECT 
 		email_schedule_id,
 		email_name,
@@ -4835,7 +4842,7 @@ func GetEmailScheduleDetails(emailScheduleId int) (models.EmailSchedule, error) 
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return emailSchedule, fmt.Errorf("no email schedule found with ID %d", emailScheduleId)
+			return emailSchedule, fmt.Errorf("no email schedule found with ID %s", emailScheduleId)
 		}
 		return emailSchedule, fmt.Errorf("error scanning row: %w", err)
 	}

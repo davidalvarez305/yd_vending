@@ -738,7 +738,7 @@ type CommissionReport struct {
 	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due"`
 }
 
-type EmailSchedule struct {
+type EmailScheduleForm struct {
 	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	EmailName       *string `json:"email_name" form:"email_name" schema:"email_name"`
 	IntervalSeconds *int64  `json:"interval_seconds" form:"interval_seconds" schema:"interval_seconds"`

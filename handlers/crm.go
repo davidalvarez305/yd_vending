@@ -3934,3 +3934,281 @@ func PutSlotPriceLog(w http.ResponseWriter, r *http.Request) {
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
+
+func GetEmailSchedules(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.CRM_TEMPLATES_DIR + "email_schedule.html"
+	createEmailScheduleForm := constants.CRM_TEMPLATES_DIR + "create_email_schedule_form.html"
+	table := constants.PARTIAL_TEMPLATES_DIR + "email_schedule_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table, createEmailScheduleForm}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("page_num")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("page_num"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	emailSchedules, totalRows, err := database.GetEmailSchedules(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machines from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Machines — " + constants.CompanyName
+
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["EmailSchedules"] = emailSchedules
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
+	data["CurrentPage"] = pageNum
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func GetEmailScheduleDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "email_schedule_detail.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	emailScheduleId := strings.TrimPrefix(r.URL.Path, "/crm/email-schedule/")
+
+	emailScheduleDetails, err := database.GetEmailScheduleDetails(emailScheduleId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vendor details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Product Slot Assignment Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["EmailSchedule"] = emailScheduleDetails
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func PostEmailSchedule(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.EmailScheduleForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateEmailSchedule(form)
+	if err != nil {
+		fmt.Printf("Error creating email schedule: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create email schedule.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	pageNum := 1
+	emailSchedules, totalRows, err := database.GetEmailSchedules(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting email schedules from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "email_schedule_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "email_schedule_table.html",
+		Data: map[string]any{
+			"EmailSchedules": emailSchedules,
+			"CurrentPage":    pageNum,
+			"MaxPages":       helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutEmailSchedule(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.EmailScheduleForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	emailScheduleId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/email-schedule/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.UpdateEmailSchedule(emailScheduleId, form)
+	if err != nil {
+		fmt.Printf("Error updating: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update email schedule.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Email schedule details have been updated.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func DeleteEmailSchedule(w http.ResponseWriter, r *http.Request) {
+	emailScheduleId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/email-schedule/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteEmailSchedule(emailScheduleId)
+	if err != nil {
+		fmt.Printf("Error deleting product slot assignment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete product slot assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	pageNum := 1
+	emailSchedules, totalRows, err := database.GetEmailSchedules(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting email schedules from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "email_schedule_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "email_schedule_table.html",
+		Data: map[string]any{
+			"EmailSchedules": emailSchedules,
+			"CurrentPage":    pageNum,
+			"MaxPages":       helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
