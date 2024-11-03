@@ -4423,7 +4423,7 @@ func GetBusinessIDFromURL(businessName string) (int, error) {
 func GetScheduledEmails() ([]models.EmailSchedule, error) {
 	var scheduledEmails []models.EmailSchedule
 
-	stmt, err := DB.Prepare(`SELECT email_id, email_name, interval_seconds, recipients, subject, body, sender, attachment_path, last_sent, is_active FROM email_schedule WHERE is_active = TRUE`)
+	stmt, err := DB.Prepare(`SELECT email_schedule_id, email_name, interval_seconds, recipients, subject, body, sender, attachment_path, last_sent, is_active FROM email_schedule WHERE is_active = TRUE`)
 	if err != nil {
 		return scheduledEmails, fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -4437,10 +4437,21 @@ func GetScheduledEmails() ([]models.EmailSchedule, error) {
 
 	for rows.Next() {
 		var emailSchedule models.EmailSchedule
-		err := rows.Scan(&emailSchedule.EmailID, &emailSchedule.EmailName, &emailSchedule.IntervalSeconds, &emailSchedule.Recipients, &emailSchedule.Subject, &emailSchedule.Body, &emailSchedule.Sender, &emailSchedule.AttachmentPath, &emailSchedule.LastSent, &emailSchedule.IsActive)
+
+		var lastSent time.Time
+		var attachmentPath sql.NullString
+
+		err := rows.Scan(&emailSchedule.EmailScheduleID, &emailSchedule.EmailName, &emailSchedule.IntervalSeconds, &emailSchedule.Recipients, &emailSchedule.Subject, &emailSchedule.Body, &emailSchedule.Sender, &attachmentPath, &lastSent, &emailSchedule.IsActive)
 		if err != nil {
 			return scheduledEmails, fmt.Errorf("error scanning row: %w", err)
 		}
+
+		if attachmentPath.Valid {
+			emailSchedule.AttachmentPath = attachmentPath.String
+		}
+
+		emailSchedule.LastSent = lastSent.Unix()
+
 		scheduledEmails = append(scheduledEmails, emailSchedule)
 	}
 
@@ -4449,4 +4460,393 @@ func GetScheduledEmails() ([]models.EmailSchedule, error) {
 	}
 
 	return scheduledEmails, nil
+}
+
+func ExecuteQueryFromSQLFile(query string) ([]map[string]interface{}, error) {
+	var results []map[string]interface{}
+
+	stmt, err := DB.Prepare(query)
+	if err != nil {
+		return results, fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		return results, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	// Get column names
+	columns, err := rows.Columns()
+	if err != nil {
+		return results, fmt.Errorf("error getting columns: %w", err)
+	}
+
+	// Prepare a slice to hold the row values
+	values := make([]interface{}, len(columns))
+	for i := range values {
+		values[i] = new(interface{}) // create a slice of pointers
+	}
+
+	// Iterate over the rows
+	for rows.Next() {
+		if err := rows.Scan(values...); err != nil {
+			return results, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Create a map for the current row
+		rowMap := make(map[string]interface{})
+		for i, col := range columns {
+			rowMap[col] = *(values[i].(*interface{})) // dereference the pointer to get the value
+		}
+		results = append(results, rowMap)
+	}
+
+	if err = rows.Err(); err != nil {
+		return results, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return results, nil
+}
+
+func CreateEmailSchedule(emailSchedule types.EmailSchedule) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO email_schedule (
+			email_name, 
+			interval_seconds, 
+			recipients, 
+			subject, 
+			body, 
+			sender, 
+			attachment_path, 
+			last_sent, 
+			is_active
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, to_timestamp($8)::timestamptz AT TIME ZONE 'America/New_York', $9)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	emailName := utils.CreateNullString(emailSchedule.EmailName)
+	intervalSeconds := utils.CreateNullInt64(emailSchedule.IntervalSeconds)
+	recipients := utils.CreateNullString(emailSchedule.Recipients)
+	subject := utils.CreateNullString(emailSchedule.Subject)
+	body := utils.CreateNullString(emailSchedule.Body)
+	sender := utils.CreateNullString(emailSchedule.Sender)
+	attachmentPath := utils.CreateNullString(emailSchedule.AttachmentPath)
+	lastSent := utils.CreateNullInt64(emailSchedule.LastSent)
+	isActive := utils.CreateNullBool(emailSchedule.IsActive)
+
+	_, err = stmt.Exec(
+		emailName,
+		intervalSeconds,
+		recipients,
+		subject,
+		body,
+		sender,
+		attachmentPath,
+		lastSent,
+		isActive,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateEmailSchedule(emailScheduleId int, emailSchedule types.EmailSchedule) error {
+	stmt, err := DB.Prepare(`
+		UPDATE email_schedule
+		SET email_name = COALESCE($2, email_name),
+			interval_seconds = COALESCE($3, interval_seconds),
+			recipients = COALESCE($4, recipients),
+			subject = COALESCE($5, subject),
+			body = COALESCE($6, body),
+			sender = COALESCE($7, sender),
+			attachment_path = COALESCE($8, attachment_path),
+			last_sent = COALESCE(to_timestamp($9)::timestamptz AT TIME ZONE 'America/New_York', last_sent),
+			is_active = COALESCE($10, is_active)
+		WHERE email_schedule_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		emailScheduleId,
+		utils.CreateNullString(emailSchedule.EmailName),
+		utils.CreateNullInt64(emailSchedule.IntervalSeconds),
+		utils.CreateNullString(emailSchedule.Recipients),
+		utils.CreateNullString(emailSchedule.Subject),
+		utils.CreateNullString(emailSchedule.Body),
+		utils.CreateNullString(emailSchedule.Sender),
+		utils.CreateNullString(emailSchedule.AttachmentPath),
+		utils.CreateNullInt64(emailSchedule.LastSent),
+		utils.CreateNullBool(emailSchedule.IsActive),
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteEmailSchedule(emailScheduleId string) error {
+	sqlStatement := `
+        DELETE FROM email_schedule WHERE email_schedule_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, emailScheduleId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetEmailSchedules() ([]models.EmailSchedule, error) {
+	var emailSchedules []models.EmailSchedule
+
+	stmt, err := DB.Prepare(`
+		SELECT 
+			email_schedule_id, 
+			email_name, 
+			interval_seconds, 
+			recipients, 
+			subject, 
+			body, 
+			sender, 
+			attachment_path, 
+			last_sent, 
+			is_active 
+		FROM email_schedule
+		WHERE is_active = TRUE
+	`)
+	if err != nil {
+		return emailSchedules, fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		return emailSchedules, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var emailSchedule models.EmailSchedule
+
+		var lastSent time.Time
+		var attachmentPath sql.NullString
+
+		err := rows.Scan(
+			&emailSchedule.EmailScheduleID,
+			&emailSchedule.EmailName,
+			&emailSchedule.IntervalSeconds,
+			&emailSchedule.Recipients,
+			&emailSchedule.Subject,
+			&emailSchedule.Body,
+			&emailSchedule.Sender,
+			&attachmentPath,
+			&lastSent,
+			&emailSchedule.IsActive,
+		)
+		if err != nil {
+			return emailSchedules, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if attachmentPath.Valid {
+			emailSchedule.AttachmentPath = attachmentPath.String
+		}
+
+		emailSchedule.LastSent = lastSent.Unix()
+
+		emailSchedules = append(emailSchedules, emailSchedule)
+	}
+
+	if err = rows.Err(); err != nil {
+		return emailSchedules, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return emailSchedules, nil
+}
+
+func CreateSentEmail(sentEmail types.SentEmail) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO sent_emails (
+			email_schedule_id, 
+			delivery_status, 
+			date_sent, 
+			error_message
+		) VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		utils.CreateNullInt(sentEmail.EmailScheduleID),
+		utils.CreateNullString(sentEmail.DeliveryStatus),
+		utils.CreateNullInt64(sentEmail.DateSent),
+		utils.CreateNullString(sentEmail.ErrorMessage),
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func UpdateSentEmail(sentEmailID int, sentEmail types.SentEmail) error {
+	stmt, err := DB.Prepare(`
+		UPDATE sent_emails
+		SET email_schedule_id = COALESCE($2, email_schedule_id),
+			delivery_status = COALESCE($3, delivery_status),
+			date_sent = COALESCE(to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', date_sent),
+			error_message = COALESCE($5, error_message)
+		WHERE sent_email_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		sentEmailID,
+		utils.CreateNullInt(sentEmail.EmailScheduleID),
+		utils.CreateNullString(sentEmail.DeliveryStatus),
+		utils.CreateNullInt64(sentEmail.DateSent),
+		utils.CreateNullString(sentEmail.ErrorMessage),
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteSentEmail(sentEmailID int) error {
+	sqlStatement := `
+        DELETE FROM sent_emails WHERE sent_email_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, sentEmailID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetSentEmailsByEmailSchedule(emailScheduleId int) ([]models.SentEmail, error) {
+	var sentEmails []models.SentEmail
+
+	stmt, err := DB.Prepare(`
+		SELECT 
+			sent_email_id, 
+			email_schedule_id, 
+			delivery_status, 
+			date_sent, 
+			error_message 
+		FROM sent_emails
+		WHERE email_schedule_id = $1
+	`)
+	if err != nil {
+		return sentEmails, fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(emailScheduleId)
+	if err != nil {
+		return sentEmails, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var sentEmail models.SentEmail
+
+		var dateSent time.Time
+		var errorMessage sql.NullString
+
+		err := rows.Scan(
+			&sentEmail.SentEmailID,
+			&sentEmail.EmailScheduleID,
+			&sentEmail.DeliveryStatus,
+			&dateSent,
+			&errorMessage,
+		)
+		if err != nil {
+			return sentEmails, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if errorMessage.Valid {
+			sentEmail.ErrorMessage = errorMessage.String
+		}
+
+		sentEmail.DateSent = dateSent.Unix()
+
+		sentEmails = append(sentEmails, sentEmail)
+	}
+
+	if err = rows.Err(); err != nil {
+		return sentEmails, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return sentEmails, nil
+}
+
+func GetEmailScheduleDetails(emailScheduleId int) (models.EmailSchedule, error) {
+	query := `SELECT 
+		email_schedule_id,
+		email_name,
+		interval_seconds,
+		recipients,
+		subject,
+		body,
+		sender,
+		attachment_path,
+		last_sent,
+		is_active
+	FROM email_schedule 
+	WHERE email_schedule_id = $1`
+
+	var emailSchedule models.EmailSchedule
+
+	row := DB.QueryRow(query, emailScheduleId)
+
+	var lastSent sql.NullTime
+	var attachmentPath sql.NullString
+
+	err := row.Scan(
+		&emailSchedule.EmailScheduleID,
+		&emailSchedule.EmailName,
+		&emailSchedule.IntervalSeconds,
+		&emailSchedule.Recipients,
+		&emailSchedule.Subject,
+		&emailSchedule.Body,
+		&emailSchedule.Sender,
+		&attachmentPath,
+		&lastSent,
+		&emailSchedule.IsActive,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return emailSchedule, fmt.Errorf("no email schedule found with ID %d", emailScheduleId)
+		}
+		return emailSchedule, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	if attachmentPath.Valid {
+		emailSchedule.AttachmentPath = attachmentPath.String
+	}
+
+	if lastSent.Valid {
+		emailSchedule.LastSent = lastSent.Time.Unix()
+	}
+
+	return emailSchedule, nil
 }

@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -13,8 +16,6 @@ import (
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/types"
 	"github.com/davidalvarez305/yd_vending/utils"
-
-	"github.com/xuri/excelize/v2"
 )
 
 var externalReportsBasePath = constants.EXTERNAL_REPORTS_TEMPLATES_DIR + "base.html"
@@ -234,11 +235,9 @@ func GetExternalReportDownload(w http.ResponseWriter, r *http.Request, ctx map[s
 		return
 	}
 
-	// Create a new Excel file
-	f := excelize.NewFile()
-	sheetName := "Commission Report"
-	index, err := f.NewSheet(sheetName)
-
+	fileName := constants.CommissionReportFilename
+	localPath := constants.LOCAL_FILES_DIR
+	generatedFilePath, err := helpers.GenerateExcelFile(report, "data", localPath+fileName)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -253,33 +252,31 @@ func GetExternalReportDownload(w http.ResponseWriter, r *http.Request, ctx map[s
 		return
 	}
 
-	headers := []string{"Product", "Amount Sold", "Revenue", "Cost", "Credit Card Fee", "Gross Profit", "Commission Due"}
-	for i, header := range headers {
-		cell := fmt.Sprintf("%s%d", string('A'+i), 1) // A1, B1, C1, etc.
-		f.SetCellValue(sheetName, cell, header)
-	}
-
-	for i, row := range report {
-		f.SetCellValue(sheetName, fmt.Sprintf("A%d", i+2), row.Product)
-		f.SetCellValue(sheetName, fmt.Sprintf("B%d", i+2), row.AmountSold)
-		f.SetCellValue(sheetName, fmt.Sprintf("C%d", i+2), row.Revenue)
-		f.SetCellValue(sheetName, fmt.Sprintf("D%d", i+2), row.Cost)
-		f.SetCellValue(sheetName, fmt.Sprintf("E%d", i+2), row.CreditCardFee)
-		f.SetCellValue(sheetName, fmt.Sprintf("F%d", i+2), row.GrossProfit)
-		f.SetCellValue(sheetName, fmt.Sprintf("G%d", i+2), row.CommissionDue)
-	}
-
-	f.SetActiveSheet(index)
-
-	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-	w.Header().Set("Content-Disposition", "attachment; filename=commission_report.xlsx")
-
-	err = f.Write(w)
+	file, err := os.Open(generatedFilePath)
 	if err != nil {
-		fmt.Printf("%+v\n", err)
+		fmt.Printf("Error opening file: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			TemplatePath: filepath.Join(constants.PARTIAL_TEMPLATES_DIR, "error_banner.html"),
+			Data: map[string]any{
+				"Message": "Error opening commission report file.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+	defer file.Close()
+
+	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
+
+	_, err = io.Copy(w, file)
+	if err != nil {
+		fmt.Printf("Error writing file to response: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: filepath.Join(constants.PARTIAL_TEMPLATES_DIR, "error_banner.html"),
 			Data: map[string]any{
 				"Message": "Error writing Excel file.",
 			},

@@ -5,9 +5,11 @@ import (
 )
 
 const (
-	UserAdminRoleID        int    = 1
-	CommissionReportRoleID int    = 2
-	EmailMIMEBoundary      string = "my-boundary-12345"
+	UserAdminRoleID          int    = 1
+	CommissionReportRoleID   int    = 2
+	EmailMIMEBoundary        string = "my-boundary-12345"
+	TimeZone                 string = "America/New_York"
+	CommissionReportFilename string = "commission_report.xlsx"
 )
 
 var (
@@ -107,9 +109,11 @@ func Init() {
 }
 
 var TEMPLATES_DIR = "./templates/"
+var LOCAL_FILES_DIR = "./local_files/"
 var WEBSITE_TEMPLATES_DIR = TEMPLATES_DIR + "website/"
 var CRM_TEMPLATES_DIR = TEMPLATES_DIR + "crm/"
 var INVENTORY_TEMPLATES_DIR = TEMPLATES_DIR + "inventory/"
 var PARTIAL_TEMPLATES_DIR = TEMPLATES_DIR + "partials/"
 var EXTERNAL_REPORTS_TEMPLATES_DIR = TEMPLATES_DIR + "external/"
-var EMAIL_ATTACHMENTS_DIR = "./email_attachments/"
+var EMAIL_ATTACHMENTS_S3_BUCKET = "email-attachmennts/"
+var SQL_FILES_S3_BUCKET = "sql/"

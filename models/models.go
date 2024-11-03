@@ -387,7 +387,7 @@ type UserExternalReportsRole struct {
 }
 
 type EmailSchedule struct {
-	EmailID         int64  `json:"email_id" form:"email_id" schema:"email_id"`
+	EmailScheduleID int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`
 	EmailName       string `json:"email_name" form:"email_name" schema:"email_name"`
 	IntervalSeconds int64  `json:"interval_seconds" form:"interval_seconds" schema:"interval_seconds"`
 	Recipients      string `json:"recipients" form:"recipients" schema:"recipients"`
@@ -400,9 +400,9 @@ type EmailSchedule struct {
 }
 
 type SentEmail struct {
-	SentEmailID    int64  `json:"sent_email_id" form:"sent_email_id" schema:"sent_email_id"`
-	EmailID        int64  `json:"email_id" form:"email_id" schema:"email_id"`
-	DeliveryStatus string `json:"delivery_status" form:"delivery_status" schema:"delivery_status"`
-	DateSent       int64  `json:"date_sent" form:"date_sent" schema:"date_sent"`
-	ErrorMessage   string `json:"error_message" form:"error_message" schema:"error_message"`
+	SentEmailID     int    `json:"sent_email_id" form:"sent_email_id" schema:"sent_email_id"`
+	EmailScheduleID int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`
+	DeliveryStatus  string `json:"delivery_status" form:"delivery_status" schema:"delivery_status"`
+	DateSent        int64  `json:"date_sent" form:"date_sent" schema:"date_sent"`
+	ErrorMessage    string `json:"error_message" form:"error_message" schema:"error_message"`
 }
