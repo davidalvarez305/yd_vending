@@ -1476,27 +1476,34 @@ func GetMachineList(pageNum int) ([]types.MachineList, int, error) {
 
 	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
 
-	rows, err := DB.Query(`WITH latest_card_reader AS (
-		SELECT machine_id, card_reader_serial_number, 
-			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
-		FROM machine_card_reader_assignment
-	),
-	latest_location AS (
-		SELECT machine_id, location_id, 
-			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
-		FROM machine_location_assignment
-	)
-	SELECT m.machine_id,
+	rows, err := DB.Query(`SELECT 
+		m.machine_id,
 		CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
 		card_reader.card_reader_serial_number, 
-		s.status, 
+		s.status,
 		l.name, 
 		m.purchase_date, 
 		COUNT(*) OVER() AS total_rows
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
-	LEFT JOIN latest_card_reader AS card_reader ON card_reader.machine_id = m.machine_id AND card_reader.rn = 1
-	LEFT JOIN latest_location AS location_assignment ON location_assignment.machine_id = m.machine_id AND location_assignment.rn = 1
+	LEFT JOIN (
+		SELECT machine_id, card_reader_serial_number 
+		FROM machine_card_reader_assignment 
+		WHERE (machine_id, date_assigned) IN (
+			SELECT machine_id, MAX(date_assigned)
+			FROM machine_card_reader_assignment
+			GROUP BY machine_id
+		)
+	) AS card_reader ON card_reader.machine_id = m.machine_id
+	LEFT JOIN (
+		SELECT machine_id, location_id 
+		FROM machine_location_assignment 
+		WHERE (machine_id, date_assigned) IN (
+			SELECT machine_id, MAX(date_assigned)
+			FROM machine_location_assignment
+			GROUP BY machine_id
+		)
+	) AS location_assignment ON location_assignment.machine_id = m.machine_id
 	LEFT JOIN location AS l ON l.location_id = location_assignment.location_id
 	ORDER BY m.purchase_date DESC
 	LIMIT $1
@@ -2699,17 +2706,8 @@ func GetLocationDetails(businessID, locationID int) (types.LocationDetails, erro
 func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 	var machines []types.MachineList
 
-	rows, err := DB.Query(`WITH latest_card_reader AS (
-		SELECT machine_id, card_reader_serial_number, 
-			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
-		FROM machine_card_reader_assignment
-	),
-	latest_location AS (
-		SELECT machine_id, location_id, 
-			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
-		FROM machine_location_assignment
-	)
-	SELECT m.machine_id,
+	rows, err := DB.Query(`SELECT 
+		m.machine_id,
 		CONCAT(m.year, ' ', m.make, ' ', m.model) AS machine_name,
 		card_reader.card_reader_serial_number, 
 		s.status, 
@@ -2717,10 +2715,26 @@ func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 		m.purchase_date
 	FROM "machine" AS m
 	JOIN machine_status AS s ON s.machine_status_id = m.machine_status_id
-	JOIN latest_location AS location_assignment ON location_assignment.machine_id = m.machine_id AND location_assignment.location_id = $1 AND location_assignment.rn = 1
+	JOIN (
+		SELECT machine_id, location_id 
+		FROM machine_location_assignment 
+		WHERE (machine_id, date_assigned) IN (
+			SELECT machine_id, MAX(date_assigned)
+			FROM machine_location_assignment
+			GROUP BY machine_id
+		)
+	) AS location_assignment ON location_assignment.machine_id = m.machine_id AND location_assignment.location_id = $1
 	JOIN location AS l ON l.location_id = location_assignment.location_id AND l.location_id = $1
-	LEFT JOIN latest_card_reader AS card_reader ON card_reader.machine_id = m.machine_id AND card_reader.rn = 1
-	WHERE latest_location.location_id = $1
+	LEFT JOIN (
+		SELECT machine_id, card_reader_serial_number 
+		FROM machine_card_reader_assignment 
+		WHERE (machine_id, date_assigned) IN (
+			SELECT machine_id, MAX(date_assigned)
+			FROM machine_card_reader_assignment
+			GROUP BY machine_id
+		)
+	) AS card_reader ON card_reader.machine_id = m.machine_id
+	WHERE location_assignment.location_id = $1
 	ORDER BY m.purchase_date DESC;`, locationId)
 	if err != nil {
 		return machines, fmt.Errorf("error executing query: %w", err)
@@ -2763,17 +2777,7 @@ func GetMachinesByLocation(locationId int) ([]types.MachineList, error) {
 }
 
 func GetMachineDetails(machineID int) (types.MachineDetails, error) {
-	query := `WITH latest_card_reader AS (
-		SELECT machine_id, card_reader_serial_number, date_assigned, is_active,
-			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
-		FROM machine_card_reader_assignment
-	),
-	latest_location AS (
-		SELECT machine_id, location_id, date_assigned, is_active, 
-			ROW_NUMBER() OVER (PARTITION BY machine_id ORDER BY date_assigned DESC) AS rn
-		FROM machine_location_assignment
-	)
-	SELECT
+	query := `SELECT
 		m.machine_id,
 		m.vending_type_id,
 		m.machine_status_id,
@@ -2790,8 +2794,24 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 		location_assignment.is_active,
 		card_reader.is_active
 	FROM machine AS m
-	LEFT JOIN latest_location AS location_assignment ON location_assignment.machine_id = m.machine_id AND location_assignment.rn = 1
-	LEFT JOIN latest_card_reader AS card_reader ON card_reader.machine_id = m.machine_id AND card_reader.rn = 1
+	LEFT JOIN (
+		SELECT machine_id, location_id, date_assigned, is_active 
+		FROM machine_location_assignment 
+		WHERE (machine_id, date_assigned) IN (
+			SELECT machine_id, MAX(date_assigned)
+			FROM machine_location_assignment
+			GROUP BY machine_id
+		)
+	) AS location_assignment ON location_assignment.machine_id = m.machine_id
+	LEFT JOIN (
+		SELECT machine_id, card_reader_serial_number, date_assigned, is_active 
+		FROM machine_card_reader_assignment 
+		WHERE (machine_id, date_assigned) IN (
+			SELECT machine_id, MAX(date_assigned)
+			FROM machine_card_reader_assignment
+			GROUP BY machine_id
+		)
+	) AS card_reader ON card_reader.machine_id = m.machine_id
 	WHERE m.machine_id = $1;`
 
 	var machine types.MachineDetails
