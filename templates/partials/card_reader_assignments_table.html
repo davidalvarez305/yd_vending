@@ -1,5 +1,5 @@
-{{ define "price_slot_logs_table.html" }}
-<div id="priceSlotLogsTable"
+{{ define "card_reader_assignments_table.html" }}
+<div id="cardReaderAssignmentsTable"
     class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
     <table class="min-w-full whitespace-nowrap align-middle text-sm">
         <thead>
@@ -24,7 +24,7 @@
         </thead>
 
         <tbody>
-            {{ range .PriceSlotLogs }}
+            {{ range .CardReaderAssignments }}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                 <td class="p-3 text-center">
                     <input type="number" id="price" name="price" value="{{ .Price }}" step="0.01"

@@ -2816,7 +2816,11 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	fileName := "machine_detail.html"
 	slotsTable := "slots_table.html"
 	createSlotForm := "create_slot_form.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + slotsTable, constants.CRM_TEMPLATES_DIR + createSlotForm}
+	cardReaderAssignmentsTable := "card_reader_assignments_table.html"
+	createCardReaderAssignmentsForm := "create_card_reader_assignment_form.html"
+	locationsAssignmentsTable := "location_assignments_table.html"
+	createLocationAssignmentsForm := "create_location_assignment_form.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + slotsTable, constants.CRM_TEMPLATES_DIR + createSlotForm, constants.PARTIAL_TEMPLATES_DIR + cardReaderAssignmentsTable, constants.CRM_TEMPLATES_DIR + createCardReaderAssignmentsForm, constants.PARTIAL_TEMPLATES_DIR + locationsAssignmentsTable, constants.CRM_TEMPLATES_DIR + createLocationAssignmentsForm}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -2885,6 +2889,20 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 		return
 	}
 
+	cardReaderAssignments, err := database.GetMachineCardReaderAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machine card reader assignments.", http.StatusInternalServerError)
+		return
+	}
+
+	locationAssignments, err := database.GetMachineLocationAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machine location assignments.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Machine Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
@@ -2896,6 +2914,8 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	data["MachineStatuses"] = machineStatuses
 	data["Locations"] = locations
 	data["Slots"] = slots
+	data["CardReaderAssignments"] = cardReaderAssignments
+	data["LocationAssignments"] = locationAssignments
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

@@ -1,0 +1,150 @@
+{{ define "create_location_assignments_form.html" }}
+<!-- Modal Container -->
+<div id="formModalContainer" style="display: none;">
+    <div>
+        <div tabindex="-1" role="dialog"
+            class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
+            <div role="document"
+                class="mx-auto flex w-full md:w-1/2 flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+                <div class="flex items-center justify-between bg-gray-50 px-5 py-4 dark:bg-gray-700/50">
+                    <h3 class="flex items-center gap-2 font-medium">
+                        <span>Create Location Assignment</span>
+                    </h3>
+                    <div class="-my-4">
+                        <button type="button" id="closeLocationAssignmentForm"
+                            class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                            <svg class="hi-solid hi-x -mx-1 inline-block size-4" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="grow p-5">
+                    <div
+                        class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+                        <div class="grow p-5 md:px-16 md:py-12">
+                            <form id="createLocationAssignmentForm" class="space-y-6 xl:w-2/3">
+                                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}" />
+                                <input type="hidden" name="machine_id" value="{{ .Machine.MachineID }}" />
+                                <div class="space-y-6 sm:flex sm:gap-3 sm:space-y-0">
+                                    <div class="space-y-1">
+                                        <label for="location_id" class="font-medium">Location</label>
+                                        <select id="location_id" name="location_id"
+                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                                            <option value=""></option>
+                                            {{ range .Locations }}
+                                            <option value="{{ .LocationID }}">
+                                                {{ .Name }}
+                                            </option>
+                                            {{ end }}
+                                        </select>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label for="location_date_assigned" class="font-medium">Location Assignment Date</label>
+                                        <input type="datetime-local" id="location_date_assigned" name="location_date_assigned"
+                                            class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="group relative inline-flex items-center gap-3">
+                                        <input type="checkbox" class="peer sr-only" id="is_location_active" name="is_location_active" />
+                                        <span
+                                            class="relative h-7 w-12 flex-none rounded-full bg-gray-300 transition-all duration-150 ease-out before:absolute before:left-1 before:top-1 before:size-5 before:rounded-full before:bg-white before:transition-transform before:duration-150 before:ease-out before:content-[''] peer-checked:bg-primary-500 peer-checked:before:translate-x-full peer-focus:ring peer-focus:ring-primary-500/50 peer-focus:ring-offset-2 peer-focus:ring-offset-white peer-disabled:cursor-not-allowed peer-disabled:opacity-75 dark:bg-gray-700 dark:peer-checked:bg-primary-500 dark:peer-focus:ring-offset-gray-900"></span>
+                                        <span class="font-medium">Is Location Active</span>
+                                    </label>
+                                </div>
+                                <button type="submit"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
+                                    Save Changes
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-x-1 bg-gray-50 px-5 py-4 text-right dark:bg-gray-700/50">
+                    <button type="button" id="cancelLocationAssignmentForm"
+                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                        Cancel
+                    </button>
+                    <button type="button" id="submitLocationAssignmentForm"
+                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END Modals: With Form -->
+</div>
+<!-- END Modal Container -->
+
+<div id="alertModal"></div>
+
+<script nonce="{{ .Nonce }}">
+    const locationAssignmentForm = document.getElementById("createLocationAssignmentForm");
+    const submitLocationAssignmentForm = document.getElementById("submitLocationAssignmentForm");
+    const cancelLocationAssignmentForm = document.getElementById("cancelLocationAssignmentForm");
+    const closeLocationAssignmentForm = document.getElementById("closeLocationAssignmentForm");
+
+    function handleCloseLocationAssignmentForm() {
+        const modal = document.getElementById('formModalContainer');
+        modal.style.display = 'none';
+    }
+
+    submitLocationAssignmentForm.addEventListener('click', () => handleSubmitLocationAssignmentForm());
+    cancelLocationAssignmentForm.addEventListener('click', () => handleCloseLocationAssignmentForm());
+    closeLocationAssignmentForm.addEventListener("click", () => handleCloseLocationAssignmentForm());
+
+    function handleSubmitLocationAssignmentForm() {
+        const data = new FormData(locationAssignmentForm);
+        const body = new FormData();
+        const alertModal = document.getElementById("alertModal");
+
+        for (const [key, value] of data.entries()) {
+            if (key === "location_date_assigned") {
+                const timestamp = new Date(value).getTime() / 1000;
+                body.append(key, timestamp);
+                continue;
+            }
+
+            if (value) body.append(key, value);
+        }
+
+        fetch(`/crm/machine/{{ .Machine.MachineID }}/location-assignment`, {
+            method: "POST",
+            credentials: "include",
+            body: body,
+        })
+            .then((response) => {
+                const token = response.headers.get('X-Csrf-Token');
+                if (token) {
+                    const tokens = document.querySelectorAll('[name="csrf_token"]');
+                    tokens.forEach(csrf_token => csrf_token.value = token);
+                }
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then((err) => {
+                        throw new Error(err);
+                    });
+                }
+            })
+            .then(html => {
+                const table = document.getElementById('locationAssignmentsTable');
+                table.outerHTML = html;
+                handleBindPagination();
+
+                locationAssignmentForm.reset();
+            })
+            .catch(err => {
+                alertModal.outerHTML = err;
+                handleCloseAlertModal();
+            })
+            .finally(() => handleCloseLocationAssignmentForm());
+    }
+</script>
+{{ end }}
