@@ -1,14 +1,11 @@
 function handleCloseAlertModal() {
 	const closeModalButton = document.querySelectorAll(".closeModal");
-	const newModal = document.getElementById("alertModal");
+	const modal = document.getElementById("alertModal");
 
 	closeModalButton.forEach((button) => {
-		let children = button.children;
-		Array.from(children).forEach((child) => {
-			child.setAttribute("name", button.name);
+		button.addEventListener("click", () => {
+			modal.style.display = "none";
 		});
-
-		button.addEventListener("click", () => (newModal.style.display = "none"));
 	});
 }
 
