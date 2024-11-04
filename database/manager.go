@@ -2848,24 +2848,6 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 	if purchaseDate.Valid {
 		machine.PurchaseDate = purchaseDate.Time.Unix()
 	}
-	if cardReaderSerialNumber.Valid {
-		machine.CardReaderSerialNumber = cardReaderSerialNumber.String
-	}
-	if location.Valid {
-		machine.LocationID = int(location.Int64)
-	}
-	if dateAssigned.Valid {
-		machine.DateAssigned = dateAssigned.Time.Unix()
-	}
-	if locationDateAssigned.Valid {
-		machine.LocationDateAssigned = locationDateAssigned.Time.Unix()
-	}
-	if isCardReaderActive.Valid {
-		machine.IsCardReaderActive = isCardReaderActive.Bool
-	}
-	if isLocationActive.Valid {
-		machine.IsLocationActive = isLocationActive.Bool
-	}
 
 	return machine, nil
 }
