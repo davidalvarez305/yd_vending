@@ -377,21 +377,15 @@ type LocationForm struct {
 }
 
 type MachineForm struct {
-	CSRFToken              *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	Year                   *int     `json:"year" form:"year" schema:"year"`
-	Make                   *string  `json:"make" form:"make" schema:"make"`
-	Model                  *string  `json:"model" form:"model" schema:"model"`
-	PurchasePrice          *float64 `json:"purchase_price" form:"purchase_price" schema:"purchase_price"`
-	PurchaseDate           *int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
-	VendingTypeID          *int     `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
-	LocationID             *int     `json:"location_id" form:"location_id" schema:"location_id"`
-	LocationDateAssigned   *int64   `json:"location_date_assigned" form:"location_date_assigned" schema:"location_date_assigned"`
-	IsLocationActive       *bool    `json:"is_location_active" form:"is_location_active" schema:"is_location_active"`
-	MachineStatusID        *int     `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
-	VendorID               *int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
-	CardReaderSerialNumber *string  `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
-	DateAssigned           *int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
-	IsCardReaderActive     *bool    `json:"is_card_reader_active" form:"is_card_reader_active" schema:"is_card_reader_active"`
+	CSRFToken       *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Year            *int     `json:"year" form:"year" schema:"year"`
+	Make            *string  `json:"make" form:"make" schema:"make"`
+	Model           *string  `json:"model" form:"model" schema:"model"`
+	PurchasePrice   *float64 `json:"purchase_price" form:"purchase_price" schema:"purchase_price"`
+	PurchaseDate    *int64   `json:"purchase_date" form:"purchase_date" schema:"purchase_date"`
+	VendingTypeID   *int     `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	MachineStatusID *int     `json:"machine_status_id" form:"machine_status_id" schema:"machine_status_id"`
+	VendorID        *int     `json:"vendor_id" form:"vendor_id" schema:"vendor_id"`
 }
 
 type MachineList struct {
@@ -770,4 +764,36 @@ type SentEmail struct {
 	DeliveryStatus  *string `json:"delivery_status" form:"delivery_status" schema:"delivery_status"`
 	DateSent        *int64  `json:"date_sent" form:"date_sent" schema:"date_sent"`
 	ErrorMessage    *string `json:"error_message" form:"error_message" schema:"error_message"`
+}
+
+type MachineLocationAssignmentForm struct {
+	CSRFToken    *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	LocationID   *int    `json:"location_id" form:"location_id" schema:"location_id"`
+	MachineID    *int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	DateAssigned *int64  `json:"location_date_assigned" form:"location_date_assigned" schema:"location_date_assigned"`
+	IsActive     *bool   `json:"is_active" form:"is_active" schema:"is_active"`
+}
+
+type MachineCardReaderAssignmentForm struct {
+	CSRFToken              *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	CardReaderSerialNumber *string `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
+	MachineID              *int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	DateAssigned           *int64  `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	IsActive               *bool   `json:"is_active" form:"is_active" schema:"is_active"`
+}
+
+type MachineLocationAssignment struct {
+	MachineLocationAssignmentID int    `json:"machine_location_assignment_id" form:"machine_location_assignment_id" schema:"machine_location_assignment_id"`
+	LocationID                  int    `json:"location_id" form:"location_id" schema:"location_id"`
+	MachineID                   int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	DateAssigned                string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	IsActive                    bool   `json:"is_active" form:"is_active" schema:"is_active"`
+}
+
+type MachineCardReaderAssignment struct {
+	MachineCardReaderID    int    `json:"machine_card_reader_id" form:"machine_card_reader_id" schema:"machine_card_reader_id"`
+	CardReaderSerialNumber string `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
+	MachineID              int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	DateAssigned           string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	IsActive               bool   `json:"is_active" form:"is_active" schema:"is_active"`
 }

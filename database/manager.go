@@ -2583,8 +2583,7 @@ func GetMarketingImages() ([]string, error) {
 	return images, nil
 }
 
-func CreateMachine(form types.MachineForm) (int, error) {
-	var machineId int
+func CreateMachine(form types.MachineForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO machine (
 			vending_type_id, 
@@ -2596,10 +2595,9 @@ func CreateMachine(form types.MachineForm) (int, error) {
 			purchase_price, 
 			purchase_date
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, to_timestamp($8)::timestamptz AT TIME ZONE 'America/New_York')
-		RETURNING machine_id
 	`)
 	if err != nil {
-		return machineId, fmt.Errorf("error preparing statement: %w", err)
+		return fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
@@ -2610,7 +2608,7 @@ func CreateMachine(form types.MachineForm) (int, error) {
 	vendorID := utils.CreateNullInt(form.VendorID)
 	purchaseDate := utils.CreateNullInt64(form.PurchaseDate)
 
-	err = stmt.QueryRow(
+	_, err = stmt.Exec(
 		int64(*form.VendingTypeID),
 		int64(*form.MachineStatusID),
 		vendorID,
@@ -2619,13 +2617,13 @@ func CreateMachine(form types.MachineForm) (int, error) {
 		model,
 		purchasePrice,
 		purchaseDate,
-	).Scan(&machineId)
+	)
 
 	if err != nil {
-		return machineId, fmt.Errorf("error executing statement: %w", err)
+		return fmt.Errorf("error executing statement: %w", err)
 	}
 
-	return machineId, nil
+	return nil
 }
 
 func GetLocationDetails(businessID, locationID int) (types.LocationDetails, error) {
@@ -2836,8 +2834,8 @@ func GetMachineDetails(machineID int) (types.MachineDetails, error) {
 		&cardReaderSerialNumber,
 		&dateAssigned,
 		&locationDateAssigned,
-		&isCardReaderActive,
 		&isLocationActive,
+		&isCardReaderActive,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -3501,7 +3499,7 @@ func DeleteRefill(id int) error {
 	return nil
 }
 
-func CreateMachineLocationAssignment(form models.MachineLocationAssignment) error {
+func CreateMachineLocationAssignment(form types.MachineLocationAssignmentForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO machine_location_assignment (
 			location_id,
@@ -3516,10 +3514,10 @@ func CreateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		form.LocationID,
-		form.MachineID,
-		form.DateAssigned,
-		form.IsActive,
+		utils.CreateNullInt(form.LocationID),
+		utils.CreateNullInt(form.MachineID),
+		utils.CreateNullInt64(form.DateAssigned),
+		utils.CreateNullBool(form.IsActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3528,7 +3526,7 @@ func CreateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 	return nil
 }
 
-func CreateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) error {
+func CreateMachineCardReaderAssignment(form types.MachineCardReaderAssignmentForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO machine_card_reader_assignment (
 			card_reader_serial_number,
@@ -3543,10 +3541,10 @@ func CreateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		form.CardReaderSerialNumber,
-		form.MachineID,
-		form.DateAssigned,
-		form.IsActive,
+		utils.CreateNullString(form.CardReaderSerialNumber),
+		utils.CreateNullInt(form.MachineID),
+		utils.CreateNullInt64(form.DateAssigned),
+		utils.CreateNullBool(form.IsActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3616,7 +3614,7 @@ func DeleteSlotPriceLog(id int) error {
 	return nil
 }
 
-func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) error {
+func UpdateMachineLocationAssignment(assignmentId int, form types.MachineLocationAssignmentForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE machine_location_assignment
 		SET location_id = COALESCE($2, location_id),
@@ -3631,11 +3629,11 @@ func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		form.MachineLocationAssignmentID,
-		form.LocationID,
-		form.MachineID,
-		form.DateAssigned,
-		form.IsActive,
+		assignmentId,
+		utils.CreateNullInt(form.LocationID),
+		utils.CreateNullInt(form.MachineID),
+		utils.CreateNullInt64(form.DateAssigned),
+		utils.CreateNullBool(form.IsActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3644,7 +3642,7 @@ func UpdateMachineLocationAssignment(form models.MachineLocationAssignment) erro
 	return nil
 }
 
-func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) error {
+func UpdateMachineCardReaderAssignment(cardReaderId int, form types.MachineCardReaderAssignmentForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE machine_card_reader_assignment
 		SET card_reader_serial_number = COALESCE($2, card_reader_serial_number),
@@ -3659,11 +3657,11 @@ func UpdateMachineCardReaderAssignment(form models.MachineCardReaderAssignment) 
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		form.MachineCardReaderID,
-		form.CardReaderSerialNumber,
-		form.MachineID,
-		form.DateAssigned,
-		form.IsActive,
+		cardReaderId,
+		utils.CreateNullString(form.CardReaderSerialNumber),
+		utils.CreateNullInt(form.MachineID),
+		utils.CreateNullInt64(form.DateAssigned),
+		utils.CreateNullBool(form.IsActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -4875,4 +4873,98 @@ func GetEmailScheduleDetails(emailScheduleId string) (models.EmailSchedule, erro
 	}
 
 	return emailSchedule, nil
+}
+
+func GetMachineCardReaderAssignments(machineId int) ([]types.MachineCardReaderAssignment, error) {
+	query := `SELECT 
+		mcr.machine_card_reader_id,
+		mcr.card_reader_serial_number,
+		mcr.machine_id,
+		mcr.date_assigned,
+		mcr.is_active
+	FROM machine_card_reader_assignment AS mcr
+	WHERE mcr.machine_id = $1`
+
+	var cardReaderAssignments []types.MachineCardReaderAssignment
+
+	rows, err := DB.Query(query, machineId)
+	if err != nil {
+		return cardReaderAssignments, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var assignment types.MachineCardReaderAssignment
+		var dateAssigned sql.NullTime
+
+		err := rows.Scan(
+			&assignment.MachineCardReaderID,
+			&assignment.CardReaderSerialNumber,
+			&assignment.MachineID,
+			&dateAssigned,
+			&assignment.IsActive,
+		)
+		if err != nil {
+			return cardReaderAssignments, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if dateAssigned.Valid {
+			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+		}
+
+		cardReaderAssignments = append(cardReaderAssignments, assignment)
+	}
+
+	if err := rows.Err(); err != nil {
+		return cardReaderAssignments, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return cardReaderAssignments, nil
+}
+
+func GetMachineLocationAssignments(machineId int) ([]types.MachineLocationAssignment, error) {
+	query := `SELECT 
+		mcr.machine_location_assignment_id,
+		mcr.location_id,
+		mcr.machine_id,
+		mcr.date_assigned,
+		mcr.is_active
+	FROM machine_location_assignment AS mcr
+	WHERE mcr.machine_id = $1`
+
+	var locationAssignments []types.MachineLocationAssignment
+
+	rows, err := DB.Query(query, machineId)
+	if err != nil {
+		return locationAssignments, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var assignment types.MachineLocationAssignment
+		var dateAssigned sql.NullTime
+
+		err := rows.Scan(
+			&assignment.MachineLocationAssignmentID,
+			&assignment.LocationID,
+			&assignment.MachineID,
+			&dateAssigned,
+			&assignment.IsActive,
+		)
+		if err != nil {
+			return locationAssignments, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if dateAssigned.Valid {
+			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+		}
+
+		locationAssignments = append(locationAssignments, assignment)
+	}
+
+	if err := rows.Err(); err != nil {
+		return locationAssignments, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return locationAssignments, nil
 }

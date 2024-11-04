@@ -158,6 +158,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/location-assignment") {
+			PutLocationAssignment(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/card-reader-assignment") {
+			PutCardReaderAssignment(w, r)
+			return
+		}
 		if strings.HasPrefix(path, "/crm/business/") {
 			parts := strings.Split(path, "/")
 			if len(parts) >= 6 && parts[4] == "location" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
@@ -240,6 +248,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostSlot(w, r)
 			return
 		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/location-assignment") {
+			PostLocationAssignment(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/card-reader-assignment") {
+			PostCardReaderAssignment(w, r)
+			return
+		}
 
 		switch path {
 		case "/crm/business":
@@ -307,6 +323,14 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if len(path) > len("/crm/slot-price-log/") && helpers.IsNumeric(path[len("/crm/slot-price-log/"):]) {
 			DeleteSlotPriceLog(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/location-assignment") {
+			DeleteLocationAssignment(w, r)
+			return
+		}
+		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/card-reader-assignment") {
+			DeleteCardReaderAssignment(w, r)
 			return
 		}
 	default:
@@ -1318,7 +1342,7 @@ func PostMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	machineId, err := database.CreateMachine(form)
+	err = database.CreateMachine(form)
 	if err != nil {
 		fmt.Printf("Error creating machine: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -1331,61 +1355,6 @@ func PostMachine(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
-	}
-
-	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
-	locationId := utils.CreateNullInt(form.LocationID)
-	locationDateAssigned := utils.CreateNullInt64(form.LocationDateAssigned)
-	machineCardReaderDateAssigned := utils.CreateNullInt64(form.DateAssigned)
-	isLocationActive := utils.CreateNullBool(form.IsLocationActive)
-	isCardReaderActive := utils.CreateNullBool(form.IsCardReaderActive)
-
-	// Assign machine to location
-	if locationId.Valid && locationDateAssigned.Valid && isLocationActive.Valid {
-		assignment := models.MachineLocationAssignment{
-			LocationID:   int(locationId.Int64),
-			MachineID:    machineId,
-			DateAssigned: locationDateAssigned.Int64,
-			IsActive:     isLocationActive.Bool,
-		}
-		err = database.CreateMachineLocationAssignment(assignment)
-		if err != nil {
-			fmt.Printf("Error creating machine location assignemnt: %+v\n", err)
-			tmplCtx := types.DynamicPartialTemplate{
-				TemplateName: "error",
-				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-				Data: map[string]any{
-					"Message": "Failed to create machine location assignemnt.",
-				},
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-			return
-		}
-	}
-
-	// Assign card reader to machine
-	if cardReaderSerialNumber.Valid && machineCardReaderDateAssigned.Valid && isCardReaderActive.Valid {
-		cardReaderAssignment := models.MachineCardReaderAssignment{
-			CardReaderSerialNumber: cardReaderSerialNumber.String,
-			MachineID:              machineId,
-			DateAssigned:           machineCardReaderDateAssigned.Int64,
-			IsActive:               isCardReaderActive.Bool,
-		}
-		err = database.CreateMachineCardReaderAssignment(cardReaderAssignment)
-		if err != nil {
-			fmt.Printf("Error creating machine card reader assignemnt: %+v\n", err)
-			tmplCtx := types.DynamicPartialTemplate{
-				TemplateName: "error",
-				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-				Data: map[string]any{
-					"Message": "Failed to create machine card reader assignemnt.",
-				},
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-			return
-		}
 	}
 
 	pageNum := 1 // Always default to one after new business is created
@@ -1679,76 +1648,6 @@ func PutMachine(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
-	}
-
-	dateAssigned := utils.CreateNullInt64(form.DateAssigned)
-	locationDateAssigned := utils.CreateNullInt64(form.LocationDateAssigned)
-	cardReaderSerialNumber := utils.CreateNullString(form.CardReaderSerialNumber)
-	locationId := utils.CreateNullInt(form.LocationID)
-	isCardReaderActive := utils.CreateNullBool(form.IsCardReaderActive)
-	isLocationActive := utils.CreateNullBool(form.IsLocationActive)
-
-	machine, err := database.GetMachineDetails(machineId)
-	if err != nil {
-		fmt.Printf("Error updating machine: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error getting machine details.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	// Assign machine to location if not equal to current location
-	if locationId.Valid && locationId.Int64 != int64(machine.LocationID) && locationDateAssigned.Valid && locationDateAssigned.Int64 != machine.LocationDateAssigned {
-		assignment := models.MachineLocationAssignment{
-			LocationID:   int(locationId.Int64),
-			MachineID:    machineId,
-			DateAssigned: locationDateAssigned.Int64,
-			IsActive:     isLocationActive.Bool,
-		}
-		err = database.CreateMachineLocationAssignment(assignment)
-		if err != nil {
-			fmt.Printf("Error creating machine: %+v\n", err)
-			tmplCtx := types.DynamicPartialTemplate{
-				TemplateName: "error",
-				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-				Data: map[string]any{
-					"Message": "Failed to create machine location assignment.",
-				},
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-			return
-		}
-	}
-
-	// Assign card reader to machine if not equal to current card reader
-	if cardReaderSerialNumber.Valid && cardReaderSerialNumber.String != machine.CardReaderSerialNumber && dateAssigned.Valid && dateAssigned.Int64 != machine.DateAssigned {
-		cardReaderAssignment := models.MachineCardReaderAssignment{
-			CardReaderSerialNumber: cardReaderSerialNumber.String,
-			MachineID:              machineId,
-			DateAssigned:           dateAssigned.Int64,
-			IsActive:               isCardReaderActive.Bool,
-		}
-		err = database.CreateMachineCardReaderAssignment(cardReaderAssignment)
-		if err != nil {
-			fmt.Printf("Error creating machine: %+v\n", err)
-			tmplCtx := types.DynamicPartialTemplate{
-				TemplateName: "error",
-				TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-				Data: map[string]any{
-					"Message": "Failed to create machine card reader assignment.",
-				},
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-			return
-		}
 	}
 
 	tmplCtx := types.DynamicPartialTemplate{
@@ -4443,6 +4342,446 @@ func GetEmailScheduleTest(w http.ResponseWriter, r *http.Request) {
 		Data: map[string]any{
 			"AlertHeader":  "Success!",
 			"AlertMessage": "Email has been sent successfully.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func DeleteCardReaderAssignment(w http.ResponseWriter, r *http.Request) {
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cardReaderAssignmentId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteMachineCardReaderAssignment(cardReaderAssignmentId)
+	if err != nil {
+		fmt.Printf("Error deleting card reader assignment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete card reader assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	cardReaderAssignments, err := database.GetMachineCardReaderAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting card reader assignments from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "card_reader_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "card_reader_assignments_table.html",
+		Data: map[string]any{
+			"CardReaderAssignments": cardReaderAssignments,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func DeleteLocationAssignment(w http.ResponseWriter, r *http.Request) {
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	locationAssignmentId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteMachineLocationAssignment(locationAssignmentId)
+	if err != nil {
+		fmt.Printf("Error deleting location assignment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete location assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	locationAssignments, err := database.GetMachineLocationAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting location assignments from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "location_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "location_assignments_table.html",
+		Data: map[string]any{
+			"LocationAssignments": locationAssignments,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostCardReaderAssignment(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var form types.MachineCardReaderAssignmentForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateMachineCardReaderAssignment(form)
+	if err != nil {
+		fmt.Printf("Error creating slot price log: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create card reader assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	cardReaderAssignments, err := database.GetMachineCardReaderAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting card reader assignments from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "card_reader_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "card_reader_assignments_table.html",
+		Data: map[string]any{
+			"CardReaderAssignments": cardReaderAssignments,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostLocationAssignment(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var form types.MachineLocationAssignmentForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateMachineLocationAssignment(form)
+	if err != nil {
+		fmt.Printf("Error creating location assignment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create location assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	locationAssignments, err := database.GetMachineLocationAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting location assignments from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "location_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "location_assignments_table.html",
+		Data: map[string]any{
+			"LocationAssignments": locationAssignments,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutCardReaderAssignment(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cardReaderId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var form types.MachineCardReaderAssignmentForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.UpdateMachineCardReaderAssignment(cardReaderId, form)
+	if err != nil {
+		fmt.Printf("Error updating card reader assignment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update card reader assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	cardReaderAssignments, err := database.GetMachineCardReaderAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting card reader assignments from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "card_reader_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "card_reader_assignments_table.html",
+		Data: map[string]any{
+			"CardReaderAssignments": cardReaderAssignments,
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutLocationAssignment(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	locationAssignmentId, err := helpers.GetSecondIDFromPath(r, "/crm/machine/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var form types.MachineLocationAssignmentForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.UpdateMachineLocationAssignment(locationAssignmentId, form)
+	if err != nil {
+		fmt.Printf("Error updating location assignment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update location assignment.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	locationAssignments, err := database.GetMachineLocationAssignments(machineId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting location assignments from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "location_assignments_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "location_assignments_table.html",
+		Data: map[string]any{
+			"LocationAssignments": locationAssignments,
 		},
 	}
 
