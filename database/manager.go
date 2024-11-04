@@ -4606,8 +4606,8 @@ func DeleteEmailSchedule(emailScheduleId int) error {
 	return nil
 }
 
-func GetEmailSchedules(pageNum int) ([]models.EmailSchedule, int, error) {
-	var emailSchedules []models.EmailSchedule
+func GetEmailSchedules(pageNum int) ([]types.EmailScheduleList, int, error) {
+	var emailSchedules []types.EmailScheduleList
 	var totalRows int
 
 	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
@@ -4641,7 +4641,7 @@ func GetEmailSchedules(pageNum int) ([]models.EmailSchedule, int, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var emailSchedule models.EmailSchedule
+		var emailSchedule types.EmailScheduleList
 
 		var lastSent time.Time
 		var attachmentPath sql.NullString
@@ -4666,7 +4666,7 @@ func GetEmailSchedules(pageNum int) ([]models.EmailSchedule, int, error) {
 			emailSchedule.AttachmentPath = attachmentPath.String
 		}
 
-		emailSchedule.LastSent = lastSent.Unix()
+		emailSchedule.LastSent = utils.FormatDateMMDDYYYY(lastSent.Unix())
 
 		emailSchedules = append(emailSchedules, emailSchedule)
 	}

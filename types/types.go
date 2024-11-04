@@ -751,6 +751,19 @@ type EmailScheduleForm struct {
 	IsActive        *bool   `json:"is_active" form:"is_active" schema:"is_active"`
 }
 
+type EmailScheduleList struct {
+	EmailScheduleID int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`
+	EmailName       string `json:"email_name" form:"email_name" schema:"email_name"`
+	IntervalSeconds int64  `json:"interval_seconds" form:"interval_seconds" schema:"interval_seconds"`
+	Recipients      string `json:"recipients" form:"recipients" schema:"recipients"`
+	Subject         string `json:"subject" form:"subject" schema:"subject"`
+	Body            string `json:"body" form:"body" schema:"body"`
+	Sender          string `json:"sender" form:"sender" schema:"sender"`
+	AttachmentPath  string `json:"attachment_path" form:"attachment_path" schema:"attachment_path"`
+	LastSent        string `json:"last_sent" form:"last_sent" schema:"last_sent"`
+	IsActive        bool   `json:"is_active" form:"is_active" schema:"is_active"`
+}
+
 type SentEmail struct {
 	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	EmailScheduleID *int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`

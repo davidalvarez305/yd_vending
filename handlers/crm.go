@@ -3963,7 +3963,7 @@ func PutSlotPriceLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEmailSchedules(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
-	baseFile := constants.CRM_TEMPLATES_DIR + "email_schedule.html"
+	baseFile := constants.CRM_TEMPLATES_DIR + "email_schedules.html"
 	createEmailScheduleForm := constants.CRM_TEMPLATES_DIR + "create_email_schedule_form.html"
 	table := constants.PARTIAL_TEMPLATES_DIR + "email_schedule_table.html"
 	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table, createEmailScheduleForm}
