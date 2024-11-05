@@ -45,11 +45,8 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
-		if strings.HasPrefix(path, "/inventory/transaction/") {
-			if len(path) > len("/inventory/transaction/") && helpers.IsNumeric(path[len("/inventory/transaction/"):]) {
-				PostInvalidateTransaction(w, r)
-				return
-			}
+		if strings.HasPrefix(path, "/inventory/transaction/") && strings.Contains(path, "/invalidate") {
+			PostInvalidateTransaction(w, r)
 		}
 
 		switch path {
@@ -97,11 +94,9 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		if strings.HasPrefix(path, "/inventory/transaction/") {
-			if len(path) > len("/inventory/transaction/") && helpers.IsNumeric(path[len("/inventory/transaction/"):]) {
-				DeleteTransactionInvalidation(w, r)
-				return
-			}
+
+		if strings.HasPrefix(path, "/inventory/transaction/") && strings.Contains(path, "/invalidate") {
+			DeleteTransactionInvalidation(w, r)
 		}
 
 		switch path {

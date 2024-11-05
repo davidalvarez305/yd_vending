@@ -3813,7 +3813,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 	rows, err := DB.Query(`
 		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.model, ' ', m.make) AS machine, l.name AS location,
 				s.machine_code, p.name,
-		       t.transaction_type, t.card_number, slot_price.price * t.items, t.items, COALESCE(i.is_validated, false),
+		       t.transaction_type, t.card_number, slot_price.price * t.items, t.items, COALESCE(i.is_validated, TRUE),
 			   COUNT(*) OVER() AS total_rows
 		FROM seed_transaction AS t
 		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
@@ -4081,7 +4081,7 @@ func CreateTransactionInvalidation(transactionId string) error {
 
 	_, err = stmt.Exec(
 		transactionId,
-		true,
+		false,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -4273,7 +4273,9 @@ func GetCommissionReport(businessId sql.NullString, dateFrom, dateTo time.Time) 
 			LIMIT 1
 		) AS slot_price ON slot_price.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
+		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
 		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3 AND (b.name = $1 OR $1 IS NULL)
+		AND i.is_validated IS NULL
 		GROUP BY p.name, slot_price.price, slot_assignment.unit_cost, loc_commission.commission
 		ORDER BY gross_profit DESC;
 	`, businessId, dateFrom, dateTo)
