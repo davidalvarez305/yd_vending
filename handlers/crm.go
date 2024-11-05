@@ -2914,8 +2914,8 @@ func GetMachineDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any
 	data["MachineStatuses"] = machineStatuses
 	data["Locations"] = locations
 	data["Slots"] = slots
-	data["CardReaderAssignments"] = cardReaderAssignments
-	data["LocationAssignments"] = locationAssignments
+	data["MachineCardReaderAssignments"] = cardReaderAssignments
+	data["MachineLocationAssignments"] = locationAssignments
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -4415,7 +4415,7 @@ func DeleteCardReaderAssignment(w http.ResponseWriter, r *http.Request) {
 		TemplateName: "card_reader_assignments_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "card_reader_assignments_table.html",
 		Data: map[string]any{
-			"CardReaderAssignments": cardReaderAssignments,
+			"MachineCardReaderAssignments": cardReaderAssignments,
 		},
 	}
 
@@ -4465,11 +4465,27 @@ func DeleteLocationAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	locations, err := database.GetLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting location from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "location_assignments_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "location_assignments_table.html",
 		Data: map[string]any{
-			"LocationAssignments": locationAssignments,
+			"Locations":                  locations,
+			"MachineLocationAssignments": locationAssignments,
 		},
 	}
 
@@ -4549,7 +4565,7 @@ func PostCardReaderAssignment(w http.ResponseWriter, r *http.Request) {
 		TemplateName: "card_reader_assignments_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "card_reader_assignments_table.html",
 		Data: map[string]any{
-			"CardReaderAssignments": cardReaderAssignments,
+			"MachineCardReaderAssignments": cardReaderAssignments,
 		},
 	}
 
@@ -4625,11 +4641,27 @@ func PostLocationAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	locations, err := database.GetLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting location from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "location_assignments_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "location_assignments_table.html",
 		Data: map[string]any{
-			"LocationAssignments": locationAssignments,
+			"Locations":                  locations,
+			"MachineLocationAssignments": locationAssignments,
 		},
 	}
 
@@ -4715,7 +4747,7 @@ func PutCardReaderAssignment(w http.ResponseWriter, r *http.Request) {
 		TemplateName: "card_reader_assignments_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "card_reader_assignments_table.html",
 		Data: map[string]any{
-			"CardReaderAssignments": cardReaderAssignments,
+			"MachineCardReaderAssignments": cardReaderAssignments,
 		},
 	}
 
@@ -4797,11 +4829,27 @@ func PutLocationAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	locations, err := database.GetLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting location from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "location_assignments_table.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "location_assignments_table.html",
 		Data: map[string]any{
-			"LocationAssignments": locationAssignments,
+			"Locations":                  locations,
+			"MachineLocationAssignments": locationAssignments,
 		},
 	}
 

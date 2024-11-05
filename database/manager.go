@@ -4859,7 +4859,7 @@ func GetEmailScheduleDetails(emailScheduleId string) (models.EmailSchedule, erro
 
 func GetMachineCardReaderAssignments(machineId int) ([]types.MachineCardReaderAssignment, error) {
 	query := `SELECT 
-		mcr.machine_card_reader_id,
+		mcr.machine_card_reader_assignment_id,
 		mcr.card_reader_serial_number,
 		mcr.machine_id,
 		mcr.date_assigned,
@@ -4938,7 +4938,7 @@ func GetMachineLocationAssignments(machineId int) ([]types.MachineLocationAssign
 		}
 
 		if dateAssigned.Valid {
-			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+			assignment.LocationDateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
 		}
 
 		locationAssignments = append(locationAssignments, assignment)

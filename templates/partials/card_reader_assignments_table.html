@@ -36,10 +36,12 @@
                         class="cardReaderDateAssigned w-full rounded-lg border border-gray-200 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </td>
                 <td class="p-3 text-center">
-                    <input type="checkbox" id="is_active" name="is_active" 
-                        {{ if .IsActive }}checked{{ end }} 
-                        data-machine-card-reader-id="{{ .MachineCardReaderID }}" 
-                        class="rounded-lg border border-gray-200 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary" />
+                    <label class="group relative inline-flex items-center gap-3">
+                        <input type="checkbox" class="peer sr-only" id="is_active" name="is_active" {{ if .IsActive }}checked{{ end }}  data-machine-card-reader-id="{{ .MachineCardReaderID }}"   />
+                        <span
+                            class="relative h-7 w-12 flex-none rounded-full bg-gray-300 transition-all duration-150 ease-out before:absolute before:left-1 before:top-1 before:size-5 before:rounded-full before:bg-white before:transition-transform before:duration-150 before:ease-out before:content-[''] peer-checked:bg-primary-500 peer-checked:before:translate-x-full peer-focus:ring peer-focus:ring-primary-500/50 peer-focus:ring-offset-2 peer-focus:ring-offset-white peer-disabled:cursor-not-allowed peer-disabled:opacity-75 dark:bg-gray-700 dark:peer-checked:bg-primary-500 dark:peer-focus:ring-offset-gray-900"></span>
+                        <span class="font-medium">Is Active</span>
+                    </label>
                 </td>
                 <td class="p-3 text-center">
                     <button data-machine-card-reader-id="{{ .MachineCardReaderID }}" 
@@ -70,12 +72,11 @@
 <script nonce="{{ .Nonce }}">
     const deleteCardReaderButtons = document.querySelectorAll(".deleteMachineCardReader");
     const updateCardReaderButtons = document.querySelectorAll(".updateMachineCardReader");
-    const machineId = `{{ .Machine.MachineID }}`
 
-    const data = new FormData();
-    const csrfToken = document.querySelector('[name="csrf_token"]');
-    if (csrfToken) {
-        data.set("csrf_token", csrfToken.value);
+    const cardReaderData = new FormData();
+    const cardReaderCsrfToken = document.querySelector('[name="csrf_token"]');
+    if (cardReaderCsrfToken) {
+        cardReaderData.set("csrf_token", cardReaderCsrfToken.value);
     }
 
     deleteCardReaderButtons.forEach(button => {
@@ -101,7 +102,7 @@
         });
 
         body.set("csrf_token", data.get("csrf_token"));
-        body.set("machine_id", machineId);
+        body.set("machine_id", `{{ .Machine.MachineID }}`);
 
         return body;
     }
@@ -139,13 +140,13 @@
     }
 
     function handleUpdateCardReaderAssignment(assignmentId) {
-        const data = getUpdateData(assignmentId);
-        data.set('date_assigned', Math.floor(new Date(data.get('date_assigned')).getTime() / 1000));
+        const cardReaderAssignmentData = getUpdateData(assignmentId);
+        cardReaderAssignmentData.set('date_assigned', Math.floor(new Date(cardReaderAssignmentData.get('date_assigned')).getTime() / 1000));
 
         fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
             method: "PUT",
             credentials: "include",
-            body: data
+            body: cardReaderAssignmentData
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');

@@ -780,12 +780,12 @@ type MachineLocationAssignment struct {
 	MachineLocationAssignmentID int    `json:"machine_location_assignment_id" form:"machine_location_assignment_id" schema:"machine_location_assignment_id"`
 	LocationID                  int    `json:"location_id" form:"location_id" schema:"location_id"`
 	MachineID                   int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
-	DateAssigned                string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
+	LocationDateAssigned        string `json:"location_date_assigned" form:"location_date_assigned" schema:"location_date_assigned"`
 	IsActive                    bool   `json:"is_active" form:"is_active" schema:"is_active"`
 }
 
 type MachineCardReaderAssignment struct {
-	MachineCardReaderID    int    `json:"machine_card_reader_id" form:"machine_card_reader_id" schema:"machine_card_reader_id"`
+	MachineCardReaderID    int    `json:"machine_card_reader_assignment_id" form:"machine_card_reader_assignment_id" schema:"machine_card_reader_assignment_id"`
 	CardReaderSerialNumber string `json:"card_reader_serial_number" form:"card_reader_serial_number" schema:"card_reader_serial_number"`
 	MachineID              int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
 	DateAssigned           string `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
