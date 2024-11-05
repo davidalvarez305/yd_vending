@@ -4237,6 +4237,7 @@ func GetCommissionReport(businessId sql.NullString, dateFrom, dateTo time.Time) 
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
 			FROM machine_card_reader_assignment AS card_reader
 			WHERE card_reader.card_reader_serial_number = t.device AND card_reader.date_assigned <= t.transaction_timestamp
+			AND card_reader.is_active = TRUE
 			ORDER BY card_reader.date_assigned DESC
 			LIMIT 1
 		) AS card_reader ON card_reader.card_reader_serial_number = t.device
@@ -4244,6 +4245,7 @@ func GetCommissionReport(businessId sql.NullString, dateFrom, dateTo time.Time) 
 			SELECT loc_assignment.machine_id, loc_assignment.location_id
 			FROM machine_location_assignment AS loc_assignment
 			WHERE loc_assignment.machine_id = card_reader.machine_id AND loc_assignment.date_assigned <= t.transaction_timestamp
+			AND loc_assignment.is_active = TRUE
 			ORDER BY loc_assignment.date_assigned DESC
 			LIMIT 1
 		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id

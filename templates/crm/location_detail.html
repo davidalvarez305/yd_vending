@@ -66,8 +66,7 @@
                             <select id="business_id" name="business_id" required
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                                 {{ range .Businesses }}
-                                <option value="{{ .BusinessID }}" {{ if eq .BusinessID $.Location.BusinessID
-                                    }}selected{{ end }}>
+                                <option value="{{ .BusinessID }}" {{ if eq .BusinessID $.Location.BusinessID }}selected{{ end }}>
                                     {{ .Name }}
                                 </option>
                                 {{ end }}
