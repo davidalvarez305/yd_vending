@@ -133,8 +133,6 @@
 		const editor = document.getElementById("editor");
 		if (editor.innerHTML.length > 0) body.set("body", editor.innerHTML);
 
-		console.log(body);
-		return;
 		fetch("/crm/email-schedule", {
 			method: "POST",
 			credentials: "include",
