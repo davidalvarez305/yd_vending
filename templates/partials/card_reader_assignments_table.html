@@ -4,52 +4,55 @@
     <table class="min-w-full whitespace-nowrap align-middle text-sm">
         <thead>
             <tr>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    Price
+                <th class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Card Reader Serial Number
                 </th>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                <th class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Date Assigned
                 </th>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                <th class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                    Is Active
+                </th>
+                <th class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Save
                 </th>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
+                <th class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Delete
                 </th>
             </tr>
         </thead>
-
         <tbody>
-            {{ range .CardReaderAssignments }}
+            {{ range .MachineCardReaderAssignments }}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                 <td class="p-3 text-center">
-                    <input type="number" id="price" name="price" value="{{ .Price }}" step="0.01"
-                        data-price-slot-log-id="{{ .SlotPriceLogID }}"
-                        class="w-1/8 rounded-lg border border-gray-200 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                    <input type="text" id="card_reader_serial_number" name="card_reader_serial_number" 
+                        value="{{ .CardReaderSerialNumber }}" 
+                        data-machine-card-reader-id="{{ .MachineCardReaderID }}" 
+                        class="w-full rounded-lg border border-gray-200 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </td>
                 <td class="p-3 text-center">
-                    <input type="datetime-local" id="date_assigned" name="date_assigned"
-                        data-price-slot-log-id="{{ .SlotPriceLogID }}" data-date-assigned="{{ .DateAssigned }}"
-                        step="0.01"
-                        class="dateAssigned w-1/8 rounded-lg border border-gray-200 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                    <input type="datetime-local" id="date_assigned" name="date_assigned" data-date-assigned="{{ .DateAssigned }}"
+                        data-machine-card-reader-id="{{ .MachineCardReaderID }}" 
+                        class="cardReaderDateAssigned w-full rounded-lg border border-gray-200 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                 </td>
                 <td class="p-3 text-center">
-                    <button data-price-slot-log-id="{{ .SlotPriceLogID }}"
-                        class="updatePriceLog inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                    <input type="checkbox" id="is_active" name="is_active" 
+                        {{ if .IsActive }}checked{{ end }} 
+                        data-machine-card-reader-id="{{ .MachineCardReaderID }}" 
+                        class="rounded-lg border border-gray-200 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary" />
+                </td>
+                <td class="p-3 text-center">
+                    <button data-machine-card-reader-id="{{ .MachineCardReaderID }}" 
+                        class="updateMachineCardReader inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                         <svg class="hi-solid hi-save inline-block size-5" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path
-                                d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
+                            <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
                         </svg>
                     </button>
                 </td>
                 <td class="p-3 text-center">
-                    <button data-price-slot-log-id="{{ .SlotPriceLogID }}"
-                        class="deletePriceLog inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                    <button data-machine-card-reader-id="{{ .MachineCardReaderID }}" 
+                        class="deleteMachineCardReader inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
                             class="hi-micro hi-x-circle inline-block size-4">
                             <path fill-rule="evenodd"
@@ -61,13 +64,13 @@
             </tr>
             {{ end }}
         </tbody>
-    </table>
+    </table>    
 </div>
 
 <script nonce="{{ .Nonce }}">
-    const deleteButtons = document.querySelectorAll(".deletePriceLog");
-    const updateButtons = document.querySelectorAll(".updatePriceLog");
-    const slotId = `{{ .Slot.SlotID }}`
+    const deleteCardReaderButtons = document.querySelectorAll(".deleteMachineCardReader");
+    const updateCardReaderButtons = document.querySelectorAll(".updateMachineCardReader");
+    const machineId = `{{ .Machine.MachineID }}`
 
     const data = new FormData();
     const csrfToken = document.querySelector('[name="csrf_token"]');
@@ -75,38 +78,36 @@
         data.set("csrf_token", csrfToken.value);
     }
 
-    deleteButtons.forEach(button => {
+    deleteCardReaderButtons.forEach(button => {
         button.addEventListener("click", function (e) {
-            handleDeletePriceChangeLog(button.dataset.priceSlotLogId);
+            handleDeleteCardReaderAssignment(button.dataset.machineCardReaderId);
         });
     });
 
-    updateButtons.forEach(button => {
+    updateCardReaderButtons.forEach(button => {
         button.addEventListener("click", function (e) {
-            handleUpdatePriceChangeLog(button.dataset.priceSlotLogId);
+            handleUpdateCardReaderAssignment(button.dataset.machineCardReaderId);
         });
     });
 
-    function getUpdateData(priceSlotLogId) {
+    function getUpdateData(assignmentId) {
         const inputs = document.getElementsByTagName('input');
         const body = new FormData();
 
         Array.from(inputs).forEach(input => {
-            const logId = input.dataset.priceSlotLogId;
-            if (logId !== priceSlotLogId) return;
+            if (assignmentId !== input.dataset.machineCardReaderId) return;
 
             body.set(input.getAttribute('name'), input.value);
         });
 
-        body.set("slot_price_log_id", priceSlotLogId);
-        body.set('csrf_token', data.get('csrf_token'));
-        body.set('slot_id', slotId);
+        body.set("csrf_token", data.get("csrf_token"));
+        body.set("machine_id", machineId);
 
         return body;
     }
 
-    function handleDeletePriceChangeLog(priceSlotLogId) {
-        fetch(`/crm/slot-price-log/${priceSlotLogId}?slotId=${slotId}`, {
+    function handleDeleteCardReaderAssignment(assignmentId) {
+        fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
             method: "DELETE",
             credentials: "include",
             body: data
@@ -126,7 +127,7 @@
                 }
             })
             .then(html => {
-                const table = document.getElementById('priceSlotLogsTable');
+                const table = document.getElementById('cardReaderAssignmentsTable');
                 table.outerHTML = html;
                 handleBindPagination();
                 handleDates();
@@ -137,11 +138,11 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    function handleUpdatePriceChangeLog(priceSlotLogId) {
-        const data = getUpdateData(priceSlotLogId);
+    function handleUpdateCardReaderAssignment(assignmentId) {
+        const data = getUpdateData(assignmentId);
         data.set('date_assigned', Math.floor(new Date(data.get('date_assigned')).getTime() / 1000));
 
-        fetch(`/crm/slot-price-log/${priceSlotLogId}`, {
+        fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
             method: "PUT",
             credentials: "include",
             body: data
@@ -161,9 +162,9 @@
                 }
             })
             .then(html => {
-                const table = document.getElementById('priceSlotLogsTable');
+                const table = document.getElementById('cardReaderAssignmentsTable');
                 table.outerHTML = html;
-                handleDates();
+                handleCardAssignmentDates();
                 handleBindPagination();
             })
             .catch(err => {
@@ -172,8 +173,8 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    function handleDates() {
-        const dates = document.querySelectorAll(".dateAssigned");
+    function handleCardAssignmentDates() {
+        const dates = document.querySelectorAll(".cardReaderDateAssigned");
 
         dates.forEach(date => {
             const unixTimestamp = parseInt(date.dataset.dateAssigned);
@@ -183,6 +184,6 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", () => handleDates());
+    document.addEventListener("DOMContentLoaded", () => handleCardAssignmentDates());
 </script>
 {{ end }}
