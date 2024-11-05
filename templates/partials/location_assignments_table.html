@@ -74,10 +74,10 @@
     const deleteLocationButtons = document.querySelectorAll(".deleteLocationAssignment");
     const updateLocationButtons = document.querySelectorAll(".updateLocationAssignment");
 
-    const updateData = new FormData();
+    const locationData = new FormData();
     const locationAssignmentCsrfToken = document.querySelector('[name="csrf_token"]');
     if (locationAssignmentCsrfToken) {
-        updateData.set("csrf_token", locationAssignmentCsrfToken.value);
+        locationData.set("csrf_token", locationAssignmentCsrfToken.value);
     }
 
     deleteLocationButtons.forEach(button => {
@@ -103,7 +103,7 @@
             body.set(input.getAttribute('name'), input.value);
         });
 
-        body.set('csrf_token', updateData.get('csrf_token'));
+        body.set('csrf_token', locationData.get('csrf_token'));
         body.set('machine_id', `{{ .Machine.MachineID }}`);
 
         return body;
@@ -113,7 +113,7 @@
         fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
             method: "DELETE",
             credentials: "include",
-            body: updateData
+            body: locationData
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
