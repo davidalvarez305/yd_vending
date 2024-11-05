@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"net/url"
@@ -284,5 +285,11 @@ func GetExternalReportDownload(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
+	}
+
+	err = helpers.DeleteFile(generatedFilePath)
+
+	if err != nil {
+		log.Printf("Failed to delete file: %s", err)
 	}
 }

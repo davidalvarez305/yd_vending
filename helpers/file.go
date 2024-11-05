@@ -26,3 +26,11 @@ func GetFileInfo(filePath string) (string, *multipart.FileHeader, error) {
 
 	return string(content), fileHeader, nil
 }
+
+func DeleteFile(filePath string) error {
+	err := os.Remove(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to delete file: %w", err)
+	}
+	return nil
+}
