@@ -151,6 +151,9 @@
 
     cancelDeleteRefill.addEventListener("click", () => {
         deleteRefillConfirmationModal.style.display = "none";
+
+        slotId = "";
+        refillId = "";
     });
 
     confirmDeleteRefill.addEventListener("click", () => handleConfirmDeleteRefill());
