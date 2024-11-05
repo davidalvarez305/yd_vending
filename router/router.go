@@ -28,6 +28,7 @@ func Router() *http.ServeMux {
 	router.HandleFunc("/sms/", handlers.PhoneServiceHandler)
 	router.HandleFunc("/call/", handlers.PhoneServiceHandler)
 	router.HandleFunc("/webhooks/", handlers.WebhookHandler)
+	router.HandleFunc("/funnel/", handlers.FunnelHandler)
 	router.HandleFunc("/", handlers.WebsiteHandler)
 
 	return router

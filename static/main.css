@@ -1428,6 +1428,11 @@ select{
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
 }
 
+.border-gray-300{
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
+}
+
 .border-gray-700{
   --tw-border-opacity: 1;
   border-color: rgb(55 65 81 / var(--tw-border-opacity));
@@ -1896,6 +1901,11 @@ select{
   line-height: 1rem;
 }
 
+.text-sm\/relaxed{
+  font-size: 0.875rem;
+  line-height: 1.625;
+}
+
 .font-black{
   font-weight: 900;
 }
@@ -1914,6 +1924,10 @@ select{
 
 .uppercase{
   text-transform: uppercase;
+}
+
+.italic{
+  font-style: italic;
 }
 
 .leading-4{
@@ -2007,6 +2021,11 @@ select{
 .text-gray-900{
   --tw-text-opacity: 1;
   color: rgb(17 24 39 / var(--tw-text-opacity));
+}
+
+.text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(154 33 103 / var(--tw-text-opacity));
 }
 
 .text-primary-50{
@@ -3799,6 +3818,11 @@ select{
   --tw-ring-color: rgb(75 85 99 / 0.4);
 }
 
+.dark\:focus\:ring-primary:focus:is(.dark *){
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(154 33 103 / var(--tw-ring-opacity));
+}
+
 .dark\:focus\:ring-primary-400\/90:focus:is(.dark *){
   --tw-ring-color: rgb(188 40 125 / 0.9);
 }
@@ -4221,6 +4245,11 @@ select{
 
   .lg\:text-xl\/relaxed{
     font-size: 1.25rem;
+    line-height: 1.625;
+  }
+
+  .lg\:text-lg\/relaxed{
+    font-size: 1.125rem;
     line-height: 1.625;
   }
 }

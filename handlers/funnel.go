@@ -44,7 +44,7 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		switch r.URL.Path {
-		case "/":
+		case "/funnel/90-day-challenge":
 			Get90DayVendingChallengeLandingPage(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
@@ -67,7 +67,7 @@ func Get90DayVendingChallengeLandingPage(w http.ResponseWriter, r *http.Request,
 	}
 
 	fileName := "90_day_challenge.html"
-	optInForm := constants.FUNNEL_TEMPLATES_DIR + "opt_in_form.html"
+	optInForm := constants.FUNNEL_TEMPLATES_DIR + "90_day_challenge_opt_in_form.html"
 	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + heroImagePath, optInForm, constants.FUNNEL_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
