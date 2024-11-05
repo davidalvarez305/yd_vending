@@ -3498,8 +3498,8 @@ func CreateMachineLocationAssignment(form types.MachineLocationAssignmentForm) e
 	_, err = stmt.Exec(
 		utils.CreateNullInt(form.LocationID),
 		utils.CreateNullInt(form.MachineID),
-		utils.CreateNullInt64(form.DateAssigned),
-		utils.CreateNullBool(form.IsActive),
+		utils.CreateNullInt64(form.LocationDateAssigned),
+		utils.CreateNullBool(form.IsLocationActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3525,8 +3525,8 @@ func CreateMachineCardReaderAssignment(form types.MachineCardReaderAssignmentFor
 	_, err = stmt.Exec(
 		utils.CreateNullString(form.CardReaderSerialNumber),
 		utils.CreateNullInt(form.MachineID),
-		utils.CreateNullInt64(form.DateAssigned),
-		utils.CreateNullBool(form.IsActive),
+		utils.CreateNullInt64(form.MachineCardReaderDateAssigned),
+		utils.CreateNullBool(form.IsCardReaderActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3614,8 +3614,8 @@ func UpdateMachineLocationAssignment(assignmentId int, form types.MachineLocatio
 		assignmentId,
 		utils.CreateNullInt(form.LocationID),
 		utils.CreateNullInt(form.MachineID),
-		utils.CreateNullInt64(form.DateAssigned),
-		utils.CreateNullBool(form.IsActive),
+		utils.CreateNullInt64(form.LocationDateAssigned),
+		utils.CreateNullBool(form.IsLocationActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3642,8 +3642,8 @@ func UpdateMachineCardReaderAssignment(cardReaderId int, form types.MachineCardR
 		cardReaderId,
 		utils.CreateNullString(form.CardReaderSerialNumber),
 		utils.CreateNullInt(form.MachineID),
-		utils.CreateNullInt64(form.DateAssigned),
-		utils.CreateNullBool(form.IsActive),
+		utils.CreateNullInt64(form.MachineCardReaderDateAssigned),
+		utils.CreateNullBool(form.IsCardReaderActive),
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -4884,14 +4884,14 @@ func GetMachineCardReaderAssignments(machineId int) ([]types.MachineCardReaderAs
 			&assignment.CardReaderSerialNumber,
 			&assignment.MachineID,
 			&dateAssigned,
-			&assignment.IsActive,
+			&assignment.IsCardReaderActive,
 		)
 		if err != nil {
 			return cardReaderAssignments, fmt.Errorf("error scanning row: %w", err)
 		}
 
 		if dateAssigned.Valid {
-			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+			assignment.MachineCardReaderDateAssigned = dateAssigned.Time.Unix()
 		}
 
 		cardReaderAssignments = append(cardReaderAssignments, assignment)
@@ -4931,14 +4931,14 @@ func GetMachineLocationAssignments(machineId int) ([]types.MachineLocationAssign
 			&assignment.LocationID,
 			&assignment.MachineID,
 			&dateAssigned,
-			&assignment.IsActive,
+			&assignment.IsLocationActive,
 		)
 		if err != nil {
 			return locationAssignments, fmt.Errorf("error scanning row: %w", err)
 		}
 
 		if dateAssigned.Valid {
-			assignment.LocationDateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+			assignment.LocationDateAssigned = dateAssigned.Time.Unix()
 		}
 
 		locationAssignments = append(locationAssignments, assignment)

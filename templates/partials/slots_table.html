@@ -57,8 +57,8 @@
                     <p class="font-medium">{{ .Capacity }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <button id="markRefill" type="button" data-slot-id="{{ .SlotID }}"
-                        class="inline-flex items-center justify-center gap-2 rounded-l-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                    <button type="button" data-slot-id="{{ .SlotID }}"
+                        class="markRefill inline-flex items-center justify-center gap-2 rounded-l-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
                             class="hi-micro hi-check inline-block size-4">
                             <path fill-rule="evenodd"
@@ -66,9 +66,9 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </button>
-                    <button id="deleteRefill" type="button" data-slot-id="{{ .SlotID }}"
+                    <button type="button" data-slot-id="{{ .SlotID }}"
                         data-last-refill-id="{{ .LastRefillID }}"
-                        class="inline-flex items-center justify-center gap-2 rounded-l-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                        class="deleteRefill inline-flex items-center justify-center gap-2 rounded-l-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
                             class="hi-micro hi-x-mark inline-block size-4">
                             <path
@@ -107,11 +107,11 @@
                 </div>
             </div>
             <div class="space-x-1 bg-gray-50 px-5 py-4 text-right dark:bg-gray-700/50">
-                <button type="cancelDeleteRefill"
+                <button type="button" id="cancelDeleteRefill"
                     class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                     Cancel
                 </button>
-                <button type="confirmDeleteRefill"
+                <button type="button" id="confirmDeleteRefill"
                     class="inline-flex items-center justify-center gap-2 rounded-lg border border-rose-700 bg-rose-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-rose-600 hover:bg-rose-600 hover:text-white focus:ring focus:ring-rose-400/50 active:border-rose-700 active:bg-rose-700 dark:focus:ring-rose-400/90">
                     Confirm
                 </button>
@@ -123,8 +123,8 @@
 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
 
 <script nonce="{{ .Nonce }}">
-    const markRefill = document.getElementById("markRefill");
-    const deleteRefill = document.querySelectorAll("deleteRefill");
+    const markRefill = document.querySelectorAll(".markRefill");
+    const deleteRefill = document.querySelectorAll(".deleteRefill");
 
     const deleteRefillConfirmationModal = document.getElementById("deleteRefillConfirmationModal");
     const cancelDeleteRefill = document.getElementById("cancelDeleteRefill");
@@ -133,9 +133,11 @@
     let slotId = "";
     let refillId = "";
 
-    markRefill.addEventListener("click", (e) => {
-        const slotId = e.target.getAttribute('data-slot-id');
-        handleMarkRefill(slotId);
+    markRefill.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const slotId = e.target.getAttribute('data-slot-id');
+            handleMarkRefill(slotId);
+        });
     });
 
     deleteRefill.forEach(btn => {
