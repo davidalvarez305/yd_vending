@@ -3,9 +3,9 @@ const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
 export class MarketingHelper {
     constructor() {
         this.user = JSON.parse(localStorage.getItem("user")) || {};
-        this.landingPage = new URL(user.landingPage || window.location.href);
+        this.landingPage = new URL(this.user.landingPage || window.location.href);
         this.language = navigator.language || navigator.userLanguage;
-        this.marketingParams = Object.fromEntries(landingPage.searchParams);
+        this.marketingParams = Object.fromEntries(this.landingPage.searchParams);
 
         this.clickId = null;
         this.longitude = null;
@@ -21,14 +21,15 @@ export class MarketingHelper {
 
     getMarketingData() {
         this.data.append("click_id", this.clickId);
-        this.data.append("landing_page", user.landingPage);
-        this.data.append("referrer", user.referrer);
-        this.data.append("language", language);
+        this.data.append("landing_page", this.user.landingPage);
+        this.data.append("referrer", this.user.referrer);
+        this.data.append("language", this.language);
+
 
         // Append source, medium, and channel based on URL or referrer
-        const source = this.landingPage.searchParams.get("source") || this.getSource(user.referrer);
-        const medium = this.landingPage.searchParams.get("medium") || this.getMedium(user.referrer, this.landingPage.searchParams);
-        const channel = this.landingPage.searchParams.get("channel") || this.getChannel(user.referrer);
+        const source = this.landingPage.searchParams.get("source") || this.getSource(this.user.referrer);
+        const medium = this.landingPage.searchParams.get("medium") || this.getMedium(this.user.referrer, this.landingPage.searchParams);
+        const channel = this.landingPage.searchParams.get("channel") || this.getChannel(this.user.referrer);
 
         if (source) this.data.append("source", source);
         if (medium) this.data.append("medium", medium);
@@ -106,7 +107,7 @@ export class MarketingHelper {
         if (qs.size === 0) return "organic";
 
         // Paid ads
-        if (isPaid(qs)) return "paid";
+        if (this.isPaid(qs)) return "paid";
 
         // Querystring + non-empty referrer and no click id === referral
         return "referral";
@@ -122,8 +123,8 @@ export class MarketingHelper {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function (position) {
-                    latitude = position.coords.latitude;
-                    longitude = position.coords.longitude;
+                    this.latitude = position.coords.latitude;
+                    this.longitude = position.coords.longitude;
                 },
                 function (error) {
                     console.error("Error getting user location:", error.message);
