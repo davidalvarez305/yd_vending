@@ -54,9 +54,8 @@ func StartEmailScheduler() {
 					uploadReportS3Key := constants.EMAIL_ATTACHMENTS_S3_BUCKET + fileName
 					localFilePath := constants.LOCAL_FILES_DIR + fileName
 
-					sqlFileName := fmt.Sprintf("%s.sql", email.EmailName)
-					sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + sqlFileName
-					sqlFileLocalPath := constants.LOCAL_FILES_DIR + sqlFileName
+					sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + email.SQLFile
+					sqlFileLocalPath := constants.LOCAL_FILES_DIR + email.SQLFile
 
 					sqlFile, err := DownloadFileFromS3(sqlFileS3Key, sqlFileLocalPath)
 					if err != nil {
