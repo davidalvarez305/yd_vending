@@ -10,7 +10,6 @@ import (
 )
 
 var funnelBaseFilePath = constants.FUNNEL_TEMPLATES_DIR + "base.html"
-var funnelFooterFilePath = constants.FUNNEL_TEMPLATES_DIR + "footer.html"
 
 func createFunnelContext() types.WebsiteContext {
 	return types.WebsiteContext{
