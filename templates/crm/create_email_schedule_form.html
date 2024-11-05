@@ -72,7 +72,7 @@
 								</div>
 								<div class="space-y-1">
 									<label for="body" class="font-medium">Body*</label>
-									<div id="editor"></div>
+									<div id="editor" class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary"></div>
 									<input type="hidden" id="body" name="body" required />
 								</div>
 							</form>
@@ -175,7 +175,7 @@
 
 <script type="module" nonce="{{ .Nonce }}">
 	import {
-		ClassicEditor,
+		BalloonEditor,
 		Autoformat,
 		Bold,
 		Italic,
@@ -203,7 +203,7 @@
 		TextTransformation,
 	} from 'ckeditor5';
 
-	ClassicEditor.create(
+	BalloonEditor.create(
 		document.querySelector('#editor'),
 		{
 			plugins: [
