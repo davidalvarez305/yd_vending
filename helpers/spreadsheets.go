@@ -23,7 +23,7 @@ func GenerateExcelFile(report interface{}, sheetName, localFilePath string) (str
 	if v.Len() > 0 {
 		headers := getHeaders(v.Index(0).Interface())
 		for i, header := range headers {
-			cell := fmt.Sprintf("%s%d", fmt.Sprint('A'+i), 1) // A1, B1, C1, etc.
+			cell := fmt.Sprintf("%s%d", string(rune('A'+i)), 1) // A1, B1, C1, etc.
 			f.SetCellValue(sheetName, cell, header)
 		}
 
@@ -31,9 +31,13 @@ func GenerateExcelFile(report interface{}, sheetName, localFilePath string) (str
 		for i := 0; i < v.Len(); i++ {
 			row := v.Index(i).Interface()
 			for j, header := range headers {
-				cell := fmt.Sprintf("%s%d", fmt.Sprint('A'+j), i+2) // Start from row 2
+				cell := fmt.Sprintf("%s%d", string(rune('A'+j)), i+2)
 				value := reflect.ValueOf(row).FieldByName(header)
-				f.SetCellValue(sheetName, cell, value.Interface())
+				if value.IsValid() {
+					f.SetCellValue(sheetName, cell, value.Interface())
+				} else {
+					f.SetCellValue(sheetName, cell, "N/A") // or handle as needed
+				}
 			}
 		}
 	}

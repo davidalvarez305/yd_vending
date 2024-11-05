@@ -42,8 +42,8 @@ func ExternalPagesHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 
-		if strings.Contains(r.URL.Path, "/external/commission-report") && strings.Contains(r.URL.Path, "download") {
-			GetExternalReportDownload(w, r, ctx)
+		if strings.Contains(r.URL.Path, "/external/commission-report") && strings.Contains(r.URL.Path, "/download") {
+			GetExternalReportDownload(w, r)
 			return
 		}
 
@@ -148,7 +148,7 @@ func GetExternalReportHandler(w http.ResponseWriter, r *http.Request, ctx map[st
 	helpers.ServeContent(w, files, data)
 }
 
-func GetExternalReportDownload(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+func GetExternalReportDownload(w http.ResponseWriter, r *http.Request) {
 	monthYear := r.URL.Query().Get("monthYear")
 
 	if !r.URL.Query().Has("monthYear") || len(monthYear) == 0 {
