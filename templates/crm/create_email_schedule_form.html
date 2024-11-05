@@ -174,24 +174,46 @@
 </script>
 
 <script type="module" nonce="{{ .Nonce }}">
-	import {
-		ClassicEditor,
-		Essentials,
-		Bold,
-		Italic,
-		Font,
-		Paragraph
-	} from 'ckeditor5';
+	import { ClassicEditor, Heading, BlockQuote, Bold, Italic, Font, Link, List } from 'ckeditor5';
 
 	ClassicEditor
 		.create(document.querySelector('#editor'), {
-			plugins: [Essentials, Bold, Italic, Font, Paragraph],
 			toolbar: [
-				'undo', 'redo', '|', 'bold', 'italic', '|',
-				'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
-			]
+				'heading',
+				'|',
+				'bold',
+				'italic',
+				'fontSize',
+				'fontFamily',
+				'fontColor',
+				'|',
+				'link',
+				'bulletedList',
+				'numberedList',
+				'blockQuote'
+			],
+			heading: {
+				options: [
+					{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+					{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+					{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' }
+				]
+			},
+			fontFamily: {
+				options: [
+					'default',
+					'Ubuntu, Arial, sans-serif',
+					'Ubuntu Mono, Courier New, Courier, monospace'
+				]
+			},
+			fontColor: {
+				colorPicker: {
+					format: 'hex'
+				}
+			},
 		})
-		.then(() => console.log("CKEditor initialized..."))
-		.catch(console.error);
+		.catch(error => {
+			console.log(error);
+		});
 </script>
 {{ end }}
