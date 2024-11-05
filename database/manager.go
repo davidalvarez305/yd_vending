@@ -4292,7 +4292,7 @@ func GetCommissionReport(businessId sql.NullString, dateFrom, dateTo time.Time) 
 			LIMIT 1
 		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
 		JOIN location AS l ON loc_assignment.location_id = l.location_id
-		JOIN business AS b ON l.business_id = b.business_id AND (b.business_id = $1 OR $1 IS NULL)
+		JOIN business AS b ON l.business_id = b.business_id AND (b.name = $1 OR $1 IS NULL)
 		LEFT JOIN LATERAL (
 			SELECT loc_commission.commission, loc_commission.location_id
 			FROM location_commission AS loc_commission
@@ -4317,7 +4317,7 @@ func GetCommissionReport(businessId sql.NullString, dateFrom, dateTo time.Time) 
 			LIMIT 1
 		) AS slot_price ON slot_price.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
-		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3 AND (b.business_id = $1 OR $1 IS NULL)
+		WHERE t.transaction_timestamp >= $2 AND t.transaction_timestamp < $3 AND (b.name = $1 OR $1 IS NULL)
 		GROUP BY p.name, slot_price.price, slot_assignment.unit_cost, loc_commission.commission
 		ORDER BY gross_profit DESC;
 	`, businessId, dateFrom, dateTo)
@@ -4373,7 +4373,7 @@ func GetAvailableReportDatesByBusiness(businessId sql.NullString) ([]string, err
 		LIMIT 1
 	) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
 	JOIN location AS l ON l.location_id = loc_assignment.location_id
-	JOIN business AS b ON b.business_id = l.location_id AND (b.business_id = $1 OR $1 IS NULL)
+	JOIN business AS b ON b.business_id = l.location_id AND (b.name = $1 OR $1 IS NULL)
 	GROUP BY formatted_date, DATE_TRUNC('month', t.transaction_timestamp::timestamp)
 	ORDER BY DATE_TRUNC('month', t.transaction_timestamp::timestamp);`, businessId)
 	if err != nil {
