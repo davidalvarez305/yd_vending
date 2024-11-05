@@ -110,7 +110,7 @@
     }
 
     function handleDeletePriceChangeLog(assignmentId) {
-        fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
+        fetch(`/crm/machine/{{ .Machine.MachineID }}/location-assignment/${assignmentId}`, {
             method: "DELETE",
             credentials: "include",
             body: locationData
@@ -145,7 +145,7 @@
         const updateLocationData = getUpdateLocationData(assignmentId);
         updateLocationData.set('location_date_assigned', Math.floor(new Date(updateLocationData.get('location_date_assigned')).getTime() / 1000));
 
-        fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
+        fetch(`/crm/machine/{{ .Machine.MachineID }}/location-assignment/${assignmentId}`, {
             method: "PUT",
             credentials: "include",
             body: updateLocationData

@@ -101,17 +101,17 @@
             body.set(input.getAttribute('name'), input.value);
         });
 
-        body.set("csrf_token", data.get("csrf_token"));
+        body.set("csrf_token", cardReaderData.get("csrf_token"));
         body.set("machine_id", `{{ .Machine.MachineID }}`);
 
         return body;
     }
 
     function handleDeleteCardReaderAssignment(assignmentId) {
-        fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
+        fetch(`/crm/machine/{{ .Machine.MachineID }}/card-reader-assignment/${assignmentId}`, {
             method: "DELETE",
             credentials: "include",
-            body: data
+            body: cardReaderData
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
@@ -143,7 +143,7 @@
         const cardReaderAssignmentData = getCardReaderUpdateData(assignmentId);
         cardReaderAssignmentData.set('machine_card_reader_date_assigned', Math.floor(new Date(cardReaderAssignmentData.get('machine_card_reader_date_assigned')).getTime() / 1000));
 
-        fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
+        fetch(`/crm/machine/{{ .Machine.MachineID }}/card-reader-assignment/${assignmentId}`, {
             method: "PUT",
             credentials: "include",
             body: cardReaderAssignmentData

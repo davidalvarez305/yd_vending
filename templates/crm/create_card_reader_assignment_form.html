@@ -50,10 +50,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <button type="submit"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
-                                    Save Changes
-                                </button>
                             </form>
                         </div>
                     </div>
@@ -97,7 +93,7 @@
         const alertModal = document.getElementById("alertModal");
 
         for (const [key, value] of data.entries()) {
-            if (key === "date_assigned") {
+            if (key === "machine_card_reader_date_assigned") {
                 const timestamp = new Date(value).getTime() / 1000;
                 body.append(key, timestamp);
                 continue;
@@ -129,6 +125,7 @@
                 const table = document.getElementById('cardReaderAssignmentsTable');
                 table.outerHTML = html;
                 handleBindPagination();
+                handleCardAssignmentDates();
 
                 cardReaderAssignmentForm.reset();
             })

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -710,17 +711,22 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 		return
 	}
 
-	businessId := r.URL.Query().Get("business_id")
-	business := utils.CreateNullString(&businessId)
+	business := r.URL.Query().Get("business")
+	decodedBusinessName, err := url.PathUnescape(business)
+	if err != nil {
+		http.Error(w, "Error getting decoded business name for commission report.", http.StatusInternalServerError)
+		return
+	}
 
-	report, err := database.GetCommissionReport(business, start, end)
+	businessId := utils.CreateNullString(&decodedBusinessName)
+	report, err := database.GetCommissionReport(businessId, start, end)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting commission report.", http.StatusInternalServerError)
 		return
 	}
 
-	dates, err := database.GetAvailableReportDatesByBusiness(business)
+	dates, err := database.GetAvailableReportDatesByBusiness(businessId)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting available dates for commission report.", http.StatusInternalServerError)

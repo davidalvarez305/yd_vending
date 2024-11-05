@@ -19,11 +19,11 @@
                 </select>
             </div>
             <div>
-                <label for="business_id" class="font-medium text-center">Business</label>
-                <select id="business_id" name="business_id"
+                <label for="business" class="font-medium text-center">Business</label>
+                <select id="business" name="business"
                     class="block w-full rounded-lg border border-gray-200 px-6 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500">
                     {{ range .Businesses }}
-                    <option value="{{ .BusinessID }}">
+                    <option value="{{ .Name }}">
                         {{ .Name }}
                     </option>
                     {{ end }}
@@ -179,11 +179,11 @@
             });
         }
 
-        const businessIdParam = new URLSearchParams(window.location.search).get("business_id");
-        const businessSelect = document.getElementById("business_id");
+        const businessParam = new URLSearchParams(window.location.search).get("business");
+        const businessSelect = document.getElementById("business");
 
-        if (businessIdParam && businessSelect) {
-            const decodedBusinessId = decodeURIComponent(businessIdParam);
+        if (businessParam && businessSelect) {
+            const decodedBusinessId = decodeURIComponent(businessParam);
             Array.from(businessSelect.options).forEach(option => {
                 if (option.value === decodedBusinessId) {
                     option.selected = true;
