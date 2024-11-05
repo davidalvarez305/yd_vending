@@ -166,8 +166,9 @@
 
     function handleDownloadButton() {
         const alertModal = document.getElementById("alertModal");
+        const monthYear = new URLSearchParams(window.location.search).get("monthYear");
 
-        fetch(`/external/commission-report/{{ .BusinessName }}/download`)
+        fetch(`/external/commission-report/{{ .BusinessName }}/download?monthYear=${monthYear}`)
             .then(response => {
                 if (!response.ok) {
                     return response.text().then((err) => {
