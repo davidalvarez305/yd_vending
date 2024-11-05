@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -55,9 +56,17 @@ func getHeaders(data interface{}) []string {
 	val := reflect.TypeOf(data)
 	var headers []string
 
+	// Ensure we are dealing with a struct
 	if val.Kind() == reflect.Struct {
 		for i := 0; i < val.NumField(); i++ {
-			headers = append(headers, val.Field(i).Name)
+			headerTag := val.Field(i).Tag.Get(constants.StructSpreadsheetHeaderTag)
+			if headerTag != "" {
+				// If the 'header' tag exists, use it
+				headers = append(headers, headerTag)
+			} else {
+				// If there's no 'header' tag, fallback to the field name
+				headers = append(headers, val.Field(i).Name)
+			}
 		}
 	}
 	return headers

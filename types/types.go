@@ -717,13 +717,13 @@ type PrepReport struct {
 }
 
 type CommissionReport struct {
-	Product       string  `json:"product" form:"product" schema:"product"`
-	AmountSold    float64 `json:"amount_sold" form:"amount_sold" schema:"amount_sold"`
-	Revenue       float64 `json:"revenue" form:"revenue" schema:"revenue"`
-	Cost          float64 `json:"cost" form:"cost" schema:"cost"`
-	CreditCardFee float64 `json:"credit_card_fee" form:"credit_card_fee" schema:"credit_card_fee"`
-	GrossProfit   float64 `json:"gross_profit" form:"gross_profit" schema:"gross_profit"`
-	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due"`
+	Product       string  `json:"product" form:"product" schema:"product" spreadsheet_header:"Product"`
+	AmountSold    float64 `json:"amount_sold" form:"amount_sold" schema:"amount_sold" spreadsheet_header:"Amount Sold"`
+	Revenue       float64 `json:"revenue" form:"revenue" schema:"revenue" spreadsheet_header:"Revenue"`
+	Cost          float64 `json:"cost" form:"cost" schema:"cost" spreadsheet_header:"Cost"`
+	CreditCardFee float64 `json:"credit_card_fee" form:"credit_card_fee" schema:"credit_card_fee" spreadsheet_header:"Credit Card Fee"`
+	GrossProfit   float64 `json:"gross_profit" form:"gross_profit" schema:"gross_profit" spreadsheet_header:"Gross Profit"`
+	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due" spreadsheet_header:"Commission Due"`
 }
 
 type EmailScheduleForm struct {
