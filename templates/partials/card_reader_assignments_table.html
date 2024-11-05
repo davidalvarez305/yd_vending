@@ -91,7 +91,7 @@
         });
     });
 
-    function getUpdateData(assignmentId) {
+    function getCardReaderUpdateData(assignmentId) {
         const inputs = document.getElementsByTagName('input');
         const body = new FormData();
 
@@ -140,7 +140,7 @@
     }
 
     function handleUpdateCardReaderAssignment(assignmentId) {
-        const cardReaderAssignmentData = getUpdateData(assignmentId);
+        const cardReaderAssignmentData = getCardReaderUpdateData(assignmentId);
         cardReaderAssignmentData.set('date_assigned', Math.floor(new Date(cardReaderAssignmentData.get('date_assigned')).getTime() / 1000));
 
         fetch(`/crm/machine/{{ .Machine.MachineID }}/${assignmentId}`, {
