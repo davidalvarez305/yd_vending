@@ -3715,60 +3715,16 @@ func GetLocationStatuses() ([]models.LocationStatus, error) {
 }
 
 func CreateRefillAll(machineId int) error {
-	tx, err := DB.Begin()
-	if err != nil {
-		return fmt.Errorf("error starting transaction: %w", err)
-	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit()
-		}
-	}()
-
-	slotsQuery := `
-		SELECT 
-			s.slot_id
+	insertQuery := `
+		INSERT INTO refill (slot_id, date_refilled)
+		SELECT s.slot_id, NOW() AT TIME ZONE 'America/New_York'
 		FROM "slot" AS s
 		WHERE s.machine_id = $1
 	`
 
-	rows, err := tx.Query(slotsQuery, machineId)
+	_, err := DB.Exec(insertQuery, machineId)
 	if err != nil {
-		return fmt.Errorf("error querying slots: %w", err)
-	}
-	defer rows.Close()
-
-	stmt, err := tx.Prepare(`
-		INSERT INTO refill (
-			slot_id,
-			date_refilled
-		) VALUES ($1, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York')
-	`)
-	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
-	}
-	defer stmt.Close()
-
-	currentTime, err := utils.GetCurrentTimeInEST()
-	if err != nil {
-		return fmt.Errorf("error getting time as EST: %w", err)
-	}
-
-	for rows.Next() {
-		var slotID int
-		if err := rows.Scan(&slotID); err != nil {
-			return fmt.Errorf("error scanning slot_id: %w", err)
-		}
-
-		if _, err := stmt.Exec(slotID, currentTime); err != nil {
-			return fmt.Errorf("error executing statement for slot_id %d: %w", slotID, err)
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("error iterating over slots: %w", err)
+		return fmt.Errorf("error executing insert query: %w", err)
 	}
 
 	return nil

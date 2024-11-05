@@ -134,11 +134,11 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const buttons = document.querySelectorAll(".invalidationButton");
-    const removalButtons = document.querySelectorAll(".invalidationRemovalButton");
+    const invalidationButtons = document.querySelectorAll(".invalidationButton");
+    const invalidationRemovalButtons = document.querySelectorAll(".invalidationRemovalButton");
     const alertModal = document.getElementById("alertModal");
 
-    buttons.forEach(invalidationButton => {
+    invalidationButtons.forEach(invalidationButton => {
         invalidationButton.addEventListener("click", function (e) {
             const transactionId = invalidationButton.dataset.transactionId;
             handleInvalidateTransaction(transactionId);
@@ -146,7 +146,7 @@
     });
 
     function handleInvalidateTransaction(transactionId) {
-        fetch(`/inventory/transaction/${transactionId}`, {
+        fetch(`/inventory/transaction/${transactionId}/invalidate`, {
             method: "POST",
             credentials: "include",
         })
@@ -175,7 +175,7 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    removalButtons.forEach(invalidationRemovalButton => {
+    invalidationRemovalButtons.forEach(invalidationRemovalButton => {
         invalidationRemovalButton.addEventListener("click", function (e) {
             const transactionId = invalidationRemovalButton.dataset.transactionId;
             handleInvalidationRemoval(transactionId);
@@ -183,7 +183,7 @@
     });
 
     function handleInvalidationRemoval(transactionId) {
-        fetch(`/inventory/transaction/${transactionId}`, {
+        fetch(`/inventory/transaction/${transactionId}/invalidate`, {
             method: "DELETE",
             credentials: "include",
         })
