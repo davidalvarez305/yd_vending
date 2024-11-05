@@ -4423,7 +4423,7 @@ func GetBusinessIDFromURL(businessName string) (int, error) {
 func GetScheduledEmails() ([]models.EmailSchedule, error) {
 	var scheduledEmails []models.EmailSchedule
 
-	stmt, err := DB.Prepare(`SELECT email_schedule_id, email_name, interval_seconds, recipients, subject, body, sender, attachment_path, last_sent, is_active FROM email_schedule WHERE is_active = TRUE`)
+	stmt, err := DB.Prepare(`SELECT email_schedule_id, email_name, interval_seconds, recipients, subject, body, sender, sql_file, last_sent, is_active FROM email_schedule WHERE is_active = TRUE`)
 	if err != nil {
 		return scheduledEmails, fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -4439,15 +4439,15 @@ func GetScheduledEmails() ([]models.EmailSchedule, error) {
 		var emailSchedule models.EmailSchedule
 
 		var lastSent time.Time
-		var attachmentPath sql.NullString
+		var sqlFile sql.NullString
 
-		err := rows.Scan(&emailSchedule.EmailScheduleID, &emailSchedule.EmailName, &emailSchedule.IntervalSeconds, &emailSchedule.Recipients, &emailSchedule.Subject, &emailSchedule.Body, &emailSchedule.Sender, &attachmentPath, &lastSent, &emailSchedule.IsActive)
+		err := rows.Scan(&emailSchedule.EmailScheduleID, &emailSchedule.EmailName, &emailSchedule.IntervalSeconds, &emailSchedule.Recipients, &emailSchedule.Subject, &emailSchedule.Body, &emailSchedule.Sender, &sqlFile, &lastSent, &emailSchedule.IsActive)
 		if err != nil {
 			return scheduledEmails, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		if attachmentPath.Valid {
-			emailSchedule.AttachmentPath = attachmentPath.String
+		if sqlFile.Valid {
+			emailSchedule.SQLFile = sqlFile.String
 		}
 
 		emailSchedule.LastSent = lastSent.Unix()
@@ -4518,7 +4518,7 @@ func CreateEmailSchedule(emailSchedule types.EmailScheduleForm) error {
 			subject, 
 			body, 
 			sender, 
-			attachment_path, 
+			sql_file, 
 			last_sent, 
 			is_active
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, to_timestamp($8)::timestamptz AT TIME ZONE 'America/New_York', $9)
@@ -4534,7 +4534,7 @@ func CreateEmailSchedule(emailSchedule types.EmailScheduleForm) error {
 	subject := utils.CreateNullString(emailSchedule.Subject)
 	body := utils.CreateNullString(emailSchedule.Body)
 	sender := utils.CreateNullString(emailSchedule.Sender)
-	attachmentPath := utils.CreateNullString(emailSchedule.AttachmentPath)
+	sqlFile := utils.CreateNullString(emailSchedule.SQLFile)
 	lastSent := utils.CreateNullInt64(emailSchedule.LastSent)
 	isActive := utils.CreateNullBool(emailSchedule.IsActive)
 
@@ -4545,7 +4545,7 @@ func CreateEmailSchedule(emailSchedule types.EmailScheduleForm) error {
 		subject,
 		body,
 		sender,
-		attachmentPath,
+		sqlFile,
 		lastSent,
 		isActive,
 	)
@@ -4565,7 +4565,7 @@ func UpdateEmailSchedule(emailScheduleId int, emailSchedule types.EmailScheduleF
 			subject = COALESCE($5, subject),
 			body = COALESCE($6, body),
 			sender = COALESCE($7, sender),
-			attachment_path = COALESCE($8, attachment_path),
+			sql_file = COALESCE($8, sql_file),
 			last_sent = COALESCE(to_timestamp($9)::timestamptz AT TIME ZONE 'America/New_York', last_sent),
 			is_active = COALESCE($10, is_active)
 		WHERE email_schedule_id = $1
@@ -4583,7 +4583,7 @@ func UpdateEmailSchedule(emailScheduleId int, emailSchedule types.EmailScheduleF
 		utils.CreateNullString(emailSchedule.Subject),
 		utils.CreateNullString(emailSchedule.Body),
 		utils.CreateNullString(emailSchedule.Sender),
-		utils.CreateNullString(emailSchedule.AttachmentPath),
+		utils.CreateNullString(emailSchedule.SQLFile),
 		utils.CreateNullInt64(emailSchedule.LastSent),
 		utils.CreateNullBool(emailSchedule.IsActive),
 	)
@@ -4621,7 +4621,7 @@ func GetEmailSchedules(pageNum int) ([]types.EmailScheduleList, int, error) {
 			subject, 
 			body, 
 			sender, 
-			attachment_path, 
+			sql_file, 
 			last_sent, 
 			is_active
 		FROM email_schedule
@@ -4644,7 +4644,7 @@ func GetEmailSchedules(pageNum int) ([]types.EmailScheduleList, int, error) {
 		var emailSchedule types.EmailScheduleList
 
 		var lastSent time.Time
-		var attachmentPath sql.NullString
+		var sqlFile sql.NullString
 
 		err := rows.Scan(
 			&emailSchedule.EmailScheduleID,
@@ -4654,7 +4654,7 @@ func GetEmailSchedules(pageNum int) ([]types.EmailScheduleList, int, error) {
 			&emailSchedule.Subject,
 			&emailSchedule.Body,
 			&emailSchedule.Sender,
-			&attachmentPath,
+			&sqlFile,
 			&lastSent,
 			&emailSchedule.IsActive,
 		)
@@ -4662,8 +4662,8 @@ func GetEmailSchedules(pageNum int) ([]types.EmailScheduleList, int, error) {
 			return emailSchedules, totalRows, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		if attachmentPath.Valid {
-			emailSchedule.AttachmentPath = attachmentPath.String
+		if sqlFile.Valid {
+			emailSchedule.SQLFile = sqlFile.String
 		}
 
 		emailSchedule.LastSent = utils.FormatDateMMDDYYYY(lastSent.Unix())
@@ -4813,7 +4813,7 @@ func GetEmailScheduleDetails(emailScheduleId string) (models.EmailSchedule, erro
 		subject,
 		body,
 		sender,
-		attachment_path,
+		sql_file,
 		last_sent,
 		is_active
 	FROM email_schedule 
@@ -4824,7 +4824,7 @@ func GetEmailScheduleDetails(emailScheduleId string) (models.EmailSchedule, erro
 	row := DB.QueryRow(query, emailScheduleId)
 
 	var lastSent sql.NullTime
-	var attachmentPath sql.NullString
+	var sqlFile sql.NullString
 
 	err := row.Scan(
 		&emailSchedule.EmailScheduleID,
@@ -4834,7 +4834,7 @@ func GetEmailScheduleDetails(emailScheduleId string) (models.EmailSchedule, erro
 		&emailSchedule.Subject,
 		&emailSchedule.Body,
 		&emailSchedule.Sender,
-		&attachmentPath,
+		&sqlFile,
 		&lastSent,
 		&emailSchedule.IsActive,
 	)
@@ -4846,8 +4846,8 @@ func GetEmailScheduleDetails(emailScheduleId string) (models.EmailSchedule, erro
 		return emailSchedule, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	if attachmentPath.Valid {
-		emailSchedule.AttachmentPath = attachmentPath.String
+	if sqlFile.Valid {
+		emailSchedule.SQLFile = sqlFile.String
 	}
 
 	if lastSent.Valid {

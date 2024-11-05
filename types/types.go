@@ -734,7 +734,7 @@ type EmailScheduleForm struct {
 	Subject         *string `json:"subject" form:"subject" schema:"subject"`
 	Body            *string `json:"body" form:"body" schema:"body"`
 	Sender          *string `json:"sender" form:"sender" schema:"sender"`
-	AttachmentPath  *string `json:"attachment_path" form:"attachment_path" schema:"attachment_path"`
+	SQLFile         *string `json:"sql_file" form:"sql_file" schema:"sql_file"`
 	LastSent        *int64  `json:"last_sent" form:"last_sent" schema:"last_sent"`
 	IsActive        *bool   `json:"is_active" form:"is_active" schema:"is_active"`
 }
@@ -747,7 +747,7 @@ type EmailScheduleList struct {
 	Subject         string `json:"subject" form:"subject" schema:"subject"`
 	Body            string `json:"body" form:"body" schema:"body"`
 	Sender          string `json:"sender" form:"sender" schema:"sender"`
-	AttachmentPath  string `json:"attachment_path" form:"attachment_path" schema:"attachment_path"`
+	SQLFile         string `json:"sql_file" form:"sql_file" schema:"sql_file"`
 	LastSent        string `json:"last_sent" form:"last_sent" schema:"last_sent"`
 	IsActive        bool   `json:"is_active" form:"is_active" schema:"is_active"`
 }

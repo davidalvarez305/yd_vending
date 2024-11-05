@@ -56,7 +56,7 @@ func StartEmailScheduler() {
 
 					sqlFileName := fmt.Sprintf("%s.sql", email.EmailName)
 					sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + sqlFileName
-					sqlFileLocalPath := constants.SQL_FILES_S3_BUCKET + sqlFileName
+					sqlFileLocalPath := constants.LOCAL_FILES_DIR + sqlFileName
 
 					sqlFile, err := DownloadFileFromS3(sqlFileS3Key, sqlFileLocalPath)
 					if err != nil {

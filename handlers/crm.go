@@ -3966,17 +3966,50 @@ func GetEmailScheduleDetail(w http.ResponseWriter, r *http.Request, ctx map[stri
 }
 
 func PostEmailSchedule(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(50 << 20)
 	if err != nil {
-		fmt.Printf("Error parsing form: %+v\n", err)
+		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Invalid request.",
+				"Message": "Failed to parse form data.",
 			},
 		}
 		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	file, fileHeader, err := r.FormFile("sql_file")
+	if err != nil {
+		fmt.Printf("Error opening file: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to open sql file.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+	defer file.Close()
+
+	sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + fileHeader.Filename
+
+	err = services.UploadFileToS3(file, fileHeader.Size, sqlFileS3Key)
+	if err != nil {
+		fmt.Printf("Error creating email schedule: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to upload SQL File.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -3997,6 +4030,8 @@ func PostEmailSchedule(w http.ResponseWriter, r *http.Request) {
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
+
+	form.SQLFile = &fileHeader.Filename
 
 	err = database.CreateEmailSchedule(form)
 	if err != nil {

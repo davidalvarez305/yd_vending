@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -14,7 +15,7 @@ import (
 func GetCurrentTimeInEST() (int64, error) {
 	var est int64
 
-	loc, err := time.LoadLocation("America/New_York")
+	loc, err := time.LoadLocation(constants.TimeZone)
 	if err != nil {
 		return est, err
 	}
@@ -25,7 +26,7 @@ func GetCurrentTimeInEST() (int64, error) {
 }
 
 func ParseDateInLocation(timestamp int64) (int64, error) {
-	loc, err := time.LoadLocation("America/New_York")
+	loc, err := time.LoadLocation(constants.TimeZone)
 	if err != nil {
 		return 0, fmt.Errorf("error loading location: %w", err)
 	}
