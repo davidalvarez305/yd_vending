@@ -131,7 +131,7 @@
                 const table = document.getElementById('cardReaderAssignmentsTable');
                 table.outerHTML = html;
                 handleBindPagination();
-                handleDates();
+                handleCardAssignmentDates();
             })
             .catch(err => {
                 alertModal.outerHTML = err;

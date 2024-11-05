@@ -82,13 +82,13 @@
 
     deleteLocationButtons.forEach(button => {
         button.addEventListener("click", function (e) {
-            handleDeletePriceChangeLog(button.dataset.assignmentId);
+            handleDeleteLocationAssignment(button.dataset.assignmentId);
         });
     });
 
     updateLocationButtons.forEach(button => {
         button.addEventListener("click", function (e) {
-            handleUpdatePriceChangeLog(button.dataset.assignmentId);
+            handleUpdateLocationAssignment(button.dataset.assignmentId);
         });
     });
 
@@ -109,7 +109,7 @@
         return body;
     }
 
-    function handleDeletePriceChangeLog(assignmentId) {
+    function handleDeleteLocationAssignment(assignmentId) {
         fetch(`/crm/machine/{{ .Machine.MachineID }}/location-assignment/${assignmentId}`, {
             method: "DELETE",
             credentials: "include",
@@ -141,7 +141,7 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    function handleUpdatePriceChangeLog(assignmentId) {
+    function handleUpdateLocationAssignment(assignmentId) {
         const updateLocationData = getUpdateLocationData(assignmentId);
         updateLocationData.set('location_date_assigned', Math.floor(new Date(updateLocationData.get('location_date_assigned')).getTime() / 1000));
 
