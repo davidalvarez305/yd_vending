@@ -711,15 +711,16 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 	}
 
 	businessId := r.URL.Query().Get("business_id")
+	business := utils.CreateNullString(&businessId)
 
-	report, err := database.GetCommissionReport(businessId, start, end)
+	report, err := database.GetCommissionReport(business, start, end)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting commission report.", http.StatusInternalServerError)
 		return
 	}
 
-	dates, err := database.GetAvailableReportDatesByBusiness(businessId)
+	dates, err := database.GetAvailableReportDatesByBusiness(business)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting available dates for commission report.", http.StatusInternalServerError)

@@ -97,21 +97,20 @@ func GetExternalReportHandler(w http.ResponseWriter, r *http.Request, ctx map[st
 		return
 	}
 
-	businessId, err := database.GetBusinessIDFromURL(business)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		http.Error(w, "Error getting business id from URL.", http.StatusInternalServerError)
+	businessId := utils.CreateNullString(&business)
+	if !businessId.Valid {
+		http.Error(w, "Invalid business in URL.", http.StatusInternalServerError)
 		return
 	}
 
-	report, err := database.GetCommissionReport(fmt.Sprint(businessId), start, end)
+	report, err := database.GetCommissionReport(businessId, start, end)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting commission report.", http.StatusInternalServerError)
 		return
 	}
 
-	dates, err := database.GetAvailableReportDatesByBusiness(fmt.Sprint(businessId))
+	dates, err := database.GetAvailableReportDatesByBusiness(businessId)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting available dates for report.", http.StatusInternalServerError)
@@ -206,14 +205,13 @@ func GetExternalReportDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	businessId, err := database.GetBusinessIDFromURL(business)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
+	businessId := utils.CreateNullString(&business)
+	if !businessId.Valid {
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Failed to decode business id from URL.",
+				"Message": "Invalid business from URL.",
 			},
 		}
 		w.WriteHeader(http.StatusBadRequest)
@@ -221,7 +219,7 @@ func GetExternalReportDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	report, err := database.GetCommissionReport(fmt.Sprint(businessId), start, end)
+	report, err := database.GetCommissionReport(businessId, start, end)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

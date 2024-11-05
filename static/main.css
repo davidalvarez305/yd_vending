@@ -3998,6 +3998,10 @@ select{
     display: flex;
   }
 
+  .sm\:inline-flex{
+    display: inline-flex;
+  }
+
   .sm\:w-1\/2{
     width: 50%;
   }

@@ -4265,7 +4265,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 	return prepReport, nil
 }
 
-func GetCommissionReport(businessId string, dateFrom, dateTo time.Time) ([]types.CommissionReport, error) {
+func GetCommissionReport(businessId sql.NullString, dateFrom, dateTo time.Time) ([]types.CommissionReport, error) {
 	var commissionReport []types.CommissionReport
 
 	rows, err := DB.Query(`
@@ -4352,7 +4352,7 @@ func GetCommissionReport(businessId string, dateFrom, dateTo time.Time) ([]types
 	return commissionReport, nil
 }
 
-func GetAvailableReportDatesByBusiness(businessId string) ([]string, error) {
+func GetAvailableReportDatesByBusiness(businessId sql.NullString) ([]string, error) {
 	var dates []string
 
 	rows, err := DB.Query(`
