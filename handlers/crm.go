@@ -4249,9 +4249,8 @@ func GetEmailScheduleTest(w http.ResponseWriter, r *http.Request) {
 	uploadReportS3Key := constants.EMAIL_ATTACHMENTS_S3_BUCKET + fileName
 	localFilePath := constants.LOCAL_FILES_DIR + fileName
 
-	sqlFileName := fmt.Sprintf("%s.sql", email.EmailName)
-	sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + sqlFileName
-	sqlFileLocalPath := constants.SQL_FILES_S3_BUCKET + sqlFileName
+	sqlFileS3Key := constants.SQL_FILES_S3_BUCKET + email.SQLFile
+	sqlFileLocalPath := constants.SQL_FILES_S3_BUCKET + email.SQLFile
 
 	sqlFile, err := services.DownloadFileFromS3(sqlFileS3Key, sqlFileLocalPath)
 	if err != nil {
