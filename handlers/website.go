@@ -662,7 +662,6 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	username := r.Form.Get("username")
 	password := r.Form.Get("password")
 
-	// Error handling
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "error",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
@@ -672,11 +671,6 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	user, err := database.GetUserByUsername(username)
 	if err != nil {
 		tmplCtx.Data["Message"] = "Invalid username."
-
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -684,11 +678,6 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	isValid := helpers.ValidatePassword(password, user.Password)
 	if !isValid {
 		tmplCtx.Data["Message"] = "Invalid password."
-
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -696,11 +685,6 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	session, err := sessions.Get(r)
 	if err != nil {
 		tmplCtx.Data["Message"] = "Could not retrieve session."
-
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
@@ -709,16 +693,13 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	err = sessions.Update(session)
 	if err != nil {
 		tmplCtx.Data["Message"] = "Could not update session."
-
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
-	sessions.SetCookie(w, time.Now().Add(24*time.Hour), session.CSRFSecret)
+	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * 24 * time.Hour)
+
+	sessions.SetCookie(w, expirationTime, session.CSRFSecret)
 
 	w.WriteHeader(http.StatusOK)
 }
