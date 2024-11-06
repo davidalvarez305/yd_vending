@@ -80,7 +80,7 @@
         new FormData(form).forEach((value, key) => value && data.append(key, value));
         marketingHelper.getMarketingData().forEach((value, key) => value && data.append(key, value));
 
-        fetch("/funnel/90-day-challenge-opt-in", {
+        fetch("/funnel/90-day-challenge", {
             method: "POST",
             credentials: "include",
             body: data,

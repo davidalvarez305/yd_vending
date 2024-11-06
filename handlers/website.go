@@ -240,11 +240,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
-
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -309,11 +304,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
-
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -348,11 +338,6 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 			Data: map[string]any{
 				"Message": "Server error while creating quote request.",
 			},
-		}
-
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -509,11 +494,6 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
-
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
@@ -530,10 +510,6 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 			Data: map[string]any{
 				"Message": "Error decoding form data.",
 			},
-		}
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
@@ -555,10 +531,6 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 				"Message": "Error building e-mail template.",
 			},
 		}
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
-		}
 
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
@@ -575,10 +547,6 @@ func PostContactForm(w http.ResponseWriter, r *http.Request) {
 			Data: map[string]any{
 				"Message": "Failed to send message.",
 			},
-		}
-		token, err := helpers.GenerateTokenInHeader(w, r)
-		if err == nil {
-			w.Header().Set("X-Csrf-Token", token)
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
