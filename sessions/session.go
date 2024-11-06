@@ -9,6 +9,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/csrf"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/models"
+	"github.com/davidalvarez305/yd_vending/utils"
 	"github.com/google/uuid"
 )
 
@@ -56,13 +57,11 @@ func Create(r *http.Request, w http.ResponseWriter) (models.Session, error) {
 		return session, err
 	}
 
-	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * 24 * time.Hour)
-
 	session = models.Session{
 		CSRFSecret:  secret,
 		ExternalID:  uuid.New().String(),
 		DateCreated: time.Now().Unix(),
-		DateExpires: expirationTime.Unix(),
+		DateExpires: utils.GetSessionExpirationTime().Unix(),
 	}
 
 	err = database.CreateSession(session)

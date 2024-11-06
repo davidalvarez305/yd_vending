@@ -12,6 +12,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+func GetSessionExpirationTime() time.Time {
+	return time.Now().Add(time.Duration(constants.SessionLength) * 24 * time.Hour)
+}
+
 func GetCurrentTimeInEST() (int64, error) {
 	var est int64
 

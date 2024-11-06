@@ -12,6 +12,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/davidalvarez305/yd_vending/utils"
 	"github.com/gorilla/schema"
 )
 
@@ -697,9 +698,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * 24 * time.Hour)
-
-	sessions.SetCookie(w, expirationTime, session.CSRFSecret)
+	sessions.SetCookie(w, utils.GetSessionExpirationTime(), session.CSRFSecret)
 
 	w.WriteHeader(http.StatusOK)
 }
