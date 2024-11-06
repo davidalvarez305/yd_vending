@@ -29,7 +29,7 @@
                     <select id="location_id" name="location_id" data-assignment-id="{{ .MachineLocationAssignmentID }}" required
                         class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
                         {{ range $.Locations }}
-                        <option value="{{ .LocationID }}" {{ if eq .LocationID $.LocationID }}selected{{ end }}>
+                        <option value="{{ .LocationID }}" {{ if eq .LocationID $.Machine.LocationID }}selected{{ end }}>
                             {{ .Name }}
                         </option>
                         {{ end }}
