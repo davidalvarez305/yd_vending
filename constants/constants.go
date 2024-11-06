@@ -52,6 +52,7 @@ var (
 	LeadsPerPage                 int
 	CompanyPhoneNumber           string
 	SessionLength                int
+	CSRFTokenLength              int
 	StaticPath                   string
 	MediaPath                    string
 	MaxOpenConnections           string
@@ -98,6 +99,7 @@ func Init() {
 	TwilioCallbackWebhook = "/call/inbound/end"
 	CompanyPhoneNumber = os.Getenv("COMPANY_PHONE_NUMBER")
 	SessionLength = 7
+	CSRFTokenLength = 1
 	StaticPath = os.Getenv("STATIC_PATH")
 	MediaPath = os.Getenv("MEDIA_PATH")
 	MaxOpenConnections = os.Getenv("MAX_OPEN_CONNECTIONS")

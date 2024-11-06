@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/davidalvarez305/yd_vending/csrf"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/sessions"
+	"github.com/davidalvarez305/yd_vending/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -109,16 +109,16 @@ func GenerateTokenInHeader(w http.ResponseWriter, r *http.Request) (string, erro
 		return token, err
 	}
 
-	var unixTime = time.Now().Unix() + 300
+	var tokenExpirationTime = utils.GetSessionExpirationTime().Unix()
 
-	encryptedToken, err := csrf.EncryptToken(unixTime, decodedSecret)
+	encryptedToken, err := csrf.EncryptToken(tokenExpirationTime, decodedSecret)
 	if err != nil {
 		fmt.Printf("Error encrypting new CSRF token: %+v\n", err)
 		return token, err
 	}
 
 	csrfToken := models.CSRFToken{
-		ExpiryTime: unixTime,
+		ExpiryTime: tokenExpirationTime,
 		Token:      encryptedToken,
 		IsUsed:     false,
 	}
