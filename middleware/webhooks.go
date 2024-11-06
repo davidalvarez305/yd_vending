@@ -3,15 +3,13 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	"os"
 
+	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/twilio/twilio-go/client"
 )
 
 func validateTwilioWebhook(r *http.Request) error {
-	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
-
-	requestValidator := client.NewRequestValidator(authToken)
+	requestValidator := client.NewRequestValidator(constants.TwilioAuthToken)
 	twilioSignature := r.Header.Get("X-Twilio-Signature")
 
 	url := "https://" + r.Host + r.URL.Path
