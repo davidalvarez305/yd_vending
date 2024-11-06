@@ -294,6 +294,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				DeleteMachine(w, r)
 				return
 			}
+			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) && strings.Contains(path, "/refill") {
+				DeleteRefill(w, r)
+				return
+			}
 			if len(parts) >= 6 && parts[4] == "slot" && helpers.IsNumeric(parts[3]) && helpers.IsNumeric(parts[5]) {
 				DeleteSlot(w, r)
 				return
@@ -3588,13 +3592,31 @@ func PostRefill(w http.ResponseWriter, r *http.Request) {
 func DeleteRefill(w http.ResponseWriter, r *http.Request) {
 	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		fmt.Printf("Error deleting refill: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "No machine id in URL.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	refillId, err := helpers.GetThirdIDFromPath(r, "/crm/machine/")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		fmt.Printf("Error deleting refill: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "No refill id in URL.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
