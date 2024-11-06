@@ -60,9 +60,9 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 
 func Get90DayVendingChallengeLandingPage(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	isMobile := helpers.IsMobileRequest(r)
-	heroImagePath := "hero_image_desktop.html"
+	heroImagePath := "90_day_hero_image_desktop.html"
 	if isMobile {
-		heroImagePath = "hero_image_mobile.html"
+		heroImagePath = "90_day_hero_image_mobile.html"
 	}
 
 	fileName := "90_day_challenge.html"
