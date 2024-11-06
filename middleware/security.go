@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
 	"github.com/davidalvarez305/yd_vending/csrf"
@@ -117,9 +116,9 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			expirationTime := time.Now().Add(time.Duration(constants.SessionLength) * 24 * time.Hour)
+			expirationTime := utils.GenerateTokenExpiryTime().Unix()
 
-			encryptedToken, err := csrf.EncryptToken(expirationTime.Unix(), decodedSecret)
+			encryptedToken, err := csrf.EncryptToken(expirationTime, decodedSecret)
 			if err != nil {
 				fmt.Printf("ERROR ENCRYPTING TOKEN SECURITY MIDDLEWARE: %+v\n", err)
 				http.Error(w, "Error encrypting CSRF token.", http.StatusInternalServerError)
@@ -127,7 +126,7 @@ func CSRFProtectMiddleware(next http.Handler) http.Handler {
 			}
 
 			csrfToken := models.CSRFToken{
-				ExpiryTime: expirationTime.Unix(),
+				ExpiryTime: expirationTime,
 				Token:      encryptedToken,
 				IsUsed:     false,
 			}
