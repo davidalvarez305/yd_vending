@@ -1,6 +1,6 @@
 {{ define "create_slot_form.html" }}
 <!-- Modal Container -->
-<div id="formModalContainer" style="display: none;">
+<div id="slotFormModalContainer" style="display: none;">
     <div>
         <div tabindex="-1" role="dialog"
             class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
@@ -80,7 +80,7 @@
     const closeSlotForm = document.getElementById("closeSlotForm");
 
     function handleCloseSlotForm() {
-        const modal = document.getElementById('formModalContainer');
+        const modal = document.getElementById('slotFormModalContainer');
         modal.style.display = 'none';
     }
 
