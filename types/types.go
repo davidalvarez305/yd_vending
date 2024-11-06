@@ -608,24 +608,22 @@ type SlotList struct {
 }
 
 type SlotDetails struct {
-	SlotID      int     `json:"slot_id" form:"slot_id" schema:"slot_id"`
-	Nickname    string  `json:"nickname" form:"nickname" schema:"nickname"`
-	Slot        string  `json:"slot" form:"slot" schema:"slot"`
-	MachineID   int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
-	MachineCode string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
-	Price       float64 `json:"price" form:"price" schema:"price"`
-	Capacity    int     `json:"capacity" form:"capacity" schema:"capacity"`
+	SlotID      int    `json:"slot_id" form:"slot_id" schema:"slot_id"`
+	Nickname    string `json:"nickname" form:"nickname" schema:"nickname"`
+	Slot        string `json:"slot" form:"slot" schema:"slot"`
+	MachineID   int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	MachineCode string `json:"machine_code" form:"machine_code" schema:"machine_code"`
+	Capacity    int    `json:"capacity" form:"capacity" schema:"capacity"`
 }
 
 type SlotForm struct {
-	CSRFToken               *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	Nickname                *string  `json:"nickname" form:"nickname" schema:"nickname"`
-	Slot                    *string  `json:"slot" form:"slot" schema:"slot"`
-	MachineCode             *string  `json:"machine_code" form:"machine_code" schema:"machine_code"`
-	MachineID               *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`
-	Price                   *float64 `json:"price" form:"price" schema:"price"`
-	Capacity                *int     `json:"capacity" form:"capacity" schema:"capacity"`
-	ProductSlotAssignmentID int64    `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
+	CSRFToken               *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Nickname                *string `json:"nickname" form:"nickname" schema:"nickname"`
+	Slot                    *string `json:"slot" form:"slot" schema:"slot"`
+	MachineCode             *string `json:"machine_code" form:"machine_code" schema:"machine_code"`
+	MachineID               *int    `json:"machine_id" form:"machine_id" schema:"machine_id"`
+	Capacity                *int    `json:"capacity" form:"capacity" schema:"capacity"`
+	ProductSlotAssignmentID int64   `json:"product_slot_assignment_id" form:"product_slot_assignment_id" schema:"product_slot_assignment_id"`
 }
 
 type ProductSlotAssignment struct {
@@ -701,7 +699,7 @@ type SlotPriceLogList struct {
 	DateAssigned   int64   `json:"date_assigned" form:"date_assigned" schema:"date_assigned"`
 }
 
-type SlotPriceLog struct {
+type SlotPriceLogForm struct {
 	CSRFToken      *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	SlotPriceLogID *int     `json:"slot_price_log_id" form:"slot_price_log_id" schema:"slot_price_log_id"`
 	MachineID      *int     `json:"machine_id" form:"machine_id" schema:"machine_id"`

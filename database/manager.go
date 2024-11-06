@@ -3089,14 +3089,27 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 		s.slot,
 		s.machine_id,
 		s.machine_code,
-		s.price::NUMERIC,
+		slot_price.price::NUMERIC,
 		s.capacity,
-		MAX(r.date_refilled AT TIME ZONE 'America/New_York'),
+		r.date_refilled,
 		r.refill_id
 	FROM "slot" AS s
 	LEFT JOIN refill AS r ON r.slot_id = s.slot_id
+	LEFT JOIN LATERAL (
+		SELECT r.refill_id, r.date_refilled AT TIME ZONE 'America/New_York'
+		FROM refill AS r
+		WHERE r.slot_id = s.slot_id
+		ORDER BY r.date_refilled DESC
+		LIMIT 1
+	) AS r ON r.slot_id = s.slot_id
+	LEFT JOIN LATERAL (
+		SELECT spl.slot_id, spl.price::NUMERIC
+		FROM slot_price_log AS spl
+		WHERE spl.slot_id = s.slot_id
+		ORDER BY spl.date_assigned DESC
+		LIMIT 1
+	) AS slot_price ON slot_price.slot_id = s.slot_id
 	WHERE s.machine_id = $1
-	GROUP BY s.slot_id, s.slot, s.machine_id, s.machine_code, s.price, s.capacity, r.refill_id
 	ORDER BY s.slot_id ASC;
 	`, machineId)
 	if err != nil {
@@ -3109,13 +3122,14 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 
 		var dateRefilled sql.NullTime
 		var refillId sql.NullInt64
+		var slotPrice sql.NullFloat64
 
 		err := rows.Scan(
 			&slot.SlotID,
 			&slot.Slot,
 			&slot.MachineID,
 			&slot.MachineCode,
-			&slot.Price,
+			&slotPrice,
 			&slot.Capacity,
 			&dateRefilled,
 			&refillId,
@@ -3130,6 +3144,9 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 		if refillId.Valid {
 			slot.LastRefillID = int(refillId.Int64)
 		}
+		if slotPrice.Valid {
+			slot.Price = slotPrice.Float64
+		}
 
 		slots = append(slots, slot)
 	}
@@ -3141,21 +3158,18 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 	return slots, nil
 }
 
-func CreateSlot(form types.SlotForm) (int, error) {
-	var slotId int
+func CreateSlot(form types.SlotForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO slot (
 			nickname,
 			slot,
 			machine_code,
 			machine_id,
-			price,
 			capacity
-		) VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING slot_id
+		) VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
-		return slotId, fmt.Errorf("error preparing statement: %w", err)
+		return fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
@@ -3163,23 +3177,21 @@ func CreateSlot(form types.SlotForm) (int, error) {
 	slot := utils.CreateNullString(form.Slot)
 	machineCode := utils.CreateNullString(form.MachineCode)
 	machineID := utils.CreateNullInt(form.MachineID)
-	price := utils.CreateNullFloat64(form.Price)
 	capacity := utils.CreateNullInt(form.Capacity)
 
-	err = stmt.QueryRow(
+	_, err = stmt.Exec(
 		nickname,
 		slot,
 		machineCode,
 		machineID,
-		price,
 		capacity,
-	).Scan(&slotId)
+	)
 
 	if err != nil {
-		return slotId, fmt.Errorf("error executing statement: %w", err)
+		return fmt.Errorf("error executing statement: %w", err)
 	}
 
-	return slotId, nil
+	return nil
 }
 
 func UpdateSlot(slotId int, form types.SlotForm) error {
@@ -3190,8 +3202,7 @@ func UpdateSlot(slotId int, form types.SlotForm) error {
 			slot = COALESCE($3, slot),
 			machine_code = COALESCE($4, machine_code),
 			machine_id = COALESCE($5, machine_id),
-			price = COALESCE($6, price),
-			capacity = COALESCE($7, capacity)
+			capacity = COALESCE($6, capacity)
 		WHERE slot_id = $1
 	`)
 	if err != nil {
@@ -3203,7 +3214,6 @@ func UpdateSlot(slotId int, form types.SlotForm) error {
 	slot := utils.CreateNullString(form.Slot)
 	machineCode := utils.CreateNullString(form.MachineCode)
 	machineID := utils.CreateNullInt(form.MachineID)
-	price := utils.CreateNullFloat64(form.Price)
 	capacity := utils.CreateNullInt(form.Capacity)
 
 	_, err = stmt.Exec(
@@ -3212,7 +3222,6 @@ func UpdateSlot(slotId int, form types.SlotForm) error {
 		slot,
 		machineCode,
 		machineID,
-		price,
 		capacity,
 	)
 	if err != nil {
@@ -3241,32 +3250,30 @@ func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 		s.slot,
 		s.machine_code,
 		s.machine_id,
-		s.price,
 		s.capacity
 	FROM slot AS s
 	WHERE s.slot_id = $1 AND s.machine_id = $2`
 
-	var businessDetails types.SlotDetails
+	var slotDetails types.SlotDetails
 
 	row := DB.QueryRow(query, slotId, machineId)
 
 	err := row.Scan(
-		&businessDetails.SlotID,
-		&businessDetails.Nickname,
-		&businessDetails.Slot,
-		&businessDetails.MachineCode,
-		&businessDetails.MachineID,
-		&businessDetails.Price,
-		&businessDetails.Capacity,
+		&slotDetails.SlotID,
+		&slotDetails.Nickname,
+		&slotDetails.Slot,
+		&slotDetails.MachineCode,
+		&slotDetails.MachineID,
+		&slotDetails.Capacity,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return businessDetails, fmt.Errorf("no business found with ID %s", slotId)
+			return slotDetails, fmt.Errorf("no business found with ID %s", slotId)
 		}
-		return businessDetails, fmt.Errorf("error scanning row: %w", err)
+		return slotDetails, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	return businessDetails, nil
+	return slotDetails, nil
 }
 
 func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, error) {
@@ -3535,7 +3542,7 @@ func CreateMachineCardReaderAssignment(form types.MachineCardReaderAssignmentFor
 	return nil
 }
 
-func CreateSlotPriceLog(form models.SlotPriceLog) error {
+func CreateSlotPriceLog(form types.SlotPriceLogForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO slot_price_log (
 			slot_id,
@@ -3548,10 +3555,14 @@ func CreateSlotPriceLog(form models.SlotPriceLog) error {
 	}
 	defer stmt.Close()
 
+	slotId := utils.CreateNullInt(form.SlotID)
+	price := utils.CreateNullFloat64(form.Price)
+	dateAssigned := utils.CreateNullInt64(form.DateAssigned)
+
 	_, err = stmt.Exec(
-		form.SlotID,
-		form.Price,
-		form.DateAssigned,
+		slotId,
+		price,
+		dateAssigned,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
@@ -3652,7 +3663,7 @@ func UpdateMachineCardReaderAssignment(cardReaderId int, form types.MachineCardR
 	return nil
 }
 
-func UpdateSlotPriceLog(form types.SlotPriceLog) error {
+func UpdateSlotPriceLog(form types.SlotPriceLogForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE slot_price_log
 		SET price = COALESCE($2, price),
