@@ -289,6 +289,7 @@ type FacebookUserData struct {
 	Phone           string `json:"ph"`
 	FirstName       string `json:"fn"`
 	LastName        string `json:"ln"`
+	Email           string `json:"em"`
 	ClientIPAddress string `json:"client_ip_address"`
 	ClientUserAgent string `json:"client_user_agent"`
 	FBC             string `json:"fbc"`
@@ -310,18 +311,35 @@ type FacebookPayload struct {
 }
 
 type GoogleEventParamsLead struct {
-	GCLID string `json:"gclid"`
+	GCLID string `json:"gclid" form:"gclid" schema:"gclid"`
 }
 
 type GoogleEventLead struct {
-	Name   string                `json:"name"`
-	Params GoogleEventParamsLead `json:"params"`
+	Name   string                `json:"name" form:"name" schema:"name"`
+	Params GoogleEventParamsLead `json:"params" form:"params" schema:"params"`
 }
 
 type GooglePayload struct {
-	ClientID string            `json:"client_id"`
-	UserId   string            `json:"userId"`
-	Events   []GoogleEventLead `json:"events"`
+	ClientID string            `json:"client_id" form:"client_id" schema:"client_id"`
+	UserId   string            `json:"userId" form:"userId" schema:"userId"`
+	Events   []GoogleEventLead `json:"events" form:"events" schema:"events"`
+	UserData GoogleUserData    `json:"user_data" form:"user_data" schema:"user_data"`
+}
+
+type GoogleUserData struct {
+	Sha256EmailAddress []string            `json:"sha256_email_address,omitempty" form:"sha256_email_address,omitempty" schema:"sha256_email_address,omitempty"`
+	Sha256PhoneNumber  []string            `json:"sha256_phone_number,omitempty" form:"sha256_phone_number,omitempty" schema:"sha256_phone_number,omitempty"`
+	Address            []GoogleUserAddress `json:"address,omitempty" form:"address,omitempty" schema:"address,omitempty"`
+}
+
+type GoogleUserAddress struct {
+	Sha256FirstName string `json:"sha256_first_name,omitempty" form:"sha256_first_name,omitempty" schema:"sha256_first_name,omitempty"`
+	Sha256LastName  string `json:"sha256_last_name,omitempty" form:"sha256_last_name,omitempty" schema:"sha256_last_name,omitempty"`
+	Sha256Street    string `json:"sha256_street,omitempty" form:"sha256_street,omitempty" schema:"sha256_street,omitempty"`
+	City            string `json:"city,omitempty" form:"city,omitempty" schema:"city,omitempty"`
+	Region          string `json:"region,omitempty" form:"region,omitempty" schema:"region,omitempty"`
+	PostalCode      string `json:"postal_code,omitempty" form:"postal_code,omitempty" schema:"postal_code,omitempty"`
+	Country         string `json:"country,omitempty" form:"country,omitempty" schema:"country,omitempty"`
 }
 
 type ConversionLeadInfo struct {

@@ -223,6 +223,15 @@ func GetInt64PointerFromForm(r *http.Request, key string) *int64 {
 	return nil
 }
 
+func GetFloat64PointerFromForm(r *http.Request, key string) *float64 {
+	if values, ok := r.Form[key]; ok && len(values) > 0 {
+		if i, err := strconv.ParseFloat(values[0], 64); err == nil {
+			return &i
+		}
+	}
+	return nil
+}
+
 func ParseInt64(value string) int64 {
 	parsedValue, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {

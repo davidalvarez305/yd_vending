@@ -9,9 +9,13 @@ import (
 	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
-	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/davidalvarez305/yd_vending/utils"
+)
+
+const (
+	OptInEventName string = "opt_in"
 )
 
 var funnelBaseFilePath = constants.FUNNEL_TEMPLATES_DIR + "base.html"
@@ -114,16 +118,11 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var form types.QuoteForm
-	form.FirstName = helpers.GetStringPointerFromForm(r, "first_name")
-	form.LastName = helpers.GetStringPointerFromForm(r, "last_name")
-	form.PhoneNumber = helpers.GetStringPointerFromForm(r, "phone_number")
-	form.Rent = helpers.GetStringPointerFromForm(r, "rent")
-	form.LocationType = helpers.GetIntPointerFromForm(r, "location_type")
-	form.MachineType = helpers.GetIntPointerFromForm(r, "machine_type")
-	form.FootTraffic = helpers.GetStringPointerFromForm(r, "foot_traffic")
-	form.FootTrafficType = helpers.GetStringPointerFromForm(r, "foot_traffic_type")
-	form.Message = helpers.GetStringPointerFromForm(r, "message")
+	var form types.OptIn90DayChallengeForm
+	form.Email = helpers.GetStringPointerFromForm(r, "email")
+	form.LandingPageID = helpers.GetIntPointerFromForm(r, "landing_page_id")
+	form.PercentScrolled = helpers.GetFloat64PointerFromForm(r, "percent_scrolled")
+	form.TimeSpentOnPage = helpers.GetInt64PointerFromForm(r, "time_spent_on_page")
 	form.Source = helpers.GetStringPointerFromForm(r, "source")
 	form.Medium = helpers.GetStringPointerFromForm(r, "medium")
 	form.Channel = helpers.GetStringPointerFromForm(r, "channel")
@@ -198,7 +197,7 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 		form.CSRFSecret = &session.CSRFSecret
 	}
 
-	leadID, err := database.CreateLeadAndMarketing(form)
+	err = database.Create90DayChallengeOptIn(form)
 	if err != nil {
 		fmt.Printf("Error creating lead: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -214,7 +213,6 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// HTML successful lead creation
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "modal",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
@@ -224,26 +222,22 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	lead, err := database.GetConversionLeadInfo(leadID)
-
+	time, err := utils.GetCurrentTimeInEST()
 	if err != nil {
-		fmt.Printf("ERROR GETTING NEW LEAD FROM DB: %+v\n", err)
+		fmt.Printf("Error getting event time: %+v\n", err)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
 	}
 
 	fbEvent := types.FacebookEventData{
-		EventName:      "Lead",
-		EventTime:      time.Now().Unix(),
+		EventName:      OptInEventName,
+		EventTime:      time,
 		ActionSource:   "website",
 		EventSourceURL: helpers.SafeString(form.LandingPage),
 		UserData: types.FacebookUserData{
-			FirstName:       helpers.HashString(helpers.SafeString(form.FirstName)),
-			LastName:        helpers.HashString(helpers.SafeString(form.LastName)),
-			Phone:           helpers.HashString(helpers.SafeString(form.PhoneNumber)),
+			Email:           helpers.HashString(helpers.SafeString(form.Email)),
 			FBC:             helpers.SafeString(form.FacebookClickID),
 			FBP:             helpers.SafeString(form.FacebookClientID),
-			State:           helpers.HashString("Florida"),
 			ExternalID:      helpers.HashString(helpers.SafeString(form.ExternalID)),
 			ClientIPAddress: helpers.SafeString(form.IP),
 			ClientUserAgent: helpers.SafeString(form.UserAgent),
@@ -259,62 +253,19 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 		UserId:   helpers.SafeString(form.ExternalID),
 		Events: []types.GoogleEventLead{
 			{
-				Name: "quote",
+				Name: OptInEventName,
 				Params: types.GoogleEventParamsLead{
 					GCLID: helpers.SafeString(form.ClickID),
 				},
 			},
 		},
+		UserData: types.GoogleUserData{
+			Sha256EmailAddress: []string{helpers.HashString(helpers.SafeString(form.Email))},
+		},
 	}
 
-	// Send conversion events
-	err = conversions.SendGoogleConversion(payload)
-
-	if err != nil {
-		fmt.Printf("Error sending Google conversion: %+v\n", err)
-	}
-
-	err = conversions.SendFacebookConversion(metaPayload)
-
-	if err != nil {
-		fmt.Printf("Error sending Facebook conversion: %+v\n", err)
-	}
-
-	// New lead notification
-	subject := "YD Vending: New Lead"
-	recipients := []string{constants.DavidEmail, constants.YovaEmail}
-	templateFile := constants.PARTIAL_TEMPLATES_DIR + "new_lead_notification_email.html"
-
-	var notificationTemplateData = map[string]any{
-		"Name":           helpers.SafeString(form.FirstName) + " " + helpers.SafeString(form.LastName),
-		"PhoneNumber":    helpers.SafeString(form.PhoneNumber),
-		"DateCreated":    time.Unix(lead.CreatedAt, 0).Format("01/02/2006 3 PM"),
-		"MachineType":    lead.MachineType,
-		"LocationType":   lead.LocationType,
-		"Message":        helpers.SafeString(form.Message),
-		"LeadDetailsURL": fmt.Sprintf("%s/crm/lead/%d", constants.RootDomain, leadID),
-		"Location":       "",
-	}
-
-	if helpers.SafeString(form.Longitude) != "0.0" && len(helpers.SafeString(form.Longitude)) > 0 || helpers.SafeString(form.Latitude) != "0.0" && len(helpers.SafeString(form.Latitude)) > 0 {
-		notificationTemplateData["Location"] = fmt.Sprintf("https://www.google.com/maps?q=%s,%s", helpers.SafeString(form.Latitude), helpers.SafeString(form.Longitude))
-	}
-
-	template, err := helpers.BuildStringFromTemplate(templateFile, "email", notificationTemplateData)
-
-	if err != nil {
-		fmt.Printf("ERROR BUILDING QUOTE NOTIFICATION TEMPLATE: %+v\n", err)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	body := fmt.Sprintf("Content-Type: text/html; charset=UTF-8\r\n%s", template)
-	err = services.SendGmail(recipients, subject, constants.CompanyEmail, body)
-	if err != nil {
-		fmt.Printf("ERROR SENDING QUOTE NOTIFICATION EMAIL: %+v\n", err)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
+	go conversions.SendGoogleConversion(payload)
+	go conversions.SendFacebookConversion(metaPayload)
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

@@ -107,3 +107,10 @@ func SnakeToCamel(s string) string {
 
 	return strings.Join(parts, "")
 }
+
+func AddPhonePrefixIfNeeded(phoneNumber string) string {
+	if !strings.HasPrefix(phoneNumber, "+") {
+		return "+1" + phoneNumber
+	}
+	return phoneNumber
+}
