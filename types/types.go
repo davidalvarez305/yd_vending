@@ -679,17 +679,18 @@ type GetTransactionsParams struct {
 }
 
 type TransactionList struct {
-	TransactionLogID     int64   `json:"transaction_log_id" db:"transaction_log_id" form:"transaction_log_id" schema:"transaction_log_id"`
-	Machine              string  `json:"machine" db:"machine" form:"machine" schema:"machine"`
-	Location             string  `json:"location" db:"location" form:"location" schema:"location"`
-	MachineSelection     string  `json:"machine_selection" db:"machine_selection" form:"machine_selection" schema:"machine_selection"`
-	Product              string  `json:"product" db:"product" form:"product" schema:"product"`
-	TransactionTimestamp string  `json:"transaction_timestamp" db:"transaction_timestamp" form:"transaction_timestamp" schema:"transaction_timestamp"`
-	TransactionType      string  `json:"transaction_type" db:"transaction_type" form:"transaction_type" schema:"transaction_type"`
-	CardNumber           string  `json:"card_number" db:"card_number" form:"card_number" schema:"card_number"`
-	Revenue              float64 `json:"revenue" db:"revenue" form:"revenue" schema:"revenue"`
-	Items                int     `json:"items" db:"items" form:"items" schema:"items"`
-	IsInvalidated        bool    `json:"is_invalidated" db:"is_invalidated" form:"is_invalidated" schema:"is_invalidated"`
+	TransactionLogID        int64   `json:"transaction_log_id" db:"transaction_log_id" form:"transaction_log_id" schema:"transaction_log_id"`
+	Machine                 string  `json:"machine" db:"machine" form:"machine" schema:"machine"`
+	Location                string  `json:"location" db:"location" form:"location" schema:"location"`
+	MachineSelection        string  `json:"machine_selection" db:"machine_selection" form:"machine_selection" schema:"machine_selection"`
+	Product                 string  `json:"product" db:"product" form:"product" schema:"product"`
+	TransactionTimestamp    string  `json:"transaction_timestamp" db:"transaction_timestamp" form:"transaction_timestamp" schema:"transaction_timestamp"`
+	TransactionType         string  `json:"transaction_type" db:"transaction_type" form:"transaction_type" schema:"transaction_type"`
+	CardNumber              string  `json:"card_number" db:"card_number" form:"card_number" schema:"card_number"`
+	Revenue                 float64 `json:"revenue" db:"revenue" form:"revenue" schema:"revenue"`
+	Items                   int     `json:"items" db:"items" form:"items" schema:"items"`
+	IsValidated             bool    `json:"is_validated" db:"is_validated" form:"is_validated" schema:"is_validated"`
+	TransactionValidationID int     `json:"transaction_validation_id" db:"transaction_validation_id" form:"transaction_validation_id" schema:"transaction_validation_id"`
 }
 
 type SlotPriceLogList struct {

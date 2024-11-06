@@ -6,10 +6,6 @@
             <tr>
                 <th
                     class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
-                    View
-                </th>
-                <th
-                    class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Machine
                 </th>
                 <th
@@ -51,12 +47,6 @@
             {{ range .Transactions }}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                 <td class="p-3 text-center">
-                    <a href="/inventory/{{ .TransactionLogID }}" target="_blank"
-                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-2 py-1 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
-                        View
-                    </a>
-                </td>
-                <td class="p-3 text-center">
                     <p class="font-medium">{{ .Machine }} | {{ .Location }}</p>
                 </td>
                 <td class="p-3 text-center">
@@ -82,19 +72,29 @@
                 </td>
                 <td class="p-3 text-center">
                     <div>
+                        {{ if .IsValidated }}
                         <button data-transaction-id="{{ .TransactionLogID }}"
                             class="invalidationButton inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-exclamation-circle inline-block size-5">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                class="hi-mini hi-exclamation-circle inline-block size-5">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                                    clip-rule="evenodd" />
                             </svg>
                         </button>
+                        {{ end }}
 
-                        <button data-transaction-id="{{ .TransactionLogID }}"
+                        {{ if not .IsValidated }}
+                        <button data-transaction-id="{{ .TransactionLogID }}" data-transaction-validation-id="{{ .TransactionValidationID }}"
                             class="invalidationRemovalButton inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-no-symbol inline-block size-5">
-                                <path fill-rule="evenodd" d="m5.965 4.904 9.131 9.131a6.5 6.5 0 0 0-9.131-9.131Zm8.07 10.192L4.904 5.965a6.5 6.5 0 0 0 9.131 9.131ZM4.343 4.343a8 8 0 1 1 11.314 11.314A8 8 0 0 1 4.343 4.343Z" clip-rule="evenodd"/>
-                              </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                class="hi-mini hi-no-symbol inline-block size-5">
+                                <path fill-rule="evenodd"
+                                    d="m5.965 4.904 9.131 9.131a6.5 6.5 0 0 0-9.131-9.131Zm8.07 10.192L4.904 5.965a6.5 6.5 0 0 0 9.131 9.131ZM4.343 4.343a8 8 0 1 1 11.314 11.314A8 8 0 0 1 4.343 4.343Z"
+                                    clip-rule="evenodd" />
+                            </svg>
                         </button>
+                        {{ end }}
                     </div>
                 </td>
             </tr>
@@ -115,7 +115,8 @@
                 </svg>
             </button>
             <div class="flex grow items-center justify-center px-2 sm:px-4">
-                <span>Page <span class="font-semibold">{{ .CurrentPage }}</span> of <span id="maxPages" class="font-semibold">{{ .MaxPages }}</span></span>
+                <span>Page <span class="font-semibold">{{ .CurrentPage }}</span> of <span id="maxPages"
+                        class="font-semibold">{{ .MaxPages }}</span></span>
             </div>
             <button name="right"
                 class="pagination-link inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 font-semibold leading-6 text-gray-800 hover:z-1 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:z-1 focus:ring focus:ring-gray-300/25 active:z-1 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
@@ -130,13 +131,27 @@
     </div>
     <!-- END Pagination -->
 </div>
-
+<input type="hidden" name="csrf_token" value="{{ .CSRFToken }}" />
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
     const invalidationButtons = document.querySelectorAll(".invalidationButton");
     const invalidationRemovalButtons = document.querySelectorAll(".invalidationRemovalButton");
     const alertModal = document.getElementById("alertModal");
+
+    const body = new FormData();
+    const csrfToken = document.querySelector('[name="csrf_token"]');
+    body.set("csrf_token", csrfToken.value);
+
+    function buildURL(transactionId, validationId) {
+        let prebuildURL = `/inventory/transaction/${transactionId}/invalidate`
+
+        if (validationId) prebuildURL += `/${validationId}`;
+
+        const actionURL = new URL(prebuildURL, window.location.origin);
+        actionURL.search = window.location.search;
+        return actionURL;
+    }
 
     invalidationButtons.forEach(invalidationButton => {
         invalidationButton.addEventListener("click", function (e) {
@@ -146,9 +161,10 @@
     });
 
     function handleInvalidateTransaction(transactionId) {
-        fetch(`/inventory/transaction/${transactionId}/invalidate`, {
+        fetch(buildURL(transactionId, null), {
             method: "POST",
             credentials: "include",
+            body: body,
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
@@ -178,14 +194,16 @@
     invalidationRemovalButtons.forEach(invalidationRemovalButton => {
         invalidationRemovalButton.addEventListener("click", function (e) {
             const transactionId = invalidationRemovalButton.dataset.transactionId;
-            handleInvalidationRemoval(transactionId);
+            const transactionValidationId = invalidationRemovalButton.dataset.transactionValidationId;
+            handleInvalidationRemoval(transactionId, transactionValidationId);
         });
     });
 
-    function handleInvalidationRemoval(transactionId) {
-        fetch(`/inventory/transaction/${transactionId}/invalidate`, {
+    function handleInvalidationRemoval(transactionId, validationId) {
+        fetch(buildURL(transactionId, validationId), {
             method: "DELETE",
             credentials: "include",
+            body: body,
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');

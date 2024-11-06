@@ -3813,7 +3813,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 	rows, err := DB.Query(`
 		SELECT t.transaction_id, t.transaction_timestamp, CONCAT(m.model, ' ', m.make) AS machine, l.name AS location,
 				s.machine_code, p.name,
-		       t.transaction_type, t.card_number, slot_price.price * t.items, t.items, COALESCE(i.is_validated, TRUE),
+		       t.transaction_type, t.card_number, slot_price.price * t.items, t.items, COALESCE(i.is_validated, TRUE), i.transaction_validation_id,
 			   COUNT(*) OVER() AS total_rows
 		FROM seed_transaction AS t
 		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
@@ -3864,6 +3864,7 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 
 		var transactionTime time.Time
 		var cardNumber sql.NullString
+		var transactionValidationId sql.NullInt64
 
 		err := rows.Scan(
 			&transaction.TransactionLogID,
@@ -3876,7 +3877,8 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 			&cardNumber,
 			&transaction.Revenue,
 			&transaction.Items,
-			&transaction.IsInvalidated,
+			&transaction.IsValidated,
+			&transactionValidationId,
 			&totalRows,
 		)
 		if err != nil {
@@ -3885,6 +3887,10 @@ func GetTransactionList(params types.GetTransactionsParams) ([]types.Transaction
 
 		if cardNumber.Valid {
 			transaction.CardNumber = cardNumber.String
+		}
+
+		if transactionValidationId.Valid {
+			transaction.TransactionValidationID = int(transactionValidationId.Int64)
 		}
 
 		transaction.TransactionTimestamp = utils.FormatTimestampEST(transactionTime.Unix())
@@ -4090,11 +4096,11 @@ func CreateTransactionInvalidation(transactionId string) error {
 	return nil
 }
 
-func DeleteTransactionInvalidation(transactionId string) error {
+func DeleteTransactionInvalidation(transactionValidationId string) error {
 	sqlStatement := `
         DELETE FROM transaction_validation WHERE transaction_validation_id = $1
     `
-	_, err := DB.Exec(sqlStatement, transactionId)
+	_, err := DB.Exec(sqlStatement, transactionValidationId)
 	if err != nil {
 		return err
 	}

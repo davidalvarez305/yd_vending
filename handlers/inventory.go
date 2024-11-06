@@ -47,6 +47,7 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		if strings.HasPrefix(path, "/inventory/transaction/") && strings.Contains(path, "/invalidate") {
 			PostInvalidateTransaction(w, r)
+			return
 		}
 
 		switch path {
@@ -97,6 +98,7 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 
 		if strings.HasPrefix(path, "/inventory/transaction/") && strings.Contains(path, "/invalidate") {
 			DeleteTransactionInvalidation(w, r)
+			return
 		}
 
 		switch path {
@@ -500,7 +502,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request, ctx map[string]any)
 }
 
 func PostInvalidateTransaction(w http.ResponseWriter, r *http.Request) {
-	transactionId, err := helpers.GetFirstIDAfterPrefix(r, "/inventory/transaction")
+	transactionId, err := helpers.GetFirstIDAfterPrefix(r, "/inventory/transaction/")
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -578,14 +580,14 @@ func PostInvalidateTransaction(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTransactionInvalidation(w http.ResponseWriter, r *http.Request) {
-	transactionId, err := helpers.GetFirstIDAfterPrefix(r, "/inventory/transaction")
+	transactionValidationId, err := helpers.GetSecondIDFromPath(r, "/inventory/transaction/")
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "No transaction id found in URL path.",
+				"Message": "No transaction validation id found in URL path.",
 			},
 		}
 		w.WriteHeader(http.StatusBadRequest)
@@ -593,7 +595,7 @@ func DeleteTransactionInvalidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.DeleteTransactionInvalidation(fmt.Sprint(transactionId))
+	err = database.DeleteTransactionInvalidation(fmt.Sprint(transactionValidationId))
 	if err != nil {
 		fmt.Printf("Error creating product: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
