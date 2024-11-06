@@ -137,7 +137,7 @@ func ValidateCSRFToken(isUsed bool, csrfToken string, userToken []byte) error {
 	}
 
 	// Unix time validation
-	if decryptedUnixTime < time.Now().Unix() {
+	if time.Now().Unix() > decryptedUnixTime {
 		return errors.New("token expired")
 	}
 

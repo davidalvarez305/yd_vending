@@ -908,7 +908,7 @@ func GetSession(userKey string) (models.Session, error) {
 func CreateSession(session models.Session) error {
 	sqlStatement := `
         INSERT INTO sessions (csrf_secret, external_id, date_created, date_expires)
-        VALUES ($1, $2, to_timestamp($3), to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York')
+        VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York')
     `
 
 	_, err := DB.Exec(sqlStatement,
