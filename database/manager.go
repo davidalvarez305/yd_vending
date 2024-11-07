@@ -4207,13 +4207,13 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 		JOIN location AS l ON loc_assignment.location_id = l.location_id
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id
 		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
-		JOIN LATERAL (
+		LEFT JOIN LATERAL (
 			SELECT r.slot_id, r.date_refilled
 			FROM refill AS r
-			ON r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
+			WHERE r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
 			ORDER BY r.date_refilled DESC
 			LIMIT 1
-		) AS r ON r.slot_id = s.slot_id
+		) AS r ON true
 		JOIN LATERAL (
 			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
