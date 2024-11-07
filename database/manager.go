@@ -4216,15 +4216,12 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		JOIN LATERAL (
-			SELECT 
-				COALESCE(r.slot_id, s.slot_id) AS slot_id,
-				COALESCE(r.date_refilled, '2000-01-01 00:00:00'::timestamp) AS date_refilled
+			SELECT r.slot_id
 			FROM refill AS r
 			WHERE r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
 			ORDER BY r.date_refilled DESC
 			LIMIT 1
-		) AS r 
-		ON r.slot_id = s.slot_id
+		) AS r ON r.slot_id = s.slot_id
 	`
 
 	if isGeneral {
