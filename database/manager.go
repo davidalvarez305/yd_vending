@@ -3094,9 +3094,8 @@ func GetMachineSlotsByMachineID(machineId string) ([]types.SlotList, error) {
 		r.date_refilled,
 		r.refill_id
 	FROM "slot" AS s
-	LEFT JOIN refill AS r ON r.slot_id = s.slot_id
 	LEFT JOIN LATERAL (
-		SELECT r.refill_id, r.date_refilled AT TIME ZONE 'America/New_York'
+		SELECT r.refill_id, r.date_refilled AT TIME ZONE 'America/New_York' AS date_refilled, r.slot_id
 		FROM refill AS r
 		WHERE r.slot_id = s.slot_id
 		ORDER BY r.date_refilled DESC
