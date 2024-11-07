@@ -3217,6 +3217,14 @@ select{
   z-index: 1;
 }
 
+.hover\:cursor-grab:hover{
+  cursor: grab;
+}
+
+.hover\:cursor-pointer:hover{
+  cursor: pointer;
+}
+
 .hover\:border-emerald-800:hover{
   --tw-border-opacity: 1;
   border-color: rgb(6 95 70 / var(--tw-border-opacity));

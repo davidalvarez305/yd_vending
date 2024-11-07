@@ -4174,11 +4174,21 @@ func DeletePriceSlotLog(logId string) error {
 	return nil
 }
 
-func GetPrepReport() ([]types.PrepReport, error) {
+func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 	var prepReport []types.PrepReport
 
-	rows, err := DB.Query(`
-		SELECT CONCAT(m.make, ' ', m.model) AS machine, l.name AS location, p.name, SUM(t.items) AS items_sold
+	query := ""
+	if isGeneral {
+		query = `
+			SELECT p.name, SUM(t.items) AS items_sold
+		`
+	} else {
+		query = `
+			SELECT CONCAT(m.make, ' ', m.model) AS machine, l.name AS location, p.name, SUM(t.items) AS items_sold
+		`
+	}
+
+	query += `
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4206,9 +4216,21 @@ func GetPrepReport() ([]types.PrepReport, error) {
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
-		GROUP BY l.name, p.name, m.model, m.make, r.date_refilled
-		ORDER BY location, machine, items_sold DESC;
-	`)
+	`
+
+	if isGeneral {
+		query += `
+			GROUP BY p.name
+			ORDER BY items_sold DESC;
+		`
+	} else {
+		query += `
+			GROUP BY l.name, p.name, m.model, m.make, r.date_refilled
+			ORDER BY l.name, m.model, items_sold DESC;
+		`
+	}
+
+	rows, err := DB.Query(query)
 	if err != nil {
 		return prepReport, fmt.Errorf("error executing query: %w", err)
 	}
@@ -4217,14 +4239,16 @@ func GetPrepReport() ([]types.PrepReport, error) {
 	for rows.Next() {
 		var productSold types.PrepReport
 
-		err := rows.Scan(
-			&productSold.Machine,
-			&productSold.Location,
-			&productSold.Product,
-			&productSold.AmountSold,
-		)
-		if err != nil {
-			return prepReport, fmt.Errorf("error scanning row: %w", err)
+		if isGeneral {
+			err := rows.Scan(&productSold.Product, &productSold.AmountSold)
+			if err != nil {
+				return prepReport, fmt.Errorf("error scanning row: %w", err)
+			}
+		} else {
+			err := rows.Scan(&productSold.Machine, &productSold.Location, &productSold.Product, &productSold.AmountSold)
+			if err != nil {
+				return prepReport, fmt.Errorf("error scanning row: %w", err)
+			}
 		}
 
 		prepReport = append(prepReport, productSold)

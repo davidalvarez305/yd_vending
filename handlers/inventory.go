@@ -667,7 +667,8 @@ func GetPrepReport(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 		return
 	}
 
-	report, err := database.GetPrepReport()
+	isGeneral := r.URL.Query().Has("is_general")
+	report, err := database.GetPrepReport(isGeneral)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting prep report.", http.StatusInternalServerError)

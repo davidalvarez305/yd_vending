@@ -1,13 +1,22 @@
 {{ define "content.html" }}
+<div class="space-y-1">
+    <label class="group relative inline-flex items-center gap-3 hover:cursor-pointer">
+        <input type="checkbox" class="peer sr-only" id="is_general" name="is_general" />
+        <span
+            class="relative h-7 w-12 flex-none rounded-full bg-gray-300 transition-all duration-150 ease-out before:absolute before:left-1 before:top-1 before:size-5 before:rounded-full before:bg-white before:transition-transform before:duration-150 before:ease-out before:content-[''] peer-checked:bg-primary-500 peer-checked:before:translate-x-full peer-focus:ring peer-focus:ring-primary-500/50 peer-focus:ring-offset-2 peer-focus:ring-offset-white peer-disabled:cursor-not-allowed peer-disabled:opacity-75 dark:bg-gray-700 dark:peer-checked:bg-primary-500 dark:peer-focus:ring-offset-gray-900"></span>
+        <span class="font-medium">Is General</span>
+    </label>
+</div>
+
 <div id="prepReportTable" class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
     <table class="min-w-full whitespace-nowrap align-middle text-sm">
         <thead>
             <tr>
-                <th
+                <th id="locationColumn"
                     class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Location
                 </th>
-                <th
+                <th id="machineColumn"
                     class="bg-gray-100/75 px-3 py-4 text-center font-semibold text-gray-900 dark:bg-gray-700/25 dark:text-gray-50">
                     Machine
                 </th>
@@ -21,14 +30,14 @@
                 </th>
             </tr>
         </thead>
-    
+
         <tbody>
             {{ range .PrepReport }}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                <td class="p-3 text-center">
+                <td class="locationCells p-3 text-center">
                     <p class="font-medium">{{ .Location }}</p>
                 </td>
-                <td class="p-3 text-center">
+                <td class="machineCells p-3 text-center">
                     <p class="font-medium">{{ .Machine }}</p>
                 </td>
                 <td class="p-3 text-center">
@@ -42,4 +51,39 @@
         </tbody>
     </table>
 </div>
+
+<script nonce="{{ .Nonce }}">
+    const isGeneral = document.getElementById("is_general");
+
+    // Check if 'is_general' is present in the URL query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasGeneral = urlParams.has("is_general") && urlParams.get("is_general") === "True";
+    if (hasGeneral) {
+        isGeneral.checked = true;
+
+        // Hide the Location and Machine columns
+        document.getElementById("locationColumn").style.display = "none";
+        document.getElementById("machineColumn").style.display = "none";
+
+        // Hide the data cells for Location and Machine
+        const locationCells = document.querySelectorAll(".locationCells");
+        const machineCells = document.querySelectorAll(".machineCells");
+
+        locationCells.forEach(cell => {
+            cell.style.display = "none";
+        });
+
+        machineCells.forEach(cell => {
+            cell.style.display = "none";
+        });
+    }
+
+    isGeneral.addEventListener("change", (e) => {
+        const isChecked = e.target.checked;
+        const queryString = isChecked ? "?is_general=True" : "";
+
+        window.location.replace(`/inventory/prep-report${queryString}`);
+    });
+</script>
+
 {{ end }}
