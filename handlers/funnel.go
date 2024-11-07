@@ -11,7 +11,6 @@ import (
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
-	"github.com/davidalvarez305/yd_vending/utils"
 )
 
 const (
@@ -249,16 +248,9 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	time, err := utils.GetCurrentTimeInEST()
-	if err != nil {
-		fmt.Printf("Error getting event time: %+v\n", err)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
 	fbEvent := types.FacebookEventData{
 		EventName:      OptInEventName,
-		EventTime:      time,
+		EventTime:      time.Now().UTC().Unix(),
 		ActionSource:   "website",
 		EventSourceURL: helpers.SafeString(form.LandingPage),
 		UserData: types.FacebookUserData{
