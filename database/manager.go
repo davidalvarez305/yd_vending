@@ -4207,7 +4207,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		GROUP BY l.name, p.name, m.model, m.make, r.date_refilled
-		ORDER BY l.name ASC, items_sold;
+		ORDER BY location, machine, items_sold DESC;
 	`)
 	if err != nil {
 		return prepReport, fmt.Errorf("error executing query: %w", err)
