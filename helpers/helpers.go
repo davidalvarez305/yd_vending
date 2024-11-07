@@ -184,6 +184,15 @@ func SafeStringToPointer(s string) *string {
 	return &s
 }
 
+func GetMarketingCookiesFromRequestOrForm(r *http.Request, cookieName, formName string) *string {
+	cookie, err := r.Cookie(cookieName)
+	if err == nil && cookie.Value != "" {
+		return &cookie.Value
+	}
+
+	return GetStringPointerFromForm(r, formName)
+}
+
 func GetStringPointerFromForm(r *http.Request, key string) *string {
 	if values, ok := r.Form[key]; ok && len(values) > 0 {
 		return &values[0]

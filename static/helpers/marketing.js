@@ -1,4 +1,4 @@
-const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
+const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid"];
 
 export class MarketingHelper {
     constructor() {
@@ -8,6 +8,7 @@ export class MarketingHelper {
         this.marketingParams = Object.fromEntries(this.landingPage.searchParams);
 
         this.clickId = null;
+        this.facebookClickId = null;
         this.longitude = null;
         this.latitude = null;
 
@@ -16,11 +17,16 @@ export class MarketingHelper {
             this.clickId = this.getClickId(this.landingPage.searchParams);
         };
 
+        // Get FB Click ID
+        const fbClickId = this.landingPage.searchParams.get("fbclid");
+        if (fbClickId) this.facebookClickId = fbClickId;
+
         this.data = new FormData();
     }
 
     getMarketingData() {
         this.data.append("click_id", this.clickId);
+        if (this.facebookClickId) this.data.append("facebook_click_id", this.facebookClickId);
         this.data.append("landing_page", this.user.landingPage);
         this.data.append("referrer", this.user.referrer);
         this.data.append("language", this.language);

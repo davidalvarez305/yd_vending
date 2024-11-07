@@ -171,21 +171,9 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 	form.ButtonClicked = helpers.GetStringPointerFromForm(r, "button_clicked")
 	form.IP = helpers.GetStringPointerFromForm(r, "ip")
 
-	facebookClientId, _ := helpers.GetFacebookClientIDFromRequest(r)
-	facebookClickId, _ := helpers.GetFacebookClickIDFromRequest(r)
-	googleClientId, _ := helpers.GetGoogleClientIDFromRequest(r)
-
-	if facebookClickId != "" {
-		form.FacebookClickID = &facebookClickId
-	}
-
-	if facebookClientId != "" {
-		form.FacebookClientID = &facebookClientId
-	}
-
-	if googleClientId != "" {
-		form.GoogleClientID = &googleClientId
-	}
+	form.FacebookClickID = helpers.GetMarketingCookiesFromRequestOrForm(r, "_fbc", "facebook_click_id")
+	form.FacebookClientID = helpers.GetMarketingCookiesFromRequestOrForm(r, "_fbp", "facebook_client_id")
+	form.GoogleClientID = helpers.GetMarketingCookiesFromRequestOrForm(r, "_ga", "google_client_id")
 
 	session, err := sessions.Get(r)
 	if err != nil {
