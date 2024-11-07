@@ -4178,7 +4178,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 	var prepReport []types.PrepReport
 
 	rows, err := DB.Query(`
-		SELECT CONCAT(m.make, ' ', m.model) AS machine, l.name AS location, p.name, SUM(t.items)
+		SELECT CONCAT(m.make, ' ', m.model) AS machine, l.name AS location, p.name, SUM(t.items) AS items_sold
 		FROM seed_transaction AS t
 		JOIN LATERAL (
 			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
@@ -4207,7 +4207,7 @@ func GetPrepReport() ([]types.PrepReport, error) {
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		GROUP BY l.name, p.name, m.model, m.make, r.date_refilled
-		ORDER BY l.name ASC, m.make ASC, m.model ASC;
+		ORDER BY l.name ASC, items_sold;
 	`)
 	if err != nil {
 		return prepReport, fmt.Errorf("error executing query: %w", err)
