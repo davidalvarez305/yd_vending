@@ -4929,7 +4929,7 @@ func GetMachineLocationAssignments(machineId int) ([]types.MachineLocationAssign
 
 func Create90DayChallengeOptIn(form types.OptIn90DayChallengeForm) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO opt_in (email)
+		INSERT INTO opt_in (email, created_at)
 		VALUES ($1, NOW() AT TIME ZONE 'America/New_York')
 	`)
 	if err != nil {

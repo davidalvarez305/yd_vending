@@ -54,6 +54,8 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/funnel/90-day-challenge":
 			Get90DayVendingChallengeOptIn(w, r, ctx)
+		case "/funnel/90-day-challenge-video":
+			Get90DayVendingChallengeOptInVideo(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -93,6 +95,31 @@ func Get90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request, ctx t
 
 	data := ctx
 	data.PageTitle = "Get 5 Locations in 90 Days Challenge — " + constants.CompanyName
+	data.Nonce = nonce
+	data.CSRFToken = csrfToken
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func Get90DayVendingChallengeOptInVideo(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+	fileName := "90_day_challenge_video.html"
+	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data.PageTitle = "Get 5 Locations in 90 Days Challenge Video — " + constants.CompanyName
 	data.Nonce = nonce
 	data.CSRFToken = csrfToken
 
