@@ -4215,7 +4215,7 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
-		LEFT JOIN LATERAL (
+		JOIN LATERAL (
 			SELECT 
 				COALESCE(r.slot_id, s.slot_id) AS slot_id,
 				COALESCE(r.date_refilled, '2000-01-01'::date) AS date_refilled
