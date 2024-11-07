@@ -4222,6 +4222,7 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
+		WHERE r.slot_id IS NULL OR t.transaction_timestamp >= r.date_refilled
 	`
 
 	if isGeneral {
