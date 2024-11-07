@@ -4927,3 +4927,23 @@ func GetMachineLocationAssignments(machineId int) ([]types.MachineLocationAssign
 
 	return locationAssignments, nil
 }
+
+func Create90DayChallengeOptIn(form types.OptIn90DayChallengeForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO opt_in (email)
+		VALUES ($1, NOW() AT TIME ZONE 'America/New_York')
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing lead statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		utils.CreateNullString(form.Email),
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting lead: %w", err)
+	}
+
+	return nil
+}

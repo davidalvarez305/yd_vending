@@ -218,7 +218,7 @@ func Post90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request) {
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
 			"AlertHeader":  "Awesome!",
-			"AlertMessage": "We received your request and will be right with you.",
+			"AlertMessage": "Your guide will be sent to your e-mail.",
 		},
 	}
 
