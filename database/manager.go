@@ -4207,13 +4207,6 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 		JOIN location AS l ON loc_assignment.location_id = l.location_id
 		JOIN machine AS m ON m.machine_id = card_reader.machine_id
 		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
-		LEFT JOIN LATERAL (
-			SELECT r.slot_id, r.date_refilled
-			FROM refill AS r
-			WHERE r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
-			ORDER BY r.date_refilled DESC
-			LIMIT 1
-		) AS r ON r.slot_id = s.slot_id OR r.slot_id IS NULL
 		JOIN LATERAL (
 			SELECT psa.slot_id, psa.product_id, psa.date_assigned
 			FROM product_slot_assignment AS psa
@@ -4222,7 +4215,14 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 			LIMIT 1
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
-		WHERE r.slot_id IS NULL OR t.transaction_timestamp >= r.date_refilled
+		LEFT JOIN LATERAL (
+			SELECT r.slot_id, r.date_refilled
+			FROM refill AS r
+			WHERE r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
+			ORDER BY r.date_refilled DESC
+			LIMIT 1
+		) AS r ON r.slot_id = s.slot_id OR r.slot_id IS NULL
+		WHERE (r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled) OR r.slot_id IS NULL
 	`
 
 	if isGeneral {
