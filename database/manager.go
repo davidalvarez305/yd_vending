@@ -4218,7 +4218,7 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 		JOIN LATERAL (
 			SELECT 
 				COALESCE(r.slot_id, s.slot_id) AS slot_id,
-				COALESCE(r.date_refilled, '2000-01-01'::date) AS date_refilled
+				COALESCE(r.date_refilled, '2000-01-01 00:00:00'::timestamp) AS date_refilled
 			FROM refill AS r
 			WHERE r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
 			ORDER BY r.date_refilled DESC
