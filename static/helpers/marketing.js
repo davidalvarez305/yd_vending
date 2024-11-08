@@ -7,10 +7,14 @@ export class MarketingHelper {
         this.language = navigator.language || navigator.userLanguage;
         this.marketingParams = Object.fromEntries(this.landingPage.searchParams);
 
-        this.clickId = null;
-        this.facebookClickId = null;
         this.longitude = null;
         this.latitude = null;
+
+        this.clickId = null;
+        this.facebookClickId = null;
+        this.facebookClientId = null;
+
+        this.userAgent = navigator.userAgent;
 
         // Get Click ID
         if (this.isPaid(this.landingPage.searchParams)) {
@@ -21,34 +25,52 @@ export class MarketingHelper {
         const fbClickId = this.landingPage.searchParams.get("fbclid");
         if (fbClickId) this.facebookClickId = fbClickId;
 
+        // Get FB Client ID
+        const fbp = this.getCookie("_fbp");
+        if (fbp) this.facebookClientId = fbp;
+
         this.data = new FormData();
     }
 
-    getMarketingData() {
-        this.data.append("click_id", this.clickId);
-        if (this.facebookClickId) this.data.append("facebook_click_id", this.facebookClickId);
-        this.data.append("landing_page", this.user.landingPage);
-        this.data.append("referrer", this.user.referrer);
-        this.data.append("language", this.language);
+    populate() {
+        if (this.clickId) this.data.set("click_id", this.clickId);
+        if (this.facebookClickId) this.data.set("facebook_click_id", this.facebookClickId);
+        if (this.facebookClientId) this.data.set("facebook_client_id", this.facebookClientId);
 
+        this.data.set("landing_page", this.user.landingPage);
+        this.data.set("referrer", this.user.referrer);
+        this.data.set("language", this.language);
 
         // Append source, medium, and channel based on URL or referrer
         const source = this.landingPage.searchParams.get("source") || this.getSource(this.user.referrer);
         const medium = this.landingPage.searchParams.get("medium") || this.getMedium(this.user.referrer, this.landingPage.searchParams);
         const channel = this.landingPage.searchParams.get("channel") || this.getChannel(this.user.referrer);
 
-        if (source) this.data.append("source", source);
-        if (medium) this.data.append("medium", medium);
-        if (channel) this.data.append("channel", channel);
+        if (source) this.data.set("source", source);
+        if (medium) this.data.set("medium", medium);
+        if (channel) this.data.set("channel", channel);
 
         // Handle geolocation (conditionally append if available)
-        if (this.longitude) this.data.append("longitude", this.longitude);
-        if (this.latitude) this.data.append("latitude", this.latitude);
+        if (this.longitude) this.data.set("longitude", this.longitude);
+        if (this.latitude) this.data.set("latitude", this.latitude);
 
-        // Append all marketing parameters and form values
-        Object.entries(this.marketingParams).forEach(([key, value]) => value && this.data.append(key, value));
+        // Append all marketing parameters
+        Object.entries(this.marketingParams).forEach(([key, value]) => {
+            if (value) this.data.set(key, value);
+        });
+    }
 
-        return this.data;
+    getCookie(name) {
+        const cookies = document.cookie.split(';');
+        
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                return cookie.substring(name.length + 1);
+            }
+        }
+        
+        return null;
     }
 
     getSource(urlString) {
