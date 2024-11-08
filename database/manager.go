@@ -4231,7 +4231,7 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 		`
 	} else {
 		query += `
-			GROUP BY l.name, p.name, m.model, m.make, r.date_refilled
+			GROUP BY location, p.name, machine
 			ORDER BY l.name, m.model, items_sold DESC;
 		`
 	}
