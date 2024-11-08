@@ -4232,7 +4232,7 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 	} else {
 		query += `
 			GROUP BY location, p.name, machine
-			ORDER BY l.name, m.model, items_sold DESC;
+			ORDER BY location, machine, items_sold DESC;
 		`
 	}
 
