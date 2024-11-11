@@ -3249,13 +3249,23 @@ func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 		s.slot,
 		s.machine_code,
 		s.machine_id,
-		s.capacity
+		s.capacity,
+		COALESCE(lc.commission, 0.0)
 	FROM slot AS s
+	JOIN machine AS m ON m.machine_id = s.machine_id
+	JOIN LATERAL (
+		SELECT loc_assignment.location_id, loc_assignment.machine_id
+		FROM machine_location_assignment AS loc_assignment
+		WHERE loc_assignment.machine_id = m.machine_id
+	) AS loc_assignment ON loc_assignment.machine_id = m.machine_id
+	LEFT JOIN location_commission AS lc ON loc_assignment.location_id = lc.location_id
 	WHERE s.slot_id = $1 AND s.machine_id = $2`
 
 	var slotDetails types.SlotDetails
 
 	row := DB.QueryRow(query, slotId, machineId)
+
+	commission := 0.0
 
 	err := row.Scan(
 		&slotDetails.SlotID,
@@ -3264,13 +3274,16 @@ func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 		&slotDetails.MachineCode,
 		&slotDetails.MachineID,
 		&slotDetails.Capacity,
+		&commission,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return slotDetails, fmt.Errorf("no business found with ID %s", slotId)
+			return slotDetails, fmt.Errorf("no slot found with ID %s for machine %s", slotId, machineId)
 		}
 		return slotDetails, fmt.Errorf("error scanning row: %w", err)
 	}
+
+	slotDetails.HasCommission = commission > 0
 
 	return slotDetails, nil
 }

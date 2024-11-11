@@ -102,6 +102,8 @@
 
 <script nonce="{{ .Nonce }}" type="module">
     import { calculateSalePrice } from "{{ .StaticPath }}/helpers/salePrice.js";
+    const hasCommission = `{{ .Slot.HasCommission }}`
+    console.log(hasCommission);
 
     const productSlotAssignmentForm = document.getElementById("createProductSlotAssignmentForm");
     const submitProductSlotAssignmentForm = document.getElementById("submitProductSlotAssignmentForm");
