@@ -3,7 +3,7 @@ const CREDIT_CARD_FEE = 0.0595;
 const PROFIT_MARGIN = 0.50;
 const COMMISSION = 0.40;
 
-function calculateSalePrice(unitCost, hasCommission) {
+export const calculateSalePrice = (unitCost, hasCommission) => {
     // Step 1: Calculate the cost after tax
     let costWithTax = unitCost * (1 + TAX_RATE);
 
