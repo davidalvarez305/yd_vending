@@ -4229,12 +4229,12 @@ func GetPrepReport(isGeneral bool) ([]types.PrepReport, error) {
 		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		JOIN LATERAL (
-			SELECT r.slot_id
+			SELECT r.slot_id, r.date_refilled
 			FROM refill AS r
-			WHERE r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
+			WHERE r.slot_id = s.slot_id
 			ORDER BY r.date_refilled DESC
 			LIMIT 1
-		) AS r ON r.slot_id = s.slot_id
+		) AS r ON r.slot_id = s.slot_id AND t.transaction_timestamp >= r.date_refilled
 	`
 
 	if isGeneral {
