@@ -407,7 +407,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		var notificationTemplateData = map[string]any{
 			"Name":           helpers.SafeString(form.FirstName) + " " + helpers.SafeString(form.LastName),
 			"PhoneNumber":    helpers.SafeString(form.PhoneNumber),
-			"DateCreated":    utils.FormatTimestamp(lead.CreatedAt),
+			"DateCreated":    utils.FormatTimestampEST(lead.CreatedAt),
 			"MachineType":    lead.MachineType,
 			"LocationType":   lead.LocationType,
 			"Message":        helpers.SafeString(form.Message),
