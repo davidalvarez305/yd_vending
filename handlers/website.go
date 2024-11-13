@@ -65,6 +65,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetTermsAndConditions(w, r, ctx)
 		case "/robots.txt":
 			GetRobots(w, r, ctx)
+		case "/fb":
+			GetFBLandingPage(w, r, ctx)
 		case "/":
 			GetHome(w, r, ctx)
 		default:
@@ -93,6 +95,72 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	heroImagePath := "hero_image_desktop.html"
 	if isMobile {
 		heroImagePath = "hero_image_mobile.html"
+	}
+
+	fileName := "home.html"
+	quoteForm := constants.WEBSITE_TEMPLATES_DIR + "quote_form.html"
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + heroImagePath, quoteForm, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+	vendingTypes, err := database.GetVendingTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingLocations, err := database.GetVendingLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
+	images, err := database.GetMarketingImages()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting marketing images.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data.PageTitle = "Miami Vending Services — " + constants.CompanyName
+	data.Nonce = nonce
+	data.Features = []string{
+		"Offering customizable selections that fits your wants & needs.",
+		"Being prompt with repairs and maintenance so the machines are always running.",
+		"Being able to replace and/or refill products on-request to meet the demands of your clients, employees, and/or customers.",
+		"Our working hours are flexible so that we can respond to requests at moment's notice.",
+		"We stay on tops of trends so that if your clients and/or employees want a drink or snack that's hot on socials, we're able to get it for them.",
+		"Tending to our machines is the most important thing for us. To ensure that they're always running and stocked with products.",
+		"Our machines are modern and accept cashless payment solutions such as debit/credit cards, apple pay, and touchless payments.",
+		"We stay on top of ADA compliance so that everyone has access and is able to use our machines.",
+		"By making our contact information easily accessible, people are able to report problems directly to use so that managers & business owners don't need to take time out of their busy schedules to speak to us.",
+	}
+	data.CSRFToken = csrfToken
+	data.VendingTypes = vendingTypes
+	data.VendingLocations = vendingLocations
+	data.MarketingImages = images
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func GetFBLandingPage(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+	isMobile := helpers.IsMobileRequest(r)
+	heroImagePath := "fb_hero_image_desktop.html"
+	if isMobile {
+		heroImagePath = "fb_hero_image_mobile.html"
 	}
 
 	fileName := "home.html"
