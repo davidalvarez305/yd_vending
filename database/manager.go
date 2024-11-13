@@ -3335,7 +3335,7 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 		}
 
 		if dateAssigned.Valid {
-			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
+			assignment.DateAssigned = utils.FormatTimestampEST(dateAssigned.Time.Unix())
 		}
 
 		if product.Valid {
