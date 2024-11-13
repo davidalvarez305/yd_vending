@@ -272,6 +272,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostImagesUpload(w, r)
 		case "/crm/product-slot-assignment":
 			PostProductSlotAssignment(w, r)
+		case "/crm/slot-price-log":
+			PostPriceSlotLog(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
