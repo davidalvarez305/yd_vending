@@ -3063,8 +3063,9 @@ func GetSlotDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "slot_detail.html"
 	productSlotAssignmentTables := "product_slot_assignments_table.html"
 	createProductSlotAssignmentForm := "create_product_slot_assignments_form.html"
+	createPriceSlotLogForm := "create_price_slot_log_form.html"
 	productPriceSlotLogsTable := "price_slot_logs_table.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables, constants.CRM_TEMPLATES_DIR + createProductSlotAssignmentForm, constants.PARTIAL_TEMPLATES_DIR + productPriceSlotLogsTable}
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + productSlotAssignmentTables, constants.CRM_TEMPLATES_DIR + createProductSlotAssignmentForm, constants.CRM_TEMPLATES_DIR + createPriceSlotLogForm, constants.PARTIAL_TEMPLATES_DIR + productPriceSlotLogsTable}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
