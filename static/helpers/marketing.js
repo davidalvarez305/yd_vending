@@ -3,9 +3,8 @@ const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid"];
 export class MarketingHelper {
     constructor() {
         this.user = JSON.parse(localStorage.getItem("user")) || {};
-        this.landingPage = new URL(this.user.landingPage || window.location.href);
         this.language = navigator.language || navigator.userLanguage;
-        this.marketingParams = Object.fromEntries(this.landingPage.searchParams);
+        if (this.user.landingPage) this.landingPage = new URL(this.user.landingPage);
 
         this.longitude = null;
         this.latitude = null;
@@ -16,14 +15,18 @@ export class MarketingHelper {
 
         this.userAgent = navigator.userAgent;
 
-        // Get Click ID
-        if (this.isPaid(this.landingPage.searchParams)) {
-            this.clickId = this.getClickId(this.landingPage.searchParams);
-        };
+        if (this.landingPage) {
+            this.marketingParams = Object.fromEntries(this.landingPage.searchParams);
 
-        // Get FB Click ID
-        const fbClickId = this.landingPage.searchParams.get("fbclid");
-        if (fbClickId) this.facebookClickId = fbClickId;
+            // Get Click ID
+            if (this.isPaid(this.landingPage.searchParams)) {
+                this.clickId = this.getClickId(this.landingPage.searchParams);
+            };
+
+            // Get FB Click ID
+            const fbClickId = this.landingPage.searchParams.get("fbclid");
+            if (fbClickId) this.facebookClickId = fbClickId;
+        }
 
         // Get FB Client ID
         const fbp = this.getCookie("_fbp");
@@ -37,9 +40,9 @@ export class MarketingHelper {
         if (this.facebookClickId) this.data.set("facebook_click_id", this.facebookClickId);
         if (this.facebookClientId) this.data.set("facebook_client_id", this.facebookClientId);
 
-        this.data.set("landing_page", this.user.landingPage);
-        this.data.set("referrer", this.user.referrer);
-        this.data.set("language", this.language);
+        if (this.landingPage) this.data.set("landing_page", this.landingPage);
+        if (this.user.referrer) this.data.set("referrer", this.user.referrer);
+        if (this.language) this.data.set("language", this.language);
 
         // Append source, medium, and channel based on URL or referrer
         const source = this.landingPage.searchParams.get("source") || this.getSource(this.user.referrer);
@@ -62,14 +65,14 @@ export class MarketingHelper {
 
     getCookie(name) {
         const cookies = document.cookie.split(';');
-        
+
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
             if (cookie.startsWith(name + '=')) {
                 return cookie.substring(name.length + 1);
             }
         }
-        
+
         return null;
     }
 

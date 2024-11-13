@@ -23,9 +23,9 @@ function handleQuoteFormSubmit() {
 
 	if (isPaid(url.searchParams)) data.append("click_id", getClickId(url.searchParams));
 
-	data.append("landing_page", user.landingPage);
-	data.append("referrer", user.referrer);
-	data.append("language", language);
+	if (user.landingPage) data.append("landing_page", user.landingPage);
+	if (user.referrer) data.append("referrer", user.referrer);
+	if (language) data.append("language", language);
 
 	// Append source, medium, and channel based on URL or referrer
 	const source = url.searchParams.get("source") || getHost(user.referrer);
