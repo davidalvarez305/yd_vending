@@ -129,7 +129,7 @@
                 const table = document.getElementById('priceSlotLogsTable');
                 table.outerHTML = html;
                 handleBindPagination();
-                handleDates();
+                handlePriceSlotLogsDates();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
@@ -163,7 +163,7 @@
             .then(html => {
                 const table = document.getElementById('priceSlotLogsTable');
                 table.outerHTML = html;
-                handleDates();
+                handlePriceSlotLogsDates();
                 handleBindPagination();
             })
             .catch(err => {
@@ -172,7 +172,7 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    function handleDates() {
+    function handlePriceSlotLogsDates() {
         const dates = document.querySelectorAll(".dateAssigned");
 
         dates.forEach(date => {
@@ -183,6 +183,6 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", () => handleDates());
+    document.addEventListener("DOMContentLoaded", () => handlePriceSlotLogsDates());
 </script>
 {{ end }}
