@@ -525,7 +525,14 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	lm.keyword,
 	lm.channel,
 	lm.language,
-	l.message
+	l.message,
+	l.email,
+	lm.facebook_click_id,
+	lm.facebook_client_id,
+	lm.external_id,
+	lm.user_agent,
+	lm.click_id,
+	lm.google_client_id
 	FROM lead l
 	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
@@ -536,8 +543,8 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 
 	row := DB.QueryRow(query, leadID)
 
-	var adCampaign, medium, source, referrer, landingPage, ip, keyword, channel, language sql.NullString
-	var vendingType, vendingLocation, message sql.NullString
+	var adCampaign, medium, source, referrer, landingPage, ip, keyword, channel, language, email, facebookClickId, facebookClientId sql.NullString
+	var vendingType, vendingLocation, message, externalId, userAgent, clickId, googleClientId sql.NullString
 
 	err := row.Scan(
 		&leadDetails.LeadID,
@@ -556,6 +563,13 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		&channel,
 		&language,
 		&message,
+		&email,
+		&facebookClickId,
+		&facebookClientId,
+		&externalId,
+		&userAgent,
+		&clickId,
+		&googleClientId,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -564,18 +578,81 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		return leadDetails, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	leadDetails.VendingType = vendingType.String
-	leadDetails.VendingLocation = vendingLocation.String
-	leadDetails.CampaignName = adCampaign.String
-	leadDetails.Medium = medium.String
-	leadDetails.Source = source.String
-	leadDetails.Referrer = referrer.String
-	leadDetails.LandingPage = landingPage.String
-	leadDetails.IP = ip.String
-	leadDetails.Keyword = keyword.String
-	leadDetails.Channel = channel.String
-	leadDetails.Language = language.String
-	leadDetails.Message = message.String
+	if clickId.Valid {
+		leadDetails.ClickID = clickId.String
+	}
+
+	if googleClientId.Valid {
+		leadDetails.GoogleClientID = googleClientId.String
+	}
+
+	if externalId.Valid {
+		leadDetails.ExternalID = externalId.String
+	}
+
+	if userAgent.Valid {
+		leadDetails.UserAgent = userAgent.String
+	}
+
+	if facebookClickId.Valid {
+		leadDetails.FacebookClickID = facebookClickId.String
+	}
+
+	if facebookClientId.Valid {
+		leadDetails.FacebookClientID = facebookClientId.String
+	}
+
+	if email.Valid {
+		leadDetails.Email = email.String
+	}
+
+	if vendingType.Valid {
+		leadDetails.VendingType = vendingType.String
+	}
+
+	if vendingLocation.Valid {
+		leadDetails.VendingLocation = vendingLocation.String
+	}
+
+	if adCampaign.Valid {
+		leadDetails.CampaignName = adCampaign.String
+	}
+
+	if medium.Valid {
+		leadDetails.Medium = medium.String
+	}
+
+	if source.Valid {
+		leadDetails.Source = source.String
+	}
+
+	if referrer.Valid {
+		leadDetails.Referrer = referrer.String
+	}
+
+	if landingPage.Valid {
+		leadDetails.LandingPage = landingPage.String
+	}
+
+	if ip.Valid {
+		leadDetails.IP = ip.String
+	}
+
+	if keyword.Valid {
+		leadDetails.Keyword = keyword.String
+	}
+
+	if channel.Valid {
+		leadDetails.Channel = channel.String
+	}
+
+	if language.Valid {
+		leadDetails.Language = language.String
+	}
+
+	if message.Valid {
+		leadDetails.Message = message.String
+	}
 
 	return leadDetails, nil
 }

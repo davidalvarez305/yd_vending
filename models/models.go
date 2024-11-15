@@ -70,7 +70,7 @@ type LeadMarketing struct {
 	Latitude         string `json:"latitude" form:"latitude" schema:"latitude"`
 	Keyword          string `json:"keyword"`
 	Referrer         string `json:"referrer"`
-	GCLID            string `json:"gclid"`
+	ClickID          string `json:"click_id"`
 	CampaignID       int64  `json:"campaign_id"`
 	AdCampaign       string `json:"ad_campaign"`
 	AdGroupID        int64  `json:"ad_group_id"`

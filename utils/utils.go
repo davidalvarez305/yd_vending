@@ -33,6 +33,19 @@ func GetCurrentTimeInEST() (int64, error) {
 	return est, nil
 }
 
+func ConvertTimestampToESTDateTime(timestamp int64) (time.Time, error) {
+	t := time.Unix(timestamp, 0)
+
+	loc, err := time.LoadLocation(constants.TimeZone)
+	if err != nil {
+		return t, err
+	}
+
+	estTime := t.In(loc)
+
+	return estTime, nil
+}
+
 func ParseDateInLocation(timestamp int64) (int64, error) {
 	loc, err := time.LoadLocation(constants.TimeZone)
 	if err != nil {

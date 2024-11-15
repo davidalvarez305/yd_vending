@@ -80,22 +80,29 @@ type OutboundMessageForm struct {
 }
 
 type LeadDetails struct {
-	LeadID          int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	FirstName       string `json:"first_name" form:"first_name" schema:"first_name"`
-	LastName        string `json:"last_name" form:"last_name" schema:"last_name"`
-	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	VendingType     string `json:"vending_type" form:"vending_type" schema:"vending_type"`
-	VendingLocation string `json:"vending_location" form:"vending_location" schema:"vending_location"`
-	CampaignName    string `json:"campaign_name" form:"campaign_name" schema:"campaign_name"`
-	Medium          string `json:"medium" form:"medium" schema:"medium"`
-	Source          string `json:"source" form:"source" schema:"source"`
-	Referrer        string `json:"referrer" form:"referrer" schema:"referrer"`
-	LandingPage     string `json:"landing_page" form:"landing_page" schema:"landing_page"`
-	IP              string `json:"ip" form:"ip" schema:"ip"`
-	Keyword         string `json:"keyword" form:"keyword" schema:"keyword"`
-	Channel         string `json:"channel" form:"channel" schema:"channel"`
-	Language        string `json:"language" form:"language" schema:"language"`
-	Message         string `json:"message" form:"message" schema:"message"`
+	LeadID           int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	FirstName        string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName         string `json:"last_name" form:"last_name" schema:"last_name"`
+	Email            string `json:"email" form:"email" schema:"email"`
+	PhoneNumber      string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	VendingType      string `json:"vending_type" form:"vending_type" schema:"vending_type"`
+	VendingLocation  string `json:"vending_location" form:"vending_location" schema:"vending_location"`
+	CampaignName     string `json:"campaign_name" form:"campaign_name" schema:"campaign_name"`
+	Medium           string `json:"medium" form:"medium" schema:"medium"`
+	Source           string `json:"source" form:"source" schema:"source"`
+	Referrer         string `json:"referrer" form:"referrer" schema:"referrer"`
+	LandingPage      string `json:"landing_page" form:"landing_page" schema:"landing_page"`
+	IP               string `json:"ip" form:"ip" schema:"ip"`
+	Keyword          string `json:"keyword" form:"keyword" schema:"keyword"`
+	Channel          string `json:"channel" form:"channel" schema:"channel"`
+	Language         string `json:"language" form:"language" schema:"language"`
+	Message          string `json:"message" form:"message" schema:"message"`
+	FacebookClickID  string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
+	FacebookClientID string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
+	UserAgent        string `json:"user_agent" form:"user_agent" schema:"facebook_click_id"`
+	ExternalID       string `json:"external_id" form:"external_id" schema:"external_id"`
+	ClickID          string `json:"click_id" form:"click_id" schema:"click_id"`
+	GoogleClientID   string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
 }
 
 type LeadList struct {
@@ -886,4 +893,9 @@ type Application90DayChallengeForm struct {
 	FacebookClickID  *string  `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
 	FacebookClientID *string  `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
 	CSRFSecret       *string  `json:"csrf_secret" form:"csrf_secret"`
+}
+
+type BookedCall90DayChallengeForm struct {
+	LeadID     *int   `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	BookedTime *int64 `json:"booked_time" form:"booked_time" schema:"booked_time"`
 }

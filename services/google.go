@@ -9,10 +9,12 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
@@ -165,5 +167,60 @@ func SendGmailWithAttachment(recipients []string, subject, sender, body, attachm
 	}
 
 	fmt.Println("Email sent successfully!")
+	return nil
+}
+
+func ScheduleGoogleCalendarEvent(eventTitle, description, location string, startTime, endTime time.Time, attendees []string) error {
+	client, err := initializeGoogleClient(calendar.CalendarScope)
+	if err != nil {
+		fmt.Printf("Unable to initialize Google Calendar client: %v", err)
+		return err
+	}
+
+	srv, err := calendar.NewService(context.Background(), option.WithHTTPClient(client))
+	if err != nil {
+		fmt.Printf("Unable to create Calendar service: %v", err)
+		return err
+	}
+
+	// Create the event
+	event := &calendar.Event{
+		Summary:     eventTitle,
+		Location:    location,
+		Description: description,
+		Start: &calendar.EventDateTime{
+			DateTime: startTime.Format(time.RFC3339),
+			TimeZone: constants.TimeZone,
+		},
+		End: &calendar.EventDateTime{
+			DateTime: endTime.Format(time.RFC3339),
+			TimeZone: constants.TimeZone,
+		},
+		Attendees: []*calendar.EventAttendee{},
+
+		Reminders: &calendar.EventReminders{
+			UseDefault: false, // Custom reminders
+			Overrides: []*calendar.EventReminder{
+				{
+					Method:  "popup",
+					Minutes: 10, // Popup reminder 10 minutes before the event
+				},
+			},
+		},
+	}
+
+	for _, email := range attendees {
+		event.Attendees = append(event.Attendees, &calendar.EventAttendee{
+			Email: email,
+		})
+	}
+
+	createdEvent, err := srv.Events.Insert("primary", event).Do()
+	if err != nil {
+		fmt.Printf("Unable to create event: %v", err)
+		return err
+	}
+
+	fmt.Printf("Event created: %s\n", createdEvent.Id)
 	return nil
 }
