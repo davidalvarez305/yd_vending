@@ -18,7 +18,7 @@ import (
 const (
 	OptInEventName       string = "opt_in"
 	ApplicationEventName string = "90_day_application"
-	BookedCallEventName  string = "booked_call"
+	AppointmentEventName string = "90_day_appointment"
 )
 
 var funnelBaseFilePath = constants.FUNNEL_TEMPLATES_DIR + "base.html"
@@ -69,7 +69,7 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 		case "/funnel/90-day-challenge-application":
 			Post90DayVendingChallengeApplication(w, r)
 		case "/funnel/90-day-challenge-booked-call":
-			Post90DayChallengeBookedCall(w, r)
+			Post90DayChallengeAppointment(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -437,7 +437,7 @@ func Post90DayVendingChallengeApplication(w http.ResponseWriter, r *http.Request
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
 
-func Post90DayChallengeBookedCall(w http.ResponseWriter, r *http.Request) {
+func Post90DayChallengeAppointment(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -529,14 +529,14 @@ func Post90DayChallengeBookedCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.Create90DayChallengeBookedCall(form)
+	err = database.Create90DayChallengeAppointment(form)
 	if err != nil {
-		fmt.Printf("Error creating lead: %+v\n", err)
+		fmt.Printf("Error creating appointment: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Server error while creating quote request.",
+				"Message": "Server error while creating appointment.",
 			},
 		}
 
@@ -550,12 +550,12 @@ func Post90DayChallengeBookedCall(w http.ResponseWriter, r *http.Request) {
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
 		Data: map[string]any{
 			"AlertHeader":  "Success!",
-			"AlertMessage": "Call has been booked.",
+			"AlertMessage": "Appointment has been booked.",
 		},
 	}
 
 	fbEvent := types.FacebookEventData{
-		EventName:      BookedCallEventName,
+		EventName:      AppointmentEventName,
 		EventTime:      time.Now().UTC().Unix(),
 		ActionSource:   "website",
 		EventSourceURL: lead.LandingPage,
@@ -581,7 +581,7 @@ func Post90DayChallengeBookedCall(w http.ResponseWriter, r *http.Request) {
 		UserId:   lead.ExternalID,
 		Events: []types.GoogleEventLead{
 			{
-				Name: BookedCallEventName,
+				Name: AppointmentEventName,
 				Params: types.GoogleEventParamsLead{
 					GCLID: lead.ClickID,
 				},

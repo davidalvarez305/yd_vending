@@ -410,3 +410,12 @@ type SentEmail struct {
 	DateSent        int64  `json:"date_sent" form:"date_sent" schema:"date_sent"`
 	ErrorMessage    string `json:"error_message" form:"error_message" schema:"error_message"`
 }
+
+type LeadAppointment struct {
+	LeadAppointmentID int    `json:"lead_appointment_id" form:"lead_appointment_id" schema:"lead_appointment_id"`
+	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	AppointmentTime   int64  `json:"appointment_time" form:"appointment_time" schema:"appointment_time"`
+	DateCreated       int64  `json:"date_created" form:"date_created" schema:"date_created"`
+	Link              string `json:"link" form:"link" schema:"link"`
+	Attendee          string `json:"attendee" form:"attendee" schema:"attendee"`
+}
