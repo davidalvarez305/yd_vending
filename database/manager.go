@@ -430,6 +430,31 @@ func GetVendingLocations() ([]models.VendingLocation, error) {
 	return vendingLocations, nil
 }
 
+func GetLeadTypes() ([]models.LeadType, error) {
+	var leadTypes []models.LeadType
+
+	rows, err := DB.Query(`SELECT lead_type_id, lead_type FROM "lead_type"`)
+	if err != nil {
+		return leadTypes, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var leadType models.LeadType
+		err := rows.Scan(&leadType.LeadTypeID, &leadType.LeadType)
+		if err != nil {
+			return leadTypes, fmt.Errorf("error scanning row: %w", err)
+		}
+		leadTypes = append(leadTypes, leadType)
+	}
+
+	if err := rows.Err(); err != nil {
+		return leadTypes, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return leadTypes, nil
+}
+
 func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	var leads []types.LeadList
 
@@ -443,6 +468,7 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id
 		WHERE (vt.vending_type_id = $1 OR $1 IS NULL) 
 		AND (vl.vending_location_id = $2 OR $2 IS NULL)
+		AND (l.lead_type_id = $5 OR $5 IS NULL)
 		LIMIT $3
 		OFFSET $4`
 
@@ -457,7 +483,7 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		offset = (pageNum - 1) * int(constants.LeadsPerPage)
 	}
 
-	rows, err := DB.Query(query, params.VendingType, params.LocationType, constants.LeadsPerPage, offset)
+	rows, err := DB.Query(query, params.VendingType, params.LocationType, constants.LeadsPerPage, offset, params.LeadTypeID)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error executing query: %w", err)
 	}

@@ -26,6 +26,10 @@ type User struct {
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
 }
+type LeadType struct {
+	LeadTypeID int    `json:"lead_type_id"`
+	LeadType   string `json:"lead_type"`
+}
 
 type Lead struct {
 	LeadID            int    `json:"lead_id"`

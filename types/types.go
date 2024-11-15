@@ -126,6 +126,7 @@ type GetLeadsParams struct {
 	VendingType  *string `json:"vending_type" form:"vending_type" schema:"vending_type"`
 	LocationType *string `json:"location_type" form:"location_type" schema:"location_type"`
 	PageNum      *string `json:"page_num" form:"page_num" schema:"page_num"`
+	LeadTypeID   *int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
 }
 
 type DynamicPartialTemplate struct {
