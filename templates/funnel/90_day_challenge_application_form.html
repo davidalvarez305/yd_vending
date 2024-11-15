@@ -166,14 +166,14 @@
                 alertModal.outerHTML = html;
 
                 // Report FB Conversion
-                fbq('trackCustom', "90_day_application", {
+                fbq("trackCustom", "90_day_application", {
                     event_time: Math.floor(Date.now() / 1000),
-                    action_source: 'website',
+                    action_source: "website",
                     event_source_url: window.location.href,
-                    em: data.get('email'),
-                    fn: data.get('first_name'),
-                    ln: data.get('last_name'),
-                    ph: data.get('phone_number'),
+                    em: data.get("email"),
+                    fn: data.get("first_name"),
+                    ln: data.get("last_name"),
+                    ph: data.get("phone_number"),
                     external_id: "{{ .ExternalID }}",
                     fbc: marketingHelper.facebookClickId,
                     fbp: marketingHelper.facebookClientId,
