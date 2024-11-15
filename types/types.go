@@ -843,3 +843,47 @@ type OptIn90DayChallengeForm struct {
 	FacebookClientID *string  `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
 	CSRFSecret       *string  `json:"csrf_secret" form:"csrf_secret"`
 }
+
+type Application90DayChallengeForm struct {
+	FirstName       *string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName        *string `json:"last_name" form:"last_name" schema:"last_name"`
+	PhoneNumber     *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email           *string `json:"email" form:"email" schema:"email"`
+	Website         *string `json:"website" form:"website" schema:"website"`
+	CompanyName     *string `json:"company_name" form:"company_name" schema:"company_name"`
+	YearsInBusiness *int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
+	NumLocations    *int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
+	City            *string `json:"city" form:"city" schema:"city"`
+
+	LandingPageID    *int     `json:"landing_page_id" form:"landing_page_id" schema:"landing_page_id"`
+	LeadTypeID       *int     `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
+	PercentScrolled  *float64 `json:"percent_scrolled" form:"percent_scrolled" schema:"percent_scrolled"`
+	TimeSpentOnPage  *int64   `json:"time_spent_on_page" form:"time_spent_on_page" schema:"time_spent_on_page"`
+	Source           *string  `json:"source" form:"source" schema:"source"`
+	Medium           *string  `json:"medium" form:"medium" schema:"medium"`
+	Channel          *string  `json:"channel" form:"channel" schema:"channel"`
+	LandingPage      *string  `json:"landing_page" form:"landing_page" schema:"landing_page"`
+	Keyword          *string  `json:"keyword" form:"keyword" schema:"keyword"`
+	Referrer         *string  `json:"referrer" form:"referrer" schema:"referrer"`
+	ClickID          *string  `json:"click_id" form:"click_id" schema:"click_id"`
+	CampaignID       *int64   `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
+	AdCampaign       *string  `json:"ad_campaign" form:"ad_campaign" schema:"ad_campaign"`
+	AdGroupID        *int64   `json:"ad_group_id" form:"ad_group_id" schema:"ad_group_id"`
+	AdGroupName      *string  `json:"ad_group_name" form:"ad_group_name" schema:"ad_group_name"`
+	AdSetID          *int64   `json:"ad_set_id" form:"ad_set_id" schema:"ad_set_id"`
+	AdSetName        *string  `json:"ad_set_name" form:"ad_set_name" schema:"ad_set_name"`
+	AdID             *int64   `json:"ad_id" form:"ad_id" schema:"ad_id"`
+	AdHeadline       *int64   `json:"ad_headline" form:"ad_headline" schema:"ad_headline"`
+	Language         *string  `json:"language" form:"language" schema:"language"`
+	Longitude        *string  `json:"longitude" form:"longitude" schema:"longitude"`
+	Latitude         *string  `json:"latitude" form:"latitude" schema:"latitude"`
+	UserAgent        *string  `json:"user_agent" form:"user_agent" schema:"user_agent"`
+	ButtonClicked    *string  `json:"button_clicked" form:"button_clicked" schema:"button_clicked"`
+	IP               *string  `json:"ip" form:"ip" schema:"ip"`
+	CSRFToken        *string  `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	ExternalID       *string  `json:"external_id" form:"external_id" schema:"external_id"`
+	GoogleClientID   *string  `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
+	FacebookClickID  *string  `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
+	FacebookClientID *string  `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
+	CSRFSecret       *string  `json:"csrf_secret" form:"csrf_secret"`
+}
