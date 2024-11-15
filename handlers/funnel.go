@@ -9,10 +9,8 @@ import (
 	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
-	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/sessions"
 	"github.com/davidalvarez305/yd_vending/types"
-	"github.com/davidalvarez305/yd_vending/utils"
 )
 
 const (
@@ -68,8 +66,6 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 			Post90DayVendingChallengeOptIn(w, r)
 		case "/funnel/90-day-challenge-application":
 			Post90DayVendingChallengeApplication(w, r)
-		case "/funnel/90-day-challenge-booked-call":
-			Post90DayChallengeAppointment(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -426,175 +422,6 @@ func Post90DayVendingChallengeApplication(w http.ResponseWriter, r *http.Request
 				{
 					Sha256FirstName: helpers.HashString(helpers.SafeString(form.FirstName)),
 					Sha256LastName:  helpers.HashString(helpers.SafeString(form.LastName)),
-				},
-			},
-		},
-	}
-
-	go conversions.SendGoogleConversion(payload)
-	go conversions.SendFacebookConversion(metaPayload)
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
-func Post90DayChallengeAppointment(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Invalid request.",
-			},
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	var form types.BookedCall90DayChallengeForm
-
-	form.LeadID = helpers.GetIntPointerFromForm(r, "lead_id")
-	form.BookedTime = helpers.GetInt64PointerFromForm(r, "booked_time")
-
-	lead, err := database.GetLeadDetails(fmt.Sprint(form.LeadID))
-	if err != nil {
-		fmt.Printf("Error retrieving lead details: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to get lead details from DB.",
-			},
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	eventTitle := "YD Vending, LLC - Call With " + lead.FirstName + " " + lead.LastName
-	description := "YD Vending demonstration for 90 day vending challenge."
-	location := "https://ydvending.com/"
-
-	bookedTime := utils.CreateNullInt64(form.BookedTime)
-	if !bookedTime.Valid {
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Booked time cannot be nil.",
-			},
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	startTime, err := utils.ConvertTimestampToESTDateTime(bookedTime.Int64)
-	if err != nil {
-		fmt.Printf("Error converting time: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to convert booked time to EST date time.",
-			},
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	endTime := startTime.Add(30 * time.Minute)
-	attendees := []string{lead.Email}
-
-	err = services.ScheduleGoogleCalendarEvent(eventTitle, description, location, startTime, endTime, attendees)
-	if err != nil {
-		fmt.Printf("Error creating event: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to create google calendar event.",
-			},
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	err = database.Create90DayChallengeAppointment(form)
-	if err != nil {
-		fmt.Printf("Error creating appointment: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Server error while creating appointment.",
-			},
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "modal",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
-		Data: map[string]any{
-			"AlertHeader":  "Success!",
-			"AlertMessage": "Appointment has been booked.",
-		},
-	}
-
-	fbEvent := types.FacebookEventData{
-		EventName:      AppointmentEventName,
-		EventTime:      time.Now().UTC().Unix(),
-		ActionSource:   "website",
-		EventSourceURL: lead.LandingPage,
-		UserData: types.FacebookUserData{
-			Email:           helpers.HashString(lead.Email),
-			FirstName:       helpers.HashString(lead.FirstName),
-			LastName:        helpers.HashString(lead.LastName),
-			Phone:           helpers.HashString(lead.PhoneNumber),
-			FBC:             lead.FacebookClickID,
-			FBP:             lead.FacebookClientID,
-			ExternalID:      helpers.HashString(lead.ExternalID),
-			ClientIPAddress: lead.IP,
-			ClientUserAgent: lead.UserAgent,
-		},
-	}
-
-	metaPayload := types.FacebookPayload{
-		Data: []types.FacebookEventData{fbEvent},
-	}
-
-	payload := types.GooglePayload{
-		ClientID: lead.GoogleClientID,
-		UserId:   lead.ExternalID,
-		Events: []types.GoogleEventLead{
-			{
-				Name: AppointmentEventName,
-				Params: types.GoogleEventParamsLead{
-					GCLID: lead.ClickID,
-				},
-			},
-		},
-		UserData: types.GoogleUserData{
-			Sha256EmailAddress: []string{helpers.HashString(lead.Email)},
-			Sha256PhoneNumber:  []string{helpers.HashString(lead.PhoneNumber)},
-
-			Address: []types.GoogleUserAddress{
-				{
-					Sha256FirstName: helpers.HashString(lead.FirstName),
-					Sha256LastName:  helpers.HashString(lead.LastName),
 				},
 			},
 		},
