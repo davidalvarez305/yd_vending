@@ -558,7 +558,8 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	lm.external_id,
 	lm.user_agent,
 	lm.click_id,
-	lm.google_client_id
+	lm.google_client_id,
+	l.lead_type_id
 	FROM lead l
 	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id

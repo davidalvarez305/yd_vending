@@ -81,6 +81,7 @@ type OutboundMessageForm struct {
 
 type LeadDetails struct {
 	LeadID           int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	LeadTypeID       int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
 	FirstName        string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName         string `json:"last_name" form:"last_name" schema:"last_name"`
 	Email            string `json:"email" form:"email" schema:"email"`
@@ -897,6 +898,7 @@ type Application90DayChallengeForm struct {
 }
 
 type BookedCall90DayChallengeForm struct {
-	LeadID     *int   `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	BookedTime *int64 `json:"booked_time" form:"booked_time" schema:"booked_time"`
+	LeadID     *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	BookedTime *int64  `json:"booked_time" form:"booked_time" schema:"booked_time"`
+	CSRFToken  *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 }

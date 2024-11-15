@@ -365,6 +365,7 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	var params types.GetLeadsParams
 	params.LocationType = helpers.SafeStringToPointer(r.URL.Query().Get("location_type"))
 	params.VendingType = helpers.SafeStringToPointer(r.URL.Query().Get("vending_type"))
+	params.LeadTypeID = helpers.SafeStringToIntPointer(r.URL.Query().Get("lead_type"))
 	params.PageNum = helpers.SafeStringToPointer(r.URL.Query().Get("page_num"))
 
 	leads, totalRows, err := database.GetLeadList(params)
@@ -388,6 +389,13 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 		return
 	}
 
+	leadTypes, err := database.GetLeadTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting lead types.", http.StatusInternalServerError)
+		return
+	}
+
 	data := ctx
 	data["PageTitle"] = "Leads — " + constants.CompanyName
 
@@ -397,6 +405,7 @@ func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}
 	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
 	data["VendingTypes"] = vendingTypes
 	data["VendingLocations"] = vendingLocations
+	data["LeadTypes"] = leadTypes
 
 	data["CurrentPage"] = 1
 	if params.PageNum != nil {
@@ -616,7 +625,7 @@ func GetDashboard(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "lead_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html", constants.PARTIAL_TEMPLATES_DIR + "notes.html", constants.PARTIAL_TEMPLATES_DIR + "lead_images.html"}
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html", constants.PARTIAL_TEMPLATES_DIR + "notes.html", constants.PARTIAL_TEMPLATES_DIR + "lead_images.html", constants.FUNNEL_TEMPLATES_DIR + "90_day_challenge_book_call_form.html"}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
