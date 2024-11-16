@@ -5093,3 +5093,148 @@ func Create90DayChallengeOptIn(form types.OptIn90DayChallengeForm) error {
 
 	return nil
 }
+
+func CreateLeadAppointment(form types.LeadAppointmentForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO lead_appointment (lead_id, booked_time, date_created, attendee)
+		VALUES ($1, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York', NOW() AT TIME ZONE 'America/New_York', $3)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing lead_appointment statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		utils.CreateNullInt(form.LeadID),
+		utils.CreateNullInt64(form.BookedTime),
+		utils.CreateNullString(form.Attendee),
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting lead appointment: %w", err)
+	}
+
+	return nil
+}
+
+func CreateLeadApplication(form types.LeadApplicationForm) error {
+	var leadID int
+	tx, err := DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Step 1: Insert lead data and get lead_id
+	leadStmt, err := tx.Prepare(`
+		INSERT INTO lead (
+			first_name, last_name, phone_number, email, created_at
+		)
+		VALUES (
+			$1, $2, $3, $4, $5, NOW() AT TIME ZONE 'America/New_York'
+		)
+		RETURNING lead_id
+	`)
+	if err != nil {
+		return err
+	}
+	defer leadStmt.Close()
+
+	// Set fields for lead insert
+	firstName := utils.CreateNullString(form.FirstName)
+	lastName := utils.CreateNullString(form.LastName)
+	phoneNumber := utils.CreateNullString(form.PhoneNumber)
+	email := utils.CreateNullString(form.Email)
+
+	// Insert lead and get lead_id
+	err = leadStmt.QueryRow(
+		firstName, lastName, phoneNumber, email,
+	).Scan(&leadID)
+	if err != nil {
+		return fmt.Errorf("error inserting lead: %w", err)
+	}
+
+	// Step 2: Insert lead_application data
+	leadAppStmt, err := tx.Prepare(`
+		INSERT INTO lead_application (
+			lead_id, website, company_name, years_in_business, num_locations, city
+		) 
+		VALUES (
+			$1, $2, $3, $4, $5, $6
+		)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing lead application statement: %w", err)
+	}
+	defer leadAppStmt.Close()
+
+	_, err = leadAppStmt.Exec(
+		leadID,
+		utils.CreateNullString(form.Website),
+		utils.CreateNullString(form.CompanyName),
+		utils.CreateNullInt(form.YearsInBusiness),
+		utils.CreateNullInt(form.NumLocations),
+		utils.CreateNullString(form.City),
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting lead application: %w", err)
+	}
+
+	// Step 3: Insert lead marketing data
+	marketingStmt, err := tx.Prepare(`
+		INSERT INTO lead_marketing (
+			lead_id, source, medium, channel, landing_page, keyword, referrer, click_id, campaign_id, 
+			ad_campaign, ad_group_id, ad_group_name, ad_set_id, ad_set_name, ad_id, ad_headline, language, 
+			user_agent, button_clicked, ip, external_id, google_client_id, csrf_secret, facebook_click_id, 
+			facebook_client_id, longitude, latitude
+		)
+		VALUES (
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 
+			$21, $22, $23, $24, $25, $26, $27
+		)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing marketing statement: %w", err)
+	}
+	defer marketingStmt.Close()
+
+	_, err = marketingStmt.Exec(
+		leadID,
+		utils.CreateNullString(form.Source),
+		utils.CreateNullString(form.Medium),
+		utils.CreateNullString(form.Channel),
+		utils.CreateNullString(form.LandingPage),
+		utils.CreateNullString(form.Keyword),
+		utils.CreateNullString(form.Referrer),
+		utils.CreateNullString(form.ClickID),
+		utils.CreateNullInt64(form.CampaignID),
+		utils.CreateNullString(form.AdCampaign),
+		utils.CreateNullInt64(form.AdGroupID),
+		utils.CreateNullString(form.AdGroupName),
+		utils.CreateNullInt64(form.AdSetID),
+		utils.CreateNullString(form.AdSetName),
+		utils.CreateNullInt64(form.AdID),
+		utils.CreateNullInt64(form.AdHeadline),
+		utils.CreateNullString(form.Language),
+		utils.CreateNullString(form.UserAgent),
+		utils.CreateNullString(form.ButtonClicked),
+		utils.CreateNullString(form.IP),
+		utils.CreateNullString(form.ExternalID),
+		utils.CreateNullString(form.GoogleClientID),
+		utils.CreateNullString(form.CSRFSecret),
+		utils.CreateNullString(form.FacebookClickID),
+		utils.CreateNullString(form.FacebookClientID),
+		utils.CreateNullString(form.Longitude),
+		utils.CreateNullString(form.Latitude),
+	)
+	if err != nil {
+		return fmt.Errorf("error inserting marketing data: %w", err)
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	return nil
+}

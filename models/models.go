@@ -36,6 +36,7 @@ type Lead struct {
 	FirstName         string `json:"first_name"`
 	LastName          string `json:"last_name"`
 	PhoneNumber       string `json:"phone_number"`
+	Email             string `json:"email"`
 	CreatedAt         int64  `json:"created_at"`
 	Rent              string `json:"rent"`
 	FootTraffic       int    `json:"foot_traffic"`

@@ -9,16 +9,21 @@
                         d="M2.5 4A1.5 1.5 0 001 5.5V6h18v-.5A1.5 1.5 0 0017.5 4h-15zM19 8.5H1v6A1.5 1.5 0 002.5 16h15a1.5 1.5 0 001.5-1.5v-6zM3 13.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm4.75-.75a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z"
                         clip-rule="evenodd" />
                 </svg>
-                <span>Book Call</span>
+                <span>Schedule Appointment</span>
             </h3>
             <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
                 Use this section to book a call with this lead.
             </p>
         </div>
         <div class="md:w-2/3 md:pl-24">
-            <form id="appointmentForm" action="/funnel/90-day-challenge-booked-call" class="space-y-6 xl:w-2/3">
+            <form id="appointmentForm" action="/crm/lead/{{ .Lead.LeadID }}/appointment" class="space-y-6 xl:w-2/3">
                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                 <input type="hidden" id="lead_id" name="lead_id" value="{{ .Lead.LeadID }}" />
+                <div class="space-y-1">
+                    <label for="attendee" class="font-medium">Attendee*</label>
+                    <input type="email" id="attendee" name="attendee" value="{{ .Lead.Email }}" required
+                        class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                </div>
                 <div class="space-y-1">
                     <label for="booked_time" class="font-medium">Booked Time*</label>
                     <input type="datetime-local" id="booked_time" name="booked_time" required
@@ -69,7 +74,7 @@
                 alertModal.outerHTML = html;
 
                 // Report FB Conversion
-                fbq("trackCustom", "90_day_appointment", {
+                fbq("trackCustom", "lead_appointment", {
                     event_time: Math.floor(Date.now() / 1000),
                     action_source: "website",
                     event_source_url: "{{ .Lead.LandingPage }}",

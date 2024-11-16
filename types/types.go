@@ -853,11 +853,12 @@ type OptIn90DayChallengeForm struct {
 	CSRFSecret       *string  `json:"csrf_secret" form:"csrf_secret"`
 }
 
-type Application90DayChallengeForm struct {
-	FirstName       *string `json:"first_name" form:"first_name" schema:"first_name"`
-	LastName        *string `json:"last_name" form:"last_name" schema:"last_name"`
-	PhoneNumber     *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email           *string `json:"email" form:"email" schema:"email"`
+type LeadApplicationForm struct {
+	FirstName   *string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName    *string `json:"last_name" form:"last_name" schema:"last_name"`
+	PhoneNumber *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email       *string `json:"email" form:"email" schema:"email"`
+
 	Website         *string `json:"website" form:"website" schema:"website"`
 	CompanyName     *string `json:"company_name" form:"company_name" schema:"company_name"`
 	YearsInBusiness *int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
@@ -897,8 +898,9 @@ type Application90DayChallengeForm struct {
 	CSRFSecret       *string  `json:"csrf_secret" form:"csrf_secret"`
 }
 
-type BookedCall90DayChallengeForm struct {
+type LeadAppointmentForm struct {
 	LeadID     *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	BookedTime *int64  `json:"booked_time" form:"booked_time" schema:"booked_time"`
+	Attendee   *string `json:"attendee" form:"attendee" schema:"attendee"`
 	CSRFToken  *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 }
