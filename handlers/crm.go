@@ -713,6 +713,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["LeadNotes"] = leadNotes
 	data["LeadImagesCount"] = len(leadImages)
 	data["LeadImages"] = leadImages
+	data["LeadAppointmentEventName"] = constants.LeadAppointmentEventName
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

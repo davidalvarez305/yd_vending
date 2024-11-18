@@ -167,7 +167,7 @@
                 alertModal.outerHTML = html;
 
                 // Report FB Conversion
-                fbq("trackCustom", "lead_application", {
+                fbq("trackCustom", "{{ .LeadApplicationEventName }}", {
                     event_time: Math.floor(Date.now() / 1000),
                     action_source: "website",
                     event_source_url: window.location.href,

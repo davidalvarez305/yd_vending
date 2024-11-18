@@ -74,7 +74,7 @@
                 alertModal.outerHTML = html;
 
                 // Report FB Conversion
-                fbq("trackCustom", "lead_appointment", {
+                fbq("trackCustom", "{{ .LeadAppointmentEventName }}", {
                     event_time: Math.floor(Date.now() / 1000),
                     action_source: "website",
                     event_source_url: "{{ .Lead.LandingPage }}",

@@ -90,6 +90,7 @@ func Get90DayVendingChallenge(w http.ResponseWriter, r *http.Request, ctx map[st
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["LeadTypeID"] = constants.LeadApplicationLeadTypeID
+	data["LeadApplicationEventName"] = constants.LeadApplicationEventName
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
