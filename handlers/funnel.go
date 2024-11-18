@@ -54,9 +54,7 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		switch r.URL.Path {
 		case "/funnel/90-day-challenge":
-			Get90DayVendingChallengeOptIn(w, r, ctx)
-		case "/funnel/90-day-challenge-video":
-			Get90DayVendingChallengeOptInVideo(w, r, ctx)
+			Get90DayVendingChallenge(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -72,7 +70,7 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Get90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+func Get90DayVendingChallenge(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	isMobile := helpers.IsMobileRequest(r)
 	heroImagePath := "90_day_hero_image_desktop.html"
 	if isMobile {
@@ -80,8 +78,8 @@ func Get90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request, ctx t
 	}
 
 	fileName := "90_day_challenge.html"
-	optInForm := constants.FUNNEL_TEMPLATES_DIR + "90_day_challenge_opt_in_form.html"
-	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + heroImagePath, optInForm, constants.FUNNEL_TEMPLATES_DIR + fileName}
+	applicationForm := constants.FUNNEL_TEMPLATES_DIR + "90_day_challenge_application_form.html"
+	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + heroImagePath, applicationForm, constants.FUNNEL_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -104,7 +102,7 @@ func Get90DayVendingChallengeOptIn(w http.ResponseWriter, r *http.Request, ctx t
 	helpers.ServeContent(w, files, data)
 }
 
-func Get90DayVendingChallengeOptInVideo(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+func Get90DayVendingChallengeVideo(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	fileName := "90_day_challenge_video.html"
 	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + fileName}
 	nonce, ok := r.Context().Value("nonce").(string)
