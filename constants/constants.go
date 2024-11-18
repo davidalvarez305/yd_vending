@@ -11,6 +11,7 @@ const (
 	TimeZone                   string = "America/New_York"
 	CommissionReportFilename   string = "commission_report.xlsx"
 	StructSpreadsheetHeaderTag string = "spreadsheet_header"
+	LeadApplicationLeadTypeID  int    = 2
 )
 
 var (
