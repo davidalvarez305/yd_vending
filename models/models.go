@@ -3,50 +3,61 @@ package models
 import "time"
 
 type VendingType struct {
-	VendingTypeID int    `json:"vending_type_id"`
-	MachineType   string `json:"machine_type"`
+	VendingTypeID int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	MachineType   string `json:"machine_type" form:"machine_type" schema:"machine_type"`
 }
 
 type VendingLocation struct {
-	VendingLocationID int    `json:"vending_location_id"`
-	LocationType      string `json:"location_type"`
+	VendingLocationID int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
+	LocationType      string `json:"location_type" form:"location_type" schema:"location_type"`
 }
 
 type City struct {
-	CityID int    `json:"city_id"`
-	Name   string `json:"name"`
+	CityID int    `json:"city_id" form:"city_id" schema:"city_id"`
+	Name   string `json:"name" form:"name" schema:"name"`
 }
 
 type User struct {
-	UserID      int    `json:"user_id"`
-	Username    string `json:"username"`
-	PhoneNumber string `json:"phone_number"`
-	Password    string `json:"password"`
-	UserRoleID  int    `json:"user_role_id"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
+	UserID      int    `json:"user_id" form:"user_id" schema:"user_id"`
+	Username    string `json:"username" form:"username" schema:"username"`
+	PhoneNumber string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Password    string `json:"password" form:"password" schema:"password"`
+	UserRoleID  int    `json:"user_role_id" form:"user_role_id" schema:"user_role_id"`
+	FirstName   string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName    string `json:"last_name" form:"last_name" schema:"last_name"`
 }
+
 type LeadType struct {
-	LeadTypeID int    `json:"lead_type_id"`
-	LeadType   string `json:"lead_type"`
+	LeadTypeID int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
+	LeadType   string `json:"lead_type" form:"lead_type" schema:"lead_type"`
 }
 
 type Lead struct {
-	LeadID            int    `json:"lead_id"`
-	LeadTypeID        int    `json:"lead_type_id"`
-	FirstName         string `json:"first_name"`
-	LastName          string `json:"last_name"`
-	PhoneNumber       string `json:"phone_number"`
-	Email             string `json:"email"`
-	CreatedAt         int64  `json:"created_at"`
-	Rent              string `json:"rent"`
-	FootTraffic       int    `json:"foot_traffic"`
-	FootTrafficType   string `json:"foot_traffic_type"`
-	VendingTypeID     int    `json:"vending_type_id"`
-	VendingLocationID int    `json:"vending_location_id"`
-	CityID            int    `json:"city_id"`
+	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	LeadTypeID        int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
+	FirstName         string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName          string `json:"last_name" form:"last_name" schema:"last_name"`
+	PhoneNumber       string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email             string `json:"email" form:"email" schema:"email"`
+	CreatedAt         int64  `json:"created_at" form:"created_at" schema:"created_at"`
+	Rent              string `json:"rent" form:"rent" schema:"rent"`
+	FootTraffic       int    `json:"foot_traffic" form:"foot_traffic" schema:"foot_traffic"`
+	FootTrafficType   string `json:"foot_traffic_type" form:"foot_traffic_type" schema:"foot_traffic_type"`
+	VendingTypeID     int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	VendingLocationID int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
+	CityID            int    `json:"city_id" form:"city_id" schema:"city_id"`
 	LeadStatusID      int    `json:"lead_status_id" form:"lead_status_id" schema:"lead_status_id"`
-	Message           string `json:"message"`
+	Message           string `json:"message" form:"message" schema:"message"`
+}
+
+type LeadApplication struct {
+	LeadApplicationID int    `json:"lead_application_id" form:"lead_application_id" schema:"lead_application_id"`
+	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	Website           string `json:"website" form:"website" schema:"website"`
+	CompanyName       string `json:"company_name" form:"company_name" schema:"company_name"`
+	YearsInBusiness   int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
+	NumLocations      int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
+	City              string `json:"city" form:"city" schema:"city"`
 }
 
 type LeadNote struct {

@@ -106,6 +106,11 @@ type LeadDetails struct {
 	ExternalID       string `json:"external_id" form:"external_id" schema:"external_id"`
 	ClickID          string `json:"click_id" form:"click_id" schema:"click_id"`
 	GoogleClientID   string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
+	Website          string `json:"website" form:"website" schema:"website"`
+	CompanyName      string `json:"company_name" form:"company_name" schema:"company_name"`
+	YearsInBusiness  int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
+	NumLocations     int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
+	City             string `json:"city" form:"city" schema:"city"`
 }
 
 type LeadList struct {

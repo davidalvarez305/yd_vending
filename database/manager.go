@@ -566,6 +566,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
 	JOIN lead_marketing lm ON l.lead_id = lm.lead_id
+	LEFT JOIN lead_application application ON l.lead_id = application.lead_id
 	WHERE l.lead_id = $1`
 
 	var leadDetails types.LeadDetails
@@ -574,6 +575,9 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 
 	var adCampaign, medium, source, referrer, landingPage, ip, keyword, channel, language, email, facebookClickId, facebookClientId sql.NullString
 	var vendingType, vendingLocation, message, externalId, userAgent, clickId, googleClientId sql.NullString
+
+	var website, companyName, city sql.NullString
+	var yearsInBusiness, numLocations sql.NullInt64
 
 	err := row.Scan(
 		&leadDetails.LeadID,
@@ -599,12 +603,33 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		&userAgent,
 		&clickId,
 		&googleClientId,
+		&website,
+		&companyName,
+		&yearsInBusiness,
+		&numLocations,
+		&city,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return leadDetails, fmt.Errorf("no lead found with ID %s", leadID)
 		}
 		return leadDetails, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	if website.Valid {
+		leadDetails.Website = website.String
+	}
+	if companyName.Valid {
+		leadDetails.CompanyName = companyName.String
+	}
+	if yearsInBusiness.Valid {
+		leadDetails.YearsInBusiness = int(yearsInBusiness.Int64)
+	}
+	if numLocations.Valid {
+		leadDetails.NumLocations = int(numLocations.Int64)
+	}
+	if city.Valid {
+		leadDetails.City = city.String
 	}
 
 	if clickId.Valid {
