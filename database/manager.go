@@ -467,6 +467,7 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		JOIN vending_type AS vt ON vt.vending_type_id = l.vending_type_id
 		JOIN vending_location AS vl ON vl.vending_location_id = l.vending_location_id
 		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id
+		JOIN lead_type AS lt ON lt.lead_id = l.lead_id
 		WHERE (vt.vending_type_id = $1 OR $1 IS NULL) 
 		AND (vl.vending_location_id = $2 OR $2 IS NULL)
 		AND (l.lead_type_id = $5 OR $5 IS NULL)

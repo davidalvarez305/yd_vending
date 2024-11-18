@@ -119,6 +119,7 @@ type LeadList struct {
 	FootTrafficType   string `json:"foot_traffic_type" form:"foot_traffic_type" schema:"foot_traffic_type"`
 	MachineType       string `json:"machine_type" form:"machine_type" schema:"machine_type"`
 	LocationType      string `json:"location_type" form:"location_type" schema:"location_type"`
+	LeadType          string `json:"lead_type" form:"lead_type" schema:"lead_type"`
 	Language          string `json:"language" form:"language" schema:"language"`
 	VendingTypeID     int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
 	VendingLocationID int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
