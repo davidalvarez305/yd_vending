@@ -18,7 +18,7 @@ const (
 	LeadAppointmentEventName string = "lead_appointment"
 	OptInEventName           string = "opt_in"
 	QuoteEventName           string = "quote"
-	LeadEventName            string = "lead"
+	LeadEventName            string = "Lead"
 )
 
 var (

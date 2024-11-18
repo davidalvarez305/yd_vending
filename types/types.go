@@ -301,6 +301,7 @@ type WebsiteContext struct {
 	GoogleAdsID                  string                   `json:"google_ads_id"`
 	GoogleAdsCallConversionLabel string                   `json:"google_ads_call_conversion_label"`
 	MarketingImages              []string                 `json:"marketing_images"`
+	LeadEventName                string                   `json:"lead_event_name"`
 }
 
 type FacebookUserData struct {

@@ -26,7 +26,7 @@
                     <div
                         class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
                         <div class="grow p-5 md:px-16 md:py-6">
-                            <form id="get-a-quote-form" class="space-y-6 p-2 md:p-2">
+                            <form id="quoteForm" class="space-y-6 p-2 md:p-2">
                                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                                 <input type="hidden" id="lead_type_id" name="lead_type_id" value="{{ .LeadTypeID }}" />
                                 <input type="hidden" id="button_clicked" name="button_clicked" />
@@ -97,4 +97,81 @@
     </div>
 </div>
 <div id="alertModal"></div>
+
+<script nonce="{{ .Nonce }}" type="module">
+    import { MarketingHelper } from "{{ .StaticPath }}/helpers/marketing.js";
+    const form = document.getElementById("quoteForm");
+
+    const marketingHelper = new MarketingHelper();
+    document.addEventListener("DOMContentLoaded", () => marketingHelper.getUserLocation());
+
+    const submitQuoteForm = document.getElementById("submitQuoteForm");
+    const cancelQuoteForm = document.getElementById("cancelQuoteForm");
+    const closeQuoteForm = document.getElementById("closeQuoteForm");
+
+    function handleCloseQuoteForm() {
+        const modal = document.getElementById('formModalContainer');
+        modal.style.display = 'none';
+    }
+
+    function handleQuoteFormSubmit() {
+        const alertModal = document.getElementById("alertModal");
+
+        marketingHelper.populate();
+        const data = marketingHelper.data;
+
+        new FormData(form).forEach((value, key) => {
+            if (value) data.set(key, value);
+        });
+
+        fetch("/quote", {
+            method: "POST",
+            credentials: "include",
+            body: data,
+        })
+            .then(response => {
+                const token = response.headers.get("X-Csrf-Token");
+                if (token) {
+                    const tokens = document.querySelectorAll('[name="csrf_token"]');
+                    tokens.forEach((csrf_token) => (csrf_token.value = token));
+                }
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then((err) => {
+                        throw new Error(err);
+                    });
+                }
+            })
+            .then(html => {
+                alertModal.outerHTML = html;
+
+                // Report FB Conversion
+                fbq("track", "{{ .LeadEventName }}", {
+                    event_time: Math.floor(Date.now() / 1000),
+                    action_source: "website",
+                    event_source_url: window.location.href,
+                    fn: data.get("first_name"),
+                    ln: data.get("last_name"),
+                    ph: data.get("phone_number"),
+                    external_id: "{{ .ExternalID }}",
+                    fbc: marketingHelper.facebookClickId,
+                    fbp: marketingHelper.facebookClientId,
+                    client_user_agent: marketingHelper.userAgent,
+                });
+            })
+            .catch(err => {
+                alertModal.outerHTML = err
+            })
+            .finally(() => {
+                handleCloseAlertModal();
+                handleCloseQuoteForm();
+                form.reset();
+            });
+    }
+
+    submitQuoteForm.addEventListener("click", () => handleQuoteFormSubmit());
+    closeQuoteForm.addEventListener("click", () => handleCloseQuoteForm());
+    cancelQuoteForm.addEventListener("click", () => handleCloseQuoteForm());
+</script>
 {{ end }}
