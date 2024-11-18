@@ -154,7 +154,7 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fbEvent := types.FacebookEventData{
-		EventName:    "quote",
+		EventName:    constants.LeadEventName,
 		EventTime:    time.Now().Unix(),
 		ActionSource: "other",
 		UserData: types.FacebookUserData{

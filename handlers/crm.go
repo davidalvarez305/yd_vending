@@ -5037,7 +5037,7 @@ func PostLeadAppointment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fbEvent := types.FacebookEventData{
-		EventName:      AppointmentEventName,
+		EventName:      constants.LeadAppointmentEventName,
 		EventTime:      time.Now().UTC().Unix(),
 		ActionSource:   "website",
 		EventSourceURL: lead.LandingPage,
@@ -5063,7 +5063,7 @@ func PostLeadAppointment(w http.ResponseWriter, r *http.Request) {
 		UserId:   lead.ExternalID,
 		Events: []types.GoogleEventLead{
 			{
-				Name: AppointmentEventName,
+				Name: constants.LeadAppointmentEventName,
 				Params: types.GoogleEventParamsLead{
 					GCLID: lead.ClickID,
 				},

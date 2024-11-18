@@ -413,7 +413,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fbEvent := types.FacebookEventData{
-		EventName:      "Lead",
+		EventName:      constants.LeadEventName,
 		EventTime:      time.Now().UTC().Unix(),
 		ActionSource:   "website",
 		EventSourceURL: helpers.SafeString(form.LandingPage),
@@ -439,7 +439,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 		UserId:   helpers.SafeString(form.ExternalID),
 		Events: []types.GoogleEventLead{
 			{
-				Name: "quote",
+				Name: constants.QuoteEventName,
 				Params: types.GoogleEventParamsLead{
 					GCLID: helpers.SafeString(form.ClickID),
 				},

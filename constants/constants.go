@@ -13,6 +13,12 @@ const (
 	StructSpreadsheetHeaderTag string = "spreadsheet_header"
 	LeadApplicationLeadTypeID  int    = 2
 	VendingLeadTypeID          int    = 1
+
+	LeadApplicationEventName string = "lead_application"
+	LeadAppointmentEventName string = "lead_appointment"
+	OptInEventName           string = "opt_in"
+	QuoteEventName           string = "quote"
+	LeadEventName            string = "lead"
 )
 
 var (

@@ -12,12 +12,6 @@ import (
 	"github.com/davidalvarez305/yd_vending/types"
 )
 
-const (
-	OptInEventName       string = "opt_in"
-	ApplicationEventName string = "lead_application"
-	AppointmentEventName string = "lead_appointment"
-)
-
 var funnelBaseFilePath = constants.FUNNEL_TEMPLATES_DIR + "base.html"
 
 func createFunnelContext() map[string]any {
@@ -200,7 +194,7 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fbEvent := types.FacebookEventData{
-		EventName:      ApplicationEventName,
+		EventName:      constants.LeadApplicationEventName,
 		EventTime:      time.Now().UTC().Unix(),
 		ActionSource:   "website",
 		EventSourceURL: helpers.SafeString(form.LandingPage),
@@ -226,7 +220,7 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 		UserId:   helpers.SafeString(form.ExternalID),
 		Events: []types.GoogleEventLead{
 			{
-				Name: ApplicationEventName,
+				Name: constants.LeadApplicationEventName,
 				Params: types.GoogleEventParamsLead{
 					GCLID: helpers.SafeString(form.ClickID),
 				},
