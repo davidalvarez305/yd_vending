@@ -902,6 +902,16 @@ type LeadApplicationForm struct {
 	CSRFSecret       *string `json:"csrf_secret" form:"csrf_secret"`
 }
 
+type UpdateLeadApplicationForm struct {
+	LeadApplicationID *int    `json:"lead_application_id" form:"lead_application_id" schema:"lead_application_id"`
+	Website           *string `json:"website" form:"website" schema:"website"`
+	CompanyName       *string `json:"company_name" form:"company_name" schema:"company_name"`
+	YearsInBusiness   *int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
+	NumLocations      *int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
+	City              *string `json:"city" form:"city" schema:"city"`
+	CSRFToken         *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+}
+
 type LeadAppointmentForm struct {
 	LeadID     *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	BookedTime *int64  `json:"booked_time" form:"booked_time" schema:"booked_time"`

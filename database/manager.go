@@ -833,6 +833,35 @@ func UpdateLead(form types.UpdateLeadForm) error {
 	return nil
 }
 
+func UpdateLeadApplication(form types.UpdateLeadApplicationForm) error {
+	if form.LeadApplicationID == nil {
+		return fmt.Errorf("lead_application_id cannot be nil")
+	}
+
+	query := `
+		UPDATE lead_application
+		SET website = COALESCE($2, website), 
+		    company_name = COALESCE($3, company_name), 
+		    years_in_business = COALESCE($4, years_in_business), 
+		    num_locations = COALESCE($5, num_locations), 
+		    city = COALESCE($6, city)
+		WHERE lead_application_id = $1
+	`
+
+	_, err := DB.Exec(query,
+		form.LeadApplicationID,
+		utils.CreateNullString(form.Website),
+		utils.CreateNullString(form.CompanyName),
+		utils.CreateNullInt(form.YearsInBusiness),
+		utils.CreateNullInt(form.NumLocations),
+		utils.CreateNullString(form.City))
+	if err != nil {
+		return fmt.Errorf("failed to update lead application: %v", err)
+	}
+
+	return nil
+}
+
 func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 	if form.LeadID == nil {
 		return fmt.Errorf("lead_id cannot be nil")
