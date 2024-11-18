@@ -129,6 +129,7 @@
                     <div class="grow p-5 md:px-16 md:py-12">
                         <form id="markRefillForm" class="space-y-6">
                             <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
+                            <input type="hidden" id="should_refill_all" name="should_refill_all" />
                             <input type="hidden" id="slot_id" name="slot_id" />
                             <div class="space-y-1">
                                 <label for="date_refilled" class="font-medium">Date Refilled</label>
@@ -168,7 +169,7 @@
 
         markRefill.forEach(btn => {
             btn.addEventListener("click", () => {
-                handleMarkRefill(btn.dataset.slotId);
+                handleMarkRefill(btn.dataset.slotId, false);
             });
         });
 
@@ -182,9 +183,12 @@
         });
     }
 
-    function handleMarkRefill(slotId) {
+    function handleMarkRefill(slotId, shouldRefillAll) {
         const slotIdInput = document.getElementById("slot_id");
         slotIdInput.value = slotId;
+
+        const shouldRefillAll = document.getElementById("should_refill_all");
+        shouldRefillAll.checked = shouldRefillAll;
 
         markRefillModal.style.display = "";
     }
@@ -206,7 +210,17 @@
 
         body.set('date_refilled', dateRefilled);
 
-        fetch("/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill", {
+        const shouldRefillAll = body.get('should_refill_all');
+        const refillAllURL = `/crm/machine/{{ .Machine.MachineID }}/refill`;
+        const refillSingleURL = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill";
+
+        const endpoint =  shouldRefillAll ? refillAllURL : refillSingleURL;
+
+        if (shouldRefillAll) body.delete("slot_id");
+
+        body.delete('should_refill_all');
+
+        fetch(endpoint, {
             method: "POST",
             credentials: "include",
             body: body,

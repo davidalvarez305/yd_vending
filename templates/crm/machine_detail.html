@@ -259,7 +259,10 @@
 </script>
 
 <script nonce="{{ .Nonce }}">
+    // Mark Refill Logic
     const refillAllButton = document.getElementById('refillAll');
+
+    refillAllButton.addEventListener("click", () => handleMarkRefill("", true));
 
     refillAllButton.addEventListener('click', () => {
         const formModalContainer = document.getElementById('formModalContainer');
