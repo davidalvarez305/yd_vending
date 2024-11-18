@@ -119,37 +119,95 @@
     </div>
 </div>
 
-<input type="hidden" name="csrf_token" value="{{ .CSRFToken }}" />
+<div id="markRefillModal" style="display: none;">
+    <div tabindex="-1" role="dialog"
+        class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
+        <div role="document"
+            class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+            <div class="grow p-5">
+                <div class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+                    <div class="grow p-5 md:px-16 md:py-12">
+                        <form id="markRefillForm" class="space-y-6">
+                            <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
+                            <input type="hidden" id="slot_id" name="slot_id" />
+                            <div class="space-y-1">
+                                <label for="date_refilled" class="font-medium">Date Refilled</label>
+                                <input type="datetime-local" id="date_refilled" name="date_refilled"
+                                    class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="space-x-1 bg-gray-50 px-5 py-4 text-right dark:bg-gray-700/50">
+                <button type="button" id="cancelMarkRefill"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                    Cancel
+                </button>
+                <button type="button" id="confirmMarkRefill"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-rose-700 bg-rose-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-rose-600 hover:bg-rose-600 hover:text-white focus:ring focus:ring-rose-400/50 active:border-rose-700 active:bg-rose-700 dark:focus:ring-rose-400/90">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script nonce="{{ .Nonce }}">
-    const markRefill = document.querySelectorAll(".markRefill");
-    const deleteRefill = document.querySelectorAll(".deleteRefill");
+    // Mark Refill Logic
+    const markRefillModal = document.getElementById("markRefillModal");
+    const cancelMarkRefill = document.getElementById("cancelMarkRefill");
+    const confirmMarkRefill = document.getElementById("confirmMarkRefill");
 
-    const deleteRefillConfirmationModal = document.getElementById("deleteRefillConfirmationModal");
-    const cancelDeleteRefill = document.getElementById("cancelDeleteRefill");
-    const confirmDeleteRefill = document.getElementById("confirmDeleteRefill");
+    // Global variables
+    let slotId = "";
+    let refillId = "";
 
-    markRefill.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const slotId = e.target.getAttribute('data-slot-id');
-            handleMarkRefill(slotId);
+    function handleBindRefillButtons() {
+        const markRefill = document.querySelectorAll(".markRefill");
+
+        markRefill.forEach(btn => {
+            btn.addEventListener("click", () => {
+                handleMarkRefill(btn.dataset.slotId);
+            });
         });
-    });
+
+        deleteRefill.forEach(btn => {
+            btn.addEventListener("click", () => {
+                slotId = btn.dataset.slotId;
+                lastRefillId = btn.dataset.lastRefillId;
+
+                deleteRefillConfirmationModal.style.display = "";
+            });
+        });
+    }
 
     function handleMarkRefill(slotId) {
-        const endpoint = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill";
-        const method = "POST";
+        const slotIdInput = document.getElementById("slot_id");
+        slotIdInput.value = slotId;
 
-        const body = new FormData();
-        const token = document.querySelector('[name="csrf_token"]');
-        const dateRefilled = Math.floor(Date.now() / 1000);
+        markRefillModal.style.display = "";
+    }
 
-        body.set('csrf_token', token.value);
-        body.set('slot_id', parseInt(slotId));
+    cancelMarkRefill.addEventListener("click", () => handleCancelMarkRefill());
+
+    function handleCancelMarkRefill() {
+        markRefillModal.style.display = "none";
+    }
+
+    confirmMarkRefill.addEventListener("click", () => handleConfirmMarkRefill());
+
+    function handleConfirmMarkRefill() {
+        const form = document.getElementById("markRefillForm");
+
+        const body = new FormData(form);
+        const dateRefilled = new Date(body.get('date_refilled')).getTime() / 1000;
+        const slotId = body.get("slot_id");
+
         body.set('date_refilled', dateRefilled);
 
-        fetch(endpoint, {
-            method: method,
+        fetch("/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill", {
+            method: "POST",
             credentials: "include",
             body: body,
         })
@@ -174,12 +232,20 @@
             })
             .catch(err => {
                 alertModal.outerHTML = err;
+                handleCloseAlertModal();
             })
-            .finally(() => handleCloseAlertModal());
+            .finally(() => {
+                handleCancelMarkRefill();
+                handleBindRefillButtons();
+            });
     }
 
-    let slotId = "";
-    let refillId = "";
+    // Delete Refill Logic
+    const deleteRefill = document.querySelectorAll(".deleteRefill");
+
+    const deleteRefillConfirmationModal = document.getElementById("deleteRefillConfirmationModal");
+    const cancelDeleteRefill = document.getElementById("cancelDeleteRefill");
+    const confirmDeleteRefill = document.getElementById("confirmDeleteRefill");
 
     function handleCloseConfirmDelete() {
         deleteRefillConfirmationModal.style.display = "none";
@@ -187,15 +253,6 @@
         slotId = "";
         lastRefillId = "";
     }
-
-    deleteRefill.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            slotId = btn.dataset.slotId;
-            lastRefillId = btn.dataset.lastRefillId;
-
-            deleteRefillConfirmationModal.style.display = "";
-        });
-    });
 
     cancelDeleteRefill.addEventListener("click", () => {
         handleCloseConfirmDelete();
@@ -241,6 +298,7 @@
             })
             .finally(() => {
                 handleCloseConfirmDelete();
+                handleBindRefillButtons();
             });
     }
 </script>
