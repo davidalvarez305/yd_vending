@@ -170,7 +170,7 @@
                 fbq("trackCustom", "{{ .LeadApplicationEventName }}", {
                     event_time: Math.floor(Date.now() / 1000),
                     action_source: "website",
-                    event_source_url: window.location.href,
+                    event_source_url: marketingHelper.landingPage ? marketingHelper.landingPage : window.location.href,
                     em: data.get("email"),
                     fn: data.get("first_name"),
                     ln: data.get("last_name"),
