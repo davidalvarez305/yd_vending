@@ -131,10 +131,7 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 	form.NumLocations = helpers.GetIntPointerFromForm(r, "num_locations")
 	form.City = helpers.GetStringPointerFromForm(r, "city")
 
-	form.LandingPageID = helpers.GetIntPointerFromForm(r, "landing_page_id")
 	form.LeadTypeID = helpers.GetIntPointerFromForm(r, "lead_type_id")
-	form.PercentScrolled = helpers.GetFloat64PointerFromForm(r, "percent_scrolled")
-	form.TimeSpentOnPage = helpers.GetInt64PointerFromForm(r, "time_spent_on_page")
 	form.Source = helpers.GetStringPointerFromForm(r, "source")
 	form.Medium = helpers.GetStringPointerFromForm(r, "medium")
 	form.Channel = helpers.GetStringPointerFromForm(r, "channel")
