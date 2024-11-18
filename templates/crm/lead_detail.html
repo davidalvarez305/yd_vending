@@ -214,14 +214,14 @@
                         d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.99 5.99 0 00-4.793 2.39A6.483 6.483 0 0010 16.5a6.483 6.483 0 004.793-2.11A5.99 5.99 0 0010 12z"
                         clip-rule="evenodd" />
                 </svg>
-                <span>Lead Details</span>
+                <span>Lead Application</span>
             </h3>
             <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
-                Lead's information.
+                Lead Application's information.
             </p>
         </div>
         <div class="md:w-2/3 md:pl-24">
-            <form id="leadForm" class="space-y-6 xl:w-2/3" action="/crm/lead/{{ .Lead.LeadID }}/application">
+            <form id="leadApplicationForm" class="space-y-6 xl:w-2/3" action="/crm/lead/{{ .Lead.LeadID }}/application">
                 <input type="hidden" name="_method" value="PUT" />
                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                 <input type="hidden" id="lead_id" name="lead_id" value="{{ .Lead.LeadID }}" />
@@ -586,12 +586,14 @@
     const leadMarketingForm = document.getElementById("leadMarketingForm");
     const uploadImagesForm = document.getElementById("uploadImagesForm");
     const sendNoteForm = document.getElementById("sendNoteForm");
+    const leadApplicationForm = document.getElementById("leadApplicationForm");
 
     form.onsubmit = handleLeadSaveChanges;
     leadForm.onsubmit = handleLeadSaveChanges;
     leadMarketingForm.onsubmit = handleLeadSaveChanges;
     uploadImagesForm.onsubmit = handleLeadSaveChanges;
     sendNoteForm.onsubmit = handleLeadSaveChanges;
+    leadApplicationForm.onsubmit = handleLeadSaveChanges;
 
 </script>
 {{ end }}
