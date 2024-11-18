@@ -3410,7 +3410,7 @@ func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 		s.machine_code,
 		s.machine_id,
 		s.capacity,
-		COALESCE(lc.commission, 0.0)
+		lc.commission
 	FROM slot AS s
 	JOIN machine AS m ON m.machine_id = s.machine_id
 	JOIN LATERAL (
@@ -3425,7 +3425,7 @@ func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 
 	row := DB.QueryRow(query, slotId, machineId)
 
-	commission := 0.0
+	var commission sql.NullFloat64
 
 	err := row.Scan(
 		&slotDetails.SlotID,
@@ -3443,7 +3443,11 @@ func GetSlotDetails(machineId, slotId string) (types.SlotDetails, error) {
 		return slotDetails, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	slotDetails.HasCommission = commission > 0
+	slotDetails.HasCommission = commission.Valid
+
+	if commission.Valid {
+		slotDetails.Commission = commission.Float64
+	}
 
 	return slotDetails, nil
 }

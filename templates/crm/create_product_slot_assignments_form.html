@@ -103,6 +103,7 @@
 <script nonce="{{ .Nonce }}" type="module">
     import { calculateSalePrice } from "{{ .StaticPath }}/helpers/salePrice.js";
     const hasCommission = "{{ .Slot.HasCommission }}" === "true";
+    const commissionRate = parseFloat("{{ .Slot.Commission }}");
 
     const productSlotAssignmentForm = document.getElementById("createProductSlotAssignmentForm");
     const submitProductSlotAssignmentForm = document.getElementById("submitProductSlotAssignmentForm");
@@ -179,7 +180,7 @@
 
     unitCost.addEventListener("change", event => {
         const salePrice = document.getElementById("suggested_price");
-        const suggestedSalePrice = calculateSalePrice(event.target.value, hasCommission);
+        const suggestedSalePrice = calculateSalePrice(event.target.value, hasCommission, commissionRate);
 
         salePrice.value = suggestedSalePrice;
     });

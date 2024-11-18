@@ -1,9 +1,8 @@
 const TAX_RATE = 0.07;
 const CREDIT_CARD_FEE = 0.0595;
 const PROFIT_MARGIN = 0.50;
-const COMMISSION = 0.40;
 
-export const calculateSalePrice = (unitCost, hasCommission) => {
+export const calculateSalePrice = (unitCost, hasCommission, commissionRate) => {
     // Step 1: Calculate the cost after tax
     let costWithTax = unitCost * (1 + TAX_RATE);
 
@@ -20,7 +19,7 @@ export const calculateSalePrice = (unitCost, hasCommission) => {
     let creditCardFee = salePrice * CREDIT_CARD_FEE;
 
     // Step 5: Define the target net profit after all costs and commission
-    let adjustedSalePrice = (costWithTax + creditCardFee) / (PROFIT_MARGIN * (1 - COMMISSION));
+    let adjustedSalePrice = (costWithTax + creditCardFee) / (PROFIT_MARGIN * (1 - commissionRate));
 
     // Return the adjusted sale price rounded to two decimal places
     return adjustedSalePrice.toFixed(2);
