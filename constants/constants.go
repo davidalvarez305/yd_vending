@@ -12,6 +12,7 @@ const (
 	CommissionReportFilename   string = "commission_report.xlsx"
 	StructSpreadsheetHeaderTag string = "spreadsheet_header"
 	LeadApplicationLeadTypeID  int    = 2
+	VendingLeadTypeID          int    = 1
 )
 
 var (

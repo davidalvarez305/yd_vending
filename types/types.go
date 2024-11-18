@@ -43,6 +43,8 @@ type QuoteForm struct {
 	FacebookClickID  *string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
 	FacebookClientID *string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
 	CSRFSecret       *string `json:"csrf_secret" form:"csrf_secret"`
+	Email            *string `json:"email" form:"email" schema:"email"`
+	LeadTypeID       *int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
 }
 
 type LeadFormWebhook struct {
@@ -279,6 +281,7 @@ type WebsiteContext struct {
 	MediaPath                    string                   `json:"media_path" form:"media_path"`
 	PhoneNumber                  string                   `json:"phone_number" form:"phone_number"`
 	CurrentYear                  int                      `json:"current_year" form:"current_year"`
+	LeadTypeID                   int                      `json:"lead_type_id" form:"lead_type_id"`
 	GoogleAnalyticsID            string                   `json:"google_analytics_id" form:"google_analytics_id"`
 	FacebookDataSetID            string                   `json:"facebook_data_set_id" form:"facebook_data_set_id"`
 	CompanyName                  string                   `json:"company_name" form:"company_name"`

@@ -33,6 +33,7 @@ type LeadType struct {
 
 type Lead struct {
 	LeadID            int    `json:"lead_id"`
+	LeadTypeID        int    `json:"lead_type_id"`
 	FirstName         string `json:"first_name"`
 	LastName          string `json:"last_name"`
 	PhoneNumber       string `json:"phone_number"`

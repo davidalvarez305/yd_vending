@@ -150,6 +150,7 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 	data.VendingTypes = vendingTypes
 	data.VendingLocations = vendingLocations
 	data.MarketingImages = images
+	data.LeadTypeID = constants.VendingLeadTypeID
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
