@@ -51,6 +51,7 @@
                             <label for="vending_type" class="font-medium">Vending Type*</label>
                             <select id="vending_type" name="vending_type" required
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                                <option></option>
                                 {{ range .VendingTypes }}
                                 <option value="{{ .VendingTypeID }}" {{ if eq .MachineType $.Lead.VendingType }}selected{{ end }}>
                                     {{ .MachineType }}
@@ -63,6 +64,7 @@
                             <label for="vending_location" class="font-medium">Location Type*</label>
                             <select id="vending_location" name="vending_location" required
                                 class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:focus:border-primary">
+                                <option></option>
                                 {{ range .VendingLocations }}
                                 <option value="{{ .VendingLocationID }}" {{ if eq .LocationType $.Lead.VendingLocation }}selected{{ end }}>
                                     {{ .LocationType }}
