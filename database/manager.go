@@ -550,7 +550,9 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	application.company_name,
 	application.years_in_business,
 	application.num_locations,
-	application.city
+	application.city,
+	application.lead_application_id,
+	l.lead_type_id
 	FROM lead l
 	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
@@ -566,7 +568,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	var vendingType, vendingLocation, message, externalId, userAgent, clickId, googleClientId sql.NullString
 
 	var website, companyName, city sql.NullString
-	var yearsInBusiness, numLocations sql.NullInt64
+	var yearsInBusiness, numLocations, leadApplicationId sql.NullInt64
 
 	err := row.Scan(
 		&leadDetails.LeadID,
@@ -597,6 +599,8 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		&yearsInBusiness,
 		&numLocations,
 		&city,
+		&leadApplicationId,
+		&leadDetails.LeadTypeID,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -606,6 +610,9 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	}
 
 	// Map the nullable fields to your struct
+	if leadApplicationId.Valid {
+		leadDetails.LeadApplicationID = int(leadApplicationId.Int64)
+	}
 	if website.Valid {
 		leadDetails.Website = website.String
 	}
@@ -5146,7 +5153,7 @@ func Create90DayChallengeOptIn(form types.OptIn90DayChallengeForm) error {
 
 func CreateLeadAppointment(form types.LeadAppointmentForm) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO lead_appointment (lead_id, booked_time, date_created, attendee)
+		INSERT INTO lead_appointment (lead_id, lead_appointment, date_created, attendee)
 		VALUES ($1, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York', NOW() AT TIME ZONE 'America/New_York', $3)
 	`)
 	if err != nil {
@@ -5156,7 +5163,7 @@ func CreateLeadAppointment(form types.LeadAppointmentForm) error {
 
 	_, err = stmt.Exec(
 		utils.CreateNullInt(form.LeadID),
-		utils.CreateNullInt64(form.BookedTime),
+		utils.CreateNullInt64(form.AppointmentTime),
 		utils.CreateNullString(form.Attendee),
 	)
 	if err != nil {

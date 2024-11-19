@@ -4940,9 +4940,24 @@ func PostLeadAppointment(w http.ResponseWriter, r *http.Request) {
 	var form types.LeadAppointmentForm
 
 	form.LeadID = helpers.GetIntPointerFromForm(r, "lead_id")
-	form.BookedTime = helpers.GetInt64PointerFromForm(r, "booked_time")
+	form.AppointmentTime = helpers.GetInt64PointerFromForm(r, "appointment_time")
+	form.Attendee = helpers.GetStringPointerFromForm(r, "attendee")
 
-	lead, err := database.GetLeadDetails(fmt.Sprint(form.LeadID))
+	if form.LeadID == nil || form.Attendee == nil {
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Lead ID or Attendee cannot be nill.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	lead, err := database.GetLeadDetails(fmt.Sprint(*form.LeadID))
 	if err != nil {
 		fmt.Printf("Error retrieving lead details: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -4962,7 +4977,7 @@ func PostLeadAppointment(w http.ResponseWriter, r *http.Request) {
 	description := "YD Vending demonstration for 90 day vending challenge."
 	location := "https://ydvending.com/"
 
-	bookedTime := utils.CreateNullInt64(form.BookedTime)
+	bookedTime := utils.CreateNullInt64(form.AppointmentTime)
 	if !bookedTime.Valid {
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
@@ -4994,7 +5009,7 @@ func PostLeadAppointment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	endTime := startTime.Add(30 * time.Minute)
-	attendees := []string{lead.Email}
+	attendees := strings.Split(*form.Attendee, ", ")
 
 	err = services.ScheduleGoogleCalendarEvent(eventTitle, description, location, startTime, endTime, attendees)
 	if err != nil {

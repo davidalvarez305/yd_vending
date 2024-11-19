@@ -183,7 +183,6 @@ func ScheduleGoogleCalendarEvent(eventTitle, description, location string, start
 		return err
 	}
 
-	// Create the event
 	event := &calendar.Event{
 		Summary:     eventTitle,
 		Location:    location,
@@ -199,13 +198,7 @@ func ScheduleGoogleCalendarEvent(eventTitle, description, location string, start
 		Attendees: []*calendar.EventAttendee{},
 
 		Reminders: &calendar.EventReminders{
-			UseDefault: false, // Custom reminders
-			Overrides: []*calendar.EventReminder{
-				{
-					Method:  "popup",
-					Minutes: 10, // Popup reminder 10 minutes before the event
-				},
-			},
+			UseDefault: true,
 		},
 	}
 
