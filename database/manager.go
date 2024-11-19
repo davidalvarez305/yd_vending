@@ -5153,7 +5153,7 @@ func Create90DayChallengeOptIn(form types.OptIn90DayChallengeForm) error {
 
 func CreateLeadAppointment(form types.LeadAppointmentForm) error {
 	stmt, err := DB.Prepare(`
-		INSERT INTO lead_appointment (lead_id, lead_appointment, date_created, attendee)
+		INSERT INTO lead_appointment (lead_id, lead_appointment, date_created, attendee, link)
 		VALUES ($1, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York', NOW() AT TIME ZONE 'America/New_York', $3)
 	`)
 	if err != nil {
@@ -5165,6 +5165,7 @@ func CreateLeadAppointment(form types.LeadAppointmentForm) error {
 		utils.CreateNullInt(form.LeadID),
 		utils.CreateNullInt64(form.AppointmentTime),
 		utils.CreateNullString(form.Attendee),
+		utils.CreateNullString(form.Link),
 	)
 	if err != nil {
 		return fmt.Errorf("error inserting lead appointment: %w", err)

@@ -913,5 +913,6 @@ type LeadAppointmentForm struct {
 	LeadID          *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	AppointmentTime *int64  `json:"appointment_time" form:"appointment_time" schema:"appointment_time"`
 	Attendee        *string `json:"attendee" form:"attendee" schema:"attendee"`
+	Link            *string `json:"link" form:"link" schema:"link"`
 	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 }

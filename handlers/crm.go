@@ -5011,7 +5011,7 @@ func PostLeadAppointment(w http.ResponseWriter, r *http.Request) {
 	endTime := startTime.Add(30 * time.Minute)
 	attendees := strings.Split(*form.Attendee, ", ")
 
-	err = services.ScheduleGoogleCalendarEvent(eventTitle, description, location, startTime, endTime, attendees)
+	link, err := services.ScheduleGoogleCalendarEvent(eventTitle, description, location, startTime, endTime, attendees)
 	if err != nil {
 		fmt.Printf("Error creating event: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -5027,6 +5027,7 @@ func PostLeadAppointment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	form.Link = &link
 	err = database.CreateLeadAppointment(form)
 	if err != nil {
 		fmt.Printf("Error creating appointment: %+v\n", err)
