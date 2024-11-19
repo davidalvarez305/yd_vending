@@ -131,6 +131,8 @@ export class MarketingHelper {
     }
 
     getMedium(referrer, qs) {
+        if (!referrer) return "direct";
+
         // No referrer means the user accessed the website directly
         if (referrer.length === 0) return "direct";
 
@@ -168,6 +170,8 @@ export class MarketingHelper {
     }
 
     getChannel(referrerUrl) {
+        if (!referrerUrl) return "other";
+
         const displayNetworks = ["googleads.g.doubleclick.net"];
 
         const searchEngines = [
