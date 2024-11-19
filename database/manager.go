@@ -454,17 +454,17 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	var leads []types.LeadList
 
 	query := `SELECT l.lead_id, l.first_name, l.last_name, l.phone_number, 
-		l.created_at, l.rent, l.foot_traffic, l.foot_traffic_type, 
-		vt.machine_type, vl.location_type, lm.language, l.vending_type_id, l.vending_location_id,
+		l.created_at, vt.machine_type, vl.location_type, lm.language, l.vending_type_id, l.vending_location_id, lt.lead_type,
 		COUNT(*) OVER() AS total_rows
 		FROM lead AS l
 		JOIN vending_type AS vt ON vt.vending_type_id = l.vending_type_id
 		JOIN vending_location AS vl ON vl.vending_location_id = l.vending_location_id
 		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id
-		JOIN lead_type AS lt ON lt.lead_id = l.lead_id
+		JOIN lead_type AS lt ON lt.lead_type_id = l.lead_type_id
 		WHERE (vt.vending_type_id = $1 OR $1 IS NULL) 
 		AND (vl.vending_location_id = $2 OR $2 IS NULL)
 		AND (l.lead_type_id = $5 OR $5 IS NULL)
+		ORDER BY l.created_at ASC
 		LIMIT $3
 		OFFSET $4`
 
@@ -489,36 +489,27 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	for rows.Next() {
 		var lead types.LeadList
 		var createdAt time.Time
-
-		var rent, footTraffic, footTrafficType sql.NullString
+		var leadType sql.NullString
 
 		err := rows.Scan(&lead.LeadID,
 			&lead.FirstName,
 			&lead.LastName,
 			&lead.PhoneNumber,
 			&createdAt,
-			&rent,
-			&footTraffic,
-			&footTrafficType,
 			&lead.MachineType,
 			&lead.LocationType,
 			&lead.Language,
 			&lead.VendingTypeID,
 			&lead.VendingLocationID,
+			&leadType,
 			&totalRows)
 		if err != nil {
 			return nil, 0, fmt.Errorf("error scanning row: %w", err)
 		}
-		lead.CreatedAt = createdAt.Unix()
+		lead.CreatedAt = utils.FormatTimestamp(createdAt.Unix())
 
-		if rent.Valid {
-			lead.Rent = rent.String
-		}
-		if footTraffic.Valid {
-			lead.FootTraffic = footTraffic.String
-		}
-		if footTrafficType.Valid {
-			lead.FootTrafficType = footTrafficType.String
+		if leadType.Valid {
+			lead.LeadType = leadType.String
 		}
 
 		leads = append(leads, lead)

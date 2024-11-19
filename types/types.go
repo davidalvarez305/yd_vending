@@ -115,10 +115,7 @@ type LeadList struct {
 	FirstName         string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName          string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber       string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	CreatedAt         int64  `json:"created_at" form:"created_at" schema:"created_at"`
-	Rent              string `json:"rent" form:"rent" schema:"rent"`
-	FootTraffic       string `json:"foot_traffic" form:"foot_traffic" schema:"foot_traffic"`
-	FootTrafficType   string `json:"foot_traffic_type" form:"foot_traffic_type" schema:"foot_traffic_type"`
+	CreatedAt         string `json:"created_at" form:"created_at" schema:"created_at"`
 	MachineType       string `json:"machine_type" form:"machine_type" schema:"machine_type"`
 	LocationType      string `json:"location_type" form:"location_type" schema:"location_type"`
 	LeadType          string `json:"lead_type" form:"lead_type" schema:"lead_type"`
