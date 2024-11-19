@@ -11,8 +11,8 @@ function handleCloseAlertModal() {
 
 function setUser() {
     const user = {
-        landingPage: typeof window !== "undefined" && window.location ? window.location.href : null,
-        referrer: typeof document !== "undefined" && document.referrer ? document.referrer : null,
+        landingPage: typeof window !== "undefined" && window.location ? window.location.href : "",
+        referrer: typeof document !== "undefined" && document.referrer ? document.referrer : "",
     };
 
     localStorage.setItem("user", JSON.stringify(user));
