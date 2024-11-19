@@ -4,7 +4,12 @@ export class MarketingHelper {
     constructor() {
         this.user = JSON.parse(localStorage.getItem("user")) || {};
         this.language = navigator.language || navigator.userLanguage;
-        if (this.user.landingPage) this.landingPage = new URL(this.user.landingPage);
+        
+        if (this.user.landingPage) {
+            this.landingPage = new URL(this.user.landingPage);
+        } else {
+            this.landingPage = new URL(this.user.landingPage);
+        }
 
         this.longitude = null;
         this.latitude = null;
