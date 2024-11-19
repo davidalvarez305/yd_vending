@@ -5,14 +5,16 @@ import (
 )
 
 const (
-	UserAdminRoleID            int    = 1
-	CommissionReportRoleID     int    = 2
+	UserAdminRoleID        int = 1
+	CommissionReportRoleID int = 2
+
 	EmailMIMEBoundary          string = "my-boundary-12345"
 	TimeZone                   string = "America/New_York"
 	CommissionReportFilename   string = "commission_report.xlsx"
 	StructSpreadsheetHeaderTag string = "spreadsheet_header"
-	LeadApplicationLeadTypeID  int    = 2
-	VendingLeadTypeID          int    = 1
+
+	LeadApplicationLeadTypeID int = 2
+	VendingLeadTypeID         int = 1
 
 	LeadApplicationEventName string = "lead_application"
 	LeadAppointmentEventName string = "lead_appointment"

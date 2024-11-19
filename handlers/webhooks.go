@@ -69,16 +69,10 @@ func handleGoogleLeadFormWebhook(w http.ResponseWriter, r *http.Request) {
 			form.LastName = helpers.SafeStringToPointer(item.StringValue)
 		case "PHONE_NUMBER":
 			form.PhoneNumber = helpers.SafeStringToPointer(item.StringValue)
-		case "RENT":
-			form.Rent = helpers.SafeStringToPointer(item.StringValue)
 		case "LOCATION_TYPE":
 			form.LocationType = helpers.SafeStringToIntPointer(item.StringValue)
 		case "MACHINE_TYPE":
 			form.MachineType = helpers.SafeStringToIntPointer(item.StringValue)
-		case "FOOT_TRAFFIC":
-			form.FootTraffic = helpers.SafeStringToPointer(item.StringValue)
-		case "FOOT_TRAFFIC_TYPE":
-			form.FootTrafficType = helpers.SafeStringToPointer(item.StringValue)
 		case "MESSAGE":
 			form.Message = helpers.SafeStringToPointer(item.StringValue)
 		case "SOURCE":

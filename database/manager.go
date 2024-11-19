@@ -107,8 +107,8 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	defer tx.Rollback()
 
 	leadStmt, err := tx.Prepare(`
-		INSERT INTO lead (first_name, last_name, phone_number, created_at, rent, foot_traffic, foot_traffic_type, vending_type_id, vending_location_id, message, lead_type_id)
-		VALUES ($1, $2, $3, to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', $5, $6, $7, $8, $9, $10, $11)
+		INSERT INTO lead (first_name, last_name, phone_number, created_at, vending_type_id, vending_location_id, message, lead_type_id)
+		VALUES ($1, $2, $3, to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', $5, $6, $7, $8)
 		RETURNING lead_id
 	`)
 	if err != nil {
@@ -121,9 +121,6 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 		return leadID, fmt.Errorf("error getting time as EST: %w", err)
 	}
 
-	rent := utils.CreateNullString(quoteForm.Rent)
-	footTraffic := utils.CreateNullString(quoteForm.FootTraffic)
-	footTrafficType := utils.CreateNullString(quoteForm.FootTrafficType)
 	message := utils.CreateNullString(quoteForm.Message)
 	vendingTypeID := utils.CreateNullInt(quoteForm.MachineType)
 	vendingLocationID := utils.CreateNullInt(quoteForm.LocationType)
@@ -133,9 +130,6 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 		utils.CreateNullString(quoteForm.LastName),
 		utils.CreateNullString(quoteForm.PhoneNumber),
 		createdAt,
-		rent,
-		footTraffic,
-		footTrafficType,
 		vendingTypeID,
 		vendingLocationID,
 		message,

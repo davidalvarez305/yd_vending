@@ -10,11 +10,8 @@ type QuoteForm struct {
 	FirstName        *string `json:"first_name" form:"first_name" schema:"first_name"`
 	LastName         *string `json:"last_name" form:"last_name" schema:"last_name"`
 	PhoneNumber      *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Rent             *string `json:"rent" form:"rent" schema:"rent"`
 	LocationType     *int    `json:"location_type" form:"location_type" schema:"location_type"`
 	MachineType      *int    `json:"machine_type" form:"machine_type" schema:"machine_type"`
-	FootTraffic      *string `json:"foot_traffic" form:"foot_traffic" schema:"foot_traffic"`
-	FootTrafficType  *string `json:"foot_traffic_type" form:"foot_traffic_type" schema:"foot_traffic_type"`
 	Message          *string `json:"message" form:"message" schema:"message"`
 	Source           *string `json:"source" form:"source" schema:"source"`
 	Medium           *string `json:"medium" form:"medium" schema:"medium"`
