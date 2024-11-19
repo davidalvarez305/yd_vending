@@ -187,6 +187,8 @@
 </div>
 
 <script nonce="{{ .Nonce }}">
+    document.addEventListener("DOMContentLoaded", () => handleBindRefillButtons());
+
     const markRefillModal = document.getElementById("markRefillModal");
     const cancelMarkRefill = document.getElementById("cancelMarkRefill");
     const confirmMarkRefill = document.getElementById("confirmMarkRefill");
