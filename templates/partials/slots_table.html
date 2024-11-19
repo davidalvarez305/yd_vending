@@ -132,8 +132,7 @@
                             <input type="hidden" id="slot_id" name="slot_id" />
                             <div class="space-y-1">
                                 <label for="date_refilled" class="font-medium">Date Refilled</label>
-                                <input type="datetime-local" name="date_refilled"
-                                    class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
+                                <input type="datetime-local" name="date_refilled" class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                             </div>
                         </form>
                     </div>
@@ -266,7 +265,6 @@
     function handleConfirmMarkRefillAction(formId, url) {
         const form = document.getElementById(formId);
         const body = new FormData(form);
-        console.log(body);
 
         const dateRefilled = new Date(body.get('date_refilled')).getTime() / 1000;
         body.set('date_refilled', dateRefilled);
