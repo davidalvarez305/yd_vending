@@ -155,7 +155,6 @@
 </div>
 
 <script nonce="{{ .Nonce }}">
-    // Mark Refill Logic
     const markRefillModal = document.getElementById("markRefillModal");
     const cancelMarkRefill = document.getElementById("cancelMarkRefill");
     const confirmMarkRefill = document.getElementById("confirmMarkRefill");
@@ -184,11 +183,11 @@
     }
 
     function handleMarkRefill(slotId, shouldRefillAll) {
-        const slotIdInput = document.getElementById("slot_id");
-        slotIdInput.value = slotId;
+        const slot = document.getElementById("slot_id");
+        if (slot) slot.value = slotId;
 
         const shouldRefill = document.getElementById("should_refill_all");
-        shouldRefill.checked = shouldRefillAll;
+        if (shouldRefill) shouldRefill.checked = shouldRefillAll;
 
         markRefillModal.style.display = "";
     }
@@ -214,9 +213,9 @@
         const refillAllURL = `/crm/machine/{{ .Machine.MachineID }}/refill`;
         const refillSingleURL = "/crm/machine/{{ .Machine.MachineID }}/slot/" + slotId + "/refill";
 
-        const endpoint =  shouldRefillAll ? refillAllURL : refillSingleURL;
+        const endpoint =  shouldRefillAll.checked ? refillAllURL : refillSingleURL;
 
-        if (shouldRefillAll) body.delete("slot_id");
+        if (shouldRefillAll.checked) body.delete("slot_id");
 
         body.delete('should_refill_all');
 
@@ -253,6 +252,11 @@
                 handleBindRefillButtons();
             });
     }
+
+    // Mark Refill All Logic
+    const refillAllButton = document.getElementById('refillAll');
+
+    refillAllButton.addEventListener("click", () => handleMarkRefill("", true));
 
     // Delete Refill Logic
     const deleteRefill = document.querySelectorAll(".deleteRefill");
