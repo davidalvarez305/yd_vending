@@ -40,12 +40,8 @@ type Lead struct {
 	PhoneNumber       string `json:"phone_number" form:"phone_number" schema:"phone_number"`
 	Email             string `json:"email" form:"email" schema:"email"`
 	CreatedAt         int64  `json:"created_at" form:"created_at" schema:"created_at"`
-	Rent              string `json:"rent" form:"rent" schema:"rent"`
-	FootTraffic       int    `json:"foot_traffic" form:"foot_traffic" schema:"foot_traffic"`
-	FootTrafficType   string `json:"foot_traffic_type" form:"foot_traffic_type" schema:"foot_traffic_type"`
 	VendingTypeID     int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
 	VendingLocationID int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
-	CityID            int    `json:"city_id" form:"city_id" schema:"city_id"`
 	LeadStatusID      int    `json:"lead_status_id" form:"lead_status_id" schema:"lead_status_id"`
 	Message           string `json:"message" form:"message" schema:"message"`
 }
