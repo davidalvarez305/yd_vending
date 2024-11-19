@@ -457,8 +457,8 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		l.created_at, vt.machine_type, vl.location_type, lm.language, l.vending_type_id, l.vending_location_id, lt.lead_type,
 		COUNT(*) OVER() AS total_rows
 		FROM lead AS l
-		JOIN vending_type AS vt ON vt.vending_type_id = l.vending_type_id
-		JOIN vending_location AS vl ON vl.vending_location_id = l.vending_location_id
+		LEFT JOIN vending_type AS vt ON vt.vending_type_id = l.vending_type_id
+		LEFT JOIN vending_location AS vl ON vl.vending_location_id = l.vending_location_id
 		JOIN lead_marketing AS lm ON lm.lead_id = l.lead_id
 		JOIN lead_type AS lt ON lt.lead_type_id = l.lead_type_id
 		WHERE (vt.vending_type_id = $1 OR $1 IS NULL) 
@@ -489,18 +489,19 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 	for rows.Next() {
 		var lead types.LeadList
 		var createdAt time.Time
-		var leadType sql.NullString
+		var leadType, vendingType, locationType sql.NullString
+		var vendingTypeId, vendingLocationId sql.NullInt64
 
 		err := rows.Scan(&lead.LeadID,
 			&lead.FirstName,
 			&lead.LastName,
 			&lead.PhoneNumber,
 			&createdAt,
-			&lead.MachineType,
-			&lead.LocationType,
+			&vendingType,
+			&locationType,
 			&lead.Language,
-			&lead.VendingTypeID,
-			&lead.VendingLocationID,
+			&vendingTypeId,
+			&vendingLocationId,
 			&leadType,
 			&totalRows)
 		if err != nil {
@@ -508,8 +509,20 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		}
 		lead.CreatedAt = utils.FormatTimestamp(createdAt.Unix())
 
+		if vendingTypeId.Valid {
+			lead.VendingTypeID = int(vendingTypeId.Int64)
+		}
+		if vendingLocationId.Valid {
+			lead.VendingLocationID = int(vendingLocationId.Int64)
+		}
 		if leadType.Valid {
 			lead.LeadType = leadType.String
+		}
+		if vendingType.Valid {
+			lead.MachineType = vendingType.String
+		}
+		if locationType.Valid {
+			lead.LocationType = locationType.String
 		}
 
 		leads = append(leads, lead)
@@ -5185,10 +5198,10 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 	// Step 1: Insert lead data and get lead_id
 	leadStmt, err := tx.Prepare(`
 		INSERT INTO lead (
-			first_name, last_name, phone_number, email, created_at
+			first_name, last_name, phone_number, email, created_at, lead_type_id
 		)
 		VALUES (
-			$1, $2, $3, $4, $5, NOW() AT TIME ZONE 'America/New_York'
+			$1, $2, $3, $4, NOW() AT TIME ZONE 'America/New_York', $5
 		)
 		RETURNING lead_id
 	`)
@@ -5202,10 +5215,11 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 	lastName := utils.CreateNullString(form.LastName)
 	phoneNumber := utils.CreateNullString(form.PhoneNumber)
 	email := utils.CreateNullString(form.Email)
+	leadTypeId := utils.CreateNullInt(form.LeadTypeID)
 
 	// Insert lead and get lead_id
 	err = leadStmt.QueryRow(
-		firstName, lastName, phoneNumber, email,
+		firstName, lastName, phoneNumber, email, leadTypeId,
 	).Scan(&leadID)
 	if err != nil {
 		return fmt.Errorf("error inserting lead: %w", err)
