@@ -170,17 +170,18 @@ func SendGmailWithAttachment(recipients []string, subject, sender, body, attachm
 	return nil
 }
 
-func ScheduleGoogleCalendarEvent(eventTitle, description, location string, startTime, endTime time.Time, attendees []string) error {
+func ScheduleGoogleCalendarEvent(eventTitle, description, location string, startTime, endTime time.Time, attendees []string) (string, error) {
+	var link string
 	client, err := initializeGoogleClient(calendar.CalendarScope)
 	if err != nil {
 		fmt.Printf("Unable to initialize Google Calendar client: %v", err)
-		return err
+		return link, err
 	}
 
 	srv, err := calendar.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		fmt.Printf("Unable to create Calendar service: %v", err)
-		return err
+		return link, err
 	}
 
 	event := &calendar.Event{
@@ -211,9 +212,10 @@ func ScheduleGoogleCalendarEvent(eventTitle, description, location string, start
 	createdEvent, err := srv.Events.Insert("primary", event).Do()
 	if err != nil {
 		fmt.Printf("Unable to create event: %v", err)
-		return err
+		return link, err
 	}
 
-	fmt.Printf("Event created: %s\n", createdEvent.Id)
-	return nil
+	link = createdEvent.HtmlLink
+
+	return link, err
 }
