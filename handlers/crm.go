@@ -630,7 +630,7 @@ func GetDashboard(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "lead_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html", constants.PARTIAL_TEMPLATES_DIR + "notes.html", constants.PARTIAL_TEMPLATES_DIR + "lead_images.html", constants.FUNNEL_TEMPLATES_DIR + "create_lead_appointment_form.html"}
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html", constants.PARTIAL_TEMPLATES_DIR + "notes.html", constants.PARTIAL_TEMPLATES_DIR + "lead_images.html", constants.CRM_TEMPLATES_DIR + "create_lead_appointment_form.html"}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)

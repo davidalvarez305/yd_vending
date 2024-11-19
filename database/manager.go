@@ -546,7 +546,11 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	lm.user_agent,
 	lm.click_id,
 	lm.google_client_id,
-	l.lead_type_id
+	application.website,
+	application.company_name,
+	application.years_in_business,
+	application.num_locations,
+	application.city
 	FROM lead l
 	JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
@@ -601,6 +605,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		return leadDetails, fmt.Errorf("error scanning row: %w", err)
 	}
 
+	// Map the nullable fields to your struct
 	if website.Valid {
 		leadDetails.Website = website.String
 	}
