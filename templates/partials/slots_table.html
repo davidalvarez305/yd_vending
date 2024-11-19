@@ -231,8 +231,6 @@
 
     confirmMarkRefill.addEventListener("click", () => handleConfirmMarkRefill());
 
-    
-
     function handleConfirmMarkRefill() {
         const slotId = document.getElementById("markRefillForm").elements["slot_id"].value;
         const url = `/crm/machine/{{ .Machine.MachineID }}/slot/${slotId}/refill`;
@@ -268,6 +266,7 @@
     function handleConfirmMarkRefillAction(formId, url) {
         const form = document.getElementById(formId);
         const body = new FormData(form);
+        console.log(body);
 
         const dateRefilled = new Date(body.get('date_refilled')).getTime() / 1000;
         body.set('date_refilled', dateRefilled);
