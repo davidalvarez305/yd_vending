@@ -84,9 +84,9 @@
     </table>
 </div>
 
-<div id="deleteRefillConfirmationModal">
+<div id="deleteRefillConfirmationModal" style="display: none;">
     <div tabindex="-1" role="dialog"
-        class="fixed inset-0 z-90 hidden overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
+        class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
         <div role="document"
             class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <div class="flex grow gap-5 px-5 py-7">
@@ -119,11 +119,10 @@
     </div>
 </div>
 
-<div id="markRefillModal">
+<div id="markRefillModal" style="display: none;">
     <div tabindex="-1" role="dialog"
-        class="fixed inset-0 z-90 hidden overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
-        <div role="document"
-            class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
+        class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
+        <div role="document" class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <div class="grow p-5">
                 <div class="flex flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
                     <div class="grow p-5 md:px-16 md:py-12">
@@ -152,9 +151,9 @@
     </div>
 </div>
 
-<div id="markRefillAllModal">
+<div id="markRefillAllModal" style="display: none;">
     <div tabindex="-1" role="dialog"
-        class="fixed inset-0 z-90 hidden overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
+        class="fixed inset-0 z-90 overflow-y-auto overflow-x-hidden bg-gray-900/75 p-4 backdrop-blur-sm lg:p-8">
         <div role="document"
             class="mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:text-gray-100">
             <div class="grow p-5">
@@ -210,8 +209,7 @@
                 slotId = btn.dataset.slotId;
                 lastRefillId = btn.dataset.lastRefillId;
 
-                deleteRefillConfirmationModal.classList.remove("hidden");
-                deleteRefillConfirmationModal.classList.add("block");
+                deleteRefillConfirmationModal.style.display = "";
             });
         });
     }
@@ -220,15 +218,13 @@
         const slot = document.getElementById("slot_id");
         if (slot) slot.value = slotId;
 
-        markRefillModal.classList.remove("hidden");
-        markRefillModal.classList.add("block");
+        markRefillModal.style.display = "";
     }
 
     cancelMarkRefill.addEventListener("click", () => handleCancelMarkRefill());
 
     function handleCancelMarkRefill() {
-        markRefillModal.classList.remove("block");
-        markRefillModal.classList.add("hidden");
+        markRefillModal.style.display = "none";
     }
 
     confirmMarkRefill.addEventListener("click", () => handleConfirmMarkRefill());
@@ -249,15 +245,13 @@
     const confirmMarkRefillAll = document.getElementById("confirmMarkRefillAll");
 
     function handleMarkRefillAll() {
-        markRefillAllModal.classList.remove("hidden");
-        markRefillAllModal.classList.add("block");
+        markRefillAllModal.style.display = "";
     }
 
     cancelMarkRefillAll.addEventListener("click", () => handleCancelMarkRefillAll());
 
     function handleCancelMarkRefillAll() {
-        markRefillAllModal.classList.remove("block");
-        markRefillAllModal.classList.add("hidden");
+        markRefillAllModal.style.display = "none";
     }
 
     confirmMarkRefillAll.addEventListener("click", () => handleConfirmMarkRefillAll());
@@ -316,8 +310,7 @@
     const confirmDeleteRefill = document.getElementById("confirmDeleteRefill");
 
     function handleCloseConfirmDelete() {
-        deleteRefillConfirmationModal.classList.remove("block");
-        deleteRefillConfirmationModal.classList.add("hidden");
+        deleteRefillConfirmationModal.style.display = "none";
 
         slotId = "";
         lastRefillId = "";
