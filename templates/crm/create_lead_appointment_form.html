@@ -48,8 +48,8 @@
 
         const data = new FormData(form);
 
-        const timestamp = new Date(data.get('booked_time')).getTime() / 1000;
-        data.set('booked_time', timestamp);
+        const timestamp = new Date(data.get('appointment_time')).getTime() / 1000;
+        data.set('appointment_time', timestamp);
 
         fetch("/crm/lead/{{ .Lead.LeadID }}/appointment", {
             method: "POST",
