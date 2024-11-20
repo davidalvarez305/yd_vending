@@ -942,3 +942,40 @@ type MiniSiteList struct {
 	Website     string `json:"website" form:"website" schema:"website"`
 	DateCreated string `json:"date_created" form:"date_created" schema:"date_created"`
 }
+
+type CreateVercelProjectBody struct {
+	Name                                 string                `json:"name" form:"name" schema:"name"`
+	BuildCommand                         string                `json:"buildCommand" form:"buildCommand" schema:"buildCommand"`
+	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep" form:"commandForIgnoringBuildStep" schema:"commandForIgnoringBuildStep"`
+	DevCommand                           string                `json:"devCommand" form:"devCommand" schema:"devCommand"`
+	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments" form:"enableAffectedProjectsDeployments" schema:"enableAffectedProjectsDeployments"`
+	EnvironmentVariables                 []EnvironmentVariable `json:"environmentVariables" form:"environmentVariables" schema:"environmentVariables"`
+	Framework                            string                `json:"framework" form:"framework" schema:"framework"`
+	GitRepository                        GitRepository         `json:"gitRepository" form:"gitRepository" schema:"gitRepository"`
+	InstallCommand                       string                `json:"installCommand" form:"installCommand" schema:"installCommand"`
+	OIDCTokenConfig                      OIDCTokenConfig       `json:"oidcTokenConfig" form:"oidcTokenConfig" schema:"oidcTokenConfig"`
+	OutputDirectory                      string                `json:"outputDirectory" form:"outputDirectory" schema:"outputDirectory"`
+	PublicSource                         bool                  `json:"publicSource" form:"publicSource" schema:"publicSource"`
+	RootDirectory                        string                `json:"rootDirectory" form:"rootDirectory" schema:"rootDirectory"`
+	ServerlessFunctionRegion             string                `json:"serverlessFunctionRegion" form:"serverlessFunctionRegion" schema:"serverlessFunctionRegion"`
+	ServerlessFunctionZeroConfigFailover interface{}           `json:"serverlessFunctionZeroConfigFailover" form:"serverlessFunctionZeroConfigFailover" schema:"serverlessFunctionZeroConfigFailover"`
+	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink" form:"skipGitConnectDuringLink" schema:"skipGitConnectDuringLink"`
+}
+
+type EnvironmentVariable struct {
+	Key       string `json:"key" form:"key" schema:"key"`
+	Target    string `json:"target" form:"target" schema:"target"`
+	GitBranch string `json:"gitBranch" form:"gitBranch" schema:"gitBranch"`
+	Type      string `json:"type" form:"type" schema:"type"`
+	Value     string `json:"value" form:"value" schema:"value"`
+}
+
+type GitRepository struct {
+	Repo string `json:"repo" form:"repo" schema:"repo"`
+	Type string `json:"type" form:"type" schema:"type"`
+}
+
+type OIDCTokenConfig struct {
+	Enabled    bool   `json:"enabled" form:"enabled" schema:"enabled"`
+	IssuerMode string `json:"issuerMode" form:"issuerMode" schema:"issuerMode"`
+}

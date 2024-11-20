@@ -5479,3 +5479,68 @@ func PutMiniSite(w http.ResponseWriter, r *http.Request) {
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
+
+func CreateVercelProject(w http.ResponseWriter, r *http.Request) {
+	token := constants.VercelAccessToken
+	slug := "some-slug"
+	teamID := "your-team-id"
+
+	project := types.CreateVercelProjectBody{
+		Name:                              "a-project-name",
+		BuildCommand:                      "SOME_STRING_VALUE",
+		CommandForIgnoringBuildStep:       "SOME_STRING_VALUE",
+		DevCommand:                        "SOME_STRING_VALUE",
+		EnableAffectedProjectsDeployments: true,
+		EnvironmentVariables: []types.EnvironmentVariable{
+			{
+				Key:       "SOME_KEY",
+				Target:    "production",
+				GitBranch: "main",
+				Type:      "system",
+				Value:     "SOME_VALUE",
+			},
+		},
+		Framework: "nextjs",
+		GitRepository: types.GitRepository{
+			Repo: "your-github-repo",
+			Type: "github",
+		},
+		InstallCommand: "SOME_INSTALL_COMMAND",
+		OIDCTokenConfig: types.OIDCTokenConfig{
+			Enabled:    true,
+			IssuerMode: "team",
+		},
+		OutputDirectory:                      "dist",
+		PublicSource:                         true,
+		RootDirectory:                        "src",
+		ServerlessFunctionRegion:             "us-east-1",
+		ServerlessFunctionZeroConfigFailover: nil,
+		SkipGitConnectDuringLink:             true,
+	}
+
+	err := services.CreateVercelProject(slug, teamID, token, project)
+	if err != nil {
+		fmt.Printf("Error creating vercel project: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create vercel project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Vercel project launched successfully.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
