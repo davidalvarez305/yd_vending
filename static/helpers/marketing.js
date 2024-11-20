@@ -55,8 +55,8 @@ export class MarketingHelper {
 
         if (medium) this.data.set("medium", medium);
         if (channel) this.data.set("channel", channel);
-        if (source) this.data.set("source", source);
-        if (utm_source) this.data.set("source", utm_source); // Overwrite source because FB appends utm_source
+        if (source && !utm_source) this.data.set("source", source);
+        if (utm_source) this.data.set("source", utm_source);
 
         // Handle geolocation (conditionally append if available)
         if (this.longitude) this.data.set("longitude", this.longitude);
