@@ -109,6 +109,7 @@ type LeadDetails struct {
 	YearsInBusiness   int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
 	NumLocations      int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
 	City              string `json:"city" form:"city" schema:"city"`
+	ButtonClicked     string `json:"button_clicked" form:"button_clicked" schema:"button_clicked"`
 }
 
 type LeadList struct {

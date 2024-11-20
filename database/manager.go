@@ -565,7 +565,8 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	application.num_locations,
 	application.city,
 	application.lead_application_id,
-	l.lead_type_id
+	l.lead_type_id,
+	lm.button_clicked
 	FROM lead l
 	LEFT JOIN vending_type vt ON l.vending_type_id = vt.vending_type_id
 	LEFT JOIN vending_location vl ON l.vending_location_id = vl.vending_location_id
@@ -580,7 +581,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	var adCampaign, medium, source, referrer, landingPage, ip, keyword, channel, language, email, facebookClickId, facebookClientId sql.NullString
 	var vendingType, vendingLocation, message, externalId, userAgent, clickId, googleClientId sql.NullString
 
-	var website, companyName, city sql.NullString
+	var website, companyName, city, buttonClicked sql.NullString
 	var yearsInBusiness, numLocations, leadApplicationId sql.NullInt64
 
 	err := row.Scan(
@@ -614,6 +615,7 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 		&city,
 		&leadApplicationId,
 		&leadDetails.LeadTypeID,
+		&buttonClicked,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -623,6 +625,9 @@ func GetLeadDetails(leadID string) (types.LeadDetails, error) {
 	}
 
 	// Map the nullable fields to your struct
+	if buttonClicked.Valid {
+		leadDetails.ButtonClicked = buttonClicked.String
+	}
 	if leadApplicationId.Valid {
 		leadDetails.LeadApplicationID = int(leadApplicationId.Int64)
 	}
