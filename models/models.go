@@ -428,3 +428,20 @@ type LeadAppointment struct {
 	Link              string `json:"link" form:"link" schema:"link"`
 	Attendee          string `json:"attendee" form:"attendee" schema:"attendee"`
 }
+
+type MiniSite struct {
+	MiniSiteID            int    `json:"mini_site_id" form:"mini_site_id" schema:"mini_site_id"`
+	LeadID                int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	DMA                   string `json:"dma" form:"dma" schema:"dma"`
+	CompanyName           string `json:"company_name" form:"company_name" schema:"company_name"`
+	Website               string `json:"website" form:"website" schema:"website"`
+	DateCreated           int64  `json:"date_created" form:"date_created" schema:"date_created"`
+	VercelProjectID       string `json:"vercel_project_id" form:"vercel_project_id" schema:"vercel_project_id"`
+	GoogleAnalyticsID     string `json:"google_analytics_id" form:"google_analytics_id" schema:"google_analytics_id"`
+	GoogleAdsID           string `json:"google_ads_id" form:"google_ads_id" schema:"google_ads_id"`
+	GoogleAdsConvLabel    string `json:"google_ads_conv_label" form:"google_ads_conv_label" schema:"google_ads_conv_label"`
+	FacebookAdsDatasetID  string `json:"facebook_ads_dataset_id" form:"facebook_ads_dataset_id" schema:"facebook_ads_dataset_id"`
+	ForwardingPhoneNumber string `json:"forwarding_phone_number" form:"forwarding_phone_number" schema:"forwarding_phone_number"`
+	PhoneNumber           string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email                 string `json:"email" form:"email" schema:"email"`
+}

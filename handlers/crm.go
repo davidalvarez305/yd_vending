@@ -116,6 +116,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/mini-site/") {
+			if len(path) > len("/crm/mini-site/") && helpers.IsNumeric(path[len("/crm/mini-site/"):]) {
+				GetMiniSiteDetail(w, r, ctx)
+				return
+			}
+		}
 		if strings.HasPrefix(path, "/crm/product-slot-assignment/") {
 			if len(path) > len("/crm/product-slot-assignment/") && helpers.IsNumeric(path[len("/crm/product-slot-assignment/"):]) {
 				GetProductSlotAssignmentDetail(w, r, ctx)
@@ -142,6 +148,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			GetLocation(w, r, ctx)
 		case "/crm/ticket":
 			GetTickets(w, r, ctx)
+		case "/crm/mini-site":
+			GetMiniSites(w, r, ctx)
 		case "/crm/upload-images":
 			GetImagesUpload(w, r, ctx)
 		default:
@@ -215,6 +223,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/mini-site/") {
+			if len(path) > len("/crm/mini-site/") && helpers.IsNumeric(path[len("/crm/mini-site/"):]) {
+				PutMiniSite(w, r)
+				return
+			}
+		}
 		if len(path) > len("/crm/slot-price-log/") && helpers.IsNumeric(path[len("/crm/slot-price-log/"):]) {
 			PutSlotPriceLog(w, r)
 			return
@@ -265,6 +279,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		switch path {
 		case "/crm/business":
 			PostBusiness(w, r)
+		case "/crm/mini-site":
+			PostMiniSite(w, r)
 		case "/crm/machine":
 			PostMachine(w, r)
 		case "/crm/email-schedule":
@@ -319,6 +335,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(path, "/crm/vendor/") {
 			if len(path) > len("/crm/vendor/") && helpers.IsNumeric(path[len("/crm/vendor/"):]) {
 				DeleteVendor(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(path, "/crm/mini-site/") {
+			if len(path) > len("/crm/mini-site/") && helpers.IsNumeric(path[len("/crm/mini-site/"):]) {
+				DeleteMiniSite(w, r)
 				return
 			}
 		}
@@ -5159,6 +5181,299 @@ func PutLeadApplication(w http.ResponseWriter, r *http.Request) {
 		Data: map[string]any{
 			"AlertHeader":  "Success!",
 			"AlertMessage": "Lead application has been successfully updated.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostMiniSite(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.MiniSiteForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateMiniSite(form)
+	if err != nil {
+		fmt.Printf("Error creating mini site: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create mini site.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	pageNum := 1 // Always default to one after new entity is created
+	miniSites, totalRows, err := database.GetMiniSiteList(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting mini sites from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "mini_sites_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "mini_sites_table.html",
+		Data: map[string]any{
+			"MiniSites":   miniSites,
+			"CurrentPage": pageNum,
+			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetMiniSites(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.CRM_TEMPLATES_DIR + "mini_sites.html"
+	createVendorForm := constants.CRM_TEMPLATES_DIR + "create_mini_site_form.html"
+	table := constants.PARTIAL_TEMPLATES_DIR + "mini_sites_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile, table, createVendorForm}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	pageNum := 1
+	hasPageNum := r.URL.Query().Has("page_num")
+
+	if hasPageNum {
+		num, err := strconv.Atoi(r.URL.Query().Get("page_num"))
+		if err == nil && num > 1 {
+			pageNum = num
+		}
+	}
+
+	miniSites, totalRows, err := database.GetMiniSiteList(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting mini sites from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Mini Sites — " + constants.CompanyName
+
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["MiniSites"] = miniSites
+	data["MaxPages"] = helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage)
+	data["CurrentPage"] = pageNum
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func DeleteMiniSite(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	miniSiteId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/mini-site/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteMiniSite(miniSiteId)
+	if err != nil {
+		fmt.Printf("Error deleting mini site: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete mini site.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	pageNum := 1
+	miniSites, totalRows, err := database.GetMiniSiteList(pageNum)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting mini sites from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "mini_sites_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "mini_sites_table.html",
+		Data: map[string]any{
+			"MiniSites":   miniSites,
+			"CurrentPage": pageNum,
+			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetMiniSiteDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "mini_site_detail.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	miniSiteId := strings.TrimPrefix(r.URL.Path, "/crm/mini-site/")
+
+	miniSiteDetails, err := database.GetMiniSiteDetails(miniSiteId)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting mini site details from DB.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Vendor Detail — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["MiniSite"] = miniSiteDetails
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func PutMiniSite(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.MiniSiteForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	miniSiteId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/mini-site/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.UpdateMiniSite(miniSiteId, form)
+	if err != nil {
+		fmt.Printf("Error updating mini site: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update mini site.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Mini site updated successfully.",
 		},
 	}
 

@@ -5315,3 +5315,258 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 
 	return nil
 }
+
+func GetMiniSiteList(pageNum int) ([]types.MiniSiteList, int, error) {
+	var miniSites []types.MiniSiteList
+
+	query := `SELECT m.mini_site_id,
+		m.company_name,
+		CONCAT(l.first_name, ' ', l.last_name),
+		m.website,
+		m.date_created
+		FROM mini_site AS m
+		JOIN lead AS l ON m.lead_id = l.lead_id
+		ORDER BY m.date_created ASC
+		LIMIT $1
+		OFFSET $2`
+
+	var offset = (pageNum - 1) * int(constants.LeadsPerPage)
+
+	rows, err := DB.Query(query, constants.LeadsPerPage, offset)
+	if err != nil {
+		return miniSites, 0, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var site types.MiniSiteList
+		var dateCreated time.Time
+		var website sql.NullString
+
+		err := rows.Scan(&site.MiniSiteID,
+			&site.CompanyName,
+			&site.OwnerName,
+			&website,
+			&dateCreated,
+		)
+		if err != nil {
+			return miniSites, 0, fmt.Errorf("error scanning row: %w", err)
+		}
+		site.DateCreated = utils.FormatTimestamp(dateCreated.Unix())
+
+		if website.Valid {
+			site.Website = website.String
+		}
+
+		miniSites = append(miniSites, site)
+	}
+
+	if err := rows.Err(); err != nil {
+		return miniSites, 0, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return miniSites, len(miniSites), nil
+}
+
+func CreateMiniSite(form types.MiniSiteForm) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO mini_site (
+			lead_id,
+			dma,
+			company_name,
+			website,
+			date_created,
+			vercel_project_id,
+			google_analytics_id,
+			google_ads_id,
+			google_ads_conv_label,
+			facebook_ads_dataset_id,
+			forwarding_phone_number,
+			phone_number,
+			email
+		) VALUES ($1, $2, $3, $4, to_timestamp($5)::timestamptz AT TIME ZONE 'America/New_York', $6, $7, $8, $9, $10, $11, $12, $13)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	leadID := utils.CreateNullInt(form.LeadID)
+	dma := utils.CreateNullString(form.DMA)
+	companyName := utils.CreateNullString(form.CompanyName)
+	website := utils.CreateNullString(form.Website)
+	dateCreated := utils.CreateNullInt64(form.DateCreated)
+	vercelProjectID := utils.CreateNullString(form.VercelProjectID)
+	googleAnalyticsID := utils.CreateNullString(form.GoogleAnalyticsID)
+	googleAdsID := utils.CreateNullString(form.GoogleAdsID)
+	googleAdsConvLabel := utils.CreateNullString(form.GoogleAdsConvLabel)
+	facebookAdsDatasetID := utils.CreateNullString(form.FacebookAdsDatasetID)
+	forwardingPhoneNumber := utils.CreateNullString(form.ForwardingPhoneNumber)
+	phoneNumber := utils.CreateNullString(form.PhoneNumber)
+	email := utils.CreateNullString(form.Email)
+
+	_, err = stmt.Exec(
+		leadID,
+		dma,
+		companyName,
+		website,
+		dateCreated,
+		vercelProjectID,
+		googleAnalyticsID,
+		googleAdsID,
+		googleAdsConvLabel,
+		facebookAdsDatasetID,
+		forwardingPhoneNumber,
+		phoneNumber,
+		email,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func DeleteMiniSite(id int) error {
+	sqlStatement := `
+        DELETE FROM mini_site WHERE mini_site_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
+	query := `SELECT 
+        m.mini_site_id,
+        m.lead_id,
+        m.dma,
+        m.company_name,
+        m.website,
+        m.date_created,
+        m.vercel_project_id,
+        m.google_analytics_id,
+        m.google_ads_id,
+        m.google_ads_conv_label,
+        m.facebook_ads_dataset_id,
+        m.forwarding_phone_number,
+        m.phone_number,
+        m.email
+    FROM mini_site AS m
+    WHERE m.mini_site_id = $1`
+
+	var miniSite models.MiniSite
+
+	row := DB.QueryRow(query, miniSiteId)
+
+	var (
+		dma                   sql.NullString
+		vercelProjectID       sql.NullString
+		googleAnalyticsID     sql.NullString
+		googleAdsID           sql.NullString
+		googleAdsConvLabel    sql.NullString
+		facebookAdsDatasetID  sql.NullString
+		forwardingPhoneNumber sql.NullString
+	)
+
+	err := row.Scan(
+		&miniSite.MiniSiteID,
+		&miniSite.LeadID,
+		&dma,
+		&miniSite.CompanyName,
+		&miniSite.Website,
+		&miniSite.DateCreated,
+		&vercelProjectID,
+		&googleAnalyticsID,
+		&googleAdsID,
+		&googleAdsConvLabel,
+		&facebookAdsDatasetID,
+		&forwardingPhoneNumber,
+		&miniSite.PhoneNumber,
+		&miniSite.Email,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return miniSite, fmt.Errorf("no mini site found with ID %s", miniSiteId)
+		}
+		return miniSite, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	if dma.Valid {
+		miniSite.DMA = dma.String
+	}
+	if vercelProjectID.Valid {
+		miniSite.VercelProjectID = vercelProjectID.String
+	}
+	if googleAnalyticsID.Valid {
+		miniSite.GoogleAnalyticsID = googleAnalyticsID.String
+	}
+	if googleAdsID.Valid {
+		miniSite.GoogleAdsID = googleAdsID.String
+	}
+	if googleAdsConvLabel.Valid {
+		miniSite.GoogleAdsConvLabel = googleAdsConvLabel.String
+	}
+	if facebookAdsDatasetID.Valid {
+		miniSite.FacebookAdsDatasetID = facebookAdsDatasetID.String
+	}
+	if forwardingPhoneNumber.Valid {
+		miniSite.ForwardingPhoneNumber = forwardingPhoneNumber.String
+	}
+
+	return miniSite, nil
+}
+
+func UpdateMiniSite(miniSiteId int, form types.MiniSiteForm) error {
+	stmt, err := DB.Prepare(`
+		UPDATE minisite
+		SET company_name = $2,
+		    website = $3,
+		    phone_number = COALESCE($4, phone_number),
+		    email = COALESCE($5, phone_number),
+		    google_analytics_id = $6,
+		    google_ads_id = $7,
+		    vercel_project_id = $8,
+		    facebook_ads_dataset_id = $9,
+		    forwarding_phone_number = $10,
+		    dma = $11
+		WHERE minisite_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	companyName := utils.CreateNullString(form.CompanyName)
+	website := utils.CreateNullString(form.Website)
+	phoneNumber := utils.CreateNullString(form.PhoneNumber)
+	email := utils.CreateNullString(form.Email)
+	googleAnalyticsID := utils.CreateNullString(form.GoogleAnalyticsID)
+	googleAdsID := utils.CreateNullString(form.GoogleAdsID)
+	vercelProjectID := utils.CreateNullString(form.VercelProjectID)
+	facebookAdsDatasetID := utils.CreateNullString(form.FacebookAdsDatasetID)
+	forwardingPhoneNumber := utils.CreateNullString(form.ForwardingPhoneNumber)
+	dma := utils.CreateNullString(form.DMA)
+
+	_, err = stmt.Exec(
+		miniSiteId,
+		companyName,
+		website,
+		phoneNumber,
+		email,
+		googleAnalyticsID,
+		googleAdsID,
+		vercelProjectID,
+		facebookAdsDatasetID,
+		forwardingPhoneNumber,
+		dma,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
