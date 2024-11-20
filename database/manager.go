@@ -507,7 +507,7 @@ func GetLeadList(params types.GetLeadsParams) ([]types.LeadList, int, error) {
 		if err != nil {
 			return nil, 0, fmt.Errorf("error scanning row: %w", err)
 		}
-		lead.CreatedAt = utils.FormatTimestamp(createdAt.Unix())
+		lead.CreatedAt = utils.FormatTimestampEST(createdAt.Unix())
 
 		if vendingTypeId.Valid {
 			lead.VendingTypeID = int(vendingTypeId.Int64)
