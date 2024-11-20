@@ -1,4 +1,4 @@
-const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid"];
+const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
 
 export class MarketingHelper {
     constructor() {
@@ -51,10 +51,12 @@ export class MarketingHelper {
         const source = this.landingPage.searchParams.get("source") || this.getSource();
         const medium = this.landingPage.searchParams.get("medium") || this.getMedium();
         const channel = this.landingPage.searchParams.get("channel") || this.getChannel();
+        const utm_source = this.landingPage.searchParams.get("utm_source");
 
-        if (source) this.data.set("source", source);
         if (medium) this.data.set("medium", medium);
         if (channel) this.data.set("channel", channel);
+        if (source) this.data.set("source", source);
+        if (utm_source) this.data.set("source", utm_source); // Overwrite source because FB appends utm_source
 
         // Handle geolocation (conditionally append if available)
         if (this.longitude) this.data.set("longitude", this.longitude);
