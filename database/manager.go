@@ -5372,19 +5372,12 @@ func CreateMiniSite(form types.MiniSiteForm) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO mini_site (
 			lead_id,
-			dma,
-			company_name,
 			website,
 			date_created,
 			vercel_project_id,
-			google_analytics_id,
-			google_ads_id,
-			google_ads_conv_label,
-			facebook_ads_dataset_id,
-			forwarding_phone_number,
 			phone_number,
 			email
-		) VALUES ($1, $2, $3, $4, to_timestamp($5)::timestamptz AT TIME ZONE 'America/New_York', $6, $7, $8, $9, $10, $11, $12, $13)
+		) VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4, $5, $6)
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -5392,31 +5385,17 @@ func CreateMiniSite(form types.MiniSiteForm) error {
 	defer stmt.Close()
 
 	leadID := utils.CreateNullInt(form.LeadID)
-	dma := utils.CreateNullString(form.DMA)
-	companyName := utils.CreateNullString(form.CompanyName)
 	website := utils.CreateNullString(form.Website)
 	dateCreated := utils.CreateNullInt64(form.DateCreated)
 	vercelProjectID := utils.CreateNullString(form.VercelProjectID)
-	googleAnalyticsID := utils.CreateNullString(form.GoogleAnalyticsID)
-	googleAdsID := utils.CreateNullString(form.GoogleAdsID)
-	googleAdsConvLabel := utils.CreateNullString(form.GoogleAdsConvLabel)
-	facebookAdsDatasetID := utils.CreateNullString(form.FacebookAdsDatasetID)
-	forwardingPhoneNumber := utils.CreateNullString(form.ForwardingPhoneNumber)
 	phoneNumber := utils.CreateNullString(form.PhoneNumber)
 	email := utils.CreateNullString(form.Email)
 
 	_, err = stmt.Exec(
 		leadID,
-		dma,
-		companyName,
 		website,
 		dateCreated,
 		vercelProjectID,
-		googleAnalyticsID,
-		googleAdsID,
-		googleAdsConvLabel,
-		facebookAdsDatasetID,
-		forwardingPhoneNumber,
 		phoneNumber,
 		email,
 	)
@@ -5439,26 +5418,40 @@ func DeleteMiniSite(id int) error {
 	return nil
 }
 
-func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
+func GetMiniSiteDetails(miniSiteId string) (types.MiniSiteDetails, error) {
 	query := `SELECT 
-        m.mini_site_id,
-        m.lead_id,
-        m.dma,
-        m.company_name,
-        m.website,
-        m.date_created,
-        m.vercel_project_id,
-        m.google_analytics_id,
-        m.google_ads_id,
-        m.google_ads_conv_label,
-        m.facebook_ads_dataset_id,
-        m.forwarding_phone_number,
-        m.phone_number,
-        m.email
-    FROM mini_site AS m
-    WHERE m.mini_site_id = $1`
+		m.mini_site_id,
+		m.lead_id,
+		v_dma.value AS dma,
+		v_company_name.value AS company_name,
+		m.website,
+		m.date_created,
+		m.vercel_project_id,
+		v_ga_id.value AS google_analytics_id,
+		v_google_ads_id.value AS google_ads_id,
+		v_google_ads_conv_label.value AS google_ads_conv_label,
+		v_facebook_ads_dataset_id.value AS facebook_ads_dataset_id,
+		v_forwarding_phone_number.value AS forwarding_phone_number,
+		m.phone_number,
+		m.email
+	FROM mini_site AS m
+	LEFT JOIN mini_site_environment_variable AS v_dma 
+		ON v_dma.mini_site_id = m.mini_site_id AND v_dma.key = 'NEXT_PUBLIC_DMA'
+	LEFT JOIN mini_site_environment_variable AS v_company_name 
+		ON v_company_name.mini_site_id = m.mini_site_id AND v_company_name.key = 'NEXT_PUBLIC_COMPANY_NAME'
+	LEFT JOIN mini_site_environment_variable AS v_ga_id 
+		ON v_ga_id.mini_site_id = m.mini_site_id AND v_ga_id.key = 'NEXT_PUBLIC_GOOGLE_ANALYTICS_ID'
+	LEFT JOIN mini_site_environment_variable AS v_google_ads_id 
+		ON v_google_ads_id.mini_site_id = m.mini_site_id AND v_google_ads_id.key = 'NEXT_PUBLIC_GOOGLE_ADS_ID'
+	LEFT JOIN mini_site_environment_variable AS v_google_ads_conv_label 
+		ON v_google_ads_conv_label.mini_site_id = m.mini_site_id AND v_google_ads_conv_label.key = 'NEXT_PUBLIC_GOOGLE_ADS_CONV_LABEL'
+	LEFT JOIN mini_site_environment_variable AS v_facebook_ads_dataset_id 
+		ON v_facebook_ads_dataset_id.mini_site_id = m.mini_site_id AND v_facebook_ads_dataset_id.key = 'NEXT_PUBLIC_FACEBOOK_ADS_DATASET_ID'
+	LEFT JOIN mini_site_environment_variable AS v_forwarding_phone_number 
+		ON v_forwarding_phone_number.mini_site_id = m.mini_site_id AND v_forwarding_phone_number.key = 'NEXT_PUBLIC_FORWARDING_PHONE_NUMBER'
+	WHERE m.mini_site_id = $1;`
 
-	var miniSite models.MiniSite
+	var miniSite types.MiniSiteDetails
 
 	row := DB.QueryRow(query, miniSiteId)
 
@@ -5470,6 +5463,7 @@ func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
 		googleAdsConvLabel    sql.NullString
 		facebookAdsDatasetID  sql.NullString
 		forwardingPhoneNumber sql.NullString
+		companyName           sql.NullString
 		dateCreated           time.Time
 	)
 
@@ -5477,7 +5471,7 @@ func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
 		&miniSite.MiniSiteID,
 		&miniSite.LeadID,
 		&dma,
-		&miniSite.CompanyName,
+		&companyName,
 		&miniSite.Website,
 		&dateCreated,
 		&vercelProjectID,
@@ -5494,6 +5488,10 @@ func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
 			return miniSite, fmt.Errorf("no mini site found with ID %s", miniSiteId)
 		}
 		return miniSite, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	if companyName.Valid {
+		miniSite.CompanyName = companyName.String
 	}
 
 	if dma.Valid {
@@ -5525,16 +5523,10 @@ func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
 func UpdateMiniSite(miniSiteId int, form types.MiniSiteForm) error {
 	stmt, err := DB.Prepare(`
 		UPDATE minisite
-		SET company_name = $2,
-		    website = $3,
-		    phone_number = COALESCE($4, phone_number),
-		    email = COALESCE($5, phone_number),
-		    google_analytics_id = $6,
-		    google_ads_id = $7,
-		    vercel_project_id = $8,
-		    facebook_ads_dataset_id = $9,
-		    forwarding_phone_number = $10,
-		    dma = $11
+		SET website = $2,
+		    phone_number = COALESCE($3, phone_number),
+		    email = COALESCE($4, phone_number),
+		    vercel_project_id = COALESCE($5, vercel_project_id)
 		WHERE minisite_id = $1
 	`)
 	if err != nil {
@@ -5542,29 +5534,17 @@ func UpdateMiniSite(miniSiteId int, form types.MiniSiteForm) error {
 	}
 	defer stmt.Close()
 
-	companyName := utils.CreateNullString(form.CompanyName)
 	website := utils.CreateNullString(form.Website)
 	phoneNumber := utils.CreateNullString(form.PhoneNumber)
 	email := utils.CreateNullString(form.Email)
-	googleAnalyticsID := utils.CreateNullString(form.GoogleAnalyticsID)
-	googleAdsID := utils.CreateNullString(form.GoogleAdsID)
 	vercelProjectID := utils.CreateNullString(form.VercelProjectID)
-	facebookAdsDatasetID := utils.CreateNullString(form.FacebookAdsDatasetID)
-	forwardingPhoneNumber := utils.CreateNullString(form.ForwardingPhoneNumber)
-	dma := utils.CreateNullString(form.DMA)
 
 	_, err = stmt.Exec(
 		miniSiteId,
-		companyName,
 		website,
 		phoneNumber,
 		email,
-		googleAnalyticsID,
-		googleAdsID,
 		vercelProjectID,
-		facebookAdsDatasetID,
-		forwardingPhoneNumber,
-		dma,
 	)
 	if err != nil {
 		return fmt.Errorf("error executing statement: %w", err)
