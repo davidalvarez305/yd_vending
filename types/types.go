@@ -979,3 +979,11 @@ type OIDCTokenConfig struct {
 	Enabled    bool   `json:"enabled" form:"enabled" schema:"enabled"`
 	IssuerMode string `json:"issuerMode" form:"issuerMode" schema:"issuerMode"`
 }
+
+type VercelProjectForm struct {
+	CSRFToken         *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Slug              *string `json:"slug" form:"slug" schema:"slug"`
+	ProjectName       *string `json:"project_name" form:"project_name" schema:"project_name"`
+	Headline          *string `json:"headline" form:"headline" schema:"headline"`
+	HeadlineFieldName *string `json:"headline_field_name" form:"headline_field_name" schema:"headline_field_name"`
+}

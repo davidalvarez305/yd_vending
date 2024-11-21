@@ -5470,6 +5470,7 @@ func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
 		googleAdsConvLabel    sql.NullString
 		facebookAdsDatasetID  sql.NullString
 		forwardingPhoneNumber sql.NullString
+		dateCreated           time.Time
 	)
 
 	err := row.Scan(
@@ -5478,7 +5479,7 @@ func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
 		&dma,
 		&miniSite.CompanyName,
 		&miniSite.Website,
-		&miniSite.DateCreated,
+		&dateCreated,
 		&vercelProjectID,
 		&googleAnalyticsID,
 		&googleAdsID,
@@ -5516,6 +5517,7 @@ func GetMiniSiteDetails(miniSiteId string) (models.MiniSite, error) {
 	if forwardingPhoneNumber.Valid {
 		miniSite.ForwardingPhoneNumber = forwardingPhoneNumber.String
 	}
+	miniSite.DateCreated = dateCreated.Unix()
 
 	return miniSite, nil
 }

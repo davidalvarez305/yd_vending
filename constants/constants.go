@@ -21,6 +21,11 @@ const (
 	OptInEventName           string = "opt_in"
 	QuoteEventName           string = "quote"
 	LeadEventName            string = "Lead"
+
+	MiniSiteBuildCommand string = "npm run build"
+	MiniSiteDevCommand   string = "npm run dev"
+	MiniSiteBranchName   string = "main"
+	MiniSiteFramework    string = "nextjs"
 )
 
 var (
@@ -70,6 +75,9 @@ var (
 	MaxConnectionLifetime        string
 	CompanyEmail                 string
 	GoogleWebhookKey             string
+	VercelAccessToken            string
+	MiniSiteGithubRepo           string
+	MiniSiteGithubTeamID         string
 )
 
 func Init() {
@@ -119,6 +127,9 @@ func Init() {
 	CompanyEmail = os.Getenv("COMPANY_EMAIL")
 	GoogleAdsID = os.Getenv("GOOGLE_ADS_ID")
 	GoogleAdsCallConversionLabel = os.Getenv("GOOGLE_ADS_CALL_CONVERSION_LABEL")
+	VercelAccessToken = os.Getenv("VERCEL_ACCESS_TOKEN")
+	MiniSiteGithubRepo = os.Getenv("MINI_SITE_GITHUB_REPO")
+	MiniSiteGithubTeamID = os.Getenv("MINI_SITE_GITHUB_TEAM_ID")
 }
 
 var TEMPLATES_DIR = "./templates/"
