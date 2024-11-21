@@ -129,3 +129,45 @@ func DeleteVercelProject(slug, teamID, token, projectId string) error {
 
 	return nil
 }
+
+func GetVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId string) (types.GetVercelEnvironmentVariablesResponse, error) {
+	url := fmt.Sprintf(
+		"https://api.vercel.com/v9/projects/%s/env?decrypt=true&gitBranch=%s&slug=%s&source=vercel-cli:pull&teamId=%s",
+		projectId, gitBranch, slug, teamId,
+	)
+
+	var response types.GetVercelEnvironmentVariablesResponse
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return response, fmt.Errorf("error creating request: %w", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return response, fmt.Errorf("error sending request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return response, fmt.Errorf("failed to read response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		log.Printf("Error from Vercel: %s", bodyString)
+		return response, fmt.Errorf("error fetching environment variables, received status code: %d", resp.StatusCode)
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return response, fmt.Errorf("error decoding response: %w", err)
+	}
+
+	log.Printf("Successfully fetched Vercel environment variables with status code %d", resp.StatusCode)
+
+	return response, nil
+}

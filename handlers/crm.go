@@ -5532,8 +5532,6 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := constants.VercelAccessToken
-	teamID := constants.MiniSiteGithubTeamID
 	slug := helpers.SafeString(form.Slug)
 	projectName := helpers.SafeString(form.ProjectName)
 
@@ -5582,7 +5580,7 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		RootDirectory:   "src",
 	}
 
-	resp, err := services.CreateVercelProject(slug, teamID, token, project)
+	resp, err := services.CreateVercelProject(slug, constants.MiniSiteGithubTeamID, constants.VercelAccessToken, project)
 	if err != nil {
 		fmt.Printf("Error creating vercel project: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -5597,7 +5595,7 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	variables, err := services.GetVercelProjectEnvinronmentVariables(resp.ID)
+	variables, err := services.GetVercelEnvironmentVariables(constants.VercelAccessToken, resp.ID, constants.MiniSiteBranchName, slug, constants.MiniSiteGithubTeamID)
 	if err != nil {
 		fmt.Printf("Error creating vercel project environment variables: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -5612,7 +5610,7 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateVercelProjectEnvironmentVariables(variables)
+	err = database.CreateMiniSiteEnvironmentVariables(miniSiteId, variables)
 	if err != nil {
 		fmt.Printf("Error creating vercel project environment variables: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

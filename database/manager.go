@@ -5594,3 +5594,32 @@ func UpdateMiniSiteProjectID(miniSiteId int, projectId string) error {
 
 	return nil
 }
+
+func CreateMiniSiteEnvironmentVariables(miniSiteID int, response types.GetVercelEnvironmentVariablesResponse) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO mini_site_environment_variable (
+			mini_site_id,
+			environment_variable_unique_id,
+			key,
+			value
+		) VALUES ($1, $2, $3, $4)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	for _, env := range response.Envs {
+		_, err = stmt.Exec(
+			miniSiteID,
+			env.ID,
+			env.Key,
+			env.Value,
+		)
+		if err != nil {
+			return fmt.Errorf("error executing statement for environment variable %s: %w", env.Key, err)
+		}
+	}
+
+	return nil
+}

@@ -133,6 +133,11 @@ type UpdateVercelProjectResponse struct {
 	WebAnalytics                         WebAnalytics          `json:"webAnalytics" form:"webAnalytics" schema:"webAnalytics"`
 }
 
+type GetVercelEnvironmentVariablesResponse struct {
+	Envs       []EnvironmentVariable `json:"envs"`
+	Pagination Pagination            `json:"pagination"`
+}
+
 type Analytics struct {
 	CanceledAt          *int64 `json:"canceledAt"`
 	DisabledAt          int64  `json:"disabledAt"`
@@ -324,4 +329,8 @@ type WebAnalytics struct {
 	Enabled       bool   `json:"enabled"`
 	Source        string `json:"source"`
 	CustomMetrics string `json:"customMetrics"`
+}
+
+type Pagination struct {
+	TotalCount int `json:"totalCount"`
 }
