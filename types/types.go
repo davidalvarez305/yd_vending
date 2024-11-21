@@ -919,20 +919,21 @@ type LeadAppointmentForm struct {
 }
 
 type MiniSiteForm struct {
-	CSRFToken             *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	LeadID                *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	DMA                   *string `json:"dma" form:"dma" schema:"dma"`
-	VercelProjectID       *string `json:"vercel_project_id" form:"vercel_project_id" schema:"vercel_project_id"`
-	GoogleAnalyticsID     *string `json:"google_analytics_id" form:"google_analytics_id" schema:"google_analytics_id"`
-	GoogleAdsID           *string `json:"google_ads_id" form:"google_ads_id" schema:"google_ads_id"`
-	GoogleAdsConvLabel    *string `json:"google_ads_conv_label" form:"google_ads_conv_label" schema:"google_ads_conv_label"`
-	FacebookAdsDatasetID  *string `json:"facebook_ads_dataset_id" form:"facebook_ads_dataset_id" schema:"facebook_ads_dataset_id"`
-	ForwardingPhoneNumber *string `json:"forwarding_phone_number" form:"forwarding_phone_number" schema:"forwarding_phone_number"`
-	PhoneNumber           *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email                 *string `json:"email" form:"email" schema:"email"`
-	CompanyName           *string `json:"company_name" form:"company_name" schema:"company_name"`
-	Website               *string `json:"website" form:"website" schema:"website"`
-	DateCreated           *int64  `json:"date_created" form:"date_created" schema:"date_created"`
+	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	LeadID          *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	VercelProjectID *string `json:"vercel_project_id" form:"vercel_project_id" schema:"vercel_project_id"`
+	Website         *string `json:"website" form:"website" schema:"website"`
+	DateCreated     *int64  `json:"date_created" form:"date_created" schema:"date_created"`
+	PhoneNumber     *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email           *string `json:"email" form:"email" schema:"email"`
+
+	DMA                   *string `json:"dma" form:"dma" schema:"dma" env:"NEXT_PUBLIC_DMA"`
+	GoogleAnalyticsID     *string `json:"google_analytics_id" form:"google_analytics_id" schema:"google_analytics_id" env:"NEXT_PUBLIC_GOOGLE_ANALYTICS_ID"`
+	GoogleAdsID           *string `json:"google_ads_id" form:"google_ads_id" schema:"google_ads_id" env:"NEXT_PUBLIC_GOOGLE_ADS_ID"`
+	GoogleAdsConvLabel    *string `json:"google_ads_conv_label" form:"google_ads_conv_label" schema:"google_ads_conv_label" env:"NEXT_PUBLIC_GOOGLE_ADS_CONV_LABEL"`
+	FacebookAdsDatasetID  *string `json:"facebook_ads_dataset_id" form:"facebook_ads_dataset_id" schema:"facebook_ads_dataset_id" env:"NEXT_PUBLIC_FACEBOOK_ADS_DATASET_ID"`
+	ForwardingPhoneNumber *string `json:"forwarding_phone_number" form:"forwarding_phone_number" schema:"forwarding_phone_number" env:"NEXT_PUBLIC_FORWARDING_PHONE_NUMBER"`
+	CompanyName           *string `json:"company_name" form:"company_name" schema:"company_name" env:"NEXT_PUBLIC_COMPANY_NAME"`
 }
 
 type MiniSiteList struct {
@@ -944,9 +945,7 @@ type MiniSiteList struct {
 }
 
 type VercelProjectForm struct {
-	CSRFToken         *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	Slug              *string `json:"slug" form:"slug" schema:"slug"`
-	ProjectName       *string `json:"project_name" form:"project_name" schema:"project_name"`
-	Headline          *string `json:"next_public_headline" form:"next_public_headline" schema:"next_public_headline"`
-	HeadlineFieldName *string `json:"headline_field_name" form:"headline_field_name" schema:"headline_field_name"`
+	CSRFToken   *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	Slug        *string `json:"slug" form:"slug" schema:"slug"`
+	ProjectName *string `json:"project_name" form:"project_name" schema:"project_name"`
 }

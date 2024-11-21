@@ -5537,15 +5537,31 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 	slug := helpers.SafeString(form.Slug)
 	projectName := helpers.SafeString(form.ProjectName)
 
+	miniSiteDetails, err := database.GetMiniSiteDetails(fmt.Sprint(miniSiteId))
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get mini site details from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	envVars := []types.EnvironmentVariable{}
-	v := reflect.ValueOf(form)
+	v := reflect.ValueOf(miniSiteDetails)
 
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		value := v.Field(i)
 		key := utils.ToUpperSnakeCase(field.Name)
 
-		if value.IsNil() || !strings.Contains(key, "NEXT_PUBLIC_") {
+		envTag := field.Tag.Get("env")
+		if !strings.Contains(envTag, "NEXT_PUBLIC_") || value.IsNil() {
 			continue
 		}
 
