@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -5502,7 +5503,6 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 
 	var form types.VercelProjectForm
 	err = decoder.Decode(&form, r.PostForm)
-
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -5521,23 +5521,39 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 	teamID := constants.MiniSiteGithubTeamID
 	slug := helpers.SafeString(form.Slug)
 	projectName := helpers.SafeString(form.ProjectName)
-	headline := helpers.SafeString(form.Headline)
-	headlineFieldName := helpers.SafeString(form.HeadlineFieldName)
+
+	envVars := []types.EnvironmentVariable{}
+	v := reflect.ValueOf(form)
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Type().Field(i)
+		value := v.Field(i)
+		key := utils.ToUpperSnakeCase(field.Name)
+
+		if value.IsNil() || !strings.Contains(key, "NEXT_PUBLIC_") {
+			continue
+		}
+
+		var val string
+		if ptr, ok := value.Interface().(*string); ok && ptr != nil {
+			val = *ptr
+		}
+
+		envVars = append(envVars, types.EnvironmentVariable{
+			Key:    key,
+			Target: "production",
+			Type:   "plain",
+			Value:  val,
+		})
+	}
 
 	project := types.VercelProjectRequestBody{
 		Name:                              projectName,
 		BuildCommand:                      constants.MiniSiteBuildCommand,
 		DevCommand:                        constants.MiniSiteDevCommand,
 		EnableAffectedProjectsDeployments: true,
-		EnvironmentVariables: []types.EnvironmentVariable{
-			{
-				Key:    headlineFieldName,
-				Target: "production",
-				Type:   "plain",
-				Value:  headline,
-			},
-		},
-		Framework: constants.MiniSiteFramework,
+		EnvironmentVariables:              envVars,
+		Framework:                         constants.MiniSiteFramework,
 		GitRepository: types.GitRepository{
 			Repo: constants.MiniSiteGithubRepo,
 			Type: "github",
@@ -5551,7 +5567,7 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		RootDirectory:   "src",
 	}
 
-	err = services.CreateVercelProject(slug, teamID, token, project)
+	err = services.ManageVercelProject("POST", slug, teamID, token, project, "")
 	if err != nil {
 		fmt.Printf("Error creating vercel project: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -5574,96 +5590,5 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 			"AlertMessage": "Vercel project launched successfully.",
 		},
 	}
-
-	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-}
-
-func PutVercelProject(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Printf("Error parsing form: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Invalid request.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	var form types.VercelProjectForm
-	err = decoder.Decode(&form, r.PostForm)
-
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Error decoding form data.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	token := constants.VercelAccessToken
-	teamID := constants.MiniSiteGithubTeamID
-	slug := helpers.SafeString(form.Slug)
-	projectName := helpers.SafeString(form.ProjectName)
-	headline := helpers.SafeString(form.Headline)
-	headlineFieldName := helpers.SafeString(form.HeadlineFieldName)
-
-	project := types.VercelProjectRequestBody{
-		Name:                              projectName,
-		BuildCommand:                      constants.MiniSiteBuildCommand,
-		DevCommand:                        constants.MiniSiteDevCommand,
-		EnableAffectedProjectsDeployments: true,
-		EnvironmentVariables: []types.EnvironmentVariable{
-			{
-				Key:    headlineFieldName,
-				Target: "production",
-				Type:   "pain",
-				Value:  headline,
-			},
-		},
-		Framework: constants.MiniSiteFramework,
-		GitRepository: types.GitRepository{
-			Repo: constants.MiniSiteGithubRepo,
-			Type: "github",
-		},
-		OutputDirectory: constants.MiniSiteOutputDirectory,
-		PublicSource:    true,
-		RootDirectory:   "src",
-	}
-
-	err = services.UpdateVercelProject(slug, teamID, token, project)
-	if err != nil {
-		fmt.Printf("Error updating vercel project: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to update vercel project.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	tmplCtx := types.DynamicPartialTemplate{
-		TemplateName: "success.html",
-		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
-		Data: map[string]any{
-			"AlertHeader":  "Success!",
-			"AlertMessage": "Vercel project updated successfully.",
-		},
-	}
-
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

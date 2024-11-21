@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -126,4 +127,10 @@ func AddPhonePrefixIfNeeded(phoneNumber string) string {
 		return "+1" + phoneNumber
 	}
 	return phoneNumber
+}
+
+func ToUpperSnakeCase(fieldName string) string {
+	re := regexp.MustCompile("([a-z0-9])([A-Z])")
+	snake := re.ReplaceAllString(fieldName, `${1}_${2}`)
+	return strings.ToUpper(snake)
 }
