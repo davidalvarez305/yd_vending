@@ -5517,6 +5517,21 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	miniSiteId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/mini-site")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Couldn't get mini site ID from request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	token := constants.VercelAccessToken
 	teamID := constants.MiniSiteGithubTeamID
 	slug := helpers.SafeString(form.Slug)
@@ -5567,7 +5582,22 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		RootDirectory:   "src",
 	}
 
-	err = services.ManageVercelProject("POST", slug, teamID, token, project, "")
+	resp, err := services.CreateVercelProject(slug, teamID, token, project)
+	if err != nil {
+		fmt.Printf("Error creating vercel project: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create vercel project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.UpdateMiniSiteProjectID(miniSiteId, resp.ID)
 	if err != nil {
 		fmt.Printf("Error creating vercel project: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

@@ -943,43 +943,6 @@ type MiniSiteList struct {
 	DateCreated string `json:"date_created" form:"date_created" schema:"date_created"`
 }
 
-type VercelProjectRequestBody struct {
-	Name                                 string                `json:"name,omitempty" form:"name" schema:"name"`
-	BuildCommand                         string                `json:"buildCommand,omitempty" form:"buildCommand" schema:"buildCommand"`
-	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep,omitempty" form:"commandForIgnoringBuildStep" schema:"commandForIgnoringBuildStep"`
-	DevCommand                           string                `json:"devCommand,omitempty" form:"devCommand" schema:"devCommand"`
-	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments,omitempty" form:"enableAffectedProjectsDeployments" schema:"enableAffectedProjectsDeployments"`
-	EnvironmentVariables                 []EnvironmentVariable `json:"environmentVariables,omitempty" form:"environmentVariables" schema:"environmentVariables"`
-	Framework                            string                `json:"framework,omitempty" form:"framework" schema:"framework"`
-	GitRepository                        GitRepository         `json:"gitRepository,omitempty" form:"gitRepository" schema:"gitRepository"`
-	InstallCommand                       string                `json:"installCommand,omitempty" form:"installCommand" schema:"installCommand"`
-	OIDCTokenConfig                      OIDCTokenConfig       `json:"oidcTokenConfig,omitempty" form:"oidcTokenConfig" schema:"oidcTokenConfig"`
-	OutputDirectory                      string                `json:"outputDirectory,omitempty" form:"outputDirectory" schema:"outputDirectory"`
-	PublicSource                         bool                  `json:"publicSource,omitempty" form:"publicSource" schema:"publicSource"`
-	RootDirectory                        string                `json:"rootDirectory,omitempty" form:"rootDirectory" schema:"rootDirectory"`
-	ServerlessFunctionRegion             string                `json:"serverlessFunctionRegion,omitempty" form:"serverlessFunctionRegion" schema:"serverlessFunctionRegion"`
-	ServerlessFunctionZeroConfigFailover interface{}           `json:"serverlessFunctionZeroConfigFailover,omitempty" form:"serverlessFunctionZeroConfigFailover" schema:"serverlessFunctionZeroConfigFailover"`
-	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink,omitempty" form:"skipGitConnectDuringLink" schema:"skipGitConnectDuringLink"`
-}
-
-type EnvironmentVariable struct {
-	Key       string `json:"key,omitempty" form:"key" schema:"key"`
-	Target    string `json:"target,omitempty" form:"target" schema:"target"`
-	GitBranch string `json:"gitBranch,omitempty" form:"gitBranch" schema:"gitBranch"`
-	Type      string `json:"type,omitempty" form:"type" schema:"type"`
-	Value     string `json:"value,omitempty" form:"value" schema:"value"`
-}
-
-type GitRepository struct {
-	Repo string `json:"repo,omitempty" form:"repo" schema:"repo"`
-	Type string `json:"type,omitempty" form:"type" schema:"type"`
-}
-
-type OIDCTokenConfig struct {
-	Enabled    bool   `json:"enabled,omitempty" form:"enabled" schema:"enabled"`
-	IssuerMode string `json:"issuerMode,omitempty" form:"issuerMode" schema:"issuerMode"`
-}
-
 type VercelProjectForm struct {
 	CSRFToken         *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	Slug              *string `json:"slug" form:"slug" schema:"slug"`

@@ -5572,3 +5572,25 @@ func UpdateMiniSite(miniSiteId int, form types.MiniSiteForm) error {
 
 	return nil
 }
+
+func UpdateMiniSiteProjectID(miniSiteId int, projectId string) error {
+	stmt, err := DB.Prepare(`
+		UPDATE minisite
+		SET vercel_project_id = $2
+		WHERE minisite_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		miniSiteId,
+		projectId,
+	)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
