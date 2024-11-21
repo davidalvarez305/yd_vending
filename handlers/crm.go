@@ -5485,7 +5485,7 @@ func CreateVercelProject(w http.ResponseWriter, r *http.Request) {
 	slug := "some-slug"
 	teamID := "your-team-id"
 
-	project := types.CreateVercelProjectBody{
+	project := types.VercelProjectRequestBody{
 		Name:                              "a-project-name",
 		BuildCommand:                      "SOME_STRING_VALUE",
 		CommandForIgnoringBuildStep:       "SOME_STRING_VALUE",
@@ -5539,6 +5539,99 @@ func CreateVercelProject(w http.ResponseWriter, r *http.Request) {
 		Data: map[string]any{
 			"AlertHeader":  "Success!",
 			"AlertMessage": "Vercel project launched successfully.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func UpdateVercelProject(w http.ResponseWriter, r *http.Request) {
+	token := constants.VercelAccessToken
+	slug := "some-slug"
+	teamID := "your-team-id"
+
+	project := types.VercelProjectRequestBody{
+		Name:                              "a-project-name",
+		BuildCommand:                      "SOME_STRING_VALUE",
+		CommandForIgnoringBuildStep:       "SOME_STRING_VALUE",
+		DevCommand:                        "SOME_STRING_VALUE",
+		EnableAffectedProjectsDeployments: true,
+		EnvironmentVariables: []types.EnvironmentVariable{
+			{
+				Key:       "SOME_KEY",
+				Target:    "production",
+				GitBranch: "main",
+				Type:      "system",
+				Value:     "SOME_VALUE",
+			},
+		},
+		Framework: "nextjs",
+		GitRepository: types.GitRepository{
+			Repo: "your-github-repo",
+			Type: "github",
+		},
+		InstallCommand: "SOME_INSTALL_COMMAND",
+		OIDCTokenConfig: types.OIDCTokenConfig{
+			Enabled:    true,
+			IssuerMode: "team",
+		},
+		OutputDirectory:                      "dist",
+		PublicSource:                         true,
+		RootDirectory:                        "src",
+		ServerlessFunctionRegion:             "us-east-1",
+		ServerlessFunctionZeroConfigFailover: nil,
+		SkipGitConnectDuringLink:             true,
+	}
+
+	err := services.UpdateVercelProject(slug, teamID, token, project)
+	if err != nil {
+		fmt.Printf("Error updating vercel project: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update vercel project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Vercel project updated successfully.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func DeleteVercelProject(w http.ResponseWriter, r *http.Request) {
+	err := services.DeleteVercelProject(slug, teamID, token, projectId)
+	if err != nil {
+		fmt.Printf("Error updating vercel project: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update vercel project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Vercel project updated successfully.",
 		},
 	}
 

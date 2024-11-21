@@ -943,7 +943,7 @@ type MiniSiteList struct {
 	DateCreated string `json:"date_created" form:"date_created" schema:"date_created"`
 }
 
-type CreateVercelProjectBody struct {
+type VercelProjectRequestBody struct {
 	Name                                 string                `json:"name" form:"name" schema:"name"`
 	BuildCommand                         string                `json:"buildCommand" form:"buildCommand" schema:"buildCommand"`
 	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep" form:"commandForIgnoringBuildStep" schema:"commandForIgnoringBuildStep"`
