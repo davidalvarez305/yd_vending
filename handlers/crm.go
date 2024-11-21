@@ -5558,10 +5558,9 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		value := v.Field(i)
-		key := utils.ToUpperSnakeCase(field.Name)
 
-		envTag := field.Tag.Get("env")
-		if !strings.Contains(envTag, "NEXT_PUBLIC_") || value.IsNil() {
+		envTag := field.Tag.Get(constants.MiniSiteEnvironmentVariablesTag)
+		if !strings.Contains(envTag, constants.MiniSiteEnvironmentVariablesPrefix) || value.IsNil() {
 			continue
 		}
 
@@ -5571,7 +5570,7 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		}
 
 		envVars = append(envVars, types.EnvironmentVariable{
-			Key:    key,
+			Key:    envTag,
 			Target: "production",
 			Type:   "plain",
 			Value:  val,
