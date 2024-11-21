@@ -301,28 +301,28 @@ type WebsiteContext struct {
 }
 
 type FacebookUserData struct {
-	Phone           string `json:"ph"`
-	FirstName       string `json:"fn"`
-	LastName        string `json:"ln"`
-	Email           string `json:"em"`
-	ClientIPAddress string `json:"client_ip_address"`
-	ClientUserAgent string `json:"client_user_agent"`
-	FBC             string `json:"fbc"`
-	FBP             string `json:"fbp"`
-	State           string `json:"st"`
-	ExternalID      string `json:"external_id"`
+	Phone           string `json:"ph,omitempty" form:"ph,omitempty" schema:"ph,omitempty"`
+	FirstName       string `json:"fn,omitempty" form:"fn,omitempty" schema:"fn,omitempty"`
+	LastName        string `json:"ln,omitempty" form:"ln,omitempty" schema:"ln,omitempty"`
+	Email           string `json:"em,omitempty" form:"em,omitempty" schema:"em,omitempty"`
+	ClientIPAddress string `json:"client_ip_address,omitempty" form:"client_ip_address,omitempty" schema:"client_ip_address,omitempty"`
+	ClientUserAgent string `json:"client_user_agent,omitempty" form:"client_user_agent,omitempty" schema:"client_user_agent,omitempty"`
+	FBC             string `json:"fbc,omitempty" form:"fbc,omitempty" schema:"fbc,omitempty"`
+	FBP             string `json:"fbp,omitempty" form:"fbp,omitempty" schema:"fbp,omitempty"`
+	State           string `json:"st,omitempty" form:"st,omitempty" schema:"st,omitempty"`
+	ExternalID      string `json:"external_id,omitempty" form:"external_id,omitempty" schema:"external_id,omitempty"`
 }
 
 type FacebookEventData struct {
-	EventName      string           `json:"event_name"`
-	EventTime      int64            `json:"event_time"`
-	ActionSource   string           `json:"action_source"`
-	EventSourceURL string           `json:"event_source_url"`
-	UserData       FacebookUserData `json:"user_data"`
+	EventName      string           `json:"event_name,omitempty" form:"event_name,omitempty" schema:"event_name,omitempty"`
+	EventTime      int64            `json:"event_time,omitempty" form:"event_time,omitempty" schema:"event_time,omitempty"`
+	ActionSource   string           `json:"action_source,omitempty" form:"action_source,omitempty" schema:"action_source,omitempty"`
+	EventSourceURL string           `json:"event_source_url,omitempty" form:"event_source_url,omitempty" schema:"event_source_url,omitempty"`
+	UserData       FacebookUserData `json:"user_data,omitempty" form:"user_data,omitempty" schema:"user_data,omitempty"`
 }
 
 type FacebookPayload struct {
-	Data []FacebookEventData `json:"data"`
+	Data []FacebookEventData `json:"data,omitempty" form:"data,omitempty" schema:"data,omitempty"`
 }
 
 type GoogleEventParamsLead struct {
@@ -944,40 +944,40 @@ type MiniSiteList struct {
 }
 
 type VercelProjectRequestBody struct {
-	Name                                 string                `json:"name" form:"name" schema:"name"`
-	BuildCommand                         string                `json:"buildCommand" form:"buildCommand" schema:"buildCommand"`
-	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep" form:"commandForIgnoringBuildStep" schema:"commandForIgnoringBuildStep"`
-	DevCommand                           string                `json:"devCommand" form:"devCommand" schema:"devCommand"`
-	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments" form:"enableAffectedProjectsDeployments" schema:"enableAffectedProjectsDeployments"`
-	EnvironmentVariables                 []EnvironmentVariable `json:"environmentVariables" form:"environmentVariables" schema:"environmentVariables"`
-	Framework                            string                `json:"framework" form:"framework" schema:"framework"`
-	GitRepository                        GitRepository         `json:"gitRepository" form:"gitRepository" schema:"gitRepository"`
-	InstallCommand                       string                `json:"installCommand" form:"installCommand" schema:"installCommand"`
-	OIDCTokenConfig                      OIDCTokenConfig       `json:"oidcTokenConfig" form:"oidcTokenConfig" schema:"oidcTokenConfig"`
-	OutputDirectory                      string                `json:"outputDirectory" form:"outputDirectory" schema:"outputDirectory"`
-	PublicSource                         bool                  `json:"publicSource" form:"publicSource" schema:"publicSource"`
-	RootDirectory                        string                `json:"rootDirectory" form:"rootDirectory" schema:"rootDirectory"`
-	ServerlessFunctionRegion             string                `json:"serverlessFunctionRegion" form:"serverlessFunctionRegion" schema:"serverlessFunctionRegion"`
-	ServerlessFunctionZeroConfigFailover interface{}           `json:"serverlessFunctionZeroConfigFailover" form:"serverlessFunctionZeroConfigFailover" schema:"serverlessFunctionZeroConfigFailover"`
-	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink" form:"skipGitConnectDuringLink" schema:"skipGitConnectDuringLink"`
+	Name                                 string                `json:"name,omitempty" form:"name" schema:"name"`
+	BuildCommand                         string                `json:"buildCommand,omitempty" form:"buildCommand" schema:"buildCommand"`
+	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep,omitempty" form:"commandForIgnoringBuildStep" schema:"commandForIgnoringBuildStep"`
+	DevCommand                           string                `json:"devCommand,omitempty" form:"devCommand" schema:"devCommand"`
+	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments,omitempty" form:"enableAffectedProjectsDeployments" schema:"enableAffectedProjectsDeployments"`
+	EnvironmentVariables                 []EnvironmentVariable `json:"environmentVariables,omitempty" form:"environmentVariables" schema:"environmentVariables"`
+	Framework                            string                `json:"framework,omitempty" form:"framework" schema:"framework"`
+	GitRepository                        GitRepository         `json:"gitRepository,omitempty" form:"gitRepository" schema:"gitRepository"`
+	InstallCommand                       string                `json:"installCommand,omitempty" form:"installCommand" schema:"installCommand"`
+	OIDCTokenConfig                      OIDCTokenConfig       `json:"oidcTokenConfig,omitempty" form:"oidcTokenConfig" schema:"oidcTokenConfig"`
+	OutputDirectory                      string                `json:"outputDirectory,omitempty" form:"outputDirectory" schema:"outputDirectory"`
+	PublicSource                         bool                  `json:"publicSource,omitempty" form:"publicSource" schema:"publicSource"`
+	RootDirectory                        string                `json:"rootDirectory,omitempty" form:"rootDirectory" schema:"rootDirectory"`
+	ServerlessFunctionRegion             string                `json:"serverlessFunctionRegion,omitempty" form:"serverlessFunctionRegion" schema:"serverlessFunctionRegion"`
+	ServerlessFunctionZeroConfigFailover interface{}           `json:"serverlessFunctionZeroConfigFailover,omitempty" form:"serverlessFunctionZeroConfigFailover" schema:"serverlessFunctionZeroConfigFailover"`
+	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink,omitempty" form:"skipGitConnectDuringLink" schema:"skipGitConnectDuringLink"`
 }
 
 type EnvironmentVariable struct {
-	Key       string `json:"key" form:"key" schema:"key"`
-	Target    string `json:"target" form:"target" schema:"target"`
-	GitBranch string `json:"gitBranch" form:"gitBranch" schema:"gitBranch"`
-	Type      string `json:"type" form:"type" schema:"type"`
-	Value     string `json:"value" form:"value" schema:"value"`
+	Key       string `json:"key,omitempty" form:"key" schema:"key"`
+	Target    string `json:"target,omitempty" form:"target" schema:"target"`
+	GitBranch string `json:"gitBranch,omitempty" form:"gitBranch" schema:"gitBranch"`
+	Type      string `json:"type,omitempty" form:"type" schema:"type"`
+	Value     string `json:"value,omitempty" form:"value" schema:"value"`
 }
 
 type GitRepository struct {
-	Repo string `json:"repo" form:"repo" schema:"repo"`
-	Type string `json:"type" form:"type" schema:"type"`
+	Repo string `json:"repo,omitempty" form:"repo" schema:"repo"`
+	Type string `json:"type,omitempty" form:"type" schema:"type"`
 }
 
 type OIDCTokenConfig struct {
-	Enabled    bool   `json:"enabled" form:"enabled" schema:"enabled"`
-	IssuerMode string `json:"issuerMode" form:"issuerMode" schema:"issuerMode"`
+	Enabled    bool   `json:"enabled,omitempty" form:"enabled" schema:"enabled"`
+	IssuerMode string `json:"issuerMode,omitempty" form:"issuerMode" schema:"issuerMode"`
 }
 
 type VercelProjectForm struct {

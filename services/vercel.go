@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -36,6 +37,12 @@ func CreateVercelProject(slug, teamID, token string, project types.VercelProject
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("VERCEL CREATION ERROR: %s\n", bodyString)
 		return fmt.Errorf("error creating project, received status code: %d", resp.StatusCode)
 	}
 
@@ -70,7 +77,13 @@ func UpdateVercelProject(slug, teamID, token string, project types.VercelProject
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("error creating project, received status code: %d", resp.StatusCode)
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("VERCEL UPDATING ERROR: %s\n", bodyString)
+		return fmt.Errorf("error updating project, received status code: %d", resp.StatusCode)
 	}
 
 	log.Printf("Successfully created Vercel project with status code %d", resp.StatusCode)
@@ -97,7 +110,13 @@ func DeleteVercelProject(slug, teamID, token, projectId string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("error creating project, received status code: %d", resp.StatusCode)
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("VERCEL DELETING ERROR: %s\n", bodyString)
+		return fmt.Errorf("error deleting project, received status code: %d", resp.StatusCode)
 	}
 
 	log.Printf("Successfully created Vercel project with status code %d", resp.StatusCode)

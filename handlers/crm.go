@@ -267,6 +267,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostSlot(w, r)
 			return
 		}
+		if strings.HasPrefix(path, "/crm/mini-site/") && strings.Contains(path, "/vercel-project") {
+			PostVercelProject(w, r)
+			return
+		}
 		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/location-assignment") {
 			PostLocationAssignment(w, r)
 			return
@@ -281,8 +285,6 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostBusiness(w, r)
 		case "/crm/mini-site":
 			PostMiniSite(w, r)
-		case "/crm/vercel":
-			PostVercelProject(w, r)
 		case "/crm/machine":
 			PostMachine(w, r)
 		case "/crm/email-schedule":
@@ -5406,7 +5408,7 @@ func GetMiniSiteDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	}
 
 	data := ctx
-	data["PageTitle"] = "Vendor Detail — " + constants.CompanyName
+	data["PageTitle"] = "Mini Site Detail — " + constants.CompanyName
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["MiniSite"] = miniSiteDetails
@@ -5529,11 +5531,10 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		EnableAffectedProjectsDeployments: true,
 		EnvironmentVariables: []types.EnvironmentVariable{
 			{
-				Key:       headline,
-				Target:    "production",
-				GitBranch: constants.MiniSiteBranchName,
-				Type:      "system",
-				Value:     headlineFieldName,
+				Key:    headlineFieldName,
+				Target: "production",
+				Type:   "plain",
+				Value:  headline,
 			},
 		},
 		Framework: constants.MiniSiteFramework,
@@ -5541,7 +5542,11 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 			Repo: constants.MiniSiteGithubRepo,
 			Type: "github",
 		},
-		OutputDirectory: "dist",
+		OIDCTokenConfig: types.OIDCTokenConfig{
+			Enabled:    true,
+			IssuerMode: "team",
+		},
+		OutputDirectory: constants.MiniSiteOutputDirectory,
 		PublicSource:    true,
 		RootDirectory:   "src",
 	}
@@ -5620,11 +5625,10 @@ func PutVercelProject(w http.ResponseWriter, r *http.Request) {
 		EnableAffectedProjectsDeployments: true,
 		EnvironmentVariables: []types.EnvironmentVariable{
 			{
-				Key:       headline,
-				Target:    "production",
-				GitBranch: constants.MiniSiteBranchName,
-				Type:      "system",
-				Value:     headlineFieldName,
+				Key:    headlineFieldName,
+				Target: "production",
+				Type:   "pain",
+				Value:  headline,
 			},
 		},
 		Framework: constants.MiniSiteFramework,
@@ -5632,7 +5636,7 @@ func PutVercelProject(w http.ResponseWriter, r *http.Request) {
 			Repo: constants.MiniSiteGithubRepo,
 			Type: "github",
 		},
-		OutputDirectory: "dist",
+		OutputDirectory: constants.MiniSiteOutputDirectory,
 		PublicSource:    true,
 		RootDirectory:   "src",
 	}

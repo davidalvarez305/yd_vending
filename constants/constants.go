@@ -22,10 +22,11 @@ const (
 	QuoteEventName           string = "quote"
 	LeadEventName            string = "Lead"
 
-	MiniSiteBuildCommand string = "npm run build"
-	MiniSiteDevCommand   string = "npm run dev"
-	MiniSiteBranchName   string = "main"
-	MiniSiteFramework    string = "nextjs"
+	MiniSiteBuildCommand    string = "npm run build"
+	MiniSiteDevCommand      string = "npm run dev"
+	MiniSiteBranchName      string = "main"
+	MiniSiteFramework       string = "nextjs"
+	MiniSiteOutputDirectory string = ".next"
 )
 
 var (
