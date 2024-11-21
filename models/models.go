@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type VendingType struct {
 	VendingTypeID int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
@@ -437,12 +439,12 @@ type MiniSite struct {
 	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
 	Email           string `json:"email" form:"email" schema:"email"`
 	VercelProjectID string `json:"vercel_project_id" form:"vercel_project_id" schema:"vercel_project_id"`
+}
 
-	DMA                   string `json:"dma" form:"dma" schema:"dma" env:"NEXT_PUBLIC_DMA"`
-	GoogleAnalyticsID     string `json:"google_analytics_id" form:"google_analytics_id" schema:"google_analytics_id" env:"NEXT_PUBLIC_GOOGLE_ANALYTICS_ID"`
-	GoogleAdsID           string `json:"google_ads_id" form:"google_ads_id" schema:"google_ads_id" env:"NEXT_PUBLIC_GOOGLE_ADS_ID"`
-	GoogleAdsConvLabel    string `json:"google_ads_conv_label" form:"google_ads_conv_label" schema:"google_ads_conv_label" env:"NEXT_PUBLIC_GOOGLE_ADS_CONV_LABEL"`
-	FacebookAdsDatasetID  string `json:"facebook_ads_dataset_id" form:"facebook_ads_dataset_id" schema:"facebook_ads_dataset_id" env:"NEXT_PUBLIC_FACEBOOK_ADS_DATASET_ID"`
-	ForwardingPhoneNumber string `json:"forwarding_phone_number" form:"forwarding_phone_number" schema:"forwarding_phone_number" env:"NEXT_PUBLIC_FORWARDING_PHONE_NUMBER"`
-	CompanyName           string `json:"company_name" form:"company_name" schema:"company_name" env:"NEXT_PUBLIC_COMPANY_NAME"`
+type MiniSiteEnvironmentVariable struct {
+	MiniSiteEnvironmentVariableID int    `json:"mini_site_environment_variable_id" form:"mini_site_environment_variable_id" schema:"mini_site_environment_variable_id"`
+	MiniSiteID                    int    `json:"mini_site_id" form:"mini_site_id" schema:"mini_site_id"`
+	EnvironmentVariableUniqueID   string `json:"environment_variable_unique_id" form:"environment_variable_unique_id" schema:"environment_variable_unique_id"`
+	Key                           string `json:"key" form:"key" schema:"key"`
+	Value                         string `json:"value" form:"value" schema:"value"`
 }

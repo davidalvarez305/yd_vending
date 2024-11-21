@@ -5537,23 +5537,8 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 	slug := helpers.SafeString(form.Slug)
 	projectName := helpers.SafeString(form.ProjectName)
 
-	miniSiteDetails, err := database.GetMiniSiteDetails(fmt.Sprint(miniSiteId))
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to get mini site details from DB.",
-			},
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
 	envVars := []types.EnvironmentVariable{}
-	v := reflect.ValueOf(miniSiteDetails)
+	v := reflect.ValueOf(form)
 
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
@@ -5605,6 +5590,36 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
 				"Message": "Failed to create vercel project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	variables, err := services.GetVercelProjectEnvinronmentVariables(resp.ID)
+	if err != nil {
+		fmt.Printf("Error creating vercel project environment variables: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get vercel project environment variables.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateVercelProjectEnvironmentVariables(variables)
+	if err != nil {
+		fmt.Printf("Error creating vercel project environment variables: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create vercel project environment variables.",
 			},
 		}
 		w.WriteHeader(http.StatusInternalServerError)
