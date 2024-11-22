@@ -156,6 +156,15 @@ type GetVercelEnvironmentVariablesResponse struct {
 	EnvsArray []EnvVariable `json:"envsarray"`
 }
 
+type UpdateVercelEnvironmentVariablesBody struct {
+	ID        string `json:"id,omitempty" form:"id" schema:"id"`
+	Key       string `json:"key,omitempty" form:"key" schema:"key"`
+	Target    string `json:"target,omitempty" form:"target" schema:"target"`
+	GitBranch string `json:"gitBranch,omitempty" form:"gitBranch" schema:"gitBranch"`
+	Type      string `json:"type,omitempty" form:"type" schema:"type"`
+	Value     string `json:"value,omitempty" form:"value" schema:"value"`
+}
+
 type Analytics struct {
 	CanceledAt          *int64 `json:"canceledAt"`
 	DisabledAt          int64  `json:"disabledAt"`

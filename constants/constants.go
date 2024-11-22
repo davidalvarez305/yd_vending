@@ -22,13 +22,15 @@ const (
 	QuoteEventName           string = "quote"
 	LeadEventName            string = "Lead"
 
-	MiniSiteBuildCommand               string = "npm run build"
-	MiniSiteDevCommand                 string = "npm run dev"
-	MiniSiteBranchName                 string = "main"
-	MiniSiteFramework                  string = "nextjs"
-	MiniSiteOutputDirectory            string = ".next"
-	MiniSiteEnvironmentVariablesTag    string = "env"
-	MiniSiteEnvironmentVariablesPrefix string = "NEXT_PUBLIC_"
+	MiniSiteBuildCommand                    string = "npm run build"
+	MiniSiteDevCommand                      string = "npm run dev"
+	MiniSiteBranchName                      string = "main"
+	MiniSiteFramework                       string = "nextjs"
+	MiniSiteOutputDirectory                 string = ".next"
+	MiniSiteEnvironmentVariablesTag         string = "env"
+	MiniSiteEnvironmentVariablesPrefix      string = "NEXT_PUBLIC_"
+	VercelProjectEnvinronmentVariableTarget string = "production"
+	VercelProjectEnvinronmentVariableType   string = "plain"
 )
 
 var (
@@ -80,7 +82,7 @@ var (
 	GoogleWebhookKey             string
 	VercelAccessToken            string
 	MiniSiteGithubRepo           string
-	MiniSiteGithubTeamID         string
+	MiniSiteVercelTeamID         string
 )
 
 func Init() {
@@ -132,7 +134,7 @@ func Init() {
 	GoogleAdsCallConversionLabel = os.Getenv("GOOGLE_ADS_CALL_CONVERSION_LABEL")
 	VercelAccessToken = os.Getenv("VERCEL_ACCESS_TOKEN")
 	MiniSiteGithubRepo = os.Getenv("MINI_SITE_GITHUB_REPO")
-	MiniSiteGithubTeamID = os.Getenv("MINI_SITE_GITHUB_TEAM_ID")
+	MiniSiteVercelTeamID = os.Getenv("MINI_SITE_GITHUB_TEAM_ID")
 }
 
 var TEMPLATES_DIR = "./templates/"

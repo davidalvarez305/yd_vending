@@ -230,6 +230,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/mini-site/") {
+			if len(path) > len("/crm/mini-site/") && helpers.IsNumeric(path[len("/crm/mini-site/"):]) && strings.Contains(path, "/env") {
+				PutVercelProjectEnvironmentVariables(w, r)
+				return
+			}
+		}
 		if len(path) > len("/crm/slot-price-log/") && helpers.IsNumeric(path[len("/crm/slot-price-log/"):]) {
 			PutSlotPriceLog(w, r)
 			return
@@ -5580,7 +5586,7 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		RootDirectory:   "src",
 	}
 
-	resp, err := services.CreateVercelProject(slug, constants.MiniSiteGithubTeamID, constants.VercelAccessToken, project)
+	resp, err := services.CreateVercelProject(slug, constants.MiniSiteVercelTeamID, constants.VercelAccessToken, project)
 	if err != nil {
 		fmt.Printf("Error creating vercel project: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -5633,5 +5639,147 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 			"AlertMessage": "Vercel project launched successfully.",
 		},
 	}
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PutVercelProjectEnvironmentVariables(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var form types.VercelProjectForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	miniSiteId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/mini-site/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	miniSite, err := database.GetMiniSiteDetails(fmt.Sprint(miniSiteId))
+	if err != nil {
+		fmt.Printf("Error querying mini site: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get mini site from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	slug := helpers.SafeString(form.Slug)
+
+	environmentVariables, err := database.GetMiniSiteEnvironmentVariablesByProject(miniSiteId)
+	if err != nil {
+		fmt.Printf("Error querying mini site environment variables: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get mini site environment variables from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var body []types.UpdateVercelEnvironmentVariablesBody
+
+	formValue := reflect.ValueOf(form)
+	formType := formValue.Type()
+
+	for i := 0; i < formValue.NumField(); i++ {
+		field := formValue.Field(i)
+		fieldType := formType.Field(i)
+
+		envTag := fieldType.Tag.Get(constants.MiniSiteEnvironmentVariablesTag)
+
+		if envTag == "" || !strings.Contains(envTag, constants.MiniSiteEnvironmentVariablesPrefix) {
+			continue
+		}
+
+		for _, environmentVariable := range environmentVariables {
+			if environmentVariable.Key == envTag {
+				body = append(body, types.UpdateVercelEnvironmentVariablesBody{
+					Key:       environmentVariable.Key,
+					Value:     field.String(),
+					ID:        environmentVariable.EnvironmentVariableUniqueID,
+					GitBranch: constants.MiniSiteBranchName,
+					Target:    constants.VercelProjectEnvinronmentVariableTarget,
+					Type:      constants.VercelProjectEnvinronmentVariableType,
+				})
+			}
+		}
+	}
+
+	err = database.UpdateMiniSiteEnvironmentVariables(miniSiteId, body)
+	if err != nil {
+		fmt.Printf("Error updating mini site: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update mini site.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = services.UpdateVercelEnvironmentVariables(constants.VercelAccessToken, miniSite.VercelProjectID, constants.MiniSiteBranchName, slug, constants.MiniSiteVercelTeamID, body)
+	if err != nil {
+		fmt.Printf("Error updating environment variables: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to update environment variables.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Mini site updated successfully.",
+		},
+	}
+
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }

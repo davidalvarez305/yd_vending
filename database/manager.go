@@ -5522,12 +5522,12 @@ func GetMiniSiteDetails(miniSiteId string) (types.MiniSiteDetails, error) {
 
 func UpdateMiniSite(miniSiteId int, form types.MiniSiteForm) error {
 	stmt, err := DB.Prepare(`
-		UPDATE minisite
+		UPDATE mini_site
 		SET website = $2,
 		    phone_number = COALESCE($3, phone_number),
 		    email = COALESCE($4, phone_number),
 		    vercel_project_id = COALESCE($5, vercel_project_id)
-		WHERE minisite_id = $1
+		WHERE mini_site_id = $1
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -5555,9 +5555,9 @@ func UpdateMiniSite(miniSiteId int, form types.MiniSiteForm) error {
 
 func UpdateMiniSiteProjectID(miniSiteId int, projectId string) error {
 	stmt, err := DB.Prepare(`
-		UPDATE minisite
+		UPDATE mini_site
 		SET vercel_project_id = $2
-		WHERE minisite_id = $1
+		WHERE mini_site_id = $1
 	`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
@@ -5602,4 +5602,71 @@ func CreateMiniSiteEnvironmentVariables(miniSiteID int, environmentVariables []t
 	}
 
 	return nil
+}
+
+func UpdateMiniSiteEnvironmentVariables(miniSiteID int, environmentVariables []types.UpdateVercelEnvironmentVariablesBody) error {
+	stmt, err := DB.Prepare(`
+		UPDATE mini_site_environment_variable
+		SET value = $1
+		WHERE key = $2 AND mini_site_id = $3 AND environment_variable_unique_id = $4
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	for _, env := range environmentVariables {
+		_, err = stmt.Exec(
+			env.Value,
+			env.Key,
+			miniSiteID,
+			env.ID,
+		)
+		if err != nil {
+			return fmt.Errorf("error executing statement for environment variable %s: %w", env.Key, err)
+		}
+	}
+
+	return nil
+}
+
+func GetMiniSiteEnvironmentVariablesByProject(miniSiteID int) ([]models.MiniSiteEnvironmentVariable, error) {
+	var environmentVariables []models.MiniSiteEnvironmentVariable
+
+	query := `SELECT mini_site_id,
+		mini_site_environment_variable_id,
+		environment_variable_unique_id,
+		key,
+		value
+		FROM mini_site_environment_variable
+		WHERE mini_site_id = $1;`
+
+	var variable models.MiniSiteEnvironmentVariable
+
+	rows, err := DB.Query(query, miniSiteID)
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(
+			&variable.MiniSiteID,
+			&variable.MiniSiteEnvironmentVariableID,
+			&variable.EnvironmentVariableUniqueID,
+			&variable.Key,
+			&variable.Value,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		environmentVariables = append(environmentVariables, variable)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during rows iteration: %w", err)
+	}
+
+	return environmentVariables, nil
 }

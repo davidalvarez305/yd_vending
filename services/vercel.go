@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/davidalvarez305/yd_vending/types"
 )
@@ -170,4 +172,55 @@ func GetVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId str
 	log.Printf("Successfully fetched Vercel environment variables with status code %d", resp.StatusCode)
 
 	return response, nil
+}
+
+func UpdateVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId string, body []types.UpdateVercelEnvironmentVariablesBody) error {
+	var wg sync.WaitGroup
+
+	for _, variable := range body {
+		wg.Add(1)
+
+		go func(variable types.UpdateVercelEnvironmentVariablesBody) {
+			defer wg.Done()
+
+			url := fmt.Sprintf(
+				"https://api.vercel.com/v9/projects/%s/env/%s?decrypt=true&gitBranch=%s&slug=%s&source=vercel-cli:pull&teamId=%s",
+				variable.ID, projectId, gitBranch, slug, teamId,
+			)
+
+			req, err := http.NewRequest("PATCH", url, nil)
+			if err != nil {
+				log.Printf("Error creating request for variable %s: %v", variable.ID, err)
+				return
+			}
+
+			req.Header.Set("Authorization", "Bearer "+token)
+			req.Header.Set("Content-Type", "application/json")
+
+			client := &http.Client{
+				Timeout: 30 * time.Second,
+			}
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Printf("Error sending request for variable %s: %v", variable.ID, err)
+				return
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				bodyBytes, err := io.ReadAll(resp.Body)
+				if err != nil {
+					log.Printf("Failed to read response body for variable %s: %v", variable.ID, err)
+					return
+				}
+				bodyString := string(bodyBytes)
+				log.Printf("Error from Vercel for variable %s: %s", variable.ID, bodyString)
+				return
+			}
+		}(variable)
+	}
+
+	wg.Wait()
+
+	return nil
 }
