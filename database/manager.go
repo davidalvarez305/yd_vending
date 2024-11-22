@@ -5589,7 +5589,7 @@ func CreateMiniSiteEnvironmentVariables(miniSiteID int, response types.GetVercel
 	}
 	defer stmt.Close()
 
-	for _, env := range response.Envs {
+	for _, env := range response.EnvsArray {
 		_, err = stmt.Exec(
 			miniSiteID,
 			env.ID,

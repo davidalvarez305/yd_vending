@@ -134,8 +134,7 @@ type UpdateVercelProjectResponse struct {
 }
 
 type GetVercelEnvironmentVariablesResponse struct {
-	Envs       []EnvironmentVariable `json:"envs"`
-	Pagination Pagination            `json:"pagination"`
+	EnvsArray []EnvVariable `json:"envsarrayRequired"`
 }
 
 type Analytics struct {
@@ -333,4 +332,28 @@ type WebAnalytics struct {
 
 type Pagination struct {
 	TotalCount int `json:"totalCount"`
+}
+
+type EnvVariable struct {
+	Comment              string       `json:"comment"`
+	ConfigurationID      *string      `json:"configurationId,omitempty"`
+	ContentHint          *ContentHint `json:"contentHint,omitempty"`
+	CreatedAt            int64        `json:"createdAt"`
+	CreatedBy            *string      `json:"createdBy,omitempty"`
+	CustomEnvironmentIDs []string     `json:"customEnvironmentIds"`
+	Decrypted            bool         `json:"decrypted"`
+	EdgeConfigID         *string      `json:"edgeConfigId,omitempty"`
+	EdgeConfigTokenID    *string      `json:"edgeConfigTokenId,omitempty"`
+	GitBranch            string       `json:"gitBranch"`
+	ID                   string       `json:"id"`
+	InternalContentHint  *ContentHint `json:"internalContentHint,omitempty"`
+	Key                  string       `json:"key"`
+	SunsetSecretID       *string      `json:"sunsetSecretId,omitempty"`
+	System               bool         `json:"system"`
+	Target               *Target      `json:"target"`
+	Type                 string       `json:"type"`
+	UpdatedAt            int64        `json:"updatedAt"`
+	UpdatedBy            *string      `json:"updatedBy,omitempty"`
+	Value                string       `json:"value"`
+	VSMValue             string       `json:"vsmValue"`
 }
