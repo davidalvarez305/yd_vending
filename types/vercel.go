@@ -1,5 +1,24 @@
 package types
 
+type VercelProjectRequestBody struct {
+	Name                                 string                `json:"name,omitempty" form:"name" schema:"name"`
+	BuildCommand                         string                `json:"buildCommand,omitempty" form:"buildCommand" schema:"buildCommand"`
+	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep,omitempty" form:"commandForIgnoringBuildStep" schema:"commandForIgnoringBuildStep"`
+	DevCommand                           string                `json:"devCommand,omitempty" form:"devCommand" schema:"devCommand"`
+	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments,omitempty" form:"enableAffectedProjectsDeployments" schema:"enableAffectedProjectsDeployments"`
+	EnvironmentVariables                 []EnvironmentVariable `json:"environmentVariables,omitempty" form:"environmentVariables" schema:"environmentVariables"`
+	Framework                            string                `json:"framework,omitempty" form:"framework" schema:"framework"`
+	GitRepository                        GitRepository         `json:"gitRepository,omitempty" form:"gitRepository" schema:"gitRepository"`
+	InstallCommand                       string                `json:"installCommand,omitempty" form:"installCommand" schema:"installCommand"`
+	OIDCTokenConfig                      OIDCTokenConfig       `json:"oidcTokenConfig,omitempty" form:"oidcTokenConfig" schema:"oidcTokenConfig"`
+	OutputDirectory                      string                `json:"outputDirectory,omitempty" form:"outputDirectory" schema:"outputDirectory"`
+	PublicSource                         bool                  `json:"publicSource,omitempty" form:"publicSource" schema:"publicSource"`
+	RootDirectory                        string                `json:"rootDirectory,omitempty" form:"rootDirectory" schema:"rootDirectory"`
+	ServerlessFunctionRegion             string                `json:"serverlessFunctionRegion,omitempty" form:"serverlessFunctionRegion" schema:"serverlessFunctionRegion"`
+	ServerlessFunctionZeroConfigFailover interface{}           `json:"serverlessFunctionZeroConfigFailover,omitempty" form:"serverlessFunctionZeroConfigFailover" schema:"serverlessFunctionZeroConfigFailover"`
+	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink,omitempty" form:"skipGitConnectDuringLink" schema:"skipGitConnectDuringLink"`
+}
+
 type CreateVercelProjectResponse struct {
 	AccountID                            string                `json:"accountId"`
 	Analytics                            Analytics             `json:"analytics"`
@@ -22,7 +41,7 @@ type CreateVercelProjectResponse struct {
 	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments"`
 	EnablePreviewFeedback                *bool                 `json:"enablePreviewFeedback"`
 	EnableProductionFeedback             *bool                 `json:"enableProductionFeedback"`
-	EnvVars                              []EnvVar              `json:"env"`
+	Env                                  []EnvVariable         `json:"env"`
 	Framework                            *string               `json:"framework"`
 	GitComments                          GitComments           `json:"gitComments"`
 	GitForkProtection                    bool                  `json:"gitForkProtection"`
@@ -88,7 +107,7 @@ type UpdateVercelProjectResponse struct {
 	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments" form:"enableAffectedProjectsDeployments" schema:"enableAffectedProjectsDeployments"`
 	EnablePreviewFeedback                *bool                 `json:"enablePreviewFeedback,omitempty" form:"enablePreviewFeedback" schema:"enablePreviewFeedback"`
 	EnableProductionFeedback             *bool                 `json:"enableProductionFeedback,omitempty" form:"enableProductionFeedback" schema:"enableProductionFeedback"`
-	EnvVars                              []EnvVar              `json:"env" form:"env" schema:"env"`
+	Env                                  []EnvVariable         `json:"env" form:"env" schema:"env"`
 	Framework                            *string               `json:"framework,omitempty" form:"framework" schema:"framework"`
 	GitComments                          GitComments           `json:"gitComments" form:"gitComments" schema:"gitComments"`
 	GitForkProtection                    bool                  `json:"gitForkProtection" form:"gitForkProtection" schema:"gitForkProtection"`
@@ -134,7 +153,7 @@ type UpdateVercelProjectResponse struct {
 }
 
 type GetVercelEnvironmentVariablesResponse struct {
-	EnvsArray []EnvVariable `json:"envsarrayRequired"`
+	EnvsArray []EnvVariable `json:"envsarray"`
 }
 
 type Analytics struct {
@@ -173,18 +192,6 @@ type DeploymentExpiration struct {
 	ExpirationDaysCanceled   int64 `json:"expirationDaysCanceled"`
 	ExpirationDaysErrored    int64 `json:"expirationDaysErrored"`
 	ExpirationDaysProduction int64 `json:"expirationDaysProduction"`
-}
-
-type EnvVar struct {
-	Comment         *string      `json:"comment"`
-	ConfigurationID *string      `json:"configurationId"`
-	ContentHint     *ContentHint `json:"contentHint"`
-	CreatedAt       int64        `json:"createdAt"`
-	CreatedBy       *string      `json:"createdBy"`
-	UpdatedAt       int64        `json:"updatedAt"`
-	UpdatedBy       *string      `json:"updatedBy"`
-	Value           string       `json:"value"`
-	VSMValue        string       `json:"vsmValue"`
 }
 
 type ContentHint struct {
@@ -251,33 +258,6 @@ type Microfrontends struct {
 	GroupIDs     []string `json:"groupIds"`
 	IsDefaultApp bool     `json:"isDefaultApp"`
 	UpdatedAt    int64    `json:"updatedAt"`
-}
-
-type VercelProjectRequestBody struct {
-	Name                                 string                `json:"name,omitempty" form:"name" schema:"name"`
-	BuildCommand                         string                `json:"buildCommand,omitempty" form:"buildCommand" schema:"buildCommand"`
-	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep,omitempty" form:"commandForIgnoringBuildStep" schema:"commandForIgnoringBuildStep"`
-	DevCommand                           string                `json:"devCommand,omitempty" form:"devCommand" schema:"devCommand"`
-	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments,omitempty" form:"enableAffectedProjectsDeployments" schema:"enableAffectedProjectsDeployments"`
-	EnvironmentVariables                 []EnvironmentVariable `json:"environmentVariables,omitempty" form:"environmentVariables" schema:"environmentVariables"`
-	Framework                            string                `json:"framework,omitempty" form:"framework" schema:"framework"`
-	GitRepository                        GitRepository         `json:"gitRepository,omitempty" form:"gitRepository" schema:"gitRepository"`
-	InstallCommand                       string                `json:"installCommand,omitempty" form:"installCommand" schema:"installCommand"`
-	OIDCTokenConfig                      OIDCTokenConfig       `json:"oidcTokenConfig,omitempty" form:"oidcTokenConfig" schema:"oidcTokenConfig"`
-	OutputDirectory                      string                `json:"outputDirectory,omitempty" form:"outputDirectory" schema:"outputDirectory"`
-	PublicSource                         bool                  `json:"publicSource,omitempty" form:"publicSource" schema:"publicSource"`
-	RootDirectory                        string                `json:"rootDirectory,omitempty" form:"rootDirectory" schema:"rootDirectory"`
-	ServerlessFunctionRegion             string                `json:"serverlessFunctionRegion,omitempty" form:"serverlessFunctionRegion" schema:"serverlessFunctionRegion"`
-	ServerlessFunctionZeroConfigFailover interface{}           `json:"serverlessFunctionZeroConfigFailover,omitempty" form:"serverlessFunctionZeroConfigFailover" schema:"serverlessFunctionZeroConfigFailover"`
-	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink,omitempty" form:"skipGitConnectDuringLink" schema:"skipGitConnectDuringLink"`
-}
-
-type EnvironmentVariable struct {
-	Key       string `json:"key,omitempty" form:"key" schema:"key"`
-	Target    string `json:"target,omitempty" form:"target" schema:"target"`
-	GitBranch string `json:"gitBranch,omitempty" form:"gitBranch" schema:"gitBranch"`
-	Type      string `json:"type,omitempty" form:"type" schema:"type"`
-	Value     string `json:"value,omitempty" form:"value" schema:"value"`
 }
 
 type GitRepository struct {
@@ -356,4 +336,12 @@ type EnvVariable struct {
 	UpdatedBy            *string      `json:"updatedBy,omitempty"`
 	Value                string       `json:"value"`
 	VSMValue             string       `json:"vsmValue"`
+}
+
+type EnvironmentVariable struct {
+	Key       string `json:"key,omitempty" form:"key" schema:"key"`
+	Target    string `json:"target,omitempty" form:"target" schema:"target"`
+	GitBranch string `json:"gitBranch,omitempty" form:"gitBranch" schema:"gitBranch"`
+	Type      string `json:"type,omitempty" form:"type" schema:"type"`
+	Value     string `json:"value,omitempty" form:"value" schema:"value"`
 }

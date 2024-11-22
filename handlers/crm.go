@@ -5595,22 +5595,7 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	variables, err := services.GetVercelEnvironmentVariables(constants.VercelAccessToken, resp.ID, constants.MiniSiteBranchName, slug, constants.MiniSiteGithubTeamID)
-	if err != nil {
-		fmt.Printf("Error creating vercel project environment variables: %+v\n", err)
-		tmplCtx := types.DynamicPartialTemplate{
-			TemplateName: "error",
-			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
-			Data: map[string]any{
-				"Message": "Failed to get vercel project environment variables.",
-			},
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
-		return
-	}
-
-	err = database.CreateMiniSiteEnvironmentVariables(miniSiteId, variables)
+	err = database.CreateMiniSiteEnvironmentVariables(miniSiteId, resp.Env)
 	if err != nil {
 		fmt.Printf("Error creating vercel project environment variables: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

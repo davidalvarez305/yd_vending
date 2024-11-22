@@ -5575,7 +5575,7 @@ func UpdateMiniSiteProjectID(miniSiteId int, projectId string) error {
 	return nil
 }
 
-func CreateMiniSiteEnvironmentVariables(miniSiteID int, response types.GetVercelEnvironmentVariablesResponse) error {
+func CreateMiniSiteEnvironmentVariables(miniSiteID int, environmentVariables []types.EnvVariable) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO mini_site_environment_variable (
 			mini_site_id,
@@ -5589,7 +5589,7 @@ func CreateMiniSiteEnvironmentVariables(miniSiteID int, response types.GetVercel
 	}
 	defer stmt.Close()
 
-	for _, env := range response.EnvsArray {
+	for _, env := range environmentVariables {
 		_, err = stmt.Exec(
 			miniSiteID,
 			env.ID,
