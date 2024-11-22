@@ -768,3 +768,39 @@ func GetCommissionReport(w http.ResponseWriter, r *http.Request, ctx map[string]
 
 	helpers.ServeContent(w, files, data)
 }
+
+func GetProductSalesReport(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	baseFile := constants.INVENTORY_TEMPLATES_DIR + "product_sales_report.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	machine := r.URL.Query().Get("machine")
+	report, err := database.GetProductSales(machine)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting product sales report.", http.StatusInternalServerError)
+		return
+	}
+
+	machines, err := database.GetMachines()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting machines for product sales report.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Product Sales — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["ProductSales"] = report
+	data["Machines"] = machines
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}

@@ -5670,3 +5670,121 @@ func GetMiniSiteEnvironmentVariablesByProject(miniSiteID int) ([]models.MiniSite
 
 	return environmentVariables, nil
 }
+
+func GetProductSales(machineId string) ([]types.ProductSalesReport, error) {
+	var productSalesReport []types.ProductSalesReport
+
+	rows, err := DB.Query(`
+		SELECT 
+		p.name, 
+		SUM(t.items) AS total_items,
+		SUM(t.items) * slot_price.price AS total_revenue,
+		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
+
+		-- Non-cash transaction fee
+		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
+
+		-- Gross profit calculation
+		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit,
+
+		-- Commission due
+		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0) AS commission_due,
+
+		-- Profit margin
+		((SUM(t.items) * slot_assignment.unit_cost
+		+
+		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))
+		+
+		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0)))
+		/ 
+		(SUM(t.items) * slot_price.price) AS profit_margin,
+		SUM(t.items) / 7 AS weekly_vol
+	FROM 
+		seed_transaction AS t
+		JOIN LATERAL (
+			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
+			FROM machine_card_reader_assignment AS card_reader
+			WHERE card_reader.card_reader_serial_number = t.device
+			AND card_reader.date_assigned <= t.transaction_timestamp
+			AND card_reader.is_active = TRUE
+			ORDER BY card_reader.date_assigned DESC
+			LIMIT 1
+		) AS card_reader ON card_reader.card_reader_serial_number = t.device
+		JOIN LATERAL (
+			SELECT loc_assignment.machine_id, loc_assignment.location_id
+			FROM machine_location_assignment AS loc_assignment
+			WHERE loc_assignment.machine_id = card_reader.machine_id
+			AND loc_assignment.date_assigned <= t.transaction_timestamp
+			AND loc_assignment.is_active = TRUE
+			ORDER BY loc_assignment.date_assigned DESC
+			LIMIT 1
+		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
+		JOIN location AS l ON loc_assignment.location_id = l.location_id
+		JOIN business AS b ON l.business_id = b.business_id AND (b.name = $1 OR $1 IS NULL)
+		LEFT JOIN LATERAL (
+			SELECT loc_commission.commission, loc_commission.location_id
+			FROM location_commission AS loc_commission
+			WHERE loc_commission.location_id = l.location_id
+			AND loc_commission.date_assigned <= t.transaction_timestamp
+			ORDER BY loc_commission.date_assigned DESC
+			LIMIT 1
+		) AS loc_commission ON loc_commission.location_id = l.location_id
+		JOIN machine AS m ON m.machine_id = card_reader.machine_id
+		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
+		JOIN LATERAL (
+			SELECT psa.slot_id, psa.product_id, psa.date_assigned, psa.unit_cost::NUMERIC
+			FROM product_slot_assignment AS psa
+			WHERE psa.slot_id = s.slot_id AND psa.date_assigned <= t.transaction_timestamp
+			ORDER BY psa.date_assigned DESC
+			LIMIT 1
+		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
+		JOIN LATERAL (
+			SELECT spl.slot_id, spl.price::NUMERIC
+			FROM slot_price_log AS spl
+			WHERE spl.slot_id = s.slot_id AND spl.date_assigned <= t.transaction_timestamp
+			ORDER BY spl.date_assigned DESC
+			LIMIT 1
+		) AS slot_price ON slot_price.slot_id = s.slot_id
+		JOIN product AS p ON p.product_id = slot_assignment.product_id
+		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
+	WHERE AND (b.name = $1 OR $1 IS NULL) AND i.is_validated IS NULL
+	GROUP BY 
+		p.name, 
+		slot_price.price, 
+		slot_assignment.unit_cost, 
+		loc_commission.commission
+	ORDER BY 
+		gross_profit DESC;
+	`, machineId)
+	if err != nil {
+		return productSalesReport, fmt.Errorf("error executing query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var sale types.ProductSalesReport
+
+		err := rows.Scan(
+			&sale.Product,
+			&sale.AmountSold,
+			&sale.Revenue,
+			&sale.Cost,
+			&sale.CreditCardFee,
+			&sale.GrossProfit,
+			&sale.CommissionDue,
+			&sale.ProfitMargin,
+			&sale.WeeklyVolume,
+		)
+		if err != nil {
+			return productSalesReport, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		productSalesReport = append(productSalesReport, sale)
+	}
+
+	if err := rows.Err(); err != nil {
+		return productSalesReport, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return productSalesReport, nil
+}

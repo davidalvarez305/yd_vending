@@ -966,3 +966,15 @@ type VercelProjectForm struct {
 	ForwardingPhoneNumber *string `json:"forwarding_phone_number" form:"forwarding_phone_number" schema:"forwarding_phone_number" env:"NEXT_PUBLIC_FORWARDING_PHONE_NUMBER"`
 	CompanyName           *string `json:"company_name" form:"company_name" schema:"company_name" env:"NEXT_PUBLIC_COMPANY_NAME"`
 }
+
+type ProductSalesReport struct {
+	Product       string  `json:"product" form:"product" schema:"product" spreadsheet_header:"Product"`
+	AmountSold    float64 `json:"amount_sold" form:"amount_sold" schema:"amount_sold" spreadsheet_header:"Amount Sold"`
+	Revenue       float64 `json:"revenue" form:"revenue" schema:"revenue" spreadsheet_header:"Revenue"`
+	Cost          float64 `json:"cost" form:"cost" schema:"cost" spreadsheet_header:"Cost"`
+	CreditCardFee float64 `json:"credit_card_fee" form:"credit_card_fee" schema:"credit_card_fee" spreadsheet_header:"Credit Card Fee"`
+	GrossProfit   float64 `json:"gross_profit" form:"gross_profit" schema:"gross_profit" spreadsheet_header:"Gross Profit"`
+	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due" spreadsheet_header:"Commission Due"`
+	ProfitMargin  float64 `json:"profit_margin" form:"profit_margin" schema:"profit_margin" spreadsheet_header:"Profit %"`
+	WeeklyVolume  float64 `json:"weekly_volume" form:"weekly_volume" schema:"weekly_volume" spreadsheet_header:"Weekly Vol."`
+}
