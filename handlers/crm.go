@@ -5772,6 +5772,27 @@ func PutVercelProjectEnvironmentVariables(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	deploymentBody := types.DeployVercelProjectBody{
+		Name:             helpers.SafeString(form.ProjectName),
+		Target:           constants.VercelProjectEnvinronmentVariableTarget,
+		WithLatestCommit: true,
+	}
+
+	err = services.CreateVercelProjectDeployment(slug, constants.MiniSiteVercelTeamID, constants.VercelAccessToken, deploymentBody)
+	if err != nil {
+		fmt.Printf("Error deploying project: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to deploy project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",

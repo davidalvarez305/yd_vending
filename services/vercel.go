@@ -224,3 +224,39 @@ func UpdateVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId 
 
 	return nil
 }
+
+func CreateVercelProjectDeployment(slug, teamID, token string, deploymentBody types.DeployVercelProjectBody) error {
+	url := fmt.Sprintf("https://api.vercel.com/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1&slug=%s&teamId=%s", slug, teamID)
+
+	body, err := json.Marshal(deploymentBody)
+	if err != nil {
+		return fmt.Errorf("error marshalling project data: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		return fmt.Errorf("error creating request: %w", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error sending request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("VERCEL DEPLOYMENT ERROR: %s\n", bodyString)
+		return fmt.Errorf("error deploying project, received status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}

@@ -1,5 +1,22 @@
 package types
 
+// https://vercel.com/docs/rest-api/endpoints/deployments#create-a-new-deployment
+type DeployVercelProjectBody struct {
+	Name         string `json:"name,omitempty" form:"name" schema:"name"`
+	DeploymentId string `json:"deploymentId,omitempty" form:"deploymentId" schema:"deploymentId"`
+	Files        []struct {
+		InlinedFile InlinedFile `json:"InlinedFile,omitempty" form:"InlinedFile" schema:"InlinedFile"`
+	} `json:"files,omitempty" form:"files" schema:"files"`
+	GitMetadata      GitMetadata              `json:"gitMetadata,omitempty" form:"gitMetadata" schema:"gitMetadata"`
+	GitSource        GitSource                `json:"gitSource,omitempty" form:"gitSource" schema:"gitSource"`
+	Meta             string                   `json:"meta,omitempty" form:"meta" schema:"meta"`
+	MonorepoManager  string                   `json:"monorepoManager,omitempty" form:"monorepoManager" schema:"monorepoManager"`
+	Project          string                   `json:"project,omitempty" form:"project" schema:"project"`
+	ProjectSettings  VercelProjectRequestBody `json:"projectSettings,omitempty" form:"projectSettings" schema:"projectSettings"`
+	Target           string                   `json:"target,omitempty" form:"target" schema:"target"`
+	WithLatestCommit bool                     `json:"withLatestCommit,omitempty" form:"withLatestCommit" schema:"withLatestCommit"`
+}
+
 type VercelProjectRequestBody struct {
 	Name                                 string                `json:"name,omitempty" form:"name" schema:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty" form:"buildCommand" schema:"buildCommand"`
@@ -353,4 +370,26 @@ type EnvironmentVariable struct {
 	GitBranch string `json:"gitBranch,omitempty" form:"gitBranch" schema:"gitBranch"`
 	Type      string `json:"type,omitempty" form:"type" schema:"type"`
 	Value     string `json:"value,omitempty" form:"value" schema:"value"`
+}
+
+type InlinedFile struct {
+	Data     string `json:"data,omitempty" form:"data" schema:"data"`             // Base64-encoded file content
+	Encoding string `json:"encoding,omitempty" form:"encoding" schema:"encoding"` // Encoding type (e.g., base64)
+	File     string `json:"file,omitempty" form:"file" schema:"file"`             // File path
+}
+
+type GitMetadata struct {
+	RemoteUrl        string `json:"remoteUrl,omitempty" form:"remoteUrl" schema:"remoteUrl"`
+	CommitAuthorName string `json:"commitAuthorName,omitempty" form:"commitAuthorName" schema:"commitAuthorName"`
+	CommitMessage    string `json:"commitMessage,omitempty" form:"commitMessage" schema:"commitMessage"`
+	CommitRef        string `json:"commitRef,omitempty" form:"commitRef" schema:"commitRef"`
+	CommitSha        string `json:"commitSha,omitempty" form:"commitSha" schema:"commitSha"`
+	Dirty            bool   `json:"dirty,omitempty" form:"dirty" schema:"dirty"`
+}
+
+type GitSource struct {
+	Ref    string `json:"ref,omitempty" form:"ref" schema:"ref"`
+	RepoId string `json:"repoId,omitempty" form:"repoId" schema:"repoId"`
+	Sha    string `json:"sha,omitempty" form:"sha" schema:"sha"`
+	Type   string `json:"type,omitempty" form:"type" schema:"type"`
 }
