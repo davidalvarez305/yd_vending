@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"unicode"
@@ -320,4 +321,13 @@ func IsMobileRequest(r *http.Request) bool {
 		}
 	}
 	return false
+}
+
+func GetStringValueFromField(field reflect.Value) string {
+	if field.Kind() == reflect.Ptr && !field.IsNil() {
+		return field.Elem().String()
+	} else if field.Kind() == reflect.String {
+		return field.String()
+	}
+	return ""
 }

@@ -5732,7 +5732,7 @@ func PutVercelProjectEnvironmentVariables(w http.ResponseWriter, r *http.Request
 			if environmentVariable.Key == envTag {
 				body = append(body, types.UpdateVercelEnvironmentVariablesBody{
 					Key:       environmentVariable.Key,
-					Value:     field.String(),
+					Value:     helpers.GetStringValueFromField(field),
 					ID:        environmentVariable.EnvironmentVariableUniqueID,
 					GitBranch: constants.MiniSiteBranchName,
 					Target:    constants.VercelProjectEnvinronmentVariableTarget,
