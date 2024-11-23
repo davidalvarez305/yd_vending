@@ -231,7 +231,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if strings.HasPrefix(path, "/crm/mini-site/") {
-			if len(path) > len("/crm/mini-site/") && helpers.IsNumeric(path[len("/crm/mini-site/"):]) && strings.Contains(path, "/env") {
+			if len(path) > len("/crm/mini-site/") && strings.Contains(path, "/vercel") && strings.Contains(path, "/env") {
 				PutVercelProjectEnvironmentVariables(w, r)
 				return
 			}
@@ -274,7 +274,7 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostSlot(w, r)
 			return
 		}
-		if strings.HasPrefix(path, "/crm/mini-site/") && strings.Contains(path, "/vercel-project") {
+		if strings.HasPrefix(path, "/crm/mini-site/") && strings.Contains(path, "/vercel") {
 			PostVercelProject(w, r)
 			return
 		}
@@ -5583,7 +5583,6 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		},
 		OutputDirectory: constants.MiniSiteOutputDirectory,
 		PublicSource:    true,
-		RootDirectory:   "src",
 	}
 
 	resp, err := services.CreateVercelProject(slug, constants.MiniSiteVercelTeamID, constants.VercelAccessToken, project)
