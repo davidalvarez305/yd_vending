@@ -5320,12 +5320,13 @@ func GetMiniSiteList(pageNum int) ([]types.MiniSiteList, int, error) {
 	var miniSites []types.MiniSiteList
 
 	query := `SELECT m.mini_site_id,
-		m.company_name,
+		lead_app.company_name,
 		CONCAT(l.first_name, ' ', l.last_name),
 		m.website,
 		m.date_created
 		FROM mini_site AS m
 		JOIN lead AS l ON m.lead_id = l.lead_id
+		JOIN lead_application AS lead_app ON m.lead_id = lead_app.lead_id
 		ORDER BY m.date_created ASC
 		LIMIT $1
 		OFFSET $2`

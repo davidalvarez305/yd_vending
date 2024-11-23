@@ -5617,12 +5617,12 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 
 	err = database.UpdateMiniSiteProjectID(miniSiteId, resp.ID)
 	if err != nil {
-		fmt.Printf("Error creating vercel project: %+v\n", err)
+		fmt.Printf("Error updating vercel project: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Failed to create vercel project.",
+				"Message": "Failed to update vercel project.",
 			},
 		}
 		w.WriteHeader(http.StatusInternalServerError)

@@ -37,69 +37,40 @@ type VercelProjectRequestBody struct {
 }
 
 type CreateVercelProjectResponse struct {
-	AccountID                            string                `json:"accountId"`
-	Analytics                            Analytics             `json:"analytics"`
-	AutoAssignCustomDomains              bool                  `json:"autoAssignCustomDomains"`
-	AutoAssignCustomDomainsUpdatedBy     string                `json:"autoAssignCustomDomainsUpdatedBy"`
-	AutoExposeSystemEnvs                 bool                  `json:"autoExposeSystemEnvs"`
-	BuildCommand                         *string               `json:"buildCommand"`
-	CommandForIgnoringBuildStep          *string               `json:"commandForIgnoringBuildStep"`
-	ConcurrencyBucketName                string                `json:"concurrencyBucketName"`
-	ConnectBuildsEnabled                 bool                  `json:"connectBuildsEnabled"`
-	ConnectConfigurationID               *string               `json:"connectConfigurationId"`
-	CreatedAt                            int64                 `json:"createdAt"`
-	Crons                                Crons                 `json:"crons"`
-	CustomEnvironments                   []interface{}         `json:"customEnvironments"`
-	CustomerSupportCodeVisibility        bool                  `json:"customerSupportCodeVisibility"`
-	DataCache                            DataCache             `json:"dataCache"`
-	DeploymentExpiration                 *DeploymentExpiration `json:"deploymentExpiration"`
-	DevCommand                           *string               `json:"devCommand"`
-	DirectoryListing                     bool                  `json:"directoryListing"`
-	EnableAffectedProjectsDeployments    bool                  `json:"enableAffectedProjectsDeployments"`
-	EnablePreviewFeedback                *bool                 `json:"enablePreviewFeedback"`
-	EnableProductionFeedback             *bool                 `json:"enableProductionFeedback"`
-	Env                                  []EnvVariable         `json:"env"`
-	Framework                            *string               `json:"framework"`
-	GitComments                          GitComments           `json:"gitComments"`
-	GitForkProtection                    bool                  `json:"gitForkProtection"`
-	GitLFS                               bool                  `json:"gitLFS"`
-	HasActiveBranches                    bool                  `json:"hasActiveBranches"`
-	HasFloatingAliases                   bool                  `json:"hasFloatingAliases"`
-	ID                                   string                `json:"id"`
-	InstallCommand                       *string               `json:"installCommand"`
-	IpBuckets                            []IpBucket            `json:"ipBuckets"`
-	LastAliasRequest                     *AliasRequest         `json:"lastAliasRequest"`
-	LastRollbackTarget                   *RollbackTarget       `json:"lastRollbackTarget"`
-	LatestDeployments                    []Deployment          `json:"latestDeployments"`
-	Live                                 bool                  `json:"live"`
-	Microfrontends                       Microfrontends        `json:"microfrontends"`
-	NodeVersion                          string                `json:"nodeVersion"`
-	OIDCTokenConfig                      OIDCTokenConfig       `json:"oidcTokenConfig"`
-	OutputDirectory                      *string               `json:"outputDirectory"`
-	Paused                               bool                  `json:"paused"`
-	Permissions                          Permissions           `json:"permissions"`
-	ProductionDeploymentsFastLane        bool                  `json:"productionDeploymentsFastLane"`
-	ProtectionBypass                     interface{}           `json:"protectionBypass"`
-	PublicSource                         *bool                 `json:"publicSource"`
-	ResourceConfig                       ResourceConfig        `json:"resourceConfig"`
-	RootDirectory                        *string               `json:"rootDirectory"`
-	Security                             Security              `json:"security"`
-	ServerlessFunctionRegion             *string               `json:"serverlessFunctionRegion"`
-	ServerlessFunctionZeroConfigFailover bool                  `json:"serverlessFunctionZeroConfigFailover"`
-	SkewProtectionBoundaryAt             int64                 `json:"skewProtectionBoundaryAt"`
-	SkewProtectionMaxAge                 int64                 `json:"skewProtectionMaxAge"`
-	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink"`
-	SourceFilesOutsideRootDirectory      bool                  `json:"sourceFilesOutsideRootDirectory"`
-	SpeedInsights                        SpeedInsights         `json:"speedInsights"`
-	SSOProtection                        *SSOProtection        `json:"ssoProtection"`
-	Targets                              []Target              `json:"targets"`
-	TransferCompletedAt                  int64                 `json:"transferCompletedAt"`
-	TransferStartedAt                    int64                 `json:"transferStartedAt"`
-	TransferToAccountID                  string                `json:"transferToAccountId"`
-	TransferredFromAccountID             string                `json:"transferredFromAccountId"`
-	TrustedIps                           []TrustedIP           `json:"trustedIps"`
-	UpdatedAt                            int64                 `json:"updatedAt"`
-	WebAnalytics                         WebAnalytics          `json:"webAnalytics"`
+	Analytics Analytics `json:"analytics,omitempty" form:"analytics,omitempty" schema:"analytics,omitempty"`
+	// Targets                           []Target        `json:"targets,omitempty" form:"targets,omitempty" schema:"targets,omitempty"`
+	LatestDeployments                 []Deployment    `json:"latestDeployments,omitempty" form:"latestDeployments,omitempty" schema:"latestDeployments,omitempty"`
+	AccountID                         string          `json:"accountId" form:"account_id" schema:"account_id"`
+	AutoExposeSystemEnvs              bool            `json:"autoExposeSystemEnvs" form:"auto_expose_system_envs" schema:"auto_expose_system_envs"`
+	AutoAssignCustomDomains           bool            `json:"autoAssignCustomDomains" form:"auto_assign_custom_domains" schema:"auto_assign_custom_domains"`
+	AutoAssignCustomDomainsUpdatedBy  string          `json:"autoAssignCustomDomainsUpdatedBy,omitempty" form:"auto_assign_custom_domains_updated_by,omitempty" schema:"auto_assign_custom_domains_updated_by,omitempty"`
+	BuildCommand                      string          `json:"buildCommand" form:"build_command" schema:"build_command"`
+	CreatedAt                         int64           `json:"createdAt" form:"created_at" schema:"created_at"`
+	DevCommand                        string          `json:"devCommand" form:"dev_command" schema:"dev_command"`
+	DirectoryListing                  bool            `json:"directoryListing" form:"directory_listing" schema:"directory_listing"`
+	Env                               []EnvVariable   `json:"env,omitempty" form:"env,omitempty" schema:"env,omitempty"`
+	Framework                         string          `json:"framework,omitempty" form:"framework,omitempty" schema:"framework,omitempty"`
+	GitForkProtection                 bool            `json:"gitForkProtection" form:"git_fork_protection" schema:"git_fork_protection"`
+	GitLFS                            bool            `json:"gitLFS" form:"git_lfs" schema:"git_lfs"`
+	ID                                string          `json:"id" form:"id" schema:"id"`
+	InstallCommand                    *string         `json:"installCommand,omitempty" form:"install_command,omitempty" schema:"install_command,omitempty"`
+	LastRollbackTarget                *string         `json:"lastRollbackTarget,omitempty" form:"last_rollback_target,omitempty" schema:"last_rollback_target,omitempty"`
+	LastAliasRequest                  *string         `json:"lastAliasRequest,omitempty" form:"last_alias_request,omitempty" schema:"last_alias_request,omitempty"`
+	Name                              string          `json:"name" form:"name" schema:"name"`
+	NodeVersion                       string          `json:"nodeVersion" form:"node_version" schema:"node_version"`
+	OutputDirectory                   string          `json:"outputDirectory" form:"output_directory" schema:"output_directory"`
+	PublicSource                      bool            `json:"publicSource" form:"public_source" schema:"public_source"`
+	ResourceConfig                    ResourceConfig  `json:"resourceConfig" form:"resource_config" schema:"resource_config"`
+	RootDirectory                     *string         `json:"rootDirectory,omitempty" form:"root_directory,omitempty" schema:"root_directory,omitempty"`
+	ServerlessFunctionRegion          string          `json:"serverlessFunctionRegion" form:"serverless_function_region" schema:"serverless_function_region"`
+	SourceFilesOutsideRootDirectory   bool            `json:"sourceFilesOutsideRootDirectory" form:"source_files_outside_root_directory" schema:"source_files_outside_root_directory"`
+	EnableAffectedProjectsDeployments bool            `json:"enableAffectedProjectsDeployments" form:"enable_affected_projects_deployments" schema:"enable_affected_projects_deployments"`
+	SSOProtection                     SSOProtection   `json:"ssoProtection" form:"sso_protection" schema:"sso_protection"`
+	UpdatedAt                         int64           `json:"updatedAt" form:"updated_at" schema:"updated_at"`
+	Live                              bool            `json:"live" form:"live" schema:"live"`
+	GitComments                       GitComments     `json:"gitComments" form:"git_comments" schema:"git_comments"`
+	OIDCTokenConfig                   OIDCTokenConfig `json:"oidcTokenConfig" form:"oidc_token_config" schema:"oidc_token_config"`
+	Link                              Link            `json:"link" form:"link" schema:"link"`
 }
 
 type UpdateVercelProjectResponse struct {
@@ -356,7 +327,7 @@ type EnvVariable struct {
 	Key                  string       `json:"key"`
 	SunsetSecretID       *string      `json:"sunsetSecretId,omitempty"`
 	System               bool         `json:"system"`
-	Target               *Target      `json:"target"`
+	Target               []string     `json:"target"`
 	Type                 string       `json:"type"`
 	UpdatedAt            int64        `json:"updatedAt"`
 	UpdatedBy            *string      `json:"updatedBy,omitempty"`
@@ -392,4 +363,17 @@ type GitSource struct {
 	RepoId string `json:"repoId,omitempty" form:"repoId" schema:"repoId"`
 	Sha    string `json:"sha,omitempty" form:"sha" schema:"sha"`
 	Type   string `json:"type,omitempty" form:"type" schema:"type"`
+}
+
+type Link struct {
+	Type             string        `json:"type"`
+	Repo             string        `json:"repo"`
+	RepoID           int64         `json:"repoId"`
+	Org              string        `json:"org"`
+	RepoOwnerID      int64         `json:"repoOwnerId"`
+	GitCredentialID  string        `json:"gitCredentialId"`
+	ProductionBranch string        `json:"productionBranch"`
+	CreatedAt        int64         `json:"createdAt"`
+	UpdatedAt        int64         `json:"updatedAt"`
+	DeployHooks      []interface{} `json:"deployHooks"`
 }
