@@ -5671,33 +5671,29 @@ func GetMiniSiteEnvironmentVariablesByProject(miniSiteID int) ([]models.MiniSite
 	return environmentVariables, nil
 }
 
-func GetProductSales(machineId string) ([]types.ProductSalesReport, error) {
+func GetProductSalesReport(machineId string) ([]types.ProductSalesReport, error) {
 	var productSalesReport []types.ProductSalesReport
 
+	machine := sql.NullString{String: machineId, Valid: len(machineId) > 0}
+
 	rows, err := DB.Query(`
-		SELECT 
+	SELECT 
 		p.name, 
 		SUM(t.items) AS total_items,
 		SUM(t.items) * slot_price.price AS total_revenue,
 		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
-
-		-- Non-cash transaction fee
 		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
-
-		-- Gross profit calculation
 		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit,
-
-		-- Commission due
 		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0) AS commission_due,
 
 		-- Profit margin
-		((SUM(t.items) * slot_assignment.unit_cost
+		ROUND(1 - ((SUM(t.items) * slot_assignment.unit_cost
 		+
 		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))
 		+
-		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0)))
+		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0))
 		/ 
-		(SUM(t.items) * slot_price.price) AS profit_margin,
+		(SUM(t.items) * slot_price.price), 2) AS profit_margin,
 		SUM(t.items) / 7 AS weekly_vol
 	FROM 
 		seed_transaction AS t
@@ -5720,7 +5716,7 @@ func GetProductSales(machineId string) ([]types.ProductSalesReport, error) {
 			LIMIT 1
 		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
 		JOIN location AS l ON loc_assignment.location_id = l.location_id
-		JOIN business AS b ON l.business_id = b.business_id AND (b.name = $1 OR $1 IS NULL)
+		JOIN business AS b ON l.business_id = b.business_id
 		LEFT JOIN LATERAL (
 			SELECT loc_commission.commission, loc_commission.location_id
 			FROM location_commission AS loc_commission
@@ -5747,7 +5743,7 @@ func GetProductSales(machineId string) ([]types.ProductSalesReport, error) {
 		) AS slot_price ON slot_price.slot_id = s.slot_id
 		JOIN product AS p ON p.product_id = slot_assignment.product_id
 		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
-	WHERE AND (b.name = $1 OR $1 IS NULL) AND i.is_validated IS NULL
+	WHERE (m.machine_id = $1 OR $1 IS NULL) AND i.is_validated IS NULL
 	GROUP BY 
 		p.name, 
 		slot_price.price, 
@@ -5755,7 +5751,7 @@ func GetProductSales(machineId string) ([]types.ProductSalesReport, error) {
 		loc_commission.commission
 	ORDER BY 
 		gross_profit DESC;
-	`, machineId)
+	`, machine)
 	if err != nil {
 		return productSalesReport, fmt.Errorf("error executing query: %w", err)
 	}

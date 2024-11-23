@@ -7,10 +7,15 @@
                 class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                 Filter
             </button>
+            <button id="clearButton" type="button"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
+                Clear
+            </button>
             <div>
                 <label for="machine" class="font-medium text-center">Machine</label>
                 <select id="machine" name="machine"
                     class="block w-full rounded-lg border border-gray-200 px-6 py-2 text-sm font-semibold leading-5 focus:border-blue-500 focus:ring focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500">
+                    <option></option>
                     {{ range .Machines }}
                     <option value="{{ .MachineID }}">
                         {{ .MachineName }}
@@ -23,7 +28,7 @@
 </div>
 <!-- END Filters -->
 
-<div id="prepReportTable"
+<div id="productSalesReportTable"
     class="min-w-full overflow-x-auto rounded border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
     <table class="min-w-full whitespace-nowrap align-middle text-sm">
         <thead>
@@ -64,7 +69,7 @@
         </thead>
 
         <tbody>
-            {{ range .ProductSales }}
+            {{ range .ProductSalesReport }}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                 <td class="p-3 text-center">
                     <p class="font-medium">{{ .Product }}</p>
@@ -85,10 +90,10 @@
                     <p class="font-medium">${{ .GrossProfit }}</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">${{ .ProfitMargin }}</p>
+                    <p class="font-medium">{{ .ProfitMargin }}%</p>
                 </td>
                 <td class="p-3 text-center">
-                    <p class="font-medium">${{ .WeeklyVolume }}</p>
+                    <p class="font-medium">{{ .WeeklyVolume }}</p>
                 </td>
             </tr>
             {{ end }}
@@ -99,6 +104,9 @@
 <script nonce="{{ .Nonce }}">
     const params = new URLSearchParams(window.location.search);
     const form = document.getElementById("filters");
+	const clear = document.getElementById("clearButton");
+
+	clear.addEventListener('click', () => window.location.href = "/inventory/product-sales-report");
 
     form.addEventListener("submit", e => {
         e.preventDefault();
@@ -122,15 +130,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        const machineParam = new URLSearchParams(window.location.search).get("machine");
+        const machineId = new URLSearchParams(window.location.search).get("machine");
         const machineSelect = document.getElementById("machine");
 
-        if (machineParam && machineSelect) {
-            const decodedMachineId = decodeURIComponent(machineParam);
+        if (machineId && machineSelect) {
             Array.from(machineSelect.options).forEach(option => {
-                if (option.value === decodedMachineId) {
-                    option.selected = true;
-                }
+                if (option.value === machineId) option.selected = true;
             });
         }
     });

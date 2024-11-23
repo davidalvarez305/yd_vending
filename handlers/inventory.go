@@ -73,6 +73,8 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) {
 			GetPrepReport(w, r, ctx)
 		case "/inventory/commission-report":
 			GetCommissionReport(w, r, ctx)
+		case "/inventory/product-sales-report":
+			GetProductSalesReport(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -780,7 +782,7 @@ func GetProductSalesReport(w http.ResponseWriter, r *http.Request, ctx map[strin
 	}
 
 	machine := r.URL.Query().Get("machine")
-	report, err := database.GetProductSales(machine)
+	report, err := database.GetProductSalesReport(machine)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		http.Error(w, "Error getting product sales report.", http.StatusInternalServerError)
@@ -797,7 +799,7 @@ func GetProductSalesReport(w http.ResponseWriter, r *http.Request, ctx map[strin
 	data := ctx
 	data["PageTitle"] = "Product Sales — " + constants.CompanyName
 	data["Nonce"] = nonce
-	data["ProductSales"] = report
+	data["ProductSalesReport"] = report
 	data["Machines"] = machines
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
