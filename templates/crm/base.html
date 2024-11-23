@@ -444,7 +444,7 @@
     navButtons.forEach(button => {
         const pageName = button.getAttribute('href');
 
-        if (currentPage.includes(pageName)) {
+        if (currentPage === pageName) {
             button.className = highlightedPageClass;
             return;
         }
