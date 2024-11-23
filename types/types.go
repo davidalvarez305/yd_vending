@@ -976,5 +976,4 @@ type ProductSalesReport struct {
 	GrossProfit   float64 `json:"gross_profit" form:"gross_profit" schema:"gross_profit" spreadsheet_header:"Gross Profit"`
 	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due" spreadsheet_header:"Commission Due"`
 	ProfitMargin  float64 `json:"profit_margin" form:"profit_margin" schema:"profit_margin" spreadsheet_header:"Profit %"`
-	WeeklyVolume  float64 `json:"weekly_volume" form:"weekly_volume" schema:"weekly_volume" spreadsheet_header:"Weekly Vol."`
 }
