@@ -5687,13 +5687,13 @@ func GetProductSalesReport(machineId string) ([]types.ProductSalesReport, error)
 		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0) AS commission_due,
 
 		-- Profit margin
-		ROUND(1 - ((SUM(t.items) * slot_assignment.unit_cost
+		ROUND((1 - ((SUM(t.items) * slot_assignment.unit_cost
 		+
 		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))
 		+
 		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0))
 		/ 
-		(SUM(t.items) * slot_price.price), 2) * 100 AS profit_margin,
+		(SUM(t.items) * slot_price.price)) * 100, 2) AS profit_margin,
 		SUM(t.items) / 7 AS weekly_vol
 	FROM 
 		seed_transaction AS t
