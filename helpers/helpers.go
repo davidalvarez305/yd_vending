@@ -252,11 +252,9 @@ func ParseInt64(value string) int64 {
 
 func GetFirstIDAfterPrefix(r *http.Request, prefix string) (int, error) {
 	trimmedPath := strings.TrimPrefix(r.URL.Path, prefix)
+	trimmedPath = strings.Trim(trimmedPath, "/")
 
 	parts := strings.Split(trimmedPath, "/")
-	if len(parts) < 1 || parts[0] == "" {
-		return 0, fmt.Errorf("invalid path format")
-	}
 
 	for _, part := range parts {
 		id, err := strconv.Atoi(part)
