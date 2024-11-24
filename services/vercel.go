@@ -176,6 +176,7 @@ func GetVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId str
 
 func UpdateVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId string, body []types.UpdateVercelEnvironmentVariablesBody) error {
 	var wg sync.WaitGroup
+	errCh := make(chan error, len(body))
 
 	for _, variable := range body {
 		wg.Add(1)
@@ -185,12 +186,18 @@ func UpdateVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId 
 
 			url := fmt.Sprintf(
 				"https://api.vercel.com/v9/projects/%s/env/%s?decrypt=true&gitBranch=%s&slug=%s&source=vercel-cli:pull&teamId=%s",
-				variable.ID, projectId, gitBranch, slug, teamId,
+				projectId, variable.ID, gitBranch, slug, teamId,
 			)
 
-			req, err := http.NewRequest("PATCH", url, nil)
+			body, err := json.Marshal(variable)
 			if err != nil {
-				log.Printf("Error creating request for variable %s: %v", variable.ID, err)
+				errCh <- fmt.Errorf("error marshalling project data: %w", err)
+				return
+			}
+
+			req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(body))
+			if err != nil {
+				errCh <- fmt.Errorf("error creating request for variable %s: %w", variable.ID, err)
 				return
 			}
 
@@ -202,25 +209,32 @@ func UpdateVercelEnvironmentVariables(token, projectId, gitBranch, slug, teamId 
 			}
 			resp, err := client.Do(req)
 			if err != nil {
-				log.Printf("Error sending request for variable %s: %v", variable.ID, err)
+				errCh <- fmt.Errorf("error sending request for variable %s: %w", variable.ID, err)
 				return
 			}
 			defer resp.Body.Close()
 
 			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-				bodyBytes, err := io.ReadAll(resp.Body)
-				if err != nil {
-					log.Printf("Failed to read response body for variable %s: %v", variable.ID, err)
+				bodyBytes, readErr := io.ReadAll(resp.Body)
+				if readErr != nil {
+					errCh <- fmt.Errorf("failed to read response body for variable %s: %w", variable.ID, readErr)
 					return
 				}
 				bodyString := string(bodyBytes)
-				log.Printf("Error from Vercel for variable %s: %s", variable.ID, bodyString)
+				errCh <- fmt.Errorf("error from Vercel for variable %s: %s", variable.ID, bodyString)
 				return
 			}
 		}(variable)
 	}
 
 	wg.Wait()
+	close(errCh)
+
+	for err := range errCh {
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

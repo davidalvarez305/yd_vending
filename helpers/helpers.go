@@ -254,17 +254,18 @@ func GetFirstIDAfterPrefix(r *http.Request, prefix string) (int, error) {
 	trimmedPath := strings.TrimPrefix(r.URL.Path, prefix)
 
 	parts := strings.Split(trimmedPath, "/")
-	if len(parts) < 2 || parts[1] == "" {
+	if len(parts) < 1 || parts[0] == "" {
 		return 0, fmt.Errorf("invalid path format")
 	}
 
-	idStr := parts[1]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		return 0, fmt.Errorf("invalid ID: %w", err)
+	for _, part := range parts {
+		id, err := strconv.Atoi(part)
+		if err == nil {
+			return id, nil
+		}
 	}
 
-	return id, nil
+	return 0, fmt.Errorf("no valid ID found in path")
 }
 
 func GetSecondIDFromPath(r *http.Request, prefix string) (int, error) {

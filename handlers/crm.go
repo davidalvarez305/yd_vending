@@ -5630,6 +5630,47 @@ func PostVercelProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	git, err := services.GetLatestGithubCommit(constants.MiniSiteGithubRepo, constants.MiniSiteBranchName)
+	if err != nil {
+		fmt.Printf("Error getting latest git commit: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get latest git commit.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	deploymentBody := types.DeployVercelProjectBody{
+		Name:   helpers.SafeString(form.ProjectName),
+		Target: constants.VercelProjectEnvinronmentVariableTarget,
+		GitSource: types.GitSource{
+			Type:   "github",
+			RepoId: constants.MiniSiteRepoID,
+			Ref:    constants.MiniSiteBranchName,
+			Sha:    git.GetSHA(),
+		},
+	}
+
+	err = services.CreateVercelProjectDeployment(slug, constants.MiniSiteVercelTeamID, constants.VercelAccessToken, deploymentBody)
+	if err != nil {
+		fmt.Printf("Error deploying project: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to deploy project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	tmplCtx := types.DynamicPartialTemplate{
 		TemplateName: "success.html",
 		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
@@ -5730,12 +5771,11 @@ func PutVercelProjectEnvironmentVariables(w http.ResponseWriter, r *http.Request
 		for _, environmentVariable := range environmentVariables {
 			if environmentVariable.Key == envTag {
 				body = append(body, types.UpdateVercelEnvironmentVariablesBody{
-					Key:       environmentVariable.Key,
-					Value:     helpers.GetStringValueFromField(field),
-					ID:        environmentVariable.EnvironmentVariableUniqueID,
-					GitBranch: constants.MiniSiteBranchName,
-					Target:    constants.VercelProjectEnvinronmentVariableTarget,
-					Type:      constants.VercelProjectEnvinronmentVariableType,
+					Key:    environmentVariable.Key,
+					Value:  helpers.GetStringValueFromField(field),
+					ID:     environmentVariable.EnvironmentVariableUniqueID,
+					Target: []string{constants.VercelProjectEnvinronmentVariableTarget},
+					Type:   constants.VercelProjectEnvinronmentVariableType,
 				})
 			}
 		}
@@ -5771,10 +5811,30 @@ func PutVercelProjectEnvironmentVariables(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	git, err := services.GetLatestGithubCommit(constants.MiniSiteGithubRepo, constants.MiniSiteBranchName)
+	if err != nil {
+		fmt.Printf("Error getting latest git commit: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get latest git commit.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	deploymentBody := types.DeployVercelProjectBody{
-		Name:             helpers.SafeString(form.ProjectName),
-		Target:           constants.VercelProjectEnvinronmentVariableTarget,
-		WithLatestCommit: true,
+		Name:   helpers.SafeString(form.ProjectName),
+		Target: constants.VercelProjectEnvinronmentVariableTarget,
+		GitSource: types.GitSource{
+			Type:   "github",
+			RepoId: constants.MiniSiteRepoID,
+			Ref:    constants.MiniSiteBranchName,
+			Sha:    git.GetSHA(),
+		},
 	}
 
 	err = services.CreateVercelProjectDeployment(slug, constants.MiniSiteVercelTeamID, constants.VercelAccessToken, deploymentBody)

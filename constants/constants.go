@@ -22,13 +22,14 @@ const (
 	QuoteEventName           string = "quote"
 	LeadEventName            string = "Lead"
 
-	MiniSiteBuildCommand                    string = "next build"
-	MiniSiteDevCommand                      string = "npm run dev"
-	MiniSiteBranchName                      string = "main"
-	MiniSiteFramework                       string = "nextjs"
-	MiniSiteOutputDirectory                 string = ".next"
-	MiniSiteEnvironmentVariablesTag         string = "env"
-	MiniSiteEnvironmentVariablesPrefix      string = "NEXT_PUBLIC_"
+	MiniSiteBuildCommand               string = "next build"
+	MiniSiteDevCommand                 string = "npm run dev"
+	MiniSiteBranchName                 string = "main"
+	MiniSiteFramework                  string = "nextjs"
+	MiniSiteOutputDirectory            string = ".next"
+	MiniSiteEnvironmentVariablesTag    string = "env"
+	MiniSiteEnvironmentVariablesPrefix string = "NEXT_PUBLIC_"
+
 	VercelProjectEnvinronmentVariableTarget string = "production"
 	VercelProjectEnvinronmentVariableType   string = "plain"
 )
@@ -83,6 +84,9 @@ var (
 	VercelAccessToken            string
 	MiniSiteGithubRepo           string
 	MiniSiteVercelTeamID         string
+	MiniSiteRepoID               string
+	GithubOwnerName              string
+	GithubAccessToken            string
 )
 
 func Init() {
@@ -135,6 +139,9 @@ func Init() {
 	VercelAccessToken = os.Getenv("VERCEL_ACCESS_TOKEN")
 	MiniSiteGithubRepo = os.Getenv("MINI_SITE_GITHUB_REPO")
 	MiniSiteVercelTeamID = os.Getenv("MINI_SITE_GITHUB_TEAM_ID")
+	MiniSiteRepoID = os.Getenv("MINI_SITE_REPO_ID")
+	GithubOwnerName = os.Getenv("GITHUB_OWNER_NAME")
+	GithubAccessToken = os.Getenv("GITHUB_ACCESS_TOKEN")
 }
 
 var TEMPLATES_DIR = "./templates/"

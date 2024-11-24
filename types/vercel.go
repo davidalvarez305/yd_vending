@@ -7,14 +7,13 @@ type DeployVercelProjectBody struct {
 	Files        []struct {
 		InlinedFile InlinedFile `json:"InlinedFile,omitempty" form:"InlinedFile" schema:"InlinedFile"`
 	} `json:"files,omitempty" form:"files" schema:"files"`
-	GitMetadata      GitMetadata              `json:"gitMetadata,omitempty" form:"gitMetadata" schema:"gitMetadata"`
-	GitSource        GitSource                `json:"gitSource,omitempty" form:"gitSource" schema:"gitSource"`
-	Meta             string                   `json:"meta,omitempty" form:"meta" schema:"meta"`
-	MonorepoManager  string                   `json:"monorepoManager,omitempty" form:"monorepoManager" schema:"monorepoManager"`
-	Project          string                   `json:"project,omitempty" form:"project" schema:"project"`
-	ProjectSettings  VercelProjectRequestBody `json:"projectSettings,omitempty" form:"projectSettings" schema:"projectSettings"`
-	Target           string                   `json:"target,omitempty" form:"target" schema:"target"`
-	WithLatestCommit bool                     `json:"withLatestCommit,omitempty" form:"withLatestCommit" schema:"withLatestCommit"`
+	GitMetadata      GitMetadata `json:"gitMetadata,omitempty" form:"gitMetadata" schema:"gitMetadata"`
+	GitSource        GitSource   `json:"gitSource,omitempty" form:"gitSource" schema:"gitSource"`
+	Meta             string      `json:"meta,omitempty" form:"meta" schema:"meta"`
+	MonorepoManager  string      `json:"monorepoManager,omitempty" form:"monorepoManager" schema:"monorepoManager"`
+	Project          string      `json:"project,omitempty" form:"project" schema:"project"`
+	Target           string      `json:"target,omitempty" form:"target" schema:"target"`
+	WithLatestCommit bool        `json:"withLatestCommit,omitempty" form:"withLatestCommit" schema:"withLatestCommit"`
 }
 
 type VercelProjectRequestBody struct {
@@ -145,12 +144,11 @@ type GetVercelEnvironmentVariablesResponse struct {
 }
 
 type UpdateVercelEnvironmentVariablesBody struct {
-	ID        string `json:"id,omitempty" form:"id" schema:"id"`
-	Key       string `json:"key,omitempty" form:"key" schema:"key"`
-	Target    string `json:"target,omitempty" form:"target" schema:"target"`
-	GitBranch string `json:"gitBranch,omitempty" form:"gitBranch" schema:"gitBranch"`
-	Type      string `json:"type,omitempty" form:"type" schema:"type"`
-	Value     string `json:"value,omitempty" form:"value" schema:"value"`
+	ID     string   `json:"-" form:"id" schema:"id"`
+	Key    string   `json:"key,omitempty" form:"key" schema:"key"`
+	Target []string `json:"target,omitempty" form:"target" schema:"target"`
+	Type   string   `json:"type,omitempty" form:"type" schema:"type"`
+	Value  string   `json:"value,omitempty" form:"value" schema:"value"`
 }
 
 type Analytics struct {
