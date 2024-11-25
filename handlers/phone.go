@@ -285,7 +285,7 @@ func handleOutboundSMS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messageResponse, err := services.SendOutboundMessage(form)
+	messageResponse, err := services.SendTextMessage(form.To, form.From, form.Body)
 	if err != nil {
 		fmt.Printf("%+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

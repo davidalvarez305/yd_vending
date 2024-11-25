@@ -9,10 +9,9 @@ import (
 	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
-
-	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
 var funnelBaseFilePath = constants.FUNNEL_TEMPLATES_DIR + "base.html"
@@ -247,11 +246,34 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 	go conversions.SendGoogleConversion(payload)
 	go conversions.SendFacebookConversion(metaPayload)
 
-	phoneNumber := utils.SafeString(form.PhoneNumber)
-	params.SetFrom("+1" + )
-	textBody := "Thanks for signing up!"
+	go func() {
+		phoneNumber := helpers.SafeString(form.PhoneNumber)
+		textBody := "Thanks for signing up!"
 
-	msg, err := services.SendTextMessage(phoneNumber, constants.CompanyPhoneNumber, textBody)
+		text, err := services.SendTextMessage(phoneNumber, constants.CompanyPhoneNumber, textBody)
+		if err != nil {
+			fmt.Printf("ERROR SENDING TEXT MESSAGE: %+v\n", err)
+			return
+		}
+
+		msg := models.Message{
+			ExternalID:  *text.Sid,
+			UserID:      constants.SystemUserID,
+			LeadID:      leadID,
+			Text:        textBody,
+			DateCreated: time.Now().Unix(),
+			TextFrom:    constants.CompanyPhoneNumber,
+			TextTo:      phoneNumber,
+			IsInbound:   false,
+			Status:      *text.Status,
+		}
+
+		err = database.SaveSMS(msg)
+		if err != nil {
+			fmt.Printf("ERROR SAVING TEXT MESSAGE: %+v\n", err)
+			return
+		}
+	}()
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
