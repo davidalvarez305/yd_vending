@@ -279,7 +279,6 @@
 </script>
 
 <script nonce="{{ .Nonce }}">
-    const form = document.getElementById("createProductForm");
     const submitForm = document.getElementById("submitForm");
     const cancelForm = document.getElementById("cancelForm");
     const closeForm = document.getElementById("closeForm");
@@ -294,6 +293,7 @@
     closeForm.addEventListener("click", () => handleCloseForm());
 
     function handleSubmitForm() {
+        const form = document.getElementById("createProductForm");
         const data = new FormData(form);
         const body = new FormData();
 
