@@ -323,6 +323,12 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if strings.HasPrefix(path, "/crm/lead/") {
+			if len(path) > len("/crm/lead/") && helpers.IsNumeric(path[len("/crm/lead/"):]) {
+				DeleteLead(w, r)
+				return
+			}
+		}
 		if strings.HasPrefix(path, "/crm/machine/") {
 			if len(path) > len("/crm/machine/") && helpers.IsNumeric(path[len("/crm/machine/"):]) {
 				DeleteMachine(w, r)
@@ -384,7 +390,8 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetLeads(w http.ResponseWriter, r *http.Request, ctx map[string]interface{}) {
 	baseFile := constants.CRM_TEMPLATES_DIR + "leads.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, baseFile}
+	leadsTable := constants.PARTIAL_TEMPLATES_DIR + "leads_table.html"
+	files := []string{crmBaseFilePath, crmFooterFilePath, leadsTable, baseFile}
 
 	// Retrieve nonce from request context
 	nonce, ok := r.Context().Value("nonce").(string)
@@ -5858,6 +5865,83 @@ func PutVercelProjectEnvironmentVariables(w http.ResponseWriter, r *http.Request
 		Data: map[string]any{
 			"AlertHeader":  "Success!",
 			"AlertMessage": "Mini site updated successfully.",
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func DeleteLead(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	leadId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/lead/")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.DeleteLead(leadId)
+	if err != nil {
+		fmt.Printf("Error deleting lead: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to delete lead.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	var params types.GetLeadsParams
+	params.LocationType = helpers.SafeStringToPointer(r.URL.Query().Get("location_type"))
+	params.VendingType = helpers.SafeStringToPointer(r.URL.Query().Get("vending_type"))
+	params.LeadTypeID = helpers.SafeStringToIntPointer(r.URL.Query().Get("lead_type"))
+	params.PageNum = helpers.SafeStringToPointer(r.URL.Query().Get("page_num"))
+
+	leads, totalRows, err := database.GetLeadList(params)
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error getting leads from DB.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	pageNum := "1"
+	safePageNum := helpers.SafeString(params.PageNum)
+	if safePageNum != "" {
+		pageNum = safePageNum
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "leads_table.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "leads_table.html",
+		Data: map[string]any{
+			"Leads":       leads,
+			"CurrentPage": pageNum,
+			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
 		},
 	}
 

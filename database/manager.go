@@ -2416,6 +2416,18 @@ func DeleteLocation(id int) error {
 	return nil
 }
 
+func DeleteLead(id int) error {
+	sqlStatement := `
+        DELETE FROM lead WHERE lead_id = $1
+    `
+	_, err := DB.Exec(sqlStatement, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DeleteBusiness(id int) error {
 	sqlStatement := `
         DELETE FROM business WHERE business_id = $1
