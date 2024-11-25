@@ -5204,10 +5204,10 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 	// Step 1: Insert lead data and get lead_id
 	leadStmt, err := tx.Prepare(`
 		INSERT INTO lead (
-			first_name, last_name, phone_number, email, created_at, lead_type_id
+			first_name, last_name, phone_number, email, created_at, lead_type_id, opt_in_text_messaging
 		)
 		VALUES (
-			$1, $2, $3, $4, NOW() AT TIME ZONE 'America/New_York', $5
+			$1, $2, $3, $4, NOW() AT TIME ZONE 'America/New_York', $5, $6
 		)
 		RETURNING lead_id
 	`)
@@ -5222,10 +5222,11 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 	phoneNumber := utils.CreateNullString(form.PhoneNumber)
 	email := utils.CreateNullString(form.Email)
 	leadTypeId := utils.CreateNullInt(form.LeadTypeID)
+	optInTextMessaging := utils.CreateNullBool(form.OptInTextMessaging)
 
 	// Insert lead and get lead_id
 	err = leadStmt.QueryRow(
-		firstName, lastName, phoneNumber, email, leadTypeId,
+		firstName, lastName, phoneNumber, email, leadTypeId, optInTextMessaging,
 	).Scan(&leadID)
 	if err != nil {
 		return fmt.Errorf("error inserting lead: %w", err)

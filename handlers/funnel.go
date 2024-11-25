@@ -125,6 +125,7 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 	form.YearsInBusiness = helpers.GetIntPointerFromForm(r, "years_in_business")
 	form.NumLocations = helpers.GetIntPointerFromForm(r, "num_locations")
 	form.City = helpers.GetStringPointerFromForm(r, "city")
+	form.OptInTextMessaging = helpers.GetBoolPointerFromForm(r, "opt_in_text_messaging")
 
 	form.LeadTypeID = helpers.GetIntPointerFromForm(r, "lead_type_id")
 	form.Source = helpers.GetStringPointerFromForm(r, "source")

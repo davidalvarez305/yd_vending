@@ -860,10 +860,11 @@ type OptIn90DayChallengeForm struct {
 }
 
 type LeadApplicationForm struct {
-	FirstName   *string `json:"first_name" form:"first_name" schema:"first_name"`
-	LastName    *string `json:"last_name" form:"last_name" schema:"last_name"`
-	PhoneNumber *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email       *string `json:"email" form:"email" schema:"email"`
+	FirstName          *string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName           *string `json:"last_name" form:"last_name" schema:"last_name"`
+	PhoneNumber        *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email              *string `json:"email" form:"email" schema:"email"`
+	OptInTextMessaging *bool   `json:"opt_in_text_messaging" form:"opt_in_text_messaging" schema:"opt_in_text_messaging"`
 
 	Website         *string `json:"website" form:"website" schema:"website"`
 	CompanyName     *string `json:"company_name" form:"company_name" schema:"company_name"`
