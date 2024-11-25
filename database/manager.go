@@ -5680,79 +5680,90 @@ func GetProductSalesReport(machineId string) ([]types.ProductSalesReport, error)
 	machine := sql.NullString{String: machineId, Valid: len(machineId) > 0}
 
 	rows, err := DB.Query(`
+	WITH temp_results AS (
+		SELECT 
+			p.name, 
+			SUM(t.items) AS total_items,
+			SUM(t.items) * slot_price.price AS total_revenue,
+			SUM(t.items) * slot_assignment.unit_cost AS total_cost,
+			SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
+			SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit,
+			(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0) AS commission_due
+		FROM 
+			seed_transaction AS t
+			JOIN LATERAL (
+				SELECT card_reader.card_reader_serial_number, card_reader.machine_id
+				FROM machine_card_reader_assignment AS card_reader
+				WHERE card_reader.card_reader_serial_number = t.device
+				AND card_reader.date_assigned <= t.transaction_timestamp
+				AND card_reader.is_active = TRUE
+				ORDER BY card_reader.date_assigned DESC
+				LIMIT 1
+			) AS card_reader ON card_reader.card_reader_serial_number = t.device
+			JOIN LATERAL (
+				SELECT loc_assignment.machine_id, loc_assignment.location_id
+				FROM machine_location_assignment AS loc_assignment
+				WHERE loc_assignment.machine_id = card_reader.machine_id
+				AND loc_assignment.date_assigned <= t.transaction_timestamp
+				AND loc_assignment.is_active = TRUE
+				ORDER BY loc_assignment.date_assigned DESC
+				LIMIT 1
+			) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
+			JOIN location AS l ON loc_assignment.location_id = l.location_id
+			JOIN business AS b ON l.business_id = b.business_id
+			LEFT JOIN LATERAL (
+				SELECT loc_commission.commission, loc_commission.location_id
+				FROM location_commission AS loc_commission
+				WHERE loc_commission.location_id = l.location_id
+				AND loc_commission.date_assigned <= t.transaction_timestamp
+				ORDER BY loc_commission.date_assigned DESC
+				LIMIT 1
+			) AS loc_commission ON loc_commission.location_id = l.location_id
+			JOIN machine AS m ON m.machine_id = card_reader.machine_id
+			JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
+			JOIN LATERAL (
+				SELECT psa.slot_id, psa.product_id, psa.date_assigned, psa.unit_cost::NUMERIC
+				FROM product_slot_assignment AS psa
+				WHERE psa.slot_id = s.slot_id AND psa.date_assigned <= t.transaction_timestamp
+				ORDER BY psa.date_assigned DESC
+				LIMIT 1
+			) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
+			JOIN LATERAL (
+				SELECT spl.slot_id, spl.price::NUMERIC
+				FROM slot_price_log AS spl
+				WHERE spl.slot_id = s.slot_id AND spl.date_assigned <= t.transaction_timestamp
+				ORDER BY spl.date_assigned DESC
+				LIMIT 1
+			) AS slot_price ON slot_price.slot_id = s.slot_id
+			JOIN product AS p ON p.product_id = slot_assignment.product_id
+			LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
+		WHERE 
+			(m.machine_id = $1 OR $1 IS NULL) 
+			AND i.is_validated IS NULL
+		GROUP BY 
+			p.name, 
+			slot_price.price, 
+			slot_assignment.unit_cost, 
+			loc_commission.commission
+	)
 	SELECT 
-		p.name, 
-		SUM(t.items) AS total_items,
-		SUM(t.items) * slot_price.price AS total_revenue,
-		SUM(t.items) * slot_assignment.unit_cost AS total_cost,
-		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END) AS non_cash_fee,
-		SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END)) AS gross_profit,
-		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0) AS commission_due,
-
-		-- Profit margin
-		ROUND((1 - ((SUM(t.items) * slot_assignment.unit_cost
-		+
-		SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))
-		+
-		(SUM(t.items) * slot_price.price - (SUM(t.items) * slot_assignment.unit_cost + SUM(CASE WHEN t.transaction_type <> 'Cash' THEN (t.items * slot_price.price) * 0.06 ELSE 0 END))) * COALESCE(loc_commission.commission, 0))
-		/ 
-		(SUM(t.items) * slot_price.price)) * 100, 2) AS profit_margin
+		name,
+		SUM(total_items) AS total_items_sold,
+		SUM(total_revenue) AS total_revenue,
+		SUM(total_cost) AS total_cost,
+		SUM(non_cash_fee) AS total_non_cash_fee,
+		SUM(gross_profit) AS total_gross_profit,
+		SUM(commission_due) AS total_commission_due,
+		ROUND(
+			(1 - (
+				(SUM(total_cost) + SUM(non_cash_fee) + SUM(commission_due)) / SUM(total_revenue)
+			)) * 100, 2) AS cumulative_profit_margin
 	FROM 
-		seed_transaction AS t
-		JOIN LATERAL (
-			SELECT card_reader.card_reader_serial_number, card_reader.machine_id
-			FROM machine_card_reader_assignment AS card_reader
-			WHERE card_reader.card_reader_serial_number = t.device
-			AND card_reader.date_assigned <= t.transaction_timestamp
-			AND card_reader.is_active = TRUE
-			ORDER BY card_reader.date_assigned DESC
-			LIMIT 1
-		) AS card_reader ON card_reader.card_reader_serial_number = t.device
-		JOIN LATERAL (
-			SELECT loc_assignment.machine_id, loc_assignment.location_id
-			FROM machine_location_assignment AS loc_assignment
-			WHERE loc_assignment.machine_id = card_reader.machine_id
-			AND loc_assignment.date_assigned <= t.transaction_timestamp
-			AND loc_assignment.is_active = TRUE
-			ORDER BY loc_assignment.date_assigned DESC
-			LIMIT 1
-		) AS loc_assignment ON loc_assignment.machine_id = card_reader.machine_id
-		JOIN location AS l ON loc_assignment.location_id = l.location_id
-		JOIN business AS b ON l.business_id = b.business_id
-		LEFT JOIN LATERAL (
-			SELECT loc_commission.commission, loc_commission.location_id
-			FROM location_commission AS loc_commission
-			WHERE loc_commission.location_id = l.location_id
-			AND loc_commission.date_assigned <= t.transaction_timestamp
-			ORDER BY loc_commission.date_assigned DESC
-			LIMIT 1
-		) AS loc_commission ON loc_commission.location_id = l.location_id
-		JOIN machine AS m ON m.machine_id = card_reader.machine_id
-		JOIN slot AS s ON s.machine_id = m.machine_id AND s.machine_code = t.item
-		JOIN LATERAL (
-			SELECT psa.slot_id, psa.product_id, psa.date_assigned, psa.unit_cost::NUMERIC
-			FROM product_slot_assignment AS psa
-			WHERE psa.slot_id = s.slot_id AND psa.date_assigned <= t.transaction_timestamp
-			ORDER BY psa.date_assigned DESC
-			LIMIT 1
-		) AS slot_assignment ON slot_assignment.slot_id = s.slot_id
-		JOIN LATERAL (
-			SELECT spl.slot_id, spl.price::NUMERIC
-			FROM slot_price_log AS spl
-			WHERE spl.slot_id = s.slot_id AND spl.date_assigned <= t.transaction_timestamp
-			ORDER BY spl.date_assigned DESC
-			LIMIT 1
-		) AS slot_price ON slot_price.slot_id = s.slot_id
-		JOIN product AS p ON p.product_id = slot_assignment.product_id
-		LEFT JOIN transaction_validation AS i ON t.transaction_id = i.transaction_id
-	WHERE (m.machine_id = $1 OR $1 IS NULL) AND i.is_validated IS NULL
+		temp_results
 	GROUP BY 
-		p.name, 
-		slot_price.price, 
-		slot_assignment.unit_cost, 
-		loc_commission.commission
+		name
 	ORDER BY 
-		gross_profit DESC;
+		total_gross_profit DESC;
 	`, machine)
 	if err != nil {
 		return productSalesReport, fmt.Errorf("error executing query: %w", err)
