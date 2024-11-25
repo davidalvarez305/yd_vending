@@ -13,12 +13,15 @@
 
 {{ template "create_mini_site_form.html" . }}
 
-<script nonce="{{ .Nonce }}">
+<script nonce="{{ .Nonce }}" type="module">
+    import { formAutoFill } from "{{ .StaticPath }}/helpers/formAutoFill.js"
     const addMiniSiteButton = document.getElementById('addMiniSite');
 
     addMiniSiteButton.addEventListener('click', () => {
         const formModalContainer = document.getElementById('formModalContainer');
         formModalContainer.style.display = '';
+
+        formAutoFill();
     });
 </script>
 
