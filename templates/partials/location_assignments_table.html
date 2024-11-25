@@ -72,20 +72,30 @@
 </div>
 
 <script nonce="{{ .Nonce }}">
-    const deleteLocationButtons = document.querySelectorAll(".deleteLocationAssignment");
-    const updateLocationButtons = document.querySelectorAll(".updateLocationAssignment");
+    function handleBindTableActions() {
+        const deleteLocationButtons = document.querySelectorAll(".deleteLocationAssignment");
+        const updateLocationButtons = document.querySelectorAll(".updateLocationAssignment");
+        const dates = document.querySelectorAll(".locationDateAssigned");
 
-    deleteLocationButtons.forEach(button => {
-        button.addEventListener("click", function (e) {
-            handleDeleteLocationAssignment(button.dataset.assignmentId);
+        deleteLocationButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                handleDeleteLocationAssignment(button.dataset.assignmentId);
+            });
         });
-    });
 
-    updateLocationButtons.forEach(button => {
-        button.addEventListener("click", function (e) {
-            handleUpdateLocationAssignment(button.dataset.assignmentId);
+        updateLocationButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                handleUpdateLocationAssignment(button.dataset.assignmentId);
+            });
         });
-    });
+
+        dates.forEach(date => {
+            const unixTimestamp = parseInt(date.dataset.dateAssigned);
+            if (!isNaN(unixTimestamp)) {
+                date.value = new Date(unixTimestamp * 1000).toISOString().slice(0, 16);
+            }
+        });
+    }
 
     function getUpdateLocationData(assignmentId) {
         const inputs = document.getElementsByTagName('input');
@@ -133,7 +143,7 @@
                 const table = document.getElementById('locationAssignmentsTable');
                 table.outerHTML = html;
                 handleBindPagination();
-                handleLocationDates();
+                handleBindTableActions();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
@@ -172,7 +182,7 @@
             .then(html => {
                 const table = document.getElementById('locationAssignmentsTable');
                 table.outerHTML = html;
-                handleLocationDates();
+                handleBindTableActions();
                 handleBindPagination();
             })
             .catch(err => {
@@ -181,17 +191,6 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    function handleLocationDates() {
-        const dates = document.querySelectorAll(".locationDateAssigned");
-
-        dates.forEach(date => {
-            const unixTimestamp = parseInt(date.dataset.dateAssigned);
-            if (!isNaN(unixTimestamp)) {
-                date.value = new Date(unixTimestamp * 1000).toISOString().slice(0, 16);
-            }
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => handleLocationDates());
+    document.addEventListener("DOMContentLoaded", () => handleBindTableActions());
 </script>
 {{ end }}

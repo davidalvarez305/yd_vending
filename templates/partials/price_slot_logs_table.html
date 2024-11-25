@@ -64,21 +64,32 @@
 </div>
 
 <script nonce="{{ .Nonce }}">
-    const deleteButtons = document.querySelectorAll(".deletePriceLog");
-    const updateButtons = document.querySelectorAll(".updatePriceLog");
     const slotId = `{{ .Slot.SlotID }}`
 
-    deleteButtons.forEach(button => {
-        button.addEventListener("click", function (e) {
-            handleDeletePriceChangeLog(button.dataset.priceSlotLogId);
-        });
-    });
+    function handleBindTableActions() {
+        const deleteButtons = document.querySelectorAll(".deletePriceLog");
+        const updateButtons = document.querySelectorAll(".updatePriceLog");
+        const dates = document.querySelectorAll(".dateAssigned");
 
-    updateButtons.forEach(button => {
-        button.addEventListener("click", function (e) {
-            handleUpdatePriceChangeLog(button.dataset.priceSlotLogId);
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                handleDeletePriceChangeLog(button.dataset.priceSlotLogId);
+            });
         });
-    });
+
+        updateButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                handleUpdatePriceChangeLog(button.dataset.priceSlotLogId);
+            });
+        });
+
+        dates.forEach(date => {
+            const unixTimestamp = parseInt(date.dataset.dateAssigned);
+            if (!isNaN(unixTimestamp)) {
+                date.value = new Date(unixTimestamp * 1000).toISOString().slice(0, 16);
+            }
+        });
+    }
 
     function getUpdateData(priceSlotLogId) {
         const inputs = document.getElementsByTagName('input');
@@ -127,7 +138,7 @@
                 const table = document.getElementById('priceSlotLogsTable');
                 table.outerHTML = html;
                 handleBindPagination();
-                handlePriceSlotLogsDates();
+                handleBindTableActions();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
@@ -166,7 +177,7 @@
             .then(html => {
                 const table = document.getElementById('priceSlotLogsTable');
                 table.outerHTML = html;
-                handlePriceSlotLogsDates();
+                handleBindTableActions();
                 handleBindPagination();
             })
             .catch(err => {
@@ -175,17 +186,6 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    function handlePriceSlotLogsDates() {
-        const dates = document.querySelectorAll(".dateAssigned");
-
-        dates.forEach(date => {
-            const unixTimestamp = parseInt(date.dataset.dateAssigned);
-            if (!isNaN(unixTimestamp)) {
-                date.value = new Date(unixTimestamp * 1000).toISOString().slice(0, 16);
-            }
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => handlePriceSlotLogsDates());
+    document.addEventListener("DOMContentLoaded", () => handleBindTableActions());
 </script>
 {{ end }}

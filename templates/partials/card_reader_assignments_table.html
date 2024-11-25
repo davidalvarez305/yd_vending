@@ -70,20 +70,30 @@
 </div>
 
 <script nonce="{{ .Nonce }}">
-    const deleteCardReaderButtons = document.querySelectorAll(".deleteMachineCardReader");
-    const updateCardReaderButtons = document.querySelectorAll(".updateMachineCardReader");
+    function handleBindTableActions() {
+        const deleteCardReaderButtons = document.querySelectorAll(".deleteMachineCardReader");
+        const updateCardReaderButtons = document.querySelectorAll(".updateMachineCardReader");
+        const dates = document.querySelectorAll(".cardReaderDateAssigned");
 
-    deleteCardReaderButtons.forEach(button => {
-        button.addEventListener("click", function (e) {
-            handleDeleteCardReaderAssignment(button.dataset.machineCardReaderId);
+        deleteCardReaderButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                handleDeleteCardReaderAssignment(button.dataset.machineCardReaderId);
+            });
         });
-    });
 
-    updateCardReaderButtons.forEach(button => {
-        button.addEventListener("click", function (e) {
-            handleUpdateCardReaderAssignment(button.dataset.machineCardReaderId);
+        updateCardReaderButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                handleUpdateCardReaderAssignment(button.dataset.machineCardReaderId);
+            });
         });
-    });
+
+        dates.forEach(date => {
+            const unixTimestamp = parseInt(date.dataset.dateAssigned);
+            if (!isNaN(unixTimestamp)) {
+                date.value = new Date(unixTimestamp * 1000).toISOString().slice(0, 16);
+            }
+        });
+    }
 
     function getCardReaderUpdateData(assignmentId) {
         const inputs = document.getElementsByTagName('input');
@@ -130,7 +140,7 @@
                 const table = document.getElementById('cardReaderAssignmentsTable');
                 table.outerHTML = html;
                 handleBindPagination();
-                handleCardAssignmentDates();
+                handleBindTableActions();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
@@ -168,7 +178,7 @@
             .then(html => {
                 const table = document.getElementById('cardReaderAssignmentsTable');
                 table.outerHTML = html;
-                handleCardAssignmentDates();
+                handleBindTableActions();
                 handleBindPagination();
             })
             .catch(err => {
@@ -177,17 +187,6 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    function handleCardAssignmentDates() {
-        const dates = document.querySelectorAll(".cardReaderDateAssigned");
-
-        dates.forEach(date => {
-            const unixTimestamp = parseInt(date.dataset.dateAssigned);
-            if (!isNaN(unixTimestamp)) {
-                date.value = new Date(unixTimestamp * 1000).toISOString().slice(0, 16);
-            }
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => handleCardAssignmentDates());
+    document.addEventListener("DOMContentLoaded", () => handleBindTableActions());
 </script>
 {{ end }}

@@ -90,13 +90,15 @@
 </div>
 
 <script nonce="{{ .Nonce }}">
-    const deleteProductSlotAssignmentButtons = document.querySelectorAll(".deleteProductSlotAssignment");
+    function handleBindTableActions() {
+        const deleteProductSlotAssignmentButtons = document.querySelectorAll(".deleteProductSlotAssignment");
 
-    deleteProductSlotAssignmentButtons.forEach(button => {
-        button.addEventListener("click", function (e) {
-            handleDeleteProductSlotAssignment(button.dataset.productSlotAssignmentId);
+        deleteProductSlotAssignmentButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                handleDeleteProductSlotAssignment(button.dataset.productSlotAssignmentId);
+            });
         });
-    });
+    }
 
     function handleDeleteProductSlotAssignment(productSlotAssignmentId) {
         const alertModal = document.getElementById("alertModal");
@@ -130,11 +132,14 @@
                 const table = document.getElementById('productSlotAssignmentsTable');
                 table.outerHTML = html;
                 handleBindPagination();
+                handleBindTableActions();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
             })
             .finally(() => handleCloseAlertModal());
     }
+
+    document.addEventListener("DOMContentLoaded", () => handleBindTableActions());
 </script>
 {{ end }}

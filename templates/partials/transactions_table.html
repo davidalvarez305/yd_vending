@@ -135,8 +135,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const invalidationButtons = document.querySelectorAll(".invalidationButton");
-    const invalidationRemovalButtons = document.querySelectorAll(".invalidationRemovalButton");
     const alertModal = document.getElementById("alertModal");
 
     function buildURL(transactionId, validationId) {
@@ -149,12 +147,25 @@
         return actionURL;
     }
 
-    invalidationButtons.forEach(invalidationButton => {
-        invalidationButton.addEventListener("click", function (e) {
-            const transactionId = invalidationButton.dataset.transactionId;
-            handleInvalidateTransaction(transactionId);
+    function handleBindTableActions() {
+        const invalidationButtons = document.querySelectorAll(".invalidationButton");
+        const invalidationRemovalButtons = document.querySelectorAll(".invalidationRemovalButton");
+
+        invalidationButtons.forEach(invalidationButton => {
+            invalidationButton.addEventListener("click", function (e) {
+                const transactionId = invalidationButton.dataset.transactionId;
+                handleInvalidateTransaction(transactionId);
+            });
         });
-    });
+
+        invalidationRemovalButtons.forEach(invalidationRemovalButton => {
+            invalidationRemovalButton.addEventListener("click", function (e) {
+                const transactionId = invalidationRemovalButton.dataset.transactionId;
+                const transactionValidationId = invalidationRemovalButton.dataset.transactionValidationId;
+                handleInvalidationRemoval(transactionId, transactionValidationId);
+            });
+        });
+    }
 
     function handleInvalidateTransaction(transactionId) {
         const body = new FormData();
@@ -184,20 +195,13 @@
                 const table = document.getElementById('transactionsTable');
                 table.outerHTML = html;
                 handleBindPagination();
+                handleBindTableActions();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
             })
             .finally(() => handleCloseAlertModal());
     }
-
-    invalidationRemovalButtons.forEach(invalidationRemovalButton => {
-        invalidationRemovalButton.addEventListener("click", function (e) {
-            const transactionId = invalidationRemovalButton.dataset.transactionId;
-            const transactionValidationId = invalidationRemovalButton.dataset.transactionValidationId;
-            handleInvalidationRemoval(transactionId, transactionValidationId);
-        });
-    });
 
     function handleInvalidationRemoval(transactionId, validationId) {
         const body = new FormData();
@@ -227,12 +231,15 @@
                 const table = document.getElementById('transactionsTable');
                 table.outerHTML = html;
                 handleBindPagination();
+                handleBindTableActions();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
             })
             .finally(() => handleCloseAlertModal());
     }
+
+    document.addEventListener("DOMContentLoaded", () => handleBindTableActions())
 
 </script>
 {{ end }}
