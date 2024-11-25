@@ -278,6 +278,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostVercelProject(w, r)
 			return
 		}
+		if strings.HasPrefix(path, "/crm/mini-site/") && strings.Contains(path, "/deploy") {
+			PostVercelDeployProject(w, r)
+			return
+		}
 		if strings.HasPrefix(path, "/crm/machine/") && strings.Contains(path, "/location-assignment") {
 			PostLocationAssignment(w, r)
 			return
@@ -5942,6 +5946,91 @@ func DeleteLead(w http.ResponseWriter, r *http.Request) {
 			"Leads":       leads,
 			"CurrentPage": pageNum,
 			"MaxPages":    helpers.CalculateMaxPages(totalRows, constants.LeadsPerPage),
+		},
+	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostVercelDeployProject(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	slug := r.URL.Query().Get("slug")
+	projectName := r.URL.Query().Get("projectName")
+
+	if slug == "" || projectName == "" {
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Missing slug from query.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	git, err := services.GetLatestGithubCommit(constants.MiniSiteGithubRepo, constants.MiniSiteBranchName)
+	if err != nil {
+		fmt.Printf("Error getting latest git commit: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get latest git commit.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	deploymentBody := types.DeployVercelProjectBody{
+		Name:   projectName,
+		Target: constants.VercelProjectEnvinronmentVariableTarget,
+		GitSource: types.GitSource{
+			Type:   "github",
+			RepoId: constants.MiniSiteRepoID,
+			Ref:    constants.MiniSiteBranchName,
+			Sha:    git.GetSHA(),
+		},
+	}
+
+	err = services.CreateVercelProjectDeployment(slug, constants.MiniSiteVercelTeamID, constants.VercelAccessToken, deploymentBody)
+	if err != nil {
+		fmt.Printf("Error deploying project: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to deploy project.",
+			},
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "success.html",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Mini site deployed successfully.",
 		},
 	}
 
