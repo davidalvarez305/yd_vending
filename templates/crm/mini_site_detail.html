@@ -215,7 +215,7 @@
 
     function handleProjectRedirect() {
         const projectName = document.getElementById("project_name");
-        const url = `https://vercel.com/{{ .MiniSiteVercelTeamID }}/${projectName.value}`;
+        const url = `https://vercel.com/{{ .VercelUsername }}/${projectName.value}`;
 
         window.location.href = url;
     }

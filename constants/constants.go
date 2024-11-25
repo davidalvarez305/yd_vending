@@ -32,6 +32,7 @@ const (
 
 	VercelProjectEnvinronmentVariableTarget string = "production"
 	VercelProjectEnvinronmentVariableType   string = "plain"
+	VercelUsername                          string = "ydvending"
 )
 
 var (
