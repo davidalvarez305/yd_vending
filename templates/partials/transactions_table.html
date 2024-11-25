@@ -139,10 +139,6 @@
     const invalidationRemovalButtons = document.querySelectorAll(".invalidationRemovalButton");
     const alertModal = document.getElementById("alertModal");
 
-    const body = new FormData();
-    const csrfToken = document.querySelector('[name="csrf_token"]');
-    body.set("csrf_token", csrfToken.value);
-
     function buildURL(transactionId, validationId) {
         let prebuildURL = `/inventory/transaction/${transactionId}/invalidate`
 
@@ -161,6 +157,10 @@
     });
 
     function handleInvalidateTransaction(transactionId) {
+        const body = new FormData();
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        body.set("csrf_token", csrfToken.value);
+
         fetch(buildURL(transactionId, null), {
             method: "POST",
             credentials: "include",
@@ -200,6 +200,10 @@
     });
 
     function handleInvalidationRemoval(transactionId, validationId) {
+        const body = new FormData();
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        body.set("csrf_token", csrfToken.value);
+
         fetch(buildURL(transactionId, validationId), {
             method: "DELETE",
             credentials: "include",
