@@ -29,12 +29,12 @@
 							<form id="createBusinessForm" class="space-y-6">
 								<input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
 								<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-									<div class="space-y-1">
+									<div class="grow space-y-1">
 										<label for="name" class="font-medium">Business Name*</label>
 										<input type="text" id="name" name="name" required
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
 									</div>
-									<div class="space-y-1">
+									<div class="grow space-y-1">
 										<label for="website" class="font-medium">Website</label>
 										<input type="url" id="website" name="website"
 											class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />

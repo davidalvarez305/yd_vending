@@ -30,12 +30,12 @@
                                 <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}" />
                                 <input type="hidden" name="machine_id" value="{{ .Machine.MachineID }}" />
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="machine_card_reader_date_assigned" class="font-medium">Assignment Date</label>
                                         <input type="datetime-local" id="machine_card_reader_date_assigned" name="machine_card_reader_date_assigned"
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="card_reader_serial_number" class="font-medium">Card Reader Serial Number</label>
                                         <input type="text" id="card_reader_serial_number"
                                             name="card_reader_serial_number"

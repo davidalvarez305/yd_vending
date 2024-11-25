@@ -30,7 +30,7 @@
                                 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ .CSRFToken }}" />
                                 <input type="hidden" id="slot_id" name="slot_id" value="{{ .Slot.SlotID }}" />
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="product_id" class="font-medium">Product*</label>
                                         <select id="product_id" name="product_id" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
@@ -39,7 +39,7 @@
                                             {{ end }}
                                         </select>
                                     </div>
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="supplier_id" class="font-medium">Supplier*</label>
                                         <select id="supplier_id" name="supplier_id" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary">
@@ -50,24 +50,24 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="quantity" class="font-medium">Quantity*</label>
                                         <input type="number" id="quantity" name="quantity" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="unit_cost" class="font-medium">Unit Cost*</label>
                                         <input type="number" step="0.01" id="unit_cost" name="unit_cost" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="date_assigned" class="font-medium">Date Assigned*</label>
                                         <input type="datetime-local" id="date_assigned" name="date_assigned" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
                                     </div>
-                                    <div class="space-y-1">
+                                    <div class="grow space-y-1">
                                         <label for="expiration_date" class="font-medium">Expiration Date*</label>
                                         <input type="date" id="expiration_date" name="expiration_date" required
                                             class="block w-full rounded-lg border border-gray-200 px-5 py-3 leading-6 placeholder-gray-500 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:placeholder-gray-400 dark:focus:border-primary" />
