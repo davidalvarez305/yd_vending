@@ -84,7 +84,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-	const form = document.getElementById("createBusinessForm");
 	const submitForm = document.getElementById("submitForm");
 	const cancelForm = document.getElementById("cancelForm");
 	const closeForm = document.getElementById("closeForm");
@@ -99,9 +98,10 @@
 	closeForm.addEventListener("click", () => handleCloseForm());
 
 	function handleSubmitForm() {
+		const form = document.getElementById("createBusinessForm");
+		const alertModal = document.getElementById("alertModal");
 		const data = new FormData(form);
 		const body = new FormData();
-		const alertModal = document.getElementById("alertModal");
 
 		for (const [key, value] of data.entries()) {
 			if (value) body.append(key, value);
@@ -134,7 +134,7 @@
 				form.reset();
 			})
 			.catch(err => {
-				alertModal.outerHTML = err;
+				alertModal.outerHTML = err.message;
 				handleCloseAlertModal();
 			})
 			.finally(() => handleCloseForm());

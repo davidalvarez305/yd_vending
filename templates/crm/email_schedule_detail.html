@@ -134,7 +134,7 @@
                 alertModal.outerHTML = html;
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
             })
             .finally(() => handleCloseAlertModal());
     }

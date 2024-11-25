@@ -79,7 +79,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-	const form = document.getElementById("createMiniSiteForm");
 	const submitForm = document.getElementById("submitForm");
 	const cancelForm = document.getElementById("cancelForm");
 	const closeForm = document.getElementById("closeForm");
@@ -94,6 +93,7 @@
 	closeForm.addEventListener("click", () => handleCloseForm());
 
 	function handleSubmitForm() {
+		const form = document.getElementById("createMiniSiteForm");
 		const data = new FormData(form);
 		const body = new FormData();
 		const alertModal = document.getElementById("alertModal");

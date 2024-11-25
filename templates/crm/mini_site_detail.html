@@ -192,9 +192,7 @@
     const launchProject = document.getElementById("launchProject");
     const updateEnvironmentVariables = document.getElementById("updateEnvironmentVariables");
 
-    launchProject.addEventListener("click", (e) => {
-        handleSubmitMiniSiteAction("vercelProjectForm", "POST", e.target.id)
-    });
+    launchProject.addEventListener("click", (e) =>  handleSubmitMiniSiteAction("vercelProjectForm", "POST", e.target.id));
     updateEnvironmentVariables.addEventListener("click", (e) => handleSubmitMiniSiteAction("vercelProjectForm", "PUT", e.target.id));
 
     function handleSubmitMiniSiteAction(formId, method, buttonId) {

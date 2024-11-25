@@ -106,10 +106,10 @@
 
     const form = document.getElementById("updateProductSlotAssignmentForm");
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-        const data = new FormData(e.target);
+        const data = new FormData(event.target);
         const body = new FormData();
         const alertModal = document.getElementById("alertModal");
 
@@ -155,7 +155,7 @@
                 alertModal.outerHTML = html;
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
             })
             .finally(() => handleCloseAlertModal());
     });

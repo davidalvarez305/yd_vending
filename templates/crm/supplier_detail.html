@@ -109,11 +109,11 @@
         membershipRenewal.value = date.toISOString().split('T')[0];
     }
 
-    function handleSubmitForm(e) {
-        e.preventDefault();
+    function handleSubmitForm(event) {
+        event.preventDefault();
         const alertModal = document.getElementById("alertModal");
 
-        const data = new FormData(e.target);
+        const data = new FormData(event.target);
         const body = new FormData();
 
         let membershipRenewal = data.get('membership_renewal');
@@ -130,7 +130,7 @@
             if (value) body.append(key, value);
         }
 
-        const endpoint = e.target.action;
+        const endpoint = event.target.action;
         const method = "PUT";
 
         fetch(endpoint, {
@@ -156,7 +156,7 @@
                 alertModal.outerHTML = html;
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
             })
             .finally(() => handleCloseAlertModal());
     }

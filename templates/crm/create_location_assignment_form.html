@@ -79,7 +79,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const locationAssignmentForm = document.getElementById("createLocationAssignmentForm");
     const submitLocationAssignmentForm = document.getElementById("submitLocationAssignmentForm");
     const cancelLocationAssignmentForm = document.getElementById("cancelLocationAssignmentForm");
     const closeLocationAssignmentForm = document.getElementById("closeLocationAssignmentForm");
@@ -94,7 +93,8 @@
     closeLocationAssignmentForm.addEventListener("click", () => handleCloseLocationAssignmentForm());
 
     function handleSubmitLocationAssignmentForm() {
-        const data = new FormData(locationAssignmentForm);
+        const form = document.getElementById("createLocationAssignmentForm");
+        const data = new FormData(form);
         const body = new FormData();
         const alertModal = document.getElementById("alertModal");
 
@@ -136,7 +136,7 @@
                 locationAssignmentForm.reset();
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
                 handleCloseAlertModal();
             })
             .finally(() => handleCloseLocationAssignmentForm());

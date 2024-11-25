@@ -74,7 +74,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const slotForm = document.getElementById("createSlotForm");
     const submitSlotForm = document.getElementById("submitSlotForm");
     const cancelSlotForm = document.getElementById("cancelSlotForm");
     const closeSlotForm = document.getElementById("closeSlotForm");
@@ -89,7 +88,8 @@
     closeSlotForm.addEventListener("click", () => handleCloseSlotForm());
 
     function handleSubmitSlotForm() {
-        const data = new FormData(slotForm);
+        const form = document.getElementById("createSlotForm");
+        const data = new FormData(form);
         const body = new FormData();
         const alertModal = document.getElementById("alertModal");
 
@@ -121,10 +121,10 @@
                 table.outerHTML = html;
                 handleBindPagination();
 
-                slotForm.reset();
+                form.reset();
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
                 handleCloseAlertModal();
             })
             .finally(() => handleCloseSlotForm());

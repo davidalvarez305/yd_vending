@@ -64,7 +64,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const priceSlotLogForm = document.getElementById("createPriceSlotLogForm");
     const submitPriceSlotLogForm = document.getElementById("submitPriceSlotLogForm");
     const cancelPriceSlotLogForm = document.getElementById("cancelPriceSlotLogForm");
     const closePriceSlotLogForm = document.getElementById("closePriceSlotLogForm");
@@ -79,7 +78,8 @@
     closePriceSlotLogForm.addEventListener("click", () => handleClosePriceSlotLogForm());
 
     function handleSubmitPriceSlotLogForm() {
-        const data = new FormData(priceSlotLogForm);
+        const form = document.getElementById("createPriceSlotLogForm");
+        const data = new FormData(form);
         const body = new FormData();
         const alertModal = document.getElementById("alertModal");
 
@@ -118,10 +118,10 @@
                 handleBindPagination();
                 handlePriceSlotLogsDates();
 
-                priceSlotLogForm.reset();
+                form.reset();
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
                 handleCloseAlertModal();
             })
             .finally(() => handleClosePriceSlotLogForm());

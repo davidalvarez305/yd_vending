@@ -39,11 +39,10 @@
 </div>
 
 <script nonce="{{ .Nonce }}" type="module">
-    const form = document.getElementById("appointmentForm");
-
     function handleAppointmentFormSubmit(e) {
         e.preventDefault();
 
+        const form = document.getElementById("appointmentForm");
         const alertModal = document.getElementById("alertModal");
 
         const data = new FormData(form);
@@ -90,7 +89,7 @@
                 });
             })
             .catch(err => {
-                alertModal.outerHTML = err
+                alertModal.outerHTML = err.message;
             })
             .finally(() => {
                 handleCloseAlertModal();

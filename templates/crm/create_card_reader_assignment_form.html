@@ -73,7 +73,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const cardReaderAssignmentForm = document.getElementById("createCardReaderAssignmentForm");
     const submitCardReaderAssignmentForm = document.getElementById("submitCardReaderAssignmentForm");
     const cancelCardReaderAssignmentForm = document.getElementById("cancelCardReaderAssignmentForm");
     const closeCardReaderAssignmentForm = document.getElementById("closeCardReaderAssignmentForm");
@@ -88,7 +87,8 @@
     closeCardReaderAssignmentForm.addEventListener("click", () => handleCloseCardReaderAssignmentForm());
 
     function handleSubmitCardReaderAssignmentForm() {
-        const data = new FormData(cardReaderAssignmentForm);
+        const form = document.getElementById("createCardReaderAssignmentForm");
+        const data = new FormData(form);
         const body = new FormData();
         const alertModal = document.getElementById("alertModal");
 
@@ -127,10 +127,10 @@
                 handleBindPagination();
                 handleCardAssignmentDates();
 
-                cardReaderAssignmentForm.reset();
+                form.reset();
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
                 handleCloseAlertModal();
             })
             .finally(() => handleCloseCardReaderAssignmentForm());

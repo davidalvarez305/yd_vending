@@ -105,7 +105,6 @@
     const hasCommission = "{{ .Slot.HasCommission }}" === "true";
     const commissionRate = parseFloat("{{ .Slot.Commission }}");
 
-    const productSlotAssignmentForm = document.getElementById("createProductSlotAssignmentForm");
     const submitProductSlotAssignmentForm = document.getElementById("submitProductSlotAssignmentForm");
     const cancelProductSlotAssignmentForm = document.getElementById("cancelProductSlotAssignmentForm");
     const closeProductSlotAssignmentForm = document.getElementById("closeProductSlotAssignmentForm");
@@ -120,7 +119,8 @@
     closeProductSlotAssignmentForm.addEventListener("click", () => handleCloseProductSlotAssignmentForm());
 
     function handleSubmitProductSlotAssignmentForm() {
-        const data = new FormData(productSlotAssignmentForm);
+        const form = document.getElementById("createProductSlotAssignmentForm");
+        const data = new FormData(form);
         const body = new FormData();
         const alertModal = document.getElementById("alertModal");
 
@@ -167,10 +167,10 @@
                 table.outerHTML = html;
                 handleBindPagination();
 
-                productSlotAssignmentForm.reset();
+                form.reset();
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
                 handleCloseAlertModal();
             })
             .finally(() => handleCloseProductSlotAssignmentForm());
