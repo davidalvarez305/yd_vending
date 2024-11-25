@@ -347,6 +347,7 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 	form.IP = helpers.GetStringPointerFromForm(r, "ip")
 	form.LeadTypeID = helpers.GetIntPointerFromForm(r, "lead_type_id")
 	form.Email = helpers.GetStringPointerFromForm(r, "email")
+	form.OptInTextMessaging = helpers.GetBoolPointerFromForm(r, "opt_in_text_messaging")
 
 	form.FacebookClickID = helpers.GetMarketingCookiesFromRequestOrForm(r, "_fbc", "facebook_click_id")
 	form.FacebookClientID = helpers.GetMarketingCookiesFromRequestOrForm(r, "_fbp", "facebook_client_id")

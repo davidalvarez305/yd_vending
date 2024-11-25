@@ -175,7 +175,10 @@
         marketingHelper.populate();
         const data = marketingHelper.data;
 
+        data.set("opt_in_text_messaging", optIn.checked);
         new FormData(form).forEach((value, key) => {
+            if (key === "opt_in_text_messaging") return;
+
             if (value) data.set(key, value);
         });
 

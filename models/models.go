@@ -35,17 +35,18 @@ type LeadType struct {
 }
 
 type Lead struct {
-	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	LeadTypeID        int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
-	FirstName         string `json:"first_name" form:"first_name" schema:"first_name"`
-	LastName          string `json:"last_name" form:"last_name" schema:"last_name"`
-	PhoneNumber       string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email             string `json:"email" form:"email" schema:"email"`
-	CreatedAt         int64  `json:"created_at" form:"created_at" schema:"created_at"`
-	VendingTypeID     int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
-	VendingLocationID int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
-	LeadStatusID      int    `json:"lead_status_id" form:"lead_status_id" schema:"lead_status_id"`
-	Message           string `json:"message" form:"message" schema:"message"`
+	LeadID             int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	LeadTypeID         int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
+	FirstName          string `json:"first_name" form:"first_name" schema:"first_name"`
+	LastName           string `json:"last_name" form:"last_name" schema:"last_name"`
+	PhoneNumber        string `json:"phone_number" form:"phone_number" schema:"phone_number"`
+	Email              string `json:"email" form:"email" schema:"email"`
+	CreatedAt          int64  `json:"created_at" form:"created_at" schema:"created_at"`
+	VendingTypeID      int    `json:"vending_type_id" form:"vending_type_id" schema:"vending_type_id"`
+	VendingLocationID  int    `json:"vending_location_id" form:"vending_location_id" schema:"vending_location_id"`
+	LeadStatusID       int    `json:"lead_status_id" form:"lead_status_id" schema:"lead_status_id"`
+	Message            string `json:"message" form:"message" schema:"message"`
+	OptInTextMessaging bool   `json:"opt_in_text_messaging" form:"opt_in_text_messaging" schema:"opt_in_text_messaging"`
 }
 
 type LeadApplication struct {

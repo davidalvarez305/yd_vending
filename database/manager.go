@@ -107,8 +107,8 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 	defer tx.Rollback()
 
 	leadStmt, err := tx.Prepare(`
-		INSERT INTO lead (first_name, last_name, phone_number, created_at, vending_type_id, vending_location_id, message, lead_type_id)
-		VALUES ($1, $2, $3, to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', $5, $6, $7, $8)
+		INSERT INTO lead (first_name, last_name, phone_number, created_at, vending_type_id, vending_location_id, message, lead_type_id, opt_in_text_messaging)
+		VALUES ($1, $2, $3, to_timestamp($4)::timestamptz AT TIME ZONE 'America/New_York', $5, $6, $7, $8, $9)
 		RETURNING lead_id
 	`)
 	if err != nil {
@@ -134,6 +134,7 @@ func CreateLeadAndMarketing(quoteForm types.QuoteForm) (int, error) {
 		vendingLocationID,
 		message,
 		utils.CreateNullInt(quoteForm.LeadTypeID),
+		utils.CreateNullBool(quoteForm.OptInTextMessaging),
 	).Scan(&leadID)
 	if err != nil {
 		return leadID, fmt.Errorf("error inserting lead: %w", err)
