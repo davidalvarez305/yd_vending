@@ -134,6 +134,12 @@
                         Deploy Project
                     </button>
                 </div>
+                <div class="py-4">
+                    <button type="button" id="projectRedirect" style="display: none;"
+                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-secondary-700 bg-secondary-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-secondary-600 hover:bg-secondary-600 hover:text-white focus:ring focus:ring-secondary-400/50 active:border-secondary-700 active:bg-secondary-700 dark:focus:ring-secondary-400/90">
+                        See Build
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -196,10 +202,23 @@
     const launchProject = document.getElementById("launchProject");
     const updateEnvironmentVariables = document.getElementById("updateEnvironmentVariables");
     const deployProject = document.getElementById("deployProject");
+    const projectRedirect = document.getElementById("projectRedirect");
 
     launchProject.addEventListener("click", (e) =>  handleSubmitMiniSiteAction("vercelProjectForm", "POST", e.target.id));
     updateEnvironmentVariables.addEventListener("click", (e) => handleSubmitMiniSiteAction("vercelProjectForm", "PUT", e.target.id));
     deployProject.addEventListener("click", () => handleDeployMiniSiteProject("vercelProjectForm"));
+    projectRedirect.addEventListener("click", () => handleProjectRedirect());
+
+    function handleShowProjectRedirect() {
+        projectRedirect.style.display = "";
+    }
+
+    function handleProjectRedirect() {
+        const projectName = document.getElementById("project_name");
+        const url = `https://vercel.com/{{ .MiniSiteVercelTeamID }}/${projectName.value}`;
+
+        window.location.href = url;
+    }
 
     function handleDeployMiniSiteProject(formId) {
         const form = document.getElementById(formId);
@@ -233,6 +252,7 @@
             })
             .then(html => {
                 alertModal.outerHTML = html;
+                handleShowProjectRedirect();
             })
             .catch(err => {
                 alertModal.outerHTML = err.message;
@@ -275,6 +295,7 @@
             })
             .then(html => {
                 alertModal.outerHTML = html;
+                handleShowProjectRedirect();
             })
             .catch(err => {
                 alertModal.outerHTML = err.message;

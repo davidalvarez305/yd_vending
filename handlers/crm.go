@@ -5430,6 +5430,7 @@ func GetMiniSiteDetail(w http.ResponseWriter, r *http.Request, ctx map[string]an
 	data["Nonce"] = nonce
 	data["CSRFToken"] = csrfToken
 	data["MiniSite"] = miniSiteDetails
+	data["MiniSiteVercelTeamID"] = constants.MiniSiteVercelTeamID
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
