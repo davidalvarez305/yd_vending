@@ -16,6 +16,8 @@ func PartialsHandler(w http.ResponseWriter, r *http.Request) {
 			GetPopUpModal(w, r)
 		case "/partials/error-modal":
 			GetErrorModal(w, r)
+		case "/partials/opt-out-confirmation-modal":
+			GetOptOutConfirmationModal(w, r)
 		default:
 			http.Error(w, "No partials found.", http.StatusNotFound)
 		}
@@ -46,4 +48,12 @@ func GetErrorModal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func GetOptOutConfirmationModal(w http.ResponseWriter, r *http.Request) {
+	fileName := "opt_out_confirmation_modal.html"
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	http.ServeFile(w, r, constants.PARTIAL_TEMPLATES_DIR+fileName)
 }
