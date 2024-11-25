@@ -122,16 +122,18 @@
 	<!-- END Pagination -->
 </div>
 
+<input type="hidden" value="{{ .CSRFToken }}" name="csrf_token" />
+
 <script nonce="{{ .Nonce }}">
 	const alertModal = document.getElementById("alertModal");
 
-    const data = new FormData();
-    const csrfToken = document.querySelector('[name="csrf_token"]');
-    if (csrfToken) {
-        data.set("csrf_token", csrfToken.value);
-    }
-
     function handleDeleteLead(leadId) {
+		const data = new FormData();
+		const csrfToken = document.querySelector('[name="csrf_token"]');
+		if (csrfToken) {
+			data.set("csrf_token", csrfToken.value);
+		}
+
         fetch(`/crm/lead/${leadId}` + window.location.search, {
             method: "DELETE",
             credentials: "include",
