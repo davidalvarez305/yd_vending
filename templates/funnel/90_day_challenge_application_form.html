@@ -115,7 +115,6 @@
 
 <script nonce="{{ .Nonce }}" type="module">
     import { MarketingHelper } from "{{ .StaticPath }}/helpers/marketing.js";
-    const form = document.getElementById("applicationForm");
 
     const marketingHelper = new MarketingHelper();
     document.addEventListener("DOMContentLoaded", () => marketingHelper.getUserLocation());
@@ -177,6 +176,7 @@
     }
 
     function handleApplicationFormSubmit() {
+        const form = document.getElementById("applicationForm");
         const alertModal = document.getElementById("alertModal");
 
         marketingHelper.populate();

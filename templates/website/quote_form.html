@@ -109,7 +109,6 @@
 
 <script nonce="{{ .Nonce }}" type="module">
     import { MarketingHelper } from "{{ .StaticPath }}/helpers/marketing.js";
-    const form = document.getElementById("quoteForm");
 
     const marketingHelper = new MarketingHelper();
     document.addEventListener("DOMContentLoaded", () => marketingHelper.getUserLocation());
@@ -117,7 +116,6 @@
     const submitQuoteForm = document.getElementById("submitQuoteForm");
     const cancelQuoteForm = document.getElementById("cancelQuoteForm");
     const closeQuoteForm = document.getElementById("closeQuoteForm");
-
     const optIn = document.getElementById("opt_in_text_messaging");
 
     function handleOptOutConfirmation(isChecked) {
@@ -127,8 +125,8 @@
         modal.style.display = "none";
     }
 
-    optIn.addEventListener("click", (e) => {
-        const isChecked = e.target.checked;
+    function handleClickOptIn(event) {
+        const isChecked = event.target.checked;
         const alertModal = document.getElementById("alertModal");
 
         if (isChecked) return;
@@ -137,11 +135,6 @@
             credentials: "include",
         })
         .then(response => {
-            const token = response.headers.get("X-Csrf-Token");
-            if (token) {
-                const tokens = document.querySelectorAll('[name="csrf_token"]');
-                tokens.forEach((csrf_token) => (csrf_token.value = token));
-            }
             if (response.ok) {
                 return response.text();
             } else {
@@ -163,7 +156,9 @@
         .catch(err => {
             alertModal.outerHTML = err.message;
         })
-    })
+    }
+
+    optIn.addEventListener("click", (e) => handleClickOptIn(e));
 
     function handleCloseQuoteForm() {
         const modal = document.getElementById('formModalContainer');
@@ -171,7 +166,9 @@
     }
 
     function handleQuoteFormSubmit() {
+        const form = document.getElementById("quoteForm");
         const alertModal = document.getElementById("alertModal");
+
         marketingHelper.populate();
         const data = marketingHelper.data;
 

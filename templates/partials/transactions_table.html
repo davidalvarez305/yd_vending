@@ -135,8 +135,6 @@
 <div id="alertModal"></div>
 
 <script nonce="{{ .Nonce }}">
-    const alertModal = document.getElementById("alertModal");
-
     function buildURL(transactionId, validationId) {
         let prebuildURL = `/inventory/transaction/${transactionId}/invalidate`
 
@@ -168,6 +166,8 @@
     }
 
     function handleInvalidateTransaction(transactionId) {
+        const alertModal = document.getElementById("alertModal");
+
         const body = new FormData();
         const csrfToken = document.querySelector('[name="csrf_token"]');
         body.set("csrf_token", csrfToken.value);
@@ -198,12 +198,14 @@
                 handleBindTableActions();
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
             })
             .finally(() => handleCloseAlertModal());
     }
 
     function handleInvalidationRemoval(transactionId, validationId) {
+        const alertModal = document.getElementById("alertModal");
+
         const body = new FormData();
         const csrfToken = document.querySelector('[name="csrf_token"]');
         body.set("csrf_token", csrfToken.value);
@@ -234,7 +236,7 @@
                 handleBindTableActions();
             })
             .catch(err => {
-                alertModal.outerHTML = err;
+                alertModal.outerHTML = err.message;
             })
             .finally(() => handleCloseAlertModal());
     }
