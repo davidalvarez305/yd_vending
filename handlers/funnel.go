@@ -9,7 +9,10 @@ import (
 	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
+
+	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
 var funnelBaseFilePath = constants.FUNNEL_TEMPLATES_DIR + "base.html"
@@ -243,6 +246,12 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 
 	go conversions.SendGoogleConversion(payload)
 	go conversions.SendFacebookConversion(metaPayload)
+
+	phoneNumber := utils.SafeString(form.PhoneNumber)
+	params.SetFrom("+1" + )
+	textBody := "Thanks for signing up!"
+
+	msg, err := services.SendTextMessage(phoneNumber, constants.CompanyPhoneNumber, textBody)
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
