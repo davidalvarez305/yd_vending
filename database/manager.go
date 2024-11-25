@@ -3482,7 +3482,8 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 	JOIN slot AS s ON psa.slot_id = s.slot_id
 	JOIN supplier AS sup ON psa.supplier_id = sup.supplier_id
 	JOIN product AS p ON psa.product_id = p.product_id
-	WHERE psa.slot_id = $1`
+	WHERE psa.slot_id = $1
+	ORDER BY psa.date_assigned DESC`
 
 	var productSlotAssignments []types.ProductSlotAssignment
 
@@ -3515,7 +3516,7 @@ func GetProductSlotAssignments(slotId string) ([]types.ProductSlotAssignment, er
 		}
 
 		if dateAssigned.Valid {
-			assignment.DateAssigned = utils.FormatTimestampEST(dateAssigned.Time.Unix())
+			assignment.DateAssigned = utils.FormatTimestamp(dateAssigned.Time.Unix())
 		}
 
 		if product.Valid {
