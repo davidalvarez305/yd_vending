@@ -92,12 +92,6 @@
 <script nonce="{{ .Nonce }}">
     const deleteProductSlotAssignmentButtons = document.querySelectorAll(".deleteProductSlotAssignment");
 
-    const deleteProductSlotAssignmentData = new FormData();
-    const productSlotAssignmentCsrfToken = document.querySelector('[name="csrf_token"]');
-    if (productSlotAssignmentCsrfToken) {
-        deleteProductSlotAssignmentData.set("csrf_token", productSlotAssignmentCsrfToken.value);
-    }
-
     deleteProductSlotAssignmentButtons.forEach(button => {
         button.addEventListener("click", function (e) {
             handleDeleteProductSlotAssignment(button.dataset.productSlotAssignmentId);
@@ -107,10 +101,16 @@
     function handleDeleteProductSlotAssignment(productSlotAssignmentId) {
         const alertModal = document.getElementById("alertModal");
 
+        const data = new FormData();
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        if (csrfToken) {
+            data.set("csrf_token", csrfToken.value);
+        }
+
         fetch(`/crm/product-slot-assignment/${productSlotAssignmentId}?slotId={{ .Slot.SlotID }}`, {
             method: "DELETE",
             credentials: "include",
-            body: deleteProductSlotAssignmentData
+            body: data
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');

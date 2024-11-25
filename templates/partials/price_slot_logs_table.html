@@ -68,12 +68,6 @@
     const updateButtons = document.querySelectorAll(".updatePriceLog");
     const slotId = `{{ .Slot.SlotID }}`
 
-    const data = new FormData();
-    const csrfToken = document.querySelector('[name="csrf_token"]');
-    if (csrfToken) {
-        data.set("csrf_token", csrfToken.value);
-    }
-
     deleteButtons.forEach(button => {
         button.addEventListener("click", function (e) {
             handleDeletePriceChangeLog(button.dataset.priceSlotLogId);
@@ -98,13 +92,18 @@
         });
 
         body.set("slot_price_log_id", priceSlotLogId);
-        body.set('csrf_token', data.get('csrf_token'));
         body.set('slot_id', slotId);
 
         return body;
     }
 
     function handleDeletePriceChangeLog(priceSlotLogId) {
+        const data = new FormData();
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        if (csrfToken) {
+            data.set("csrf_token", csrfToken.value);
+        }
+
         fetch(`/crm/slot-price-log/${priceSlotLogId}?slotId=${slotId}`, {
             method: "DELETE",
             credentials: "include",
@@ -139,6 +138,11 @@
     function handleUpdatePriceChangeLog(priceSlotLogId) {
         const data = getUpdateData(priceSlotLogId);
         data.set('date_assigned', Math.floor(new Date(data.get('date_assigned')).getTime() / 1000));
+
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        if (csrfToken) {
+            data.set("csrf_token", csrfToken.value);
+        }
 
         fetch(`/crm/slot-price-log/${priceSlotLogId}`, {
             method: "PUT",

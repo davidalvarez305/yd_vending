@@ -75,12 +75,6 @@
     const deleteLocationButtons = document.querySelectorAll(".deleteLocationAssignment");
     const updateLocationButtons = document.querySelectorAll(".updateLocationAssignment");
 
-    const locationData = new FormData();
-    const locationAssignmentCsrfToken = document.querySelector('[name="csrf_token"]');
-    if (locationAssignmentCsrfToken) {
-        locationData.set("csrf_token", locationAssignmentCsrfToken.value);
-    }
-
     deleteLocationButtons.forEach(button => {
         button.addEventListener("click", function (e) {
             handleDeleteLocationAssignment(button.dataset.assignmentId);
@@ -104,17 +98,22 @@
             body.set(input.getAttribute('name'), input.value);
         });
 
-        body.set('csrf_token', locationData.get('csrf_token'));
         body.set('machine_id', `{{ .Machine.MachineID }}`);
 
         return body;
     }
 
     function handleDeleteLocationAssignment(assignmentId) {
+        const data = new FormData();
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        if (csrfToken) {
+            data.set("csrf_token", csrfToken.value);
+        }
+
         fetch(`/crm/machine/{{ .Machine.MachineID }}/location-assignment/${assignmentId}`, {
             method: "DELETE",
             credentials: "include",
-            body: locationData
+            body: data
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
@@ -143,13 +142,18 @@
     }
 
     function handleUpdateLocationAssignment(assignmentId) {
-        const updateLocationData = getUpdateLocationData(assignmentId);
-        updateLocationData.set('location_date_assigned', Math.floor(new Date(updateLocationData.get('location_date_assigned')).getTime() / 1000));
+        const data = getUpdateLocationData(assignmentId);
+        data.set('location_date_assigned', Math.floor(new Date(data.get('location_date_assigned')).getTime() / 1000));
+
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        if (csrfToken) {
+            data.set("csrf_token", csrfToken.value);
+        }
 
         fetch(`/crm/machine/{{ .Machine.MachineID }}/location-assignment/${assignmentId}`, {
             method: "PUT",
             credentials: "include",
-            body: updateLocationData
+            body: data
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');

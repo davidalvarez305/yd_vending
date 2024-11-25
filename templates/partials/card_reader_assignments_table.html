@@ -73,12 +73,6 @@
     const deleteCardReaderButtons = document.querySelectorAll(".deleteMachineCardReader");
     const updateCardReaderButtons = document.querySelectorAll(".updateMachineCardReader");
 
-    const cardReaderData = new FormData();
-    const cardReaderCsrfToken = document.querySelector('[name="csrf_token"]');
-    if (cardReaderCsrfToken) {
-        cardReaderData.set("csrf_token", cardReaderCsrfToken.value);
-    }
-
     deleteCardReaderButtons.forEach(button => {
         button.addEventListener("click", function (e) {
             handleDeleteCardReaderAssignment(button.dataset.machineCardReaderId);
@@ -101,17 +95,22 @@
             body.set(input.getAttribute('name'), input.value);
         });
 
-        body.set("csrf_token", cardReaderData.get("csrf_token"));
         body.set("machine_id", `{{ .Machine.MachineID }}`);
 
         return body;
     }
 
     function handleDeleteCardReaderAssignment(assignmentId) {
+        const data = new FormData();
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        if (csrfToken) {
+            data.set("csrf_token", csrfToken.value);
+        }
+
         fetch(`/crm/machine/{{ .Machine.MachineID }}/card-reader-assignment/${assignmentId}`, {
             method: "DELETE",
             credentials: "include",
-            body: cardReaderData
+            body: data
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
@@ -140,13 +139,17 @@
     }
 
     function handleUpdateCardReaderAssignment(assignmentId) {
-        const cardReaderAssignmentData = getCardReaderUpdateData(assignmentId);
-        cardReaderAssignmentData.set('machine_card_reader_date_assigned', Math.floor(new Date(cardReaderAssignmentData.get('machine_card_reader_date_assigned')).getTime() / 1000));
+        const data = getCardReaderUpdateData(assignmentId);
+        data.set('machine_card_reader_date_assigned', Math.floor(new Date(data.get('machine_card_reader_date_assigned')).getTime() / 1000));
 
+        const csrfToken = document.querySelector('[name="csrf_token"]');
+        if (csrfToken) {
+            data.set("csrf_token", csrfToken.value);
+        }
         fetch(`/crm/machine/{{ .Machine.MachineID }}/card-reader-assignment/${assignmentId}`, {
             method: "PUT",
             credentials: "include",
-            body: cardReaderAssignmentData
+            body: data
         })
             .then((response) => {
                 const token = response.headers.get('X-Csrf-Token');
