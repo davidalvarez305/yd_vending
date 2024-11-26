@@ -5809,3 +5809,23 @@ func GetProductSalesReport(machineId string) ([]types.ProductSalesReport, error)
 
 	return productSalesReport, nil
 }
+
+func CreateLeadOffer(offer models.LeadOffer) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO lead_offer (offer, lead_id, date_added, lead_offer_status_id)
+		VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4)
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	leadID := utils.CreateNullInt(&offer.LeadID)
+
+	_, err = stmt.Exec(offer.Offer, leadID, offer.DateAdded, offer.LeadOfferStatusID)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}

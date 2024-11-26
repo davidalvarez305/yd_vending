@@ -20,6 +20,7 @@ const (
 
 	LeadApplicationEventName string = "lead_application"
 	LeadAppointmentEventName string = "lead_appointment"
+	LeadOfferEventName       string = "lead_offer"
 	OptInEventName           string = "opt_in"
 	QuoteEventName           string = "quote"
 	LeadEventName            string = "Lead"

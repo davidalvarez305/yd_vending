@@ -254,6 +254,10 @@ func CRMHandler(w http.ResponseWriter, r *http.Request) {
 			PostLeadNotes(w, r)
 			return
 		}
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/offer") {
+			PostLeadOffer(w, r)
+			return
+		}
 		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/appointment") {
 			PostLeadAppointment(w, r)
 			return
@@ -6034,6 +6038,169 @@ func PostVercelDeployProject(w http.ResponseWriter, r *http.Request) {
 			"AlertMessage": "Mini site deployed successfully.",
 		},
 	}
+
+	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	leadId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/lead/")
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get lead ID from request.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	lead, err := database.GetLeadDetails(fmt.Sprint(leadId))
+	if err != nil {
+		fmt.Printf("Error retrieving lead details: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to get lead details from DB.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	link, err := services.CreateStripeCheckout()
+	if err != nil {
+		fmt.Printf("Error creating event: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Failed to create google calendar event.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	recipients := []string{lead.Email}
+	subject := constants.CompanyName + " - 90 Day Challenge Offer"
+	sender := constants.CompanyEmail
+	body := link
+
+	err = services.SendGmail(recipients, subject, sender, body)
+	if err != nil {
+		fmt.Printf("Error offer e-mail: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Server error while offer e-mail.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateLeadOffer(leadOffer)
+	if err != nil {
+		fmt.Printf("Error creating appointment: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Server error while creating appointment.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	tmplCtx := types.DynamicPartialTemplate{
+		TemplateName: "modal",
+		TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "modal.html",
+		Data: map[string]any{
+			"AlertHeader":  "Success!",
+			"AlertMessage": "Appointment has been booked.",
+		},
+	}
+
+	fbEvent := types.FacebookEventData{
+		EventName:      constants.LeadOfferEventName,
+		EventTime:      time.Now().UTC().Unix(),
+		ActionSource:   "website",
+		EventSourceURL: lead.LandingPage,
+		UserData: types.FacebookUserData{
+			Email:           helpers.HashString(lead.Email),
+			FirstName:       helpers.HashString(lead.FirstName),
+			LastName:        helpers.HashString(lead.LastName),
+			Phone:           helpers.HashString(lead.PhoneNumber),
+			FBC:             lead.FacebookClickID,
+			FBP:             lead.FacebookClientID,
+			ExternalID:      helpers.HashString(lead.ExternalID),
+			ClientIPAddress: lead.IP,
+			ClientUserAgent: lead.UserAgent,
+		},
+	}
+
+	metaPayload := types.FacebookPayload{
+		Data: []types.FacebookEventData{fbEvent},
+	}
+
+	payload := types.GooglePayload{
+		ClientID: lead.GoogleClientID,
+		UserId:   lead.ExternalID,
+		Events: []types.GoogleEventLead{
+			{
+				Name: constants.LeadOfferEventName,
+				Params: types.GoogleEventParamsLead{
+					GCLID: lead.ClickID,
+				},
+			},
+		},
+		UserData: types.GoogleUserData{
+			Sha256EmailAddress: []string{helpers.HashString(lead.Email)},
+			Sha256PhoneNumber:  []string{helpers.HashString(lead.PhoneNumber)},
+
+			Address: []types.GoogleUserAddress{
+				{
+					Sha256FirstName: helpers.HashString(lead.FirstName),
+					Sha256LastName:  helpers.HashString(lead.LastName),
+				},
+			},
+		},
+	}
+
+	go conversions.SendGoogleConversion(payload)
+	go conversions.SendFacebookConversion(metaPayload)
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 }
