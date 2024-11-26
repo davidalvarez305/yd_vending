@@ -678,7 +678,7 @@ func GetDashboard(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 
 func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	fileName := "lead_detail.html"
-	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html", constants.PARTIAL_TEMPLATES_DIR + "notes.html", constants.PARTIAL_TEMPLATES_DIR + "lead_images.html", constants.CRM_TEMPLATES_DIR + "create_lead_appointment_form.html"}
+	files := []string{crmBaseFilePath, crmFooterFilePath, constants.CRM_TEMPLATES_DIR + fileName, constants.PARTIAL_TEMPLATES_DIR + "messages.html", constants.PARTIAL_TEMPLATES_DIR + "notes.html", constants.PARTIAL_TEMPLATES_DIR + "lead_images.html", constants.CRM_TEMPLATES_DIR + "create_lead_appointment_form.html", constants.CRM_TEMPLATES_DIR + "create_lead_offer_form.html"}
 	nonce, ok := r.Context().Value("nonce").(string)
 	if !ok {
 		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
@@ -762,6 +762,7 @@ func GetLeadDetail(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
 	data["LeadImagesCount"] = len(leadImages)
 	data["LeadImages"] = leadImages
 	data["LeadAppointmentEventName"] = constants.LeadAppointmentEventName
+	data["LeadOfferEventName"] = constants.LeadOfferEventName
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -6059,6 +6060,23 @@ func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var form types.CreateLeadOfferForm
+	err = decoder.Decode(&form, r.PostForm)
+
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Error decoding form data.",
+			},
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	leadId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/lead/")
 	if err != nil {
 		fmt.Printf("%+v\n", err)
@@ -6091,7 +6109,12 @@ func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link, err := services.CreateStripeCheckout()
+	var quantity int
+	if form.Quantity != nil {
+		quantity = *form.Quantity
+	}
+
+	link, err := services.CreateStripeCheckout(helpers.SafeString(form.Price), int64(quantity), successUrl, cancelUrl)
 	if err != nil {
 		fmt.Printf("Error creating event: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -6126,6 +6149,13 @@ func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
 		return
+	}
+
+	leadOffer := models.LeadOffer{
+		LeadID:            leadId,
+		Offer:             link,
+		DateAdded:         time.Now().Unix(),
+		LeadOfferStatusID: "",
 	}
 
 	err = database.CreateLeadOffer(leadOffer)

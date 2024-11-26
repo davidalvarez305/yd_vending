@@ -979,3 +979,10 @@ type ProductSalesReport struct {
 	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due" spreadsheet_header:"Commission Due"`
 	ProfitMargin  float64 `json:"profit_margin" form:"profit_margin" schema:"profit_margin" spreadsheet_header:"Profit %"`
 }
+
+type CreateLeadOfferForm struct {
+	CSRFToken *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
+	LeadID    *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	Price     *string `json:"price" form:"price" schema:"price"`
+	Quantity  *int    `json:"quantity" form:"quantity" schema:"quantity"`
+}

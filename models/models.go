@@ -67,6 +67,19 @@ type LeadNote struct {
 	AddedByUserID int    `json:"added_by_user_id" form:"added_by_user_id" schema:"added_by_user_id"`
 }
 
+type LeadOffer struct {
+	LeadOfferID       int    `json:"lead_offer_id" form:"lead_offer_id" schema:"lead_offer_id"`
+	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	Offer             string `json:"offer" form:"offer" schema:"offer"`
+	DateAdded         int64  `json:"date_added" form:"date_added" schema:"date_added"`
+	LeadOfferStatusID int    `json:"lead_offer_status_id" form:"lead_offer_status_id" schema:"lead_offer_status_id"`
+}
+
+type LeadOfferStatus struct {
+	LeadOfferStatusID int    `json:"lead_offer_status_id" form:"lead_offer_status_id" schema:"lead_offer_status_id"`
+	Status            string `json:"status" form:"status" schema:"status"`
+}
+
 type LeadImage struct {
 	LeadImageID   int    `json:"lead_image_id" form:"lead_image_id" schema:"lead_image_id"`
 	Src           string `json:"src" form:"src" schema:"src"`
