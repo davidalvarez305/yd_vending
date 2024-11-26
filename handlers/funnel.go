@@ -256,8 +256,11 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		externalId := helpers.SafeString(text.Sid)
+		status := helpers.SafeString(text.Status)
+
 		msg := models.Message{
-			ExternalID:  *text.Sid,
+			ExternalID:  externalId,
 			UserID:      constants.DavidUserID,
 			LeadID:      leadId,
 			Text:        textBody,
@@ -265,7 +268,7 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 			TextFrom:    constants.CompanyPhoneNumber,
 			TextTo:      phoneNumber,
 			IsInbound:   false,
-			Status:      *text.Status,
+			Status:      status,
 		}
 
 		err = database.SaveSMS(msg)
