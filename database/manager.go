@@ -5206,11 +5206,11 @@ func CreateLeadAppointment(form types.LeadAppointmentForm) error {
 	return nil
 }
 
-func CreateLeadApplication(form types.LeadApplicationForm) error {
+func CreateLeadApplication(form types.LeadApplicationForm) (int, error) {
 	var leadID int
 	tx, err := DB.Begin()
 	if err != nil {
-		return err
+		return leadID, err
 	}
 	defer tx.Rollback()
 
@@ -5225,7 +5225,7 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 		RETURNING lead_id
 	`)
 	if err != nil {
-		return err
+		return leadID, err
 	}
 	defer leadStmt.Close()
 
@@ -5242,7 +5242,7 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 		firstName, lastName, phoneNumber, email, leadTypeId, optInTextMessaging,
 	).Scan(&leadID)
 	if err != nil {
-		return fmt.Errorf("error inserting lead: %w", err)
+		return leadID, fmt.Errorf("error inserting lead: %w", err)
 	}
 
 	// Step 2: Insert lead_application data
@@ -5255,7 +5255,7 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 		)
 	`)
 	if err != nil {
-		return fmt.Errorf("error preparing lead application statement: %w", err)
+		return leadID, fmt.Errorf("error preparing lead application statement: %w", err)
 	}
 	defer leadAppStmt.Close()
 
@@ -5268,7 +5268,7 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 		utils.CreateNullString(form.City),
 	)
 	if err != nil {
-		return fmt.Errorf("error inserting lead application: %w", err)
+		return leadID, fmt.Errorf("error inserting lead application: %w", err)
 	}
 
 	// Step 3: Insert lead marketing data
@@ -5285,7 +5285,7 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 		)
 	`)
 	if err != nil {
-		return fmt.Errorf("error preparing marketing statement: %w", err)
+		return leadID, fmt.Errorf("error preparing marketing statement: %w", err)
 	}
 	defer marketingStmt.Close()
 
@@ -5319,16 +5319,16 @@ func CreateLeadApplication(form types.LeadApplicationForm) error {
 		utils.CreateNullString(form.Latitude),
 	)
 	if err != nil {
-		return fmt.Errorf("error inserting marketing data: %w", err)
+		return leadID, fmt.Errorf("error inserting marketing data: %w", err)
 	}
 
 	// Commit the transaction
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("error committing transaction: %w", err)
+		return leadID, fmt.Errorf("error committing transaction: %w", err)
 	}
 
-	return nil
+	return leadID, nil
 }
 
 func GetMiniSiteList(pageNum int) ([]types.MiniSiteList, int, error) {

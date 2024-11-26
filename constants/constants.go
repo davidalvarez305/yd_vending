@@ -8,6 +8,8 @@ const (
 	UserAdminRoleID        int = 1
 	CommissionReportRoleID int = 2
 
+	DavidUserID int = 1
+
 	EmailMIMEBoundary          string = "my-boundary-12345"
 	TimeZone                   string = "America/New_York"
 	CommissionReportFilename   string = "commission_report.xlsx"

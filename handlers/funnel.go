@@ -172,7 +172,7 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 		form.UserAgent = &userAgent
 	}
 
-	err = database.CreateLeadApplication(form)
+	leadId, err := database.CreateLeadApplication(form)
 	if err != nil {
 		fmt.Printf("Error creating lead application: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -258,8 +258,8 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 
 		msg := models.Message{
 			ExternalID:  *text.Sid,
-			UserID:      constants.SystemUserID,
-			LeadID:      leadID,
+			UserID:      constants.DavidUserID,
+			LeadID:      leadId,
 			Text:        textBody,
 			DateCreated: time.Now().Unix(),
 			TextFrom:    constants.CompanyPhoneNumber,
