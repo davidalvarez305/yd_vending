@@ -6114,14 +6114,18 @@ func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
 		quantity = *form.Quantity
 	}
 
+	leadQs := "?lead=" + fmt.Sprint(lead.LeadID)
+	successUrl := constants.RootDomain + constants.LeadOfferAcceptedSuccessPath + leadQs
+	cancelUrl := constants.RootDomain + constants.LeadOfferCanceledPath + leadQs
+
 	link, err := services.CreateStripeCheckout(helpers.SafeString(form.Price), int64(quantity), successUrl, cancelUrl)
 	if err != nil {
-		fmt.Printf("Error creating event: %+v\n", err)
+		fmt.Printf("Error creating stripe checkout: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Failed to create google calendar event.",
+				"Message": "Failed to create stripe checkout.",
 			},
 		}
 
@@ -6155,7 +6159,7 @@ func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
 		LeadID:            leadId,
 		Offer:             link,
 		DateAdded:         time.Now().Unix(),
-		LeadOfferStatusID: "",
+		LeadOfferStatusID: constants.LeadOfferSentID,
 	}
 
 	err = database.CreateLeadOffer(leadOffer)

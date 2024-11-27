@@ -5829,3 +5829,40 @@ func CreateLeadOffer(offer models.LeadOffer) error {
 
 	return nil
 }
+
+func MarkOfferAsCanceled(leadId int) error {
+	stmt, err := DB.Prepare(`
+		UPDATE lead_offer
+		SET lead_offer_status_id = 3
+		WHERE lead_id = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(leadId)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}
+
+func CreateLeadOfferStatusLog(leadOfferId, leadOfferStatusId int) error {
+	stmt, err := DB.Prepare(`
+		INSERT INTO lead_offer_status_log (lead_offer_id, lead_offer_status_id, date_added)
+		VALUES ($1, $2, NOW() AT TIME ZONE 'America/New_York')
+	`)
+	if err != nil {
+		return fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(leadOfferId, leadOfferStatusId)
+	if err != nil {
+		return fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return nil
+}

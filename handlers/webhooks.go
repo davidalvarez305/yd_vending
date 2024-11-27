@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -14,6 +16,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
+	"github.com/stripe/stripe-go"
 )
 
 func WebhookHandler(w http.ResponseWriter, r *http.Request) {
@@ -251,4 +254,46 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Unable to encode response", http.StatusInternalServerError)
 	}
+}
+
+func handleStripePaymentWebhook(w http.ResponseWriter, r *http.Request) {
+	const MaxBodyBytes = int64(65536)
+	req.Body = http.MaxBytesReader(w, req.Body, MaxBodyBytes)
+	payload, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading request body: %v\n", err)
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+
+	event := stripe.Event{}
+
+	if err := json.Unmarshal(payload, &event); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to parse webhook body json: %v\n", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	switch event.Type {
+	case "payment_intent.succeeded":
+		var paymentIntent stripe.PaymentIntent
+		err := json.Unmarshal(event.Data.Raw, &paymentIntent)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing webhook JSON: %v\n", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+	case "payment_method.attached":
+		var paymentMethod stripe.PaymentMethod
+		err := json.Unmarshal(event.Data.Raw, &paymentMethod)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing webhook JSON: %v\n", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+	default:
+		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

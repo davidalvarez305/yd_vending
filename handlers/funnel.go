@@ -50,6 +50,10 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/funnel/90-day-challenge":
 			Get90DayVendingChallenge(w, r, ctx)
+		case "/funnel/90-day-challenge-offer-accepted":
+			Get90DayVendingChallengeOfferAccepted(w, r, ctx)
+		case "/funnel/90-day-challenge-offer-canceled":
+			Get90DayVendingChallengeOfferCanceled(w, r, ctx)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -93,6 +97,90 @@ func Get90DayVendingChallenge(w http.ResponseWriter, r *http.Request, ctx map[st
 	data["CSRFToken"] = csrfToken
 	data["LeadTypeID"] = constants.LeadApplicationLeadTypeID
 	data["LeadApplicationEventName"] = constants.LeadApplicationEventName
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func Get90DayVendingChallengeOfferAccepted(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "90_day_challenge_offer_accepted.html"
+	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	leadId := r.URL.Query().Get("lead")
+	if leadId == "" {
+		http.Error(w, "Error getting lead id from URL.", http.StatusBadRequest)
+		return
+	}
+
+	lead, err := database.GetLeadDetails(leadId)
+	if err != nil {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "5 Locations in 90 Days Challenge Offer Accepted — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["LeadOfferAcceptedEventName"] = constants.LeadOfferAcceptedEventName
+	data["Lead"] = lead
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func Get90DayVendingChallengeOfferCanceled(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "90_day_challenge_offer_canceled.html"
+	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	leadId := r.URL.Query().Get("lead")
+	if leadId == "" {
+		http.Error(w, "Error getting lead id from URL.", http.StatusBadRequest)
+		return
+	}
+
+	lead, err := database.GetLeadDetails(leadId)
+	if err != nil {
+		http.Error(w, "Error retrieving details.", http.StatusInternalServerError)
+		return
+	}
+
+	err = database.MarkOfferAsCanceled(lead.LeadID)
+	if err != nil {
+		fmt.Printf("ERROR MARKETING OFFER AS CANCELED: %+v\n", err)
+		http.Error(w, "Error retrieving details.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "5 Locations in 90 Days Challenge Offer Canceled — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["Lead"] = lead
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

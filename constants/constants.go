@@ -18,12 +18,13 @@ const (
 	LeadApplicationLeadTypeID int = 2
 	VendingLeadTypeID         int = 1
 
-	LeadApplicationEventName string = "lead_application"
-	LeadAppointmentEventName string = "lead_appointment"
-	LeadOfferEventName       string = "lead_offer"
-	OptInEventName           string = "opt_in"
-	QuoteEventName           string = "quote"
-	LeadEventName            string = "Lead"
+	LeadApplicationEventName   string = "lead_application"
+	LeadAppointmentEventName   string = "lead_appointment"
+	LeadOfferEventName         string = "lead_offer"
+	LeadOfferAcceptedEventName string = "lead_offer_accepted"
+	OptInEventName             string = "opt_in"
+	QuoteEventName             string = "quote"
+	LeadEventName              string = "Lead"
 
 	MiniSiteBuildCommand               string = "next build"
 	MiniSiteDevCommand                 string = "npm run dev"
@@ -33,9 +34,16 @@ const (
 	MiniSiteEnvironmentVariablesTag    string = "env"
 	MiniSiteEnvironmentVariablesPrefix string = "NEXT_PUBLIC_"
 
+	LeadOfferSentID     int = 1
+	LeadOfferAcceptedID int = 2
+	LeadOfferRejectedID int = 3
+
 	VercelProjectEnvinronmentVariableTarget string = "production"
 	VercelProjectEnvinronmentVariableType   string = "plain"
 	VercelUsername                          string = "ydvending"
+
+	LeadOfferAcceptedSuccessPath string = "/funnel/90-day-channel-offer-accepted"
+	LeadOfferCanceledPath        string = "/funnel/90-day-challenge-offer-canceled"
 )
 
 var (
