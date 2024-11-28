@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -16,7 +15,7 @@ import (
 	"github.com/davidalvarez305/yd_vending/helpers"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v81"
 )
 
 func WebhookHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +33,8 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/webhooks/lead-form":
 			handleGoogleLeadFormWebhook(w, r)
+		case "/webhooks/stripe-payment":
+			handleStripePaymentWebhook(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -258,8 +259,8 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 
 func handleStripePaymentWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)
-	req.Body = http.MaxBytesReader(w, req.Body, MaxBodyBytes)
-	payload, err := ioutil.ReadAll(req.Body)
+	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
+	payload, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading request body: %v\n", err)
 		w.WriteHeader(http.StatusServiceUnavailable)

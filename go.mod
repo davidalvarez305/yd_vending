@@ -33,6 +33,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.4 // indirect
+	github.com/stripe/stripe-go v70.15.0+incompatible // indirect
 	github.com/stripe/stripe-go/v81 v81.1.0 // indirect
 	github.com/twilio/twilio-go v1.22.3 // indirect
 	github.com/xuri/efp v0.0.0-20240408161823-9ad904a10d6d // indirect
