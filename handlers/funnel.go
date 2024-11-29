@@ -336,7 +336,7 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		phoneNumber := helpers.SafeString(form.PhoneNumber)
-		textBody := "Thanks for signing up!"
+		textBody := "Hey, this is David from YD Vending. We have received your application for the 90 day challenge. To kickstart your project, we'd like for you to watch this video as it explains everything in detail."
 
 		text, err := services.SendTextMessage(phoneNumber, constants.CompanyPhoneNumber, textBody)
 		if err != nil {
