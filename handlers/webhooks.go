@@ -278,7 +278,7 @@ func handleStripeCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	signatureHeader := r.Header.Get("Stripe-Signature")
-	event, err = webhook.ConstructEvent(payload, signatureHeader, endpointSecret)
+	event, err = webhook.ConstructEvent(payload, signatureHeader, constants.StrikeAPIKey)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Webhook signature verification failed. %v\n", err)
 		w.WriteHeader(http.StatusBadRequest)

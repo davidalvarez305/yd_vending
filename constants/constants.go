@@ -37,6 +37,7 @@ const (
 	LeadOfferSentID     int = 1
 	LeadOfferAcceptedID int = 2
 	LeadOfferRejectedID int = 3
+	LeadOfferExpiredID  int = 4
 
 	VercelProjectEnvinronmentVariableTarget string = "production"
 	VercelProjectEnvinronmentVariableType   string = "plain"
@@ -99,6 +100,7 @@ var (
 	MiniSiteRepoID               string
 	GithubOwnerName              string
 	GithubAccessToken            string
+	StrikeAPIKey                 string
 )
 
 func Init() {
@@ -154,6 +156,7 @@ func Init() {
 	MiniSiteRepoID = os.Getenv("MINI_SITE_REPO_ID")
 	GithubOwnerName = os.Getenv("GITHUB_OWNER_NAME")
 	GithubAccessToken = os.Getenv("GITHUB_ACCESS_TOKEN")
+	StrikeAPIKey = os.Getenv("STRIPE_API_KEY")
 }
 
 var TEMPLATES_DIR = "./templates/"

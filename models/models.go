@@ -75,10 +75,11 @@ type LeadOffer struct {
 }
 
 type LeadOfferStatusLog struct {
-	LeadOfferID       int   `json:"lead_offer_id" form:"lead_offer_id" schema:"lead_offer_id"`
-	LeadID            int   `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	DateAdded         int64 `json:"date_added" form:"date_added" schema:"date_added"`
-	LeadOfferStatusID int   `json:"lead_offer_status_id" form:"lead_offer_status_id" schema:"lead_offer_status_id"`
+	LeadOfferStatusLogID int   `json:"lead_offer_status_log_id" form:"lead_offer_status_log_id" schema:"lead_offer_status_log_id"`
+	LeadOfferID          int   `json:"lead_offer_id" form:"lead_offer_id" schema:"lead_offer_id"`
+	LeadOfferStatusID    int   `json:"lead_offer_status_id" form:"lead_offer_status_id" schema:"lead_offer_status_id"`
+	LeadID               int   `json:"lead_id" form:"lead_id" schema:"lead_id"`
+	DateAdded            int64 `json:"date_added" form:"date_added" schema:"date_added"`
 }
 
 type LeadOfferStatus struct {
