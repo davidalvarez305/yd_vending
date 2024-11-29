@@ -13,9 +13,11 @@ import (
 	"github.com/davidalvarez305/yd_vending/conversions"
 	"github.com/davidalvarez305/yd_vending/database"
 	"github.com/davidalvarez305/yd_vending/helpers"
+	"github.com/davidalvarez305/yd_vending/models"
 	"github.com/davidalvarez305/yd_vending/services"
 	"github.com/davidalvarez305/yd_vending/types"
 	"github.com/stripe/stripe-go/v81"
+	"github.com/stripe/stripe-go/v81/webhook"
 )
 
 func WebhookHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +36,7 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		case "/webhooks/lead-form":
 			handleGoogleLeadFormWebhook(w, r)
 		case "/webhooks/stripe-payment":
-			handleStripePaymentWebhook(w, r)
+			handleStripeCheckoutSession(w, r)
 		default:
 			http.Error(w, "Not Found", http.StatusNotFound)
 		}
@@ -257,7 +259,7 @@ func handleSeedLiveHourly(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleStripePaymentWebhook(w http.ResponseWriter, r *http.Request) {
+func handleStripeCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)
 	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
 	payload, err := io.ReadAll(r.Body)
@@ -270,30 +272,137 @@ func handleStripePaymentWebhook(w http.ResponseWriter, r *http.Request) {
 	event := stripe.Event{}
 
 	if err := json.Unmarshal(payload, &event); err != nil {
+		fmt.Fprintf(os.Stderr, "Webhook error while parsing basic request. %v\n", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	signatureHeader := r.Header.Get("Stripe-Signature")
+	event, err = webhook.ConstructEvent(payload, signatureHeader, endpointSecret)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Webhook signature verification failed. %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := json.Unmarshal(payload, &event); err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to parse webhook body json: %v\n", err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	var leadOfferAmount, leadOfferStatusID int
+	var leadId string
+
 	switch event.Type {
-	case "payment_intent.succeeded":
-		var paymentIntent stripe.PaymentIntent
-		err := json.Unmarshal(event.Data.Raw, &paymentIntent)
+	case "checkout.session.completed":
+		var session stripe.CheckoutSession
+		err := json.Unmarshal(event.Data.Raw, &session)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error parsing webhook JSON: %v\n", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	case "payment_method.attached":
-		var paymentMethod stripe.PaymentMethod
-		err := json.Unmarshal(event.Data.Raw, &paymentMethod)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing webhook JSON: %v\n", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+
+		leadId = session.ClientReferenceID
+		leadOfferAmount = int(session.AmountSubtotal)
+		leadOfferStatusID = constants.LeadOfferAcceptedID
 	default:
 		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
+	}
+
+	lead, err := database.GetLeadDetails(leadId)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error getting lead details: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	leadOffer, err := database.GetLatestLeadOffer(leadId)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error getting lead offer: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	leadOfferLog := models.LeadOfferLog{
+		LeadID:            lead.LeadID,
+		LeadOfferID:       leadOffer.LeadOfferID,
+		DateAdded:         time.Now().Unix(),
+		LeadOfferStatusID: leadOfferStatusID,
+	}
+
+	err = database.CreateLeadOfferStatusLog(leadOffer.LeadOfferID, lead.LeadID)
+	if err != nil {
+		fmt.Printf("Error creating lead offer log: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Server error while creating lead offer log.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	if leadOfferLog.LeadOfferStatusID == constants.LeadOfferAcceptedID {
+		fbEvent := types.FacebookEventData{
+			EventName:      constants.LeadOfferAcceptedEventName,
+			EventTime:      time.Now().UTC().Unix(),
+			ActionSource:   "website",
+			EventSourceURL: lead.LandingPage,
+			UserData: types.FacebookUserData{
+				Email:           helpers.HashString(lead.Email),
+				FirstName:       helpers.HashString(lead.FirstName),
+				LastName:        helpers.HashString(lead.LastName),
+				Phone:           helpers.HashString(lead.PhoneNumber),
+				FBC:             lead.FacebookClickID,
+				FBP:             lead.FacebookClientID,
+				ExternalID:      helpers.HashString(lead.ExternalID),
+				ClientIPAddress: lead.IP,
+				ClientUserAgent: lead.UserAgent,
+			},
+			CustomData: types.FacebookCustomData{
+				Currency: "USD",
+				Value:    fmt.Sprint(leadOfferAmount),
+			},
+		}
+
+		metaPayload := types.FacebookPayload{
+			Data: []types.FacebookEventData{fbEvent},
+		}
+
+		payload := types.GooglePayload{
+			ClientID: lead.GoogleClientID,
+			UserId:   lead.ExternalID,
+			Events: []types.GoogleEventLead{
+				{
+					Name: constants.LeadOfferAcceptedEventName,
+					Params: types.GoogleEventParamsLead{
+						GCLID:    lead.ClickID,
+						Value:    float64(leadOfferAmount),
+						Currency: "USD",
+					},
+				},
+			},
+			UserData: types.GoogleUserData{
+				Sha256EmailAddress: []string{helpers.HashString(lead.Email)},
+				Sha256PhoneNumber:  []string{helpers.HashString(lead.PhoneNumber)},
+
+				Address: []types.GoogleUserAddress{
+					{
+						Sha256FirstName: helpers.HashString(lead.FirstName),
+						Sha256LastName:  helpers.HashString(lead.LastName),
+					},
+				},
+			},
+		}
+
+		go conversions.SendGoogleConversion(payload)
+		go conversions.SendFacebookConversion(metaPayload)
 	}
 
 	w.WriteHeader(http.StatusOK)

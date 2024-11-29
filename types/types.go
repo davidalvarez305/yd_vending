@@ -314,12 +314,18 @@ type FacebookUserData struct {
 	ExternalID      string `json:"external_id,omitempty" form:"external_id,omitempty" schema:"external_id,omitempty"`
 }
 
+type FacebookCustomData struct {
+	Value    string `json:"value,omitempty" form:"value,omitempty" schema:"value,omitempty"`
+	Currency string `json:"currency,omitempty" form:"currency,omitempty" schema:"currency,omitempty"`
+}
+
 type FacebookEventData struct {
-	EventName      string           `json:"event_name,omitempty" form:"event_name,omitempty" schema:"event_name,omitempty"`
-	EventTime      int64            `json:"event_time,omitempty" form:"event_time,omitempty" schema:"event_time,omitempty"`
-	ActionSource   string           `json:"action_source,omitempty" form:"action_source,omitempty" schema:"action_source,omitempty"`
-	EventSourceURL string           `json:"event_source_url,omitempty" form:"event_source_url,omitempty" schema:"event_source_url,omitempty"`
-	UserData       FacebookUserData `json:"user_data,omitempty" form:"user_data,omitempty" schema:"user_data,omitempty"`
+	EventName      string             `json:"event_name,omitempty" form:"event_name,omitempty" schema:"event_name,omitempty"`
+	EventTime      int64              `json:"event_time,omitempty" form:"event_time,omitempty" schema:"event_time,omitempty"`
+	ActionSource   string             `json:"action_source,omitempty" form:"action_source,omitempty" schema:"action_source,omitempty"`
+	EventSourceURL string             `json:"event_source_url,omitempty" form:"event_source_url,omitempty" schema:"event_source_url,omitempty"`
+	UserData       FacebookUserData   `json:"user_data,omitempty" form:"user_data,omitempty" schema:"user_data,omitempty"`
+	CustomData     FacebookCustomData `json:"custom_data,omitempty" form:"custom_data,omitempty" schema:"custom_data,omitempty"`
 }
 
 type FacebookPayload struct {
@@ -327,7 +333,9 @@ type FacebookPayload struct {
 }
 
 type GoogleEventParamsLead struct {
-	GCLID string `json:"gclid" form:"gclid" schema:"gclid"`
+	GCLID    string  `json:"gclid" form:"gclid" schema:"gclid"`
+	Value    float64 `json:"value,omitempty" form:"value" schema:"value"`
+	Currency string  `json:"currency,omitempty" form:"currency" schema:"currency"`
 }
 
 type GoogleEventLead struct {

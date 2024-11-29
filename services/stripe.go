@@ -5,7 +5,7 @@ import (
 	"github.com/stripe/stripe-go/v81/checkout/session"
 )
 
-func CreateStripeCheckout(priceID string, quantity int64, successURL, cancelURL string) (string, error) {
+func CreateStripeCheckout(priceID string, quantity int64, successURL, cancelURL, clientReferenceId string) (string, error) {
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
@@ -13,9 +13,10 @@ func CreateStripeCheckout(priceID string, quantity int64, successURL, cancelURL 
 				Quantity: stripe.Int64(quantity),
 			},
 		},
-		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String(successURL),
-		CancelURL:  stripe.String(cancelURL),
+		Mode:              stripe.String(string(stripe.CheckoutSessionModePayment)),
+		SuccessURL:        stripe.String(successURL),
+		CancelURL:         stripe.String(cancelURL),
+		ClientReferenceID: stripe.String(clientReferenceId),
 	}
 
 	s, err := session.New(params)

@@ -5810,24 +5810,26 @@ func GetProductSalesReport(machineId string) ([]types.ProductSalesReport, error)
 	return productSalesReport, nil
 }
 
-func CreateLeadOffer(offer models.LeadOffer) error {
+func CreateLeadOffer(offer models.LeadOffer) (int, error) {
+	var leadOfferId int
 	stmt, err := DB.Prepare(`
-		INSERT INTO lead_offer (offer, lead_id, date_added, lead_offer_status_id)
-		VALUES ($1, $2, to_timestamp($3)::timestamptz AT TIME ZONE 'America/New_York', $4)
+		INSERT INTO lead_offer (offer, lead_id, lead_offer_status_id)
+		VALUES ($1, $2, $3)
+		RETURNING lead_offer_id
 	`)
 	if err != nil {
-		return fmt.Errorf("error preparing statement: %w", err)
+		return leadOfferId, fmt.Errorf("error preparing statement: %w", err)
 	}
 	defer stmt.Close()
 
 	leadID := utils.CreateNullInt(&offer.LeadID)
 
-	_, err = stmt.Exec(offer.Offer, leadID, offer.DateAdded, offer.LeadOfferStatusID)
+	err = stmt.QueryRow(offer.Offer, leadID, offer.LeadOfferStatusID).Scan(&leadOfferId)
 	if err != nil {
-		return fmt.Errorf("error executing statement: %w", err)
+		return leadOfferId, fmt.Errorf("error executing statement: %w", err)
 	}
 
-	return nil
+	return leadOfferId, nil
 }
 
 func MarkOfferAsCanceled(leadId int) error {
@@ -5865,4 +5867,38 @@ func CreateLeadOfferStatusLog(leadOfferId, leadOfferStatusId int) error {
 	}
 
 	return nil
+}
+
+func GetLatestLeadOffer(leadId string) (models.LeadOffer, error) {
+	var offer models.LeadOffer
+	stmt, err := DB.Prepare(`
+		SELECT lead_offer_id, lead_id, offer, lead_offer_status_id
+		FROM lead_offer
+		WHERE lead_offer_id = (
+			SELECT lead_offer_id
+			FROM lead_offer_status_log
+			WHERE lead_id = $1
+			ORDER BY date_added DESC
+			LIMIT 1
+		)
+	`)
+	if err != nil {
+		return offer, fmt.Errorf("error preparing statement: %w", err)
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(leadId).Scan(
+		&offer.LeadOfferID,
+		&offer.LeadID,
+		&offer.Offer,
+		&offer.LeadOfferStatusID,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return offer, fmt.Errorf("no lead offer found for leadId: %s", leadId)
+		}
+		return offer, fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return offer, nil
 }

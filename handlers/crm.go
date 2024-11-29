@@ -6117,8 +6117,9 @@ func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
 	leadQs := "?lead=" + fmt.Sprint(lead.LeadID)
 	successUrl := constants.RootDomain + constants.LeadOfferAcceptedSuccessPath + leadQs
 	cancelUrl := constants.RootDomain + constants.LeadOfferCanceledPath + leadQs
+	clientReferenceId := fmt.Sprint(lead.LeadID)
 
-	link, err := services.CreateStripeCheckout(helpers.SafeString(form.Price), int64(quantity), successUrl, cancelUrl)
+	link, err := services.CreateStripeCheckout(helpers.SafeString(form.Price), int64(quantity), successUrl, cancelUrl, clientReferenceId)
 	if err != nil {
 		fmt.Printf("Error creating stripe checkout: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
@@ -6158,18 +6159,33 @@ func PostLeadOffer(w http.ResponseWriter, r *http.Request) {
 	leadOffer := models.LeadOffer{
 		LeadID:            leadId,
 		Offer:             link,
-		DateAdded:         time.Now().Unix(),
 		LeadOfferStatusID: constants.LeadOfferSentID,
 	}
 
-	err = database.CreateLeadOffer(leadOffer)
+	leadOfferId, err := database.CreateLeadOffer(leadOffer)
 	if err != nil {
-		fmt.Printf("Error creating appointment: %+v\n", err)
+		fmt.Printf("Error creating lead offer: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{
 			TemplateName: "error",
 			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
 			Data: map[string]any{
-				"Message": "Server error while creating appointment.",
+				"Message": "Server error while creating lead offer.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
+	err = database.CreateLeadOfferStatusLog(leadOfferId, constants.LeadOfferSentID)
+	if err != nil {
+		fmt.Printf("Error creating lead offer log: %+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Server error while creating lead offer log.",
 			},
 		}
 
