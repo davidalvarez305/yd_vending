@@ -74,7 +74,7 @@ type LeadOffer struct {
 	Offer             string `json:"offer" form:"offer" schema:"offer"`
 }
 
-type LeadOfferLog struct {
+type LeadOfferStatusLog struct {
 	LeadOfferID       int   `json:"lead_offer_id" form:"lead_offer_id" schema:"lead_offer_id"`
 	LeadID            int   `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	DateAdded         int64 `json:"date_added" form:"date_added" schema:"date_added"`

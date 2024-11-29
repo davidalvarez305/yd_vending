@@ -325,7 +325,7 @@ func handleStripeCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	leadOfferLog := models.LeadOfferLog{
+	leadOfferLog := models.LeadOfferStatusLog{
 		LeadID:            lead.LeadID,
 		LeadOfferID:       leadOffer.LeadOfferID,
 		DateAdded:         time.Now().Unix(),
