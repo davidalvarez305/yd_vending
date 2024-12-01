@@ -50,6 +50,7 @@ const (
 var (
 	FacebookAccessToken          string
 	FacebookDatasetID            string
+	LinkedInTagID                string
 	GoogleAnalyticsID            string
 	GoogleAdsID                  string
 	GoogleAdsCallConversionLabel string
@@ -106,6 +107,7 @@ var (
 func Init() {
 	FacebookAccessToken = os.Getenv("FACEBOOK_ACCESS_TOKEN")
 	FacebookDatasetID = os.Getenv("FACEBOOK_DATASET_ID")
+	LinkedInTagID = os.Getenv("LINKEDIN_TAG_ID")
 	GoogleAnalyticsID = os.Getenv("GOOGLE_ANALYTICS_ID")
 	GoogleAnalyticsAPISecretKey = os.Getenv("GOOGLE_ANALYTICS_API_KEY")
 	GoogleWebhookKey = os.Getenv("GOOGLE_WEBHOOK_KEY")

@@ -34,6 +34,7 @@ func createWebsiteContext() types.WebsiteContext {
 		GoogleAdsID:                  constants.GoogleAdsID,
 		GoogleAdsCallConversionLabel: constants.GoogleAdsCallConversionLabel,
 		FacebookDataSetID:            constants.FacebookDatasetID,
+		LinkedInTagID:                constants.LinkedInTagID,
 		CompanyName:                  constants.CompanyName,
 	}
 }

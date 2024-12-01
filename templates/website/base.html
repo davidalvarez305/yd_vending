@@ -23,6 +23,31 @@
 	</script>
 	<!-- End Google tag -->
 
+	<!-- LinkedIn Tag -->
+	<script type="text/javascript">
+		_linkedin_partner_id = "{{ .LinkedInTagID }}";
+		window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+		window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+	</script>
+	<script type="text/javascript">
+		(function (l) {
+			if (!l) {
+				window.lintrk = function (a, b) { window.lintrk.q.push([a, b]) };
+				window.lintrk.q = []
+			}
+			var s = document.getElementsByTagName("script")[0];
+			var b = document.createElement("script");
+			b.type = "text/javascript"; b.async = true;
+			b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+			s.parentNode.insertBefore(b, s);
+		})(window.lintrk);
+	</script>
+	<noscript>
+		<img height="1" width="1" style="display:none;" alt=""
+			src="https://px.ads.linkedin.com/collect/?pid={{ .LinkedInTagID }}&fmt=gif" />
+	</noscript>
+	<!-- END LinkedIn Tag -->
+
 	<!-- Facebook Pixel Code -->
 	<script nonce="{{ .Nonce }}">
 		!function (f, b, e, v, n, t, s) {
@@ -121,11 +146,11 @@
 					</a>
 				</div>
 				<div class="flex flex-col sm:flex-row sm:items-center sm:justify-center">
-                    <button name="topRightCornerCTA"
-                        class="quoteButton w-full inline-flex items-center justify-center gap-2 rounded-lg border border-white-700 bg-primary-700 px-6 py-4 font-semibold leading-6 text-white hover:border-white-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-white-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
-                        <span>Get Your Vending Machines (At Just $0!)</span>
-                    </button>
-                </div>
+					<button name="topRightCornerCTA"
+						class="quoteButton w-full inline-flex items-center justify-center gap-2 rounded-lg border border-white-700 bg-primary-700 px-6 py-4 font-semibold leading-6 text-white hover:border-white-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-white-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
+						<span>Get Your Vending Machines (At Just $0!)</span>
+					</button>
+				</div>
 			</div>
 		</header>
 		<!-- END Header -->
