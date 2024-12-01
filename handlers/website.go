@@ -36,6 +36,7 @@ func createWebsiteContext() types.WebsiteContext {
 		FacebookDataSetID:            constants.FacebookDatasetID,
 		LinkedInTagID:                constants.LinkedInTagID,
 		CompanyName:                  constants.CompanyName,
+		LinkedInEventID:              constants.LinkedInEventID,
 	}
 }
 

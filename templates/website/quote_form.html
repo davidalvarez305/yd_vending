@@ -214,6 +214,9 @@
                     fbp: marketingHelper.facebookClientId,
                     client_user_agent: marketingHelper.userAgent,
                 });
+
+                // Report LinkedIn Conversion
+                window.lintrk('track', { conversion_id: "{{ .LinkedInEventID }}" });
             })
             .catch(err => {
                 alertModal.outerHTML = err.message;

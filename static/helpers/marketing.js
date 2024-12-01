@@ -1,4 +1,4 @@
-const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid"];
+const clickIdKeys = ["gclid", "gbraid", "wbraid", "msclkid", "fbclid", "li_fat_id"];
 
 export class MarketingHelper {
     constructor() {

@@ -288,6 +288,7 @@ type WebsiteContext struct {
 	GoogleAnalyticsID            string                   `json:"google_analytics_id" form:"google_analytics_id"`
 	FacebookDataSetID            string                   `json:"facebook_data_set_id" form:"facebook_data_set_id"`
 	LinkedInTagID                string                   `json:"linkedin_tag_id" form:"linkedin_tag_id"`
+	LinkedInEventID              string                   `json:"linkedin_event_id" form:"linkedin_event_id"`
 	CompanyName                  string                   `json:"company_name" form:"company_name"`
 	PagePath                     string                   `json:"page_path" form:"page_path"`
 	Nonce                        string                   `json:"nonce" form:"nonce"`

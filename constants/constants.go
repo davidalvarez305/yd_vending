@@ -45,6 +45,8 @@ const (
 
 	LeadOfferAcceptedSuccessPath string = "/funnel/90-day-channel-offer-accepted"
 	LeadOfferCanceledPath        string = "/funnel/90-day-challenge-offer-canceled"
+
+	LinkedInEventID string = "19410058"
 )
 
 var (
