@@ -59,9 +59,9 @@ func SecurityMiddleware(next http.Handler) http.Handler {
 		script-src 'self' https://www.googletagmanager.com %s 'nonce-%s'; worker-src 'self' blob:;
 		font-src 'self' https://fonts.bunny.net http://cdn.jsdelivr.net https://cdn.jsdelivr.net;
 		frame-src 'self' https://www.youtube.com https://td.doubleclick.net https://www.facebook.com https://www.googletagmanager.com;
-		script-src-elem 'self' https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net http://cdn.jsdelivr.net https://cdn.jsdelivr.net https://code.jquery.com;
+		script-src-elem 'self' https://snap.licdn.com https://jspm.dev https://www.googletagmanager.com 'nonce-%s' https://connect.facebook.net http://cdn.jsdelivr.net https://cdn.jsdelivr.net https://code.jquery.com;
 		style-src 'self' %s http://cdn.jsdelivr.net https://cdn.jsdelivr.net;
-		img-src 'self' https://stats.g.doubleclick.net https://www.google-analytics.com data: https://cdn.tailkit.com https://www.facebook.com https://www.google.com https://adservice.google.com https://www.googletagmanager.com https://cdn.jsdelivr.net %s %s;
+		img-src 'self' https://px.ads.linkedin.com https://stats.g.doubleclick.net https://www.google-analytics.com data: https://cdn.tailkit.com https://www.facebook.com https://www.google.com https://adservice.google.com https://www.googletagmanager.com https://cdn.jsdelivr.net %s %s;
 		connect-src 'self' https://stats.g.doubleclick.net https://analytics.google.com https://www.google-analytics.com https://www.googleadservices.com https://www.google.com https://adservice.google.com https://www.facebook.com https://world.openfoodfacts.org;
 		style-src-elem 'self' https://fonts.bunny.net %s http://cdn.jsdelivr.net https://cdn.jsdelivr.net https://cdn.ckeditor.com;
 		style-src-attr 'self' 'unsafe-inline';`, constants.AWSStorageBucket, nonceBase64, nonceBase64, constants.AWSStorageBucket, constants.AWSStorageBucket, constants.AWSStorageBucket, constants.AWSStorageBucket)
