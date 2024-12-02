@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/davidalvarez305/yd_vending/constants"
@@ -47,6 +48,13 @@ func FunnelHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
+		path := r.URL.Path
+
+		if strings.HasPrefix(path, "/crm/lead/") && strings.Contains(path, "/messages") {
+			Get90DayChallengeOffer(w, r, ctx)
+			return
+		}
+
 		switch r.URL.Path {
 		case "/funnel/90-day-challenge":
 			Get90DayVendingChallenge(w, r, ctx)
@@ -367,4 +375,42 @@ func PostLeadApplication(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+}
+
+func Get90DayChallengeOffer(w http.ResponseWriter, r *http.Request, ctx map[string]any) {
+	fileName := "90_day_challenge_offer.html"
+	files := []string{funnelBaseFilePath, constants.FUNNEL_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	leadId, err := helpers.GetFirstIDAfterPrefix(r, "/funnel/90-day-challenge/")
+	if err != nil {
+		http.Error(w, "Failed to get id from request.", http.StatusInternalServerError)
+		return
+	}
+
+	leadOffer, err := database.GetLeadOffer(leadId)
+	if err != nil {
+		http.Error(w, "Failed to get offer from database.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data["PageTitle"] = "Get 5 Locations in 90 Days Challenge — " + constants.CompanyName
+	data["Nonce"] = nonce
+	data["CSRFToken"] = csrfToken
+	data["LeadOffer"] = leadOffer
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
 }
