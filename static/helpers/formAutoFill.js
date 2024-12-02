@@ -1,4 +1,4 @@
-export function formAutofill() {
+export const formAutofill = () => {
     const params = new URLSearchParams(window.location.search);
 
     for (const [key, value] of Object.entries(params)) {
