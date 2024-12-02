@@ -216,6 +216,13 @@
                 });
 
                 // Report LinkedIn Conversion
+                window.lintrk("setUserData", { 
+                    phone: data.get("phone_number"),
+                    fn: data.get("first_name"),
+                    ln: data.get("last_name"),
+                    external_id: "{{ .ExternalID }}",
+                });
+
                 window.lintrk('track', { conversion_id: "{{ .LinkedInEventID }}" });
             })
             .catch(err => {
