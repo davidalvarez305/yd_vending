@@ -398,7 +398,7 @@ func Get90DayChallengeOffer(w http.ResponseWriter, r *http.Request, ctx map[stri
 		return
 	}
 
-	leadOffer, err := database.GetLeadOffer(leadId)
+	leadOffer, err := database.GetLatestLeadOffer(fmt.Sprint(leadId))
 	if err != nil {
 		http.Error(w, "Failed to get offer from database.", http.StatusInternalServerError)
 		return
