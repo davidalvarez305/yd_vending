@@ -69,6 +69,8 @@ func WebsiteHandler(w http.ResponseWriter, r *http.Request) {
 			GetRobots(w, r, ctx)
 		case "/fb":
 			GetFBLandingPage(w, r, ctx)
+		case "/esp":
+			GetESPHome(w, r, ctx)
 		case "/":
 			GetHome(w, r, ctx)
 		default:
@@ -147,6 +149,66 @@ func GetHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
 		"Our machines are modern and accept cashless payment solutions such as debit/credit cards, apple pay, and touchless payments.",
 		"We stay on top of ADA compliance so that everyone has access and is able to use our machines.",
 		"By making our contact information easily accessible, people are able to report problems directly to use so that managers & business owners don't need to take time out of their busy schedules to speak to us.",
+	}
+	data.CSRFToken = csrfToken
+	data.VendingTypes = vendingTypes
+	data.VendingLocations = vendingLocations
+	data.MarketingImages = images
+	data.LeadTypeID = constants.VendingLeadTypeID
+	data.LeadEventName = constants.LeadEventName
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	helpers.ServeContent(w, files, data)
+}
+
+func GetESPHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext) {
+	isMobile := helpers.IsMobileRequest(r)
+	heroImagePath := "hero_desktop_esp.html"
+	if isMobile {
+		heroImagePath = "hero_mobile_esp.html"
+	}
+
+	fileName := "esp.html"
+	quoteForm := constants.WEBSITE_TEMPLATES_DIR + "quote_form.html"
+	files := []string{websiteBaseFilePath, websiteFooterFilePath, constants.WEBSITE_TEMPLATES_DIR + heroImagePath, quoteForm, constants.WEBSITE_TEMPLATES_DIR + fileName}
+	nonce, ok := r.Context().Value("nonce").(string)
+	if !ok {
+		http.Error(w, "Error retrieving nonce.", http.StatusInternalServerError)
+		return
+	}
+	vendingTypes, err := database.GetVendingTypes()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending types.", http.StatusInternalServerError)
+		return
+	}
+
+	vendingLocations, err := database.GetVendingLocations()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting vending locations.", http.StatusInternalServerError)
+		return
+	}
+
+	images, err := database.GetMarketingImages()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		http.Error(w, "Error getting marketing images.", http.StatusInternalServerError)
+		return
+	}
+
+	csrfToken, ok := r.Context().Value("csrf_token").(string)
+	if !ok {
+		http.Error(w, "Error retrieving CSRF token.", http.StatusInternalServerError)
+		return
+	}
+
+	data := ctx
+	data.PageTitle = "Servicios de Máquinas Expendedoras en Miami — " + constants.CompanyName
+	data.Nonce = nonce
+	data.Features = []string{
+		"Rotación Regular de Productos", "Máquinas Modernas e Inteligentes", "Opciones Saludables", "Horarios de Trabajo Flexibles", "Selección de Productos Innovadora", "Atención al Cliente Cuidadosa", "Agentes de Reparación y Servicio Receptivos", "Mantenimiento y Cuidado de Alta Calidad",
 	}
 	data.CSRFToken = csrfToken
 	data.VendingTypes = vendingTypes
