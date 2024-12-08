@@ -208,7 +208,15 @@ func GetESPHome(w http.ResponseWriter, r *http.Request, ctx types.WebsiteContext
 	data.PageTitle = "Servicios de Máquinas Expendedoras en Miami — " + constants.CompanyName
 	data.Nonce = nonce
 	data.Features = []string{
-		"Rotación Regular de Productos", "Máquinas Modernas e Inteligentes", "Opciones Saludables", "Horarios de Trabajo Flexibles", "Selección de Productos Innovadora", "Atención al Cliente Cuidadosa", "Agentes de Reparación y Servicio Receptivos", "Mantenimiento y Cuidado de Alta Calidad",
+		"Ofrecemos selecciones personalizables que se adaptan a tus deseos y necesidades.",
+		"Somos puntuales con las reparaciones y el mantenimiento para que las máquinas siempre estén en funcionamiento.",
+		"Podemos reemplazar y/o reabastecer productos a pedido para satisfacer las demandas de tus clientes, empleados y/o consumidores.",
+		"Nuestro horario de trabajo es flexible para que podamos responder a las solicitudes de inmediato.",
+		"Nos mantenemos al tanto de las tendencias para que, si tus clientes y/o empleados desean una bebida o snack popular en redes sociales, podamos conseguirlo para ellos.",
+		"Cuidar nuestras máquinas es lo más importante para nosotros. Asegurarnos de que siempre estén funcionando y abastecidas con productos.",
+		"Nuestras máquinas son modernas y aceptan soluciones de pago sin efectivo, como tarjetas de débito/crédito, Apple Pay y pagos sin contacto.",
+		"Mantenemos el cumplimiento con la ADA para que todos tengan acceso y puedan usar nuestras máquinas.",
+		"Hacemos que nuestra información de contacto sea fácilmente accesible, para que las personas puedan reportar problemas directamente con nosotros, evitando que los gerentes y dueños de negocios tengan que tomarse tiempo de sus ocupadas agendas para hablar con nosotros.",
 	}
 	data.CSRFToken = csrfToken
 	data.VendingTypes = vendingTypes
