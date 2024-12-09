@@ -63,9 +63,7 @@ export class MarketingHelper {
         if (this.latitude) this.data.set("latitude", this.latitude);
 
         // Append all marketing parameters
-        Object.entries(this.landingPage.searchParams).forEach(([key, value]) => {
-            if (value) this.data.set(key, value);
-        });
+        this.landingPage.searchParams.forEach((value, key) => value && this.data.set(key, value));
     }
 
     getCookie(name) {
