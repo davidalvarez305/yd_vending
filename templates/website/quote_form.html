@@ -228,15 +228,13 @@
                 // Report Microsoft Ads Conversion
                 window.uetq = window.uetq || [];
 
-                window.uetq.push('set', {
+                window.uetq.push('event', '{{ .QuoteEventName }}', {
                     pid: {
                         fn: data.get("first_name"),
                         ln: data.get("last_name"),
                         ph: data.get("phone_number"),
                     }
                 });
-
-                window.uetq.push('event', '{{ .QuoteEventName }}', {});
             })
             .catch(err => {
                 alertModal.outerHTML = err.message;
