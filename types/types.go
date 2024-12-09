@@ -289,6 +289,7 @@ type WebsiteContext struct {
 	FacebookDataSetID            string                   `json:"facebook_data_set_id" form:"facebook_data_set_id"`
 	LinkedInTagID                string                   `json:"linkedin_tag_id" form:"linkedin_tag_id"`
 	LinkedInEventID              string                   `json:"linkedin_event_id" form:"linkedin_event_id"`
+	MicrosoftAdsTagID            string                   `json:"microsoft_ads_tag_id" form:"microsoft_ads_tag_id"`
 	CompanyName                  string                   `json:"company_name" form:"company_name"`
 	PagePath                     string                   `json:"page_path" form:"page_path"`
 	Nonce                        string                   `json:"nonce" form:"nonce"`
@@ -301,6 +302,7 @@ type WebsiteContext struct {
 	GoogleAdsCallConversionLabel string                   `json:"google_ads_call_conversion_label"`
 	MarketingImages              []string                 `json:"marketing_images"`
 	LeadEventName                string                   `json:"lead_event_name"`
+	QuoteEventName               string                   `json:"quote_event_name"`
 }
 
 type FacebookUserData struct {
