@@ -1,6 +1,6 @@
-const phoneNumber = document.querySelectorAll(".phoneNumber");
+const phoneNumber = document.getElementById(".phoneNumberCTA");
 
-phoneNumber.forEach(ph => ph.addEventListener("click", () => handlePhoneNumberClick()));
+phoneNumber.addEventListener("click", () => handlePhoneNumberClick())
 
 function handlePhoneNumberClick() {
     // Report FB Conversion
