@@ -893,7 +893,8 @@ func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 		    ip = $7, 
 		    keyword = $8, 
 		    channel = $9, 
-		    language = $10
+		    language = $10,
+			button_clicked = $11
 		WHERE lead_id = $1
 	`
 
@@ -908,6 +909,7 @@ func UpdateLeadMarketing(form types.UpdateLeadMarketingForm) error {
 		utils.CreateNullString(form.Keyword),
 		utils.CreateNullString(form.Channel),
 		utils.CreateNullString(form.Language),
+		utils.CreateNullString(form.ButtonClicked),
 	}
 
 	_, err := DB.Exec(query, args...)
