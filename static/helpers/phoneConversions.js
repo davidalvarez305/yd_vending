@@ -1,4 +1,4 @@
-const phoneNumber = document.getElementById(".phoneNumberCTA");
+const phoneNumber = document.getElementById("phoneNumberCTA");
 
 phoneNumber.addEventListener("click", () => handlePhoneNumberClick())
 
