@@ -3631,13 +3631,35 @@ func DeleteRefill(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostRefillAll(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		tmplCtx := types.DynamicPartialTemplate{
+			TemplateName: "error",
+			TemplatePath: constants.PARTIAL_TEMPLATES_DIR + "error_banner.html",
+			Data: map[string]any{
+				"Message": "Invalid request.",
+			},
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		helpers.ServeDynamicPartialTemplate(w, tmplCtx)
+		return
+	}
+
 	machineId, err := helpers.GetFirstIDAfterPrefix(r, "/crm/machine/")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = database.CreateRefillAll(machineId)
+	dateRefilled := helpers.GetInt64PointerFromForm(r, "date_refilled")
+	if dateRefilled == nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.CreateRefillAll(machineId, helpers.SafeInt64(dateRefilled))
 	if err != nil {
 		fmt.Printf("Error creating bulk refill: %+v\n", err)
 		tmplCtx := types.DynamicPartialTemplate{

@@ -3932,15 +3932,15 @@ func GetLocationStatuses() ([]models.LocationStatus, error) {
 	return statuses, nil
 }
 
-func CreateRefillAll(machineId int) error {
+func CreateRefillAll(machineId int, date int64) error {
 	insertQuery := `
 		INSERT INTO refill (slot_id, date_refilled)
-		SELECT s.slot_id, NOW() AT TIME ZONE 'America/New_York'
+		SELECT s.slot_id, to_timestamp($2)::timestamptz AT TIME ZONE 'America/New_York'
 		FROM "slot" AS s
 		WHERE s.machine_id = $1
 	`
 
-	_, err := DB.Exec(insertQuery, machineId)
+	_, err := DB.Exec(insertQuery, machineId, date)
 	if err != nil {
 		return fmt.Errorf("error executing insert query: %w", err)
 	}
