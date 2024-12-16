@@ -518,7 +518,12 @@ func PostQuote(w http.ResponseWriter, r *http.Request) {
 			{
 				Name: constants.QuoteEventName,
 				Params: types.GoogleEventParamsLead{
-					GCLID: helpers.SafeString(form.ClickID),
+					GCLID:      helpers.SafeString(form.ClickID),
+					CampaignID: fmt.Sprint(helpers.SafeInt64(form.CampaignID)),
+					Campaign:   helpers.SafeString(form.AdCampaign),
+					Source:     helpers.SafeString(form.Source),
+					Medium:     helpers.SafeString(form.Medium),
+					Term:       helpers.SafeString(form.Keyword),
 				},
 			},
 		},
