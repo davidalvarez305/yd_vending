@@ -304,6 +304,7 @@ type WebsiteContext struct {
 	MarketingImages              []string                 `json:"marketing_images"`
 	LeadEventName                string                   `json:"lead_event_name"`
 	QuoteEventName               string                   `json:"quote_event_name"`
+	IsMobile                     bool                     `json:"is_bool"`
 }
 
 type FacebookUserData struct {
