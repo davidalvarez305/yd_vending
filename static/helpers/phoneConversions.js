@@ -2,9 +2,11 @@ const facebookLeadEventName = document.getElementById("facebookLeadEventName").t
 const linkedInEventID = document.getElementById("linkedInEventID").textContent;
 const quoteEventName = document.getElementById("quoteEventName").textContent;
 
-const phoneNumber = document.getElementById("phoneNumberCTA");
+const phoneNumbers = document.querySelectorAll(".phoneNumberCTA");
 
-if (phoneNumber) phoneNumber.addEventListener("click", () => handlePhoneNumberClick())
+phoneNumbers.forEach(phoneNumber => {
+    phoneNumber.addEventListener("click", () => handlePhoneNumberClick())
+})
 
 function handlePhoneNumberClick() {
     // Report FB Conversion
