@@ -293,8 +293,8 @@ func GetConversionLeadInfo(leadId int) (types.ConversionLeadInfo, error) {
 
 	stmt, err := DB.Prepare(`SELECT l.lead_id, l.created_at, vt.machine_type, vl.location_type
 		FROM "lead" AS l
-	JOIN vending_type  AS vt ON vt.vending_type_id = l.vending_type_id
-	JOIN vending_location AS vl ON vl.vending_location_id  = l.vending_location_id 
+	LEFT JOIN vending_type  AS vt ON vt.vending_type_id = l.vending_type_id
+	LEFT JOIN vending_location AS vl ON vl.vending_location_id  = l.vending_location_id 
 	WHERE l.lead_id = $1;`)
 
 	if err != nil {
@@ -305,16 +305,27 @@ func GetConversionLeadInfo(leadId int) (types.ConversionLeadInfo, error) {
 	row := stmt.QueryRow(leadId)
 
 	var createdAt time.Time
+
+	var machineType, locationType sql.NullString
+
 	err = row.Scan(&leadConversionInfo.LeadID,
 		&createdAt,
-		&leadConversionInfo.MachineType,
-		&leadConversionInfo.LocationType,
+		&machineType,
+		&locationType,
 	)
 	if err != nil {
 		return leadConversionInfo, fmt.Errorf("error scanning row: %w", err)
 	}
 
 	leadConversionInfo.CreatedAt = createdAt.Unix()
+
+	if machineType.Valid {
+		leadConversionInfo.MachineType = machineType.String
+	}
+
+	if locationType.Valid {
+		leadConversionInfo.LocationType = locationType.String
+	}
 
 	return leadConversionInfo, nil
 }
