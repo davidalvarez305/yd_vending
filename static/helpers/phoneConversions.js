@@ -11,6 +11,7 @@ phoneNumbers.forEach(phoneNumber => {
 function handlePhoneNumberClick() {
     // Report FB Conversion
     if (fbq) fbq("track", facebookLeadEventName);
+    if (gtag) gtag("event", quoteEventName);
 
     // Report LinkedIn
     if (window.lintrk) window.lintrk('track', { conversion_id: linkedInEventID });
