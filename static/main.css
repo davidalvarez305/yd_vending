@@ -3474,6 +3474,10 @@ select{
   --tw-ring-color: rgb(188 40 125 / 0.5);
 }
 
+.focus\:ring-primary-400\/90:focus{
+  --tw-ring-color: rgb(188 40 125 / 0.9);
+}
+
 .focus\:ring-primary-500\/50:focus{
   --tw-ring-color: rgb(154 33 103 / 0.5);
 }
@@ -3909,6 +3913,12 @@ select{
   color: rgb(156 163 175 / var(--tw-placeholder-opacity));
 }
 
+.dark\:shadow-lg:is(.dark *){
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
 .dark\:ring-gray-700\/60:is(.dark *){
   --tw-ring-color: rgb(55 65 81 / 0.6);
 }
@@ -4092,6 +4102,10 @@ select{
     width: 9rem;
   }
 
+  .sm\:w-auto{
+    width: auto;
+  }
+
   .sm\:flex-none{
     flex: none;
   }
@@ -4110,6 +4124,10 @@ select{
 
   .sm\:justify-start{
     justify-content: flex-start;
+  }
+
+  .sm\:justify-end{
+    justify-content: flex-end;
   }
 
   .sm\:justify-center{
@@ -4132,6 +4150,10 @@ select{
     gap: 1rem;
   }
 
+  .sm\:gap-8{
+    gap: 2rem;
+  }
+
   .sm\:space-x-4 > :not([hidden]) ~ :not([hidden]){
     --tw-space-x-reverse: 0;
     margin-right: calc(1rem * var(--tw-space-x-reverse));
@@ -4144,14 +4166,28 @@ select{
     margin-bottom: calc(0px * var(--tw-space-y-reverse));
   }
 
+  .sm\:p-4{
+    padding: 1rem;
+  }
+
   .sm\:px-4{
     padding-left: 1rem;
     padding-right: 1rem;
   }
 
+  .sm\:px-6{
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
   .sm\:px-8{
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+
+  .sm\:py-5{
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
   }
 
   .sm\:text-left{
@@ -4462,6 +4498,10 @@ select{
 
   .xl\:w-3\/5{
     width: 60%;
+  }
+
+  .xl\:max-w-4xl{
+    max-width: 56rem;
   }
 
   .xl\:max-w-6xl{
