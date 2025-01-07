@@ -2636,21 +2636,33 @@ func GetBusinessDetails(businessID string) (types.BusinessDetails, error) {
 
 	var businessDetails types.BusinessDetails
 
+	var googleBusinessProfile, website, industry sql.NullString
+
 	row := DB.QueryRow(query, businessID)
 
 	err := row.Scan(
 		&businessDetails.BusinessID,
 		&businessDetails.Name,
 		&businessDetails.IsActive,
-		&businessDetails.Website,
-		&businessDetails.Industry,
-		&businessDetails.GoogleBusinessProfile,
+		&website,
+		&industry,
+		&googleBusinessProfile,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return businessDetails, fmt.Errorf("no business found with ID %s", businessID)
 		}
 		return businessDetails, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	if googleBusinessProfile.Valid {
+		businessDetails.GoogleBusinessProfile = googleBusinessProfile.String
+	}
+	if website.Valid {
+		businessDetails.Website = website.String
+	}
+	if industry.Valid {
+		businessDetails.Industry = industry.String
 	}
 
 	return businessDetails, nil
