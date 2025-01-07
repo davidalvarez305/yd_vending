@@ -49,42 +49,12 @@ type Lead struct {
 	OptInTextMessaging bool   `json:"opt_in_text_messaging" form:"opt_in_text_messaging" schema:"opt_in_text_messaging"`
 }
 
-type LeadApplication struct {
-	LeadApplicationID int    `json:"lead_application_id" form:"lead_application_id" schema:"lead_application_id"`
-	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	Website           string `json:"website" form:"website" schema:"website"`
-	CompanyName       string `json:"company_name" form:"company_name" schema:"company_name"`
-	YearsInBusiness   int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
-	NumLocations      int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
-	City              string `json:"city" form:"city" schema:"city"`
-}
-
 type LeadNote struct {
 	LeadNoteID    int    `json:"lead_note_id" form:"lead_note_id" schema:"lead_note_id"`
 	Note          string `json:"note" form:"note" schema:"note"`
 	LeadID        int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
 	DateAdded     int64  `json:"date_added" form:"date_added" schema:"date_added"`
 	AddedByUserID int    `json:"added_by_user_id" form:"added_by_user_id" schema:"added_by_user_id"`
-}
-
-type LeadOffer struct {
-	LeadOfferID       int    `json:"lead_offer_id" form:"lead_offer_id" schema:"lead_offer_id"`
-	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	LeadOfferStatusID int    `json:"lead_offer_status_id" form:"lead_offer_status_id" schema:"lead_offer_status_id"`
-	Offer             string `json:"offer" form:"offer" schema:"offer"`
-}
-
-type LeadOfferStatusLog struct {
-	LeadOfferStatusLogID int   `json:"lead_offer_status_log_id" form:"lead_offer_status_log_id" schema:"lead_offer_status_log_id"`
-	LeadOfferID          int   `json:"lead_offer_id" form:"lead_offer_id" schema:"lead_offer_id"`
-	LeadOfferStatusID    int   `json:"lead_offer_status_id" form:"lead_offer_status_id" schema:"lead_offer_status_id"`
-	LeadID               int   `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	DateAdded            int64 `json:"date_added" form:"date_added" schema:"date_added"`
-}
-
-type LeadOfferStatus struct {
-	LeadOfferStatusID int    `json:"lead_offer_status_id" form:"lead_offer_status_id" schema:"lead_offer_status_id"`
-	Status            string `json:"status" form:"status" schema:"status"`
 }
 
 type LeadImage struct {
@@ -420,52 +390,4 @@ type UserRole struct {
 type UserExternalReportsRole struct {
 	UserID     string `json:"user_id" form:"user_id" schema:"user_id"`
 	BusinessID string `json:"business_id" form:"business_id" schema:"business_id"`
-}
-
-type EmailSchedule struct {
-	EmailScheduleID int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`
-	EmailName       string `json:"email_name" form:"email_name" schema:"email_name"`
-	IntervalSeconds int64  `json:"interval_seconds" form:"interval_seconds" schema:"interval_seconds"`
-	Recipients      string `json:"recipients" form:"recipients" schema:"recipients"`
-	Subject         string `json:"subject" form:"subject" schema:"subject"`
-	Body            string `json:"body" form:"body" schema:"body"`
-	Sender          string `json:"sender" form:"sender" schema:"sender"`
-	SQLFile         string `json:"sql_file" form:"sql_file" schema:"sql_file"`
-	LastSent        int64  `json:"last_sent" form:"last_sent" schema:"last_sent"`
-	IsActive        bool   `json:"is_active" form:"is_active" schema:"is_active"`
-}
-
-type SentEmail struct {
-	SentEmailID     int    `json:"sent_email_id" form:"sent_email_id" schema:"sent_email_id"`
-	EmailScheduleID int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`
-	DeliveryStatus  string `json:"delivery_status" form:"delivery_status" schema:"delivery_status"`
-	DateSent        int64  `json:"date_sent" form:"date_sent" schema:"date_sent"`
-	ErrorMessage    string `json:"error_message" form:"error_message" schema:"error_message"`
-}
-
-type LeadAppointment struct {
-	LeadAppointmentID int    `json:"lead_appointment_id" form:"lead_appointment_id" schema:"lead_appointment_id"`
-	LeadID            int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	AppointmentTime   int64  `json:"appointment_time" form:"appointment_time" schema:"appointment_time"`
-	DateCreated       int64  `json:"date_created" form:"date_created" schema:"date_created"`
-	Link              string `json:"link" form:"link" schema:"link"`
-	Attendee          string `json:"attendee" form:"attendee" schema:"attendee"`
-}
-
-type MiniSite struct {
-	MiniSiteID      int    `json:"mini_site_id" form:"mini_site_id" schema:"mini_site_id"`
-	LeadID          int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	Website         string `json:"website" form:"website" schema:"website"`
-	DateCreated     int64  `json:"date_created" form:"date_created" schema:"date_created"`
-	PhoneNumber     string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email           string `json:"email" form:"email" schema:"email"`
-	VercelProjectID string `json:"vercel_project_id" form:"vercel_project_id" schema:"vercel_project_id"`
-}
-
-type MiniSiteEnvironmentVariable struct {
-	MiniSiteEnvironmentVariableID int    `json:"mini_site_environment_variable_id" form:"mini_site_environment_variable_id" schema:"mini_site_environment_variable_id"`
-	MiniSiteID                    int    `json:"mini_site_id" form:"mini_site_id" schema:"mini_site_id"`
-	EnvironmentVariableUniqueID   string `json:"environment_variable_unique_id" form:"environment_variable_unique_id" schema:"environment_variable_unique_id"`
-	Key                           string `json:"key" form:"key" schema:"key"`
-	Value                         string `json:"value" form:"value" schema:"value"`
 }

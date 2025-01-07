@@ -45,25 +45,6 @@ type QuoteForm struct {
 	OptInTextMessaging *bool   `json:"opt_in_text_messaging" form:"opt_in_text_messaging" schema:"opt_in_text_messaging"`
 }
 
-type LeadFormWebhook struct {
-	LeadID         string           `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	APIVersion     string           `json:"api_version" form:"api_version" schema:"api_version"`
-	FormID         int64            `json:"form_id" form:"form_id" schema:"form_id"`
-	CampaignID     int64            `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
-	AdGroupID      *int64           `json:"adgroup_id" form:"adgroup_id" schema:"adgroup_id"`
-	CreativeID     *int64           `json:"creative_id" form:"creative_id" schema:"creative_id"`
-	GCLID          string           `json:"gcl_id" form:"gcl_id" schema:"gcl_id"`
-	GoogleKey      string           `json:"google_key" form:"google_key" schema:"google_key"`
-	IsTest         *bool            `json:"is_test" form:"is_test" schema:"is_test"`
-	UserColumnData []UserColumnData `json:"user_column_data" form:"user_column_data" schema:"user_column_data"`
-}
-
-type UserColumnData struct {
-	ColumnID    string `json:"column_id" form:"column_id" schema:"column_id"`
-	StringValue string `json:"string_value" form:"string_value" schema:"string_value"`
-	ColumnName  string `json:"column_name" form:"column_name" schema:"column_name"`
-}
-
 type ContactForm struct {
 	CSRFToken string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	FirstName string `json:"first_name" form:"first_name" schema:"first_name"`
@@ -779,40 +760,6 @@ type CommissionReport struct {
 	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due" spreadsheet_header:"Commission Due"`
 }
 
-type EmailScheduleForm struct {
-	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	EmailName       *string `json:"email_name" form:"email_name" schema:"email_name"`
-	IntervalSeconds *int64  `json:"interval_seconds" form:"interval_seconds" schema:"interval_seconds"`
-	Recipients      *string `json:"recipients" form:"recipients" schema:"recipients"`
-	Subject         *string `json:"subject" form:"subject" schema:"subject"`
-	Body            *string `json:"body" form:"body" schema:"body"`
-	Sender          *string `json:"sender" form:"sender" schema:"sender"`
-	SQLFile         *string `json:"sql_file" form:"sql_file" schema:"sql_file"`
-	LastSent        *int64  `json:"last_sent" form:"last_sent" schema:"last_sent"`
-	IsActive        *bool   `json:"is_active" form:"is_active" schema:"is_active"`
-}
-
-type EmailScheduleList struct {
-	EmailScheduleID int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`
-	EmailName       string `json:"email_name" form:"email_name" schema:"email_name"`
-	IntervalSeconds int64  `json:"interval_seconds" form:"interval_seconds" schema:"interval_seconds"`
-	Recipients      string `json:"recipients" form:"recipients" schema:"recipients"`
-	Subject         string `json:"subject" form:"subject" schema:"subject"`
-	Body            string `json:"body" form:"body" schema:"body"`
-	Sender          string `json:"sender" form:"sender" schema:"sender"`
-	SQLFile         string `json:"sql_file" form:"sql_file" schema:"sql_file"`
-	LastSent        string `json:"last_sent" form:"last_sent" schema:"last_sent"`
-	IsActive        bool   `json:"is_active" form:"is_active" schema:"is_active"`
-}
-
-type SentEmail struct {
-	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	EmailScheduleID *int    `json:"email_schedule_id" form:"email_schedule_id" schema:"email_schedule_id"`
-	DeliveryStatus  *string `json:"delivery_status" form:"delivery_status" schema:"delivery_status"`
-	DateSent        *int64  `json:"date_sent" form:"date_sent" schema:"date_sent"`
-	ErrorMessage    *string `json:"error_message" form:"error_message" schema:"error_message"`
-}
-
 type MachineLocationAssignmentForm struct {
 	CSRFToken            *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
 	LocationID           *int    `json:"location_id" form:"location_id" schema:"location_id"`
@@ -845,148 +792,6 @@ type MachineCardReaderAssignment struct {
 	IsCardReaderActive            bool   `json:"is_card_reader_active" form:"is_card_reader_active" schema:"is_card_reader_active"`
 }
 
-type OptIn90DayChallengeForm struct {
-	Email *string `json:"email" form:"email" schema:"email"`
-
-	Source           *string `json:"source" form:"source" schema:"source"`
-	Medium           *string `json:"medium" form:"medium" schema:"medium"`
-	Channel          *string `json:"channel" form:"channel" schema:"channel"`
-	LandingPage      *string `json:"landing_page" form:"landing_page" schema:"landing_page"`
-	Keyword          *string `json:"keyword" form:"keyword" schema:"keyword"`
-	Referrer         *string `json:"referrer" form:"referrer" schema:"referrer"`
-	ClickID          *string `json:"click_id" form:"click_id" schema:"click_id"`
-	CampaignID       *int64  `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
-	AdCampaign       *string `json:"ad_campaign" form:"ad_campaign" schema:"ad_campaign"`
-	AdGroupID        *int64  `json:"ad_group_id" form:"ad_group_id" schema:"ad_group_id"`
-	AdGroupName      *string `json:"ad_group_name" form:"ad_group_name" schema:"ad_group_name"`
-	AdSetID          *int64  `json:"ad_set_id" form:"ad_set_id" schema:"ad_set_id"`
-	AdSetName        *string `json:"ad_set_name" form:"ad_set_name" schema:"ad_set_name"`
-	AdID             *int64  `json:"ad_id" form:"ad_id" schema:"ad_id"`
-	AdHeadline       *int64  `json:"ad_headline" form:"ad_headline" schema:"ad_headline"`
-	Language         *string `json:"language" form:"language" schema:"language"`
-	Longitude        *string `json:"longitude" form:"longitude" schema:"longitude"`
-	Latitude         *string `json:"latitude" form:"latitude" schema:"latitude"`
-	UserAgent        *string `json:"user_agent" form:"user_agent" schema:"user_agent"`
-	ButtonClicked    *string `json:"button_clicked" form:"button_clicked" schema:"button_clicked"`
-	IP               *string `json:"ip" form:"ip" schema:"ip"`
-	CSRFToken        *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	ExternalID       *string `json:"external_id" form:"external_id" schema:"external_id"`
-	GoogleClientID   *string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
-	FacebookClickID  *string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
-	FacebookClientID *string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
-	CSRFSecret       *string `json:"csrf_secret" form:"csrf_secret"`
-}
-
-type LeadApplicationForm struct {
-	FirstName          *string `json:"first_name" form:"first_name" schema:"first_name"`
-	LastName           *string `json:"last_name" form:"last_name" schema:"last_name"`
-	PhoneNumber        *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email              *string `json:"email" form:"email" schema:"email"`
-	OptInTextMessaging *bool   `json:"opt_in_text_messaging" form:"opt_in_text_messaging" schema:"opt_in_text_messaging"`
-
-	Website         *string `json:"website" form:"website" schema:"website"`
-	CompanyName     *string `json:"company_name" form:"company_name" schema:"company_name"`
-	YearsInBusiness *int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
-	NumLocations    *int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
-	City            *string `json:"city" form:"city" schema:"city"`
-
-	LeadTypeID       *int    `json:"lead_type_id" form:"lead_type_id" schema:"lead_type_id"`
-	Source           *string `json:"source" form:"source" schema:"source"`
-	Medium           *string `json:"medium" form:"medium" schema:"medium"`
-	Channel          *string `json:"channel" form:"channel" schema:"channel"`
-	LandingPage      *string `json:"landing_page" form:"landing_page" schema:"landing_page"`
-	Keyword          *string `json:"keyword" form:"keyword" schema:"keyword"`
-	Referrer         *string `json:"referrer" form:"referrer" schema:"referrer"`
-	ClickID          *string `json:"click_id" form:"click_id" schema:"click_id"`
-	CampaignID       *int64  `json:"campaign_id" form:"campaign_id" schema:"campaign_id"`
-	AdCampaign       *string `json:"ad_campaign" form:"ad_campaign" schema:"ad_campaign"`
-	AdGroupID        *int64  `json:"ad_group_id" form:"ad_group_id" schema:"ad_group_id"`
-	AdGroupName      *string `json:"ad_group_name" form:"ad_group_name" schema:"ad_group_name"`
-	AdSetID          *int64  `json:"ad_set_id" form:"ad_set_id" schema:"ad_set_id"`
-	AdSetName        *string `json:"ad_set_name" form:"ad_set_name" schema:"ad_set_name"`
-	AdID             *int64  `json:"ad_id" form:"ad_id" schema:"ad_id"`
-	AdHeadline       *int64  `json:"ad_headline" form:"ad_headline" schema:"ad_headline"`
-	Language         *string `json:"language" form:"language" schema:"language"`
-	Longitude        *string `json:"longitude" form:"longitude" schema:"longitude"`
-	Latitude         *string `json:"latitude" form:"latitude" schema:"latitude"`
-	UserAgent        *string `json:"user_agent" form:"user_agent" schema:"user_agent"`
-	ButtonClicked    *string `json:"button_clicked" form:"button_clicked" schema:"button_clicked"`
-	IP               *string `json:"ip" form:"ip" schema:"ip"`
-	CSRFToken        *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	ExternalID       *string `json:"external_id" form:"external_id" schema:"external_id"`
-	GoogleClientID   *string `json:"google_client_id" form:"google_client_id" schema:"google_client_id"`
-	FacebookClickID  *string `json:"facebook_click_id" form:"facebook_click_id" schema:"facebook_click_id"`
-	FacebookClientID *string `json:"facebook_client_id" form:"facebook_client_id" schema:"facebook_client_id"`
-	CSRFSecret       *string `json:"csrf_secret" form:"csrf_secret"`
-}
-
-type UpdateLeadApplicationForm struct {
-	LeadApplicationID *int    `json:"lead_application_id" form:"lead_application_id" schema:"lead_application_id"`
-	Website           *string `json:"website" form:"website" schema:"website"`
-	CompanyName       *string `json:"company_name" form:"company_name" schema:"company_name"`
-	YearsInBusiness   *int    `json:"years_in_business" form:"years_in_business" schema:"years_in_business"`
-	NumLocations      *int    `json:"num_locations" form:"num_locations" schema:"num_locations"`
-	City              *string `json:"city" form:"city" schema:"city"`
-	CSRFToken         *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-}
-
-type LeadAppointmentForm struct {
-	LeadID          *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	AppointmentTime *int64  `json:"appointment_time" form:"appointment_time" schema:"appointment_time"`
-	Attendee        *string `json:"attendee" form:"attendee" schema:"attendee"`
-	Link            *string `json:"link" form:"link" schema:"link"`
-	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-}
-
-type MiniSiteForm struct {
-	CSRFToken       *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	LeadID          *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	VercelProjectID *string `json:"vercel_project_id" form:"vercel_project_id" schema:"vercel_project_id"`
-	Website         *string `json:"website" form:"website" schema:"website"`
-	DateCreated     *int64  `json:"date_created" form:"date_created" schema:"date_created"`
-	PhoneNumber     *string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email           *string `json:"email" form:"email" schema:"email"`
-}
-
-type MiniSiteList struct {
-	MiniSiteID  int    `json:"mini_site_id" form:"mini_site_id" schema:"mini_site_id"`
-	CompanyName string `json:"company_name" form:"company_name" schema:"company_name"`
-	OwnerName   string `json:"owner_name" form:"owner_name" schema:"owner_name"`
-	Website     string `json:"website" form:"website" schema:"website"`
-	DateCreated string `json:"date_created" form:"date_created" schema:"date_created"`
-}
-
-type MiniSiteDetails struct {
-	MiniSiteID            int    `json:"mini_site_id" form:"mini_site_id" schema:"mini_site_id"`
-	LeadID                int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	Website               string `json:"website" form:"website" schema:"website"`
-	DateCreated           int64  `json:"date_created" form:"date_created" schema:"date_created"`
-	PhoneNumber           string `json:"phone_number" form:"phone_number" schema:"phone_number"`
-	Email                 string `json:"email" form:"email" schema:"email"`
-	VercelProjectID       string `json:"vercel_project_id" form:"vercel_project_id" schema:"vercel_project_id"`
-	DMA                   string `json:"dma" form:"dma" schema:"dma" env:"NEXT_PUBLIC_DMA"`
-	GoogleAnalyticsID     string `json:"google_analytics_id" form:"google_analytics_id" schema:"google_analytics_id" env:"NEXT_PUBLIC_GOOGLE_ANALYTICS_ID"`
-	GoogleAdsID           string `json:"google_ads_id" form:"google_ads_id" schema:"google_ads_id" env:"NEXT_PUBLIC_GOOGLE_ADS_ID"`
-	GoogleAdsConvLabel    string `json:"google_ads_conv_label" form:"google_ads_conv_label" schema:"google_ads_conv_label" env:"NEXT_PUBLIC_GOOGLE_ADS_CONV_LABEL"`
-	FacebookAdsDatasetID  string `json:"facebook_ads_dataset_id" form:"facebook_ads_dataset_id" schema:"facebook_ads_dataset_id" env:"NEXT_PUBLIC_FACEBOOK_ADS_DATASET_ID"`
-	ForwardingPhoneNumber string `json:"forwarding_phone_number" form:"forwarding_phone_number" schema:"forwarding_phone_number" env:"NEXT_PUBLIC_FORWARDING_PHONE_NUMBER"`
-	CompanyName           string `json:"company_name" form:"company_name" schema:"company_name" env:"NEXT_PUBLIC_COMPANY_NAME"`
-}
-
-type VercelProjectForm struct {
-	CSRFToken   *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	Slug        *string `json:"slug" form:"slug" schema:"slug"`
-	ProjectName *string `json:"project_name" form:"project_name" schema:"project_name"`
-
-	DMA                   *string `json:"dma" form:"dma" schema:"dma" env:"NEXT_PUBLIC_DMA"`
-	GoogleAnalyticsID     *string `json:"google_analytics_id" form:"google_analytics_id" schema:"google_analytics_id" env:"NEXT_PUBLIC_GOOGLE_ANALYTICS_ID"`
-	GoogleAdsID           *string `json:"google_ads_id" form:"google_ads_id" schema:"google_ads_id" env:"NEXT_PUBLIC_GOOGLE_ADS_ID"`
-	GoogleAdsConvLabel    *string `json:"google_ads_conv_label" form:"google_ads_conv_label" schema:"google_ads_conv_label" env:"NEXT_PUBLIC_GOOGLE_ADS_CONV_LABEL"`
-	FacebookAdsDatasetID  *string `json:"facebook_ads_dataset_id" form:"facebook_ads_dataset_id" schema:"facebook_ads_dataset_id" env:"NEXT_PUBLIC_FACEBOOK_ADS_DATASET_ID"`
-	ForwardingPhoneNumber *string `json:"forwarding_phone_number" form:"forwarding_phone_number" schema:"forwarding_phone_number" env:"NEXT_PUBLIC_FORWARDING_PHONE_NUMBER"`
-	CompanyName           *string `json:"company_name" form:"company_name" schema:"company_name" env:"NEXT_PUBLIC_COMPANY_NAME"`
-}
-
 type ProductSalesReport struct {
 	Product       string  `json:"product" form:"product" schema:"product" spreadsheet_header:"Product"`
 	AmountSold    float64 `json:"amount_sold" form:"amount_sold" schema:"amount_sold" spreadsheet_header:"Amount Sold"`
@@ -996,11 +801,4 @@ type ProductSalesReport struct {
 	GrossProfit   float64 `json:"gross_profit" form:"gross_profit" schema:"gross_profit" spreadsheet_header:"Gross Profit"`
 	CommissionDue float64 `json:"commission_due" form:"commission_due" schema:"commission_due" spreadsheet_header:"Commission Due"`
 	ProfitMargin  float64 `json:"profit_margin" form:"profit_margin" schema:"profit_margin" spreadsheet_header:"Profit %"`
-}
-
-type CreateLeadOfferForm struct {
-	CSRFToken *string `json:"csrf_token" form:"csrf_token" schema:"csrf_token"`
-	LeadID    *int    `json:"lead_id" form:"lead_id" schema:"lead_id"`
-	Price     *string `json:"price" form:"price" schema:"price"`
-	Quantity  *int    `json:"quantity" form:"quantity" schema:"quantity"`
 }
