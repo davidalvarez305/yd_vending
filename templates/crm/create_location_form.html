@@ -191,20 +191,20 @@
 </script>
 
 <script nonce="{{ .Nonce }}">
-    const submitForm = document.getElementById("submitForm");
+    const createLocationForm = document.getElementById("createLocationForm");
     const cancelForm = document.getElementById("cancelForm");
     const closeForm = document.getElementById("closeForm");
 
-    function handleCloseForm() {
+    function handleCloseLocationForm() {
         const modal = document.getElementById('formModalContainer');
         modal.style.display = 'none';
     }
 
-    submitForm.addEventListener('click', () => handleSubmitForm());
-    cancelForm.addEventListener('click', () => handleCloseForm());
-    closeForm.addEventListener("click", () => handleCloseForm());
+    createLocationForm.addEventListener('click', () => handleSubmitLocationForm());
+    cancelForm.addEventListener('click', () => handleCloseLocationForm());
+    closeForm.addEventListener("click", () => handleCloseLocationForm());
 
-    function handleSubmitForm() {
+    function handleSubmitLocationForm() {
         const form = document.getElementById("createLocationForm");
         const data = new FormData(form);
         const body = new FormData();
@@ -249,7 +249,7 @@
                 alertModal.outerHTML = err.message;
                 handleCloseAlertModal();
             })
-            .finally(() => handleCloseForm());
+            .finally(() => handleCloseLocationForm());
     }
 </script>
 {{ end }}
