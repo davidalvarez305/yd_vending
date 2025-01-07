@@ -72,7 +72,7 @@
 </div>
 
 <script nonce="{{ .Nonce }}">
-    function handleBindTableActions() {
+    function handleLocationAssignmentTableActions() {
         const deleteLocationButtons = document.querySelectorAll(".deleteLocationAssignment");
         const updateLocationButtons = document.querySelectorAll(".updateLocationAssignment");
         const dates = document.querySelectorAll(".locationDateAssigned");
@@ -143,7 +143,7 @@
                 const table = document.getElementById('locationAssignmentsTable');
                 table.outerHTML = html;
                 handleBindPagination();
-                handleBindTableActions();
+                handleLocationAssignmentTableActions();
             })
             .catch(err => {
                 alertModal.outerHTML = err;
@@ -182,7 +182,7 @@
             .then(html => {
                 const table = document.getElementById('locationAssignmentsTable');
                 table.outerHTML = html;
-                handleBindTableActions();
+                handleLocationAssignmentTableActions();
                 handleBindPagination();
             })
             .catch(err => {
@@ -191,6 +191,6 @@
             .finally(() => handleCloseAlertModal());
     }
 
-    document.addEventListener("DOMContentLoaded", () => handleBindTableActions());
+    document.addEventListener("DOMContentLoaded", () => handleLocationAssignmentTableActions());
 </script>
 {{ end }}
