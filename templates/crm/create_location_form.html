@@ -11,7 +11,7 @@
                         <span>Create Location</span>
                     </h3>
                     <div class="-my-4">
-                        <button type="button" id="closeForm"
+                        <button type="button" id="closeLocationForm"
                             class="inline-flex items-center justify-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                             <svg class="hi-solid hi-x -mx-1 inline-block size-4" fill="currentColor" viewBox="0 0 20 20"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -142,11 +142,11 @@
                     </div>
                 </div>
                 <div class="space-x-1 bg-gray-50 px-5 py-4 text-right dark:bg-gray-700/50">
-                    <button type="button" id="cancelForm"
+                    <button type="button" id="cancelLocationForm"
                         class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold leading-5 text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-sm focus:ring focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700">
                         Cancel
                     </button>
-                    <button type="button" id="submitForm"
+                    <button type="button" id="submitLocationForm"
                         class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-700 bg-primary-700 px-3 py-2 text-sm font-semibold leading-5 text-white hover:border-primary-600 hover:bg-primary-600 hover:text-white focus:ring focus:ring-primary-400/50 active:border-primary-700 active:bg-primary-700 dark:focus:ring-primary-400/90">
                         Submit
                     </button>
@@ -191,18 +191,18 @@
 </script>
 
 <script nonce="{{ .Nonce }}">
-    const createLocationForm = document.getElementById("createLocationForm");
-    const cancelForm = document.getElementById("cancelForm");
-    const closeForm = document.getElementById("closeForm");
+    const submitLocationForm = document.getElementById("submitLocationForm");
+    const cancelLocationForm = document.getElementById("cancelLocationForm");
+    const closeLocationForm = document.getElementById("closeLocationForm");
 
     function handleCloseLocationForm() {
         const modal = document.getElementById('formModalContainer');
         modal.style.display = 'none';
     }
 
-    createLocationForm.addEventListener('click', () => handleSubmitLocationForm());
-    cancelForm.addEventListener('click', () => handleCloseLocationForm());
-    closeForm.addEventListener("click", () => handleCloseLocationForm());
+    submitLocationForm.addEventListener('click', () => handleSubmitLocationForm());
+    cancelLocationForm.addEventListener('click', () => handleCloseLocationForm());
+    closeLocationForm.addEventListener("click", () => handleCloseLocationForm());
 
     function handleSubmitLocationForm() {
         const form = document.getElementById("createLocationForm");
