@@ -241,7 +241,6 @@
             .then(html => {
                 const table = document.getElementById('locationsTable');
                 table.outerHTML = html;
-                handleBindPagination();
 
                 form.reset();
             })
